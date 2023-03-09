@@ -70,7 +70,7 @@ class Akropolis extends Table
     Globals::setupNewGame($players, $options);
     Players::setupNewGame($players, $options);
     // Preferences::setupNewGame($players, $this->player_preferences);
-    // Tiles::setupNewGame($players, $options);
+    Tiles::setupNewGame($players, $options);
     $this->activeNextPlayer();
   }
 

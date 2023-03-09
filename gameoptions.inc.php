@@ -36,6 +36,27 @@ $game_options = [
     'default' => OPTION_LIVE_SCORING_ENABLED,
   ],
 
+  \OPTION_ALL_TILES => [
+    'name' => totranslate('All tiles'),
+    'values' => [
+      \OPTION_ALL_TILES_DISABLED => [
+        'name' => totranslate('Disabled'),
+        'description' => totranslate('Always form 11 stack of tiles'),
+      ],
+      \OPTION_ALL_TILES_ENABLED => [
+        'name' => totranslate('Enabled'),
+        'description' => totranslate('Play with the whole set of 61 tiles'),
+      ],
+    ],
+    'default' => OPTION_ALL_TILES_DISABLED,
+    'displaycondition' => [
+      [
+        'type' => 'maxplayers',
+        'value' => [2, 3],
+      ],
+    ],
+  ],
+
   \OPTION_VARIANTS => [
     'name' => totranslate('Variants'),
     'values' => [

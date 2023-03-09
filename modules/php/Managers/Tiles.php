@@ -7,10 +7,36 @@ use AKR\Core\Globals;
 class Tiles extends \AKR\Helpers\Pieces
 {
   protected static $table = 'tiles';
-  protected static $prefix = 'card_';
-  protected static $customFields = ['level', 'player_id', 'extra_datas', 'type'];
-  protected static $autoIncrement = true;
-  protected static $autoremovePrefix = false;
+  protected static $prefix = 'tile_';
+  protected static $customFields = ['player_id', 'x', 'y', 'rotation'];
+  protected static $autoIncrement = false;
+  protected static $autoremovePrefix = true;
+
+  public function setupNewGame($players, $options)
+  {
+    $tiles = [];
+    foreach (self::$tiles as $id => $tile) {
+      // Check number of players of tile
+      if (
+        self::$tilesPlayers[$id] > count($players) &&
+        ($options[OPTION_ALL_TILES] ?? OPTION_ALL_TILES_DISABLED) == OPTION_ALL_TILES_DISABLED
+      ) {
+        continue;
+      }
+
+      $tiles[] = [
+        'id' => $id,
+        'player_id' => null,
+        'x' => 0,
+        'y' => 0,
+        'rotation' => 0,
+      ];
+    }
+
+    // Create the tiles
+    self::create($tiles, 'deck');
+    self::shuffle('deck');
+  }
 
   // protected static function cast($card)
   // {
