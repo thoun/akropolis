@@ -3,7 +3,7 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * Akropolis implementation : © <Your name here> <Your email address here>
+ * Akropolis implementation : © Timothée Pecatte <tim.pecatte@gmail.com>, Guy Baudin <guy.thoun@gmail.com>
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
@@ -12,47 +12,168 @@
  * gameoptions.inc.php
  *
  * Akropolis game options description
- * 
- * In this file, you can define your game options (= game variants).
- *   
- * Note: If your game has no variant, you don't have to modify this file.
- *
- * Note²: All options defined in this file should have a corresponding "game state labels"
- *        with the same ID (see "initGameStateLabels" in akropolis.game.php)
- *
- * !! It is not a good idea to modify this file when a game is running !!
  *
  */
 
-$game_options = array(
+namespace AKR;
 
-    /*
-    
-    // note: game variant ID should start at 100 (ie: 100, 101, 102, ...). The maximum is 199.
-    100 => array(
-                'name' => totranslate('my game option'),    
-                'values' => array(
+require_once 'modules/php/constants.inc.php';
 
-                            // A simple value for this option:
-                            1 => array( 'name' => totranslate('option 1') )
+$game_options = [
+  \OPTION_LIVE_SCORING => [
+    'name' => totranslate('Live scoring'),
+    'values' => [
+      \OPTION_LIVE_SCORING_ENABLED => [
+        'name' => totranslate('Enabled'),
+        'tmdisplay' => totranslate('[Live scoring]'),
+        'description' => totranslate('Live scoring during the game'),
+      ],
+      \OPTION_LIVE_SCORING_DISABLED => [
+        'name' => totranslate('Disabled'),
+        'description' => totranslate('Hidden scores during the game'),
+      ],
+    ],
+    'default' => OPTION_LIVE_SCORING_ENABLED,
+  ],
 
-                            // A simple value for this option.
-                            // If this value is chosen, the value of "tmdisplay" is displayed in the game lobby
-                            2 => array( 'name' => totranslate('option 2'), 'tmdisplay' => totranslate('option 2') ),
+  \OPTION_VARIANTS => [
+    'name' => totranslate('Variants'),
+    'values' => [
+      \OPTION_VARIANTS_NONE => [
+        'name' => totranslate('None'),
+        'description' => totranslate('Only the base rules'),
+      ],
+      \OPTION_VARIANTS_ALL => [
+        'name' => totranslate('All variants'),
+        'tmdisplay' => totranslate('[All variants]'),
+        'description' => totranslate('The five variants will be enabled'),
+        'nobeginner' => true,
+      ],
+      \OPTION_VARIANTS_SOME => [
+        'name' => totranslate('Some variants'),
+        'description' => totranslate('Select the variants you want enabled'),
+        'nobeginner' => true,
+      ],
+    ],
+    'default' => OPTION_VARIANTS_NONE,
+  ],
 
-                            // Another value, with other options:
-                            //  description => this text will be displayed underneath the option when this value is selected to explain what it does
-                            //  beta=true => this option is in beta version right now (there will be a warning)
-                            //  alpha=true => this option is in alpha version right now (there will be a warning, and starting the game will be allowed only in training mode except for the developer)
-                            //  nobeginner=true  =>  this option is not recommended for beginners
-                            //  firstgameonly=true  =>  this option is recommended only for the first game (discovery option)
-                            3 => array( 'name' => totranslate('option 3'), 'description' => totranslate('this option does X'), 'beta' => true, 'nobeginner' => true )
-                        ),
-                'default' => 1
-            ),
+  \OPTION_VARIANT_BARRACK => [
+    'name' => totranslate('Variant for Barrack'),
+    'values' => [
+      \OPTION_VARIANT_DISABLED => [
+        'name' => totranslate('Disabled'),
+        'description' => totranslate('Only the base rule for barracks'),
+      ],
+      \OPTION_VARIANT_ENABLED => [
+        'name' => totranslate('Enabled'),
+        'tmdisplay' => totranslate('[Barrack variant]'),
+        'description' => totranslate('Variant rules for Barracks'),
+        'nobeginner' => true,
+      ],
+    ],
+    'default' => OPTION_VARIANT_DISABLED,
+    'displaycondition' => [
+      [
+        'type' => 'otheroption',
+        'id' => OPTION_VARIANTS,
+        'value' => [OPTION_VARIANTS_SOME],
+      ],
+    ],
+  ],
 
-    */
+  \OPTION_VARIANT_GARDEN => [
+    'name' => totranslate('Variant for gardens'),
+    'values' => [
+      \OPTION_VARIANT_DISABLED => [
+        'name' => totranslate('Disabled'),
+        'description' => totranslate('Only the base rule for gardens'),
+      ],
+      \OPTION_VARIANT_ENABLED => [
+        'name' => totranslate('Enabled'),
+        'tmdisplay' => totranslate('[Gardens variant]'),
+        'description' => totranslate('Variant rules for gardens'),
+        'nobeginner' => true,
+      ],
+    ],
+    'default' => OPTION_VARIANT_DISABLED,
+    'displaycondition' => [
+      [
+        'type' => 'otheroption',
+        'id' => OPTION_VARIANTS,
+        'value' => [OPTION_VARIANTS_SOME],
+      ],
+    ],
+  ],
+  \OPTION_VARIANT_HOUSE => [
+    'name' => totranslate('Variant for houses'),
+    'values' => [
+      \OPTION_VARIANT_DISABLED => [
+        'name' => totranslate('Disabled'),
+        'description' => totranslate('Only the base rule for houses'),
+      ],
+      \OPTION_VARIANT_ENABLED => [
+        'name' => totranslate('Enabled'),
+        'tmdisplay' => totranslate('[Houses variant]'),
+        'description' => totranslate('Variant rules for houses'),
+        'nobeginner' => true,
+      ],
+    ],
+    'default' => OPTION_VARIANT_DISABLED,
+    'displaycondition' => [
+      [
+        'type' => 'otheroption',
+        'id' => OPTION_VARIANTS,
+        'value' => [OPTION_VARIANTS_SOME],
+      ],
+    ],
+  ],
+  \OPTION_VARIANT_MARKET => [
+    'name' => totranslate('Variant for markets'),
+    'values' => [
+      \OPTION_VARIANT_DISABLED => [
+        'name' => totranslate('Disabled'),
+        'description' => totranslate('Only the base rule for markets'),
+      ],
+      \OPTION_VARIANT_ENABLED => [
+        'name' => totranslate('Enabled'),
+        'tmdisplay' => totranslate('[Markets variant]'),
+        'description' => totranslate('Variant rules for markets'),
+        'nobeginner' => true,
+      ],
+    ],
+    'default' => OPTION_VARIANT_DISABLED,
+    'displaycondition' => [
+      [
+        'type' => 'otheroption',
+        'id' => OPTION_VARIANTS,
+        'value' => [OPTION_VARIANTS_SOME],
+      ],
+    ],
+  ],
+  \OPTION_VARIANT_TEMPLE => [
+    'name' => totranslate('Variant for gardens'),
+    'values' => [
+      \OPTION_VARIANT_DISABLED => [
+        'name' => totranslate('Disabled'),
+        'description' => totranslate('Only the base rule for gardens'),
+      ],
+      \OPTION_VARIANT_ENABLED => [
+        'name' => totranslate('Enabled'),
+        'tmdisplay' => totranslate('[Gardens variant]'),
+        'description' => totranslate('Variant rules for gardens'),
+        'nobeginner' => true,
+      ],
+    ],
+    'default' => OPTION_VARIANT_DISABLED,
+    'displaycondition' => [
+      [
+        'type' => 'otheroption',
+        'id' => OPTION_VARIANTS,
+        'value' => [OPTION_VARIANTS_SOME],
+      ],
+    ],
+  ],
+];
 
-);
-
-
+$game_preferences = [];
