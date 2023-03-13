@@ -37,7 +37,7 @@ var PlayerTable = /** @class */ (function () {
     }
     PlayerTable.prototype.createGrid = function (grid) {
         var _this = this;
-        Object.keys(grid).forEach(function (x) { return Object.keys(grid[x]).forEach(function (y) { return Object.keys(grid).forEach(function (z) {
+        Object.keys(grid).forEach(function (x) { return Object.keys(grid[x]).forEach(function (y) { return Object.keys(grid[x][y]).forEach(function (z) {
             _this.createHex(Number(x), Number(y), Number(z), grid[x][y]);
         }); }); });
     };
@@ -46,7 +46,7 @@ var PlayerTable = /** @class */ (function () {
         var typeArray = types[0].split('-');
         var type = typeArray[0];
         var plaza = typeArray[1] === 'plaza';
-        dojo.place("<div class=\"temp-hex\" style=\"--x: ".concat(x, "; --y: ").concat(y, "; --z: ").concat(z, ";\" data-type=\"").concat(type, "\" data-plaza=\"").concat(plaza, "\">").concat(type).concat(plaza ? "<br>(".concat((_a = typeArray[1]) !== null && _a !== void 0 ? _a : '', ")") : '', "</div>"), document.getElementById("player-table-".concat(this.playerId, "-city")));
+        dojo.place("<div class=\"temp-hex\" style=\"--x: ".concat(x, "; --y: ").concat(y, "; --z: ").concat(z, ";\" data-type=\"").concat(type, "\" data-plaza=\"").concat(plaza, "\">").concat(type).concat(plaza ? "<br>(".concat((_a = typeArray[1]) !== null && _a !== void 0 ? _a : '', ")") : '', "<br>").concat(x, ", ").concat(y, ", ").concat(z, "</div>"), document.getElementById("player-table-".concat(this.playerId, "-city")));
     };
     return PlayerTable;
 }());

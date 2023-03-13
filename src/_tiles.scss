@@ -12,7 +12,8 @@
   top: calc(200px + (var(--hex-height) * var(--y) / 2));
   background-image: url("img/sprite.png");
   background-size: auto 350%;
-  text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white;
+  font-weight: bold;
+  text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
   display: flex;
   justify-content: center;

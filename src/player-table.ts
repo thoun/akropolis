@@ -24,7 +24,7 @@ class PlayerTable {
     }
 
     private createGrid(grid: PlayerGrid) {
-        Object.keys(grid).forEach(x => Object.keys(grid[x]).forEach(y => Object.keys(grid).forEach(z => {
+        Object.keys(grid).forEach(x => Object.keys(grid[x]).forEach(y => Object.keys(grid[x][y]).forEach(z => {
             this.createHex(Number(x), Number(y), Number(z), grid[x][y]);
         })));
     }
@@ -34,7 +34,7 @@ class PlayerTable {
         const type = typeArray[0];
         const plaza = typeArray[1] === 'plaza';
 
-        dojo.place(`<div class="temp-hex" style="--x: ${x}; --y: ${y}; --z: ${z};" data-type="${type}" data-plaza="${plaza}">${type}${plaza ? `<br>(${typeArray[1] ?? ''})` : ''}</div>`, document.getElementById(`player-table-${this.playerId}-city`));
+        dojo.place(`<div class="temp-hex" style="--x: ${x}; --y: ${y}; --z: ${z};" data-type="${type}" data-plaza="${plaza}">${type}${plaza ? `<br>(${typeArray[1] ?? ''})` : ''}<br>${x}, ${y}, ${z}</div>`, document.getElementById(`player-table-${this.playerId}-city`));
     }
 
 }
