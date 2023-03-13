@@ -4,7 +4,9 @@
 
 interface PlayerGrid {
     [x: number]: {
-        [y: number]: string[];
+        [y: number]: {
+            [z: number]: string;
+        }
     }
 }
 

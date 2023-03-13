@@ -37,9 +37,9 @@ var PlayerTable = /** @class */ (function () {
     }
     PlayerTable.prototype.createGrid = function (grid) {
         var _this = this;
-        Object.keys(grid).forEach(function (x) { return Object.keys(grid[x]).forEach(function (y) {
-            _this.createHex(Number(x), Number(y), 1, grid[x][y]);
-        }); });
+        Object.keys(grid).forEach(function (x) { return Object.keys(grid[x]).forEach(function (y) { return Object.keys(grid).forEach(function (z) {
+            _this.createHex(Number(x), Number(y), Number(z), grid[x][y]);
+        }); }); });
     };
     PlayerTable.prototype.createHex = function (x, y, z, types) {
         var _a;

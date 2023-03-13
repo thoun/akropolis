@@ -24,9 +24,9 @@ class PlayerTable {
     }
 
     private createGrid(grid: PlayerGrid) {
-        Object.keys(grid).forEach(x => Object.keys(grid[x]).forEach(y => {
-            this.createHex(Number(x), Number(y), 1, grid[x][y]);
-        }));
+        Object.keys(grid).forEach(x => Object.keys(grid[x]).forEach(y => Object.keys(grid).forEach(z => {
+            this.createHex(Number(x), Number(y), Number(z), grid[x][y]);
+        })));
     }
     
     private createHex(x: number, y: number, z: number, types: string[]) {
