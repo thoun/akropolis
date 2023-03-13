@@ -57,5 +57,7 @@ const GARDEN = 'garden-district';
 const GARDEN_PLAZA = 'garden-plaza';
 const QUARRY = 'quarry';
 
+const TILE_GEOMETRY = [[0, 0], [0, 2], [1, 1]];
+
 const DISTRICTS = [BARRACK, HOUSE, MARKET, TEMPLE, GARDEN];
 const PLAZAS = [BARRACK_PLAZA, HOUSE_PLAZA, MARKET_PLAZA, TEMPLE_PLAZA, GARDEN_PLAZA];

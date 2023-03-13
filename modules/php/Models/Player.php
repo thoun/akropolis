@@ -51,4 +51,14 @@ class Player extends \AKR\Helpers\DB_Model
     $name = 'get' . \ucfirst($name);
     return Stats::$name($this->id);
   }
+
+  // Cached attribute
+  protected $board = null;
+  public function board()
+  {
+    if ($this->board == null) {
+      $this->board = new Board($this);
+    }
+    return $this->board;
+  }
 }

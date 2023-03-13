@@ -14,10 +14,10 @@ CREATE TABLE IF NOT EXISTS `tiles` (
   `tile_location` varchar(32) NOT NULL,
   `tile_state` int(10) DEFAULT 0,
   `player_id` int(10) NULL,
-  `type` varchar(100),
   `x` int(10) NOT NULL,
   `y` int(10) NOT NULL,
-  `rotation` int(10) NOT NULL,
+  `z` int(10) NOT NULL,
+  `r` int(10) NOT NULL,
   PRIMARY KEY (`tile_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

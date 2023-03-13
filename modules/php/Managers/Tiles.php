@@ -8,9 +8,23 @@ class Tiles extends \AKR\Helpers\Pieces
 {
   protected static $table = 'tiles';
   protected static $prefix = 'tile_';
-  protected static $customFields = ['player_id', 'x', 'y', 'rotation'];
+  protected static $customFields = ['player_id', 'x', 'y', 'z', 'r'];
   protected static $autoIncrement = false;
   protected static $autoremovePrefix = true;
+
+  protected static function cast($tile)
+  {
+    return [
+      'id' => (int) $tile['id'],
+      'location' => $tile['location'],
+      'pId' => (int) $tile['player_id'],
+      'x' => (int) $tile['x'],
+      'y' => (int) $tile['y'],
+      'z' => (int) $tile['z'],
+      'r' => (int) $tile['r'],
+      'hexes' => self::$tiles[$tile['id']],
+    ];
+  }
 
   public function setupNewGame($players, $options)
   {
@@ -29,7 +43,7 @@ class Tiles extends \AKR\Helpers\Pieces
         'player_id' => null,
         'x' => 0,
         'y' => 0,
-        'rotation' => 0,
+        'r' => 0,
       ];
     }
 
@@ -38,16 +52,28 @@ class Tiles extends \AKR\Helpers\Pieces
     self::shuffle('deck');
   }
 
-  // protected static function cast($card)
-  // {
-  //   return self::getInstance($card['type'], $card);
-  // }
+  public static function getOfPlayer($pId)
+  {
+    return self::getSelectQuery()
+      ->wherePlayer($pId)
+      ->get();
+  }
 
-  // protected static function getInstance($type, $row = null)
-  // {
-  //   $className = '' . $type;
-  //   return new $className($row);
-  // }
+  public function add($tileId, $pId, $pos, $rotation)
+  {
+    self::DB()->update(
+      [
+        'location' => 'board',
+        'player_id' => $pId,
+        'x' => $pos['x'],
+        'y' => $pos['y'],
+        'z' => $pos['z'],
+        'r' => $rotation,
+      ],
+      $tileId
+    );
+    return self::getSingle($tileId);
+  }
 
   public static $tiles = [
     #1

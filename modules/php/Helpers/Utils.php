@@ -47,11 +47,16 @@ abstract class Utils extends \APP_DbObject
     throw new \BgaVisibleSystemException(json_encode($args));
   }
 
+  public static function compareZones($a, $b)
+  {
+    return $a['x'] == $b['x'] ? ($a['y'] == $b['y'] ? $a['z'] - $b['z'] : $a['y'] - $b['y']) : $a['x'] - $b['x'];
+  }
+
   public static function uniqueZones($arr1)
   {
     return array_values(
       array_uunique($arr1, function ($a, $b) {
-        return $a['x'] == $b['x'] ? $a['y'] - $b['y'] : $a['x'] - $b['x'];
+        return self::compareZones($a, $b);
       })
     );
   }
@@ -63,7 +68,7 @@ abstract class Utils extends \APP_DbObject
   {
     return array_values(
       \array_uintersect($arr1, $arr2, function ($a, $b) {
-        return $a['x'] == $b['x'] ? $a['y'] - $b['y'] : $a['x'] - $b['x'];
+        return self::compareZones($a, $b);
       })
     );
   }
@@ -75,7 +80,7 @@ abstract class Utils extends \APP_DbObject
   {
     return array_values(
       array_udiff($arr1, $arr2, function ($a, $b) {
-        return $a['x'] == $b['x'] ? $a['y'] - $b['y'] : $a['x'] - $b['x'];
+        return self::compareZones($a, $b);
       })
     );
   }

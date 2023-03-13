@@ -7,4 +7,12 @@ use AKR\Managers\Tiles;
 
 trait TurnTrait
 {
+  public function argsPlaceTile()
+  {
+    $player = Players::getActive();
+    $options = $player->board()->getPlacementOptions();
+    return [
+      'options' => $options,
+    ];
+  }
 }
