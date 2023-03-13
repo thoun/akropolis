@@ -6,6 +6,12 @@ use AKR\Managers\Tiles;
 
 trait DebugTrait
 {
+  function placeTile($tileId, $x, $y, $z, $rotation)
+  {
+    $player = Players::getCurrent();
+    $player->board()->addTile($tileId, ['x' => $x, 'y' => $y, 'z' => $z], $rotation);
+  }
+
   function tp()
   {
   }

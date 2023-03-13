@@ -92,8 +92,8 @@ class Board
    */
   public function addTile($tileId, $pos, $rotation)
   {
-    $tile = Tiles::add($this->pId, $tileId, $pos, $rotation);
-    $this->tiles[$$tileId] = $tile;
+    $tile = Tiles::add($tileId, $this->pId, $pos, $rotation);
+    $this->tiles[$tileId] = $tile;
     $this->addTileAux($tile);
   }
 
@@ -119,7 +119,7 @@ class Board
   // Same thing for a given DB result representing a building
   public function getTileCoveredHexes($tile)
   {
-    return $this->getCoveredHexes(self::extractPos($tile), $tile['rotation']);
+    return $this->getCoveredHexes(self::extractPos($tile), $tile['r']);
   }
 
   /**
@@ -168,12 +168,13 @@ class Board
         if (!$this->isCellBuilt($cellBelow)) {
           return false;
         }
-        $coveredTileIds[] = $this->getTileIdAtPos($cellBellow);
+        $coveredTileIds[] = $this->getTileIdAtPos($cellBelow);
         $touchExisting = true;
       }
     }
 
     // Z > 0 : check also that this is not covering only a single tile
+    $coveredTileIds = array_unique($coveredTileIds);
     if (count($coveredTileIds) == 1) {
       return false;
     }
@@ -237,7 +238,7 @@ class Board
   {
     $column = $this->grid[$cell['x']][$cell['y']] ?? [];
     $heights = array_keys($column);
-    $cell['z'] = empty($heights) ? 0 : max($heights);
+    $cell['z'] = empty($heights) ? 0 : max($heights) + 1;
     return $cell;
   }
 

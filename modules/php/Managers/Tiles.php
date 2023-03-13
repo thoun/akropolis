@@ -63,7 +63,7 @@ class Tiles extends \AKR\Helpers\Pieces
   {
     self::DB()->update(
       [
-        'location' => 'board',
+        'tile_location' => 'board',
         'player_id' => $pId,
         'x' => $pos['x'],
         'y' => $pos['y'],

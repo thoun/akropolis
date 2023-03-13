@@ -38,7 +38,7 @@ const OPTION_CONFIRM_ENABLED = 2;
  * State constants
  */
 const ST_GAME_SETUP = 1;
-
+const ST_PLACE_TILE = 2;
 const ST_PRE_END_OF_GAME = 98;
 const ST_END_GAME = 99;
 

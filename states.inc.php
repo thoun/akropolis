@@ -21,19 +21,17 @@ $machinestates = [
     'description' => '',
     'type' => 'manager',
     'action' => 'stGameSetup',
-    'transitions' => ['' => 2],
+    'transitions' => ['' => ST_PLACE_TILE],
   ],
 
-  // Note: ID=2 => your first state
-
-  2 => [
-    'name' => 'playerTurn',
-    'description' => clienttranslate('${actplayer} must play a card or pass'),
-    'descriptionmyturn' => clienttranslate('${you} must play a card or pass'),
+  ST_PLACE_TILE => [
+    'name' => 'placeTile',
+    'description' => clienttranslate('${actplayer} must place a tile in their city'),
+    'descriptionmyturn' => clienttranslate('${you} must play a tile in their city'),
     'type' => 'activeplayer',
     'args' => 'argsPlaceTile',
-    'possibleactions' => ['playCard', 'pass'],
-    'transitions' => ['playCard' => 2, 'pass' => 2],
+    'possibleactions' => ['placeTile'],
+    'transitions' => ['placeTile' => ST_PLACE_TILE],
   ],
 
   // Final state.
