@@ -38,15 +38,15 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.createGrid = function (grid) {
         var _this = this;
         Object.keys(grid).forEach(function (x) { return Object.keys(grid[x]).forEach(function (y) {
-            _this.createHex(Number(x), Number(y), grid[x][y]);
+            _this.createHex(Number(x), Number(y), 1, grid[x][y]);
         }); });
     };
-    PlayerTable.prototype.createHex = function (x, y, types) {
+    PlayerTable.prototype.createHex = function (x, y, z, types) {
         var _a;
         var typeArray = types[0].split('-');
         var type = typeArray[0];
         var plaza = typeArray[1] === 'plaza';
-        dojo.place("<div class=\"temp-hex\" style=\"--x: ".concat(x, "; --y: ").concat(y, "; --z: 1;\" data-type=\"").concat(type, "\" data-plaza=\"").concat(plaza, "\">").concat(type).concat(plaza ? "<br>(".concat((_a = typeArray[1]) !== null && _a !== void 0 ? _a : '', ")") : '', "</div>"), document.getElementById("player-table-".concat(this.playerId, "-city")));
+        dojo.place("<div class=\"temp-hex\" style=\"--x: ".concat(x, "; --y: ").concat(y, "; --z: ").concat(z, ";\" data-type=\"").concat(type, "\" data-plaza=\"").concat(plaza, "\">").concat(type).concat(plaza ? "<br>(".concat((_a = typeArray[1]) !== null && _a !== void 0 ? _a : '', ")") : '', "</div>"), document.getElementById("player-table-".concat(this.playerId, "-city")));
     };
     return PlayerTable;
 }());
@@ -62,6 +62,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
         this.playersTables = [];
+        this.stonesCounters = [];
         this.TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
     }
     /*
@@ -198,10 +199,17 @@ var Akropolis = /** @class */ (function () {
         return orderedPlayers;
     };
     Akropolis.prototype.createPlayerPanels = function (gamedatas) {
+        var _this = this;
         Object.values(gamedatas.players).forEach(function (player) {
             var playerId = Number(player.id);
-            // TODO
+            // hand cards counter
+            dojo.place("<div class=\"counters\">\n                <div id=\"stones-counter-wrapper-".concat(player.id, "\" class=\"stones-counter\">\n                    <div class=\"stones icon\"></div> \n                    <span id=\"stones-counter-").concat(player.id, "\"></span>\n                </div>\n            </div>"), "player_board_".concat(player.id));
+            var stonesCounter = new ebg.counter();
+            stonesCounter.create("stones-counter-".concat(playerId));
+            stonesCounter.setValue(player.money);
+            _this.stonesCounters[playerId] = stonesCounter;
         });
+        this.setTooltipToClass('stones-counter', _('Number of stones'));
     };
     Akropolis.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;

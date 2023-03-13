@@ -25,16 +25,16 @@ class PlayerTable {
 
     private createGrid(grid: PlayerGrid) {
         Object.keys(grid).forEach(x => Object.keys(grid[x]).forEach(y => {
-            this.createHex(Number(x), Number(y), grid[x][y]);
+            this.createHex(Number(x), Number(y), 1, grid[x][y]);
         }));
     }
     
-    private createHex(x: number, y: number, types: string[]) {
+    private createHex(x: number, y: number, z: number, types: string[]) {
         const typeArray = types[0].split('-');
         const type = typeArray[0];
         const plaza = typeArray[1] === 'plaza';
 
-        dojo.place(`<div class="temp-hex" style="--x: ${x}; --y: ${y}; --z: 1;" data-type="${type}" data-plaza="${plaza}">${type}${plaza ? `<br>(${typeArray[1] ?? ''})` : ''}</div>`, document.getElementById(`player-table-${this.playerId}-city`));
+        dojo.place(`<div class="temp-hex" style="--x: ${x}; --y: ${y}; --z: ${z};" data-type="${type}" data-plaza="${plaza}">${type}${plaza ? `<br>(${typeArray[1] ?? ''})` : ''}</div>`, document.getElementById(`player-table-${this.playerId}-city`));
     }
 
 }

@@ -11,6 +11,7 @@ class Akropolis implements AkropolisGame {
     private gamedatas: AkropolisGamedatas;
     private tableCenter: TableCenter;
     private playersTables: PlayerTable[] = [];
+    private stonesCounters: Counter[] = [];
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
@@ -185,8 +186,21 @@ class Akropolis implements AkropolisGame {
         Object.values(gamedatas.players).forEach(player => {
             const playerId = Number(player.id);   
 
-            // TODO
+            // hand cards counter
+            dojo.place(`<div class="counters">
+                <div id="stones-counter-wrapper-${player.id}" class="stones-counter">
+                    <div class="stones icon"></div> 
+                    <span id="stones-counter-${player.id}"></span>
+                </div>
+            </div>`, `player_board_${player.id}`);
+
+            const stonesCounter = new ebg.counter();
+            stonesCounter.create(`stones-counter-${playerId}`);
+            stonesCounter.setValue(player.money);
+            this.stonesCounters[playerId] = stonesCounter;
         });
+
+        this.setTooltipToClass('stones-counter', _('Number of stones'));
     }
 
     private createPlayerTables(gamedatas: AkropolisGamedatas) {
