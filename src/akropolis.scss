@@ -59,6 +59,12 @@
   }
 }
 
+.score-icon {
+  background: url('img/score-icons.png');
+  background-size: 200% auto;
+  vertical-align: middle;
+}
+
 // TODO
 
 #full-table {
@@ -411,20 +417,6 @@ html, .mode_3d {
 .tile .face.subface2 {
   top: 71.5px;
   right: 0.5px
-}
-
-.counters {
-  float: left;
-  margin-left: 15px;
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center
-}
-
-.counters div {
-  display: flex;
-  align-items: center;
-  margin-bottom: 2px
 }
 
 .pieceicon {

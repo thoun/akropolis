@@ -214,14 +214,44 @@
 .player-board .counters .icon {
   margin-right: 5px;
 }
-.player-board .stones.icon {
+.player-board .score-icon {
   display: inline-block;
-  width: 32px;
-  height: 32px;
-  background-image: url("img/stone.png");
-  background-size: contain;
+  width: 24px;
+  height: 24px;
   background-repeat: no-repeat;
-  vertical-align: bottom;
+}
+.player-board .score-icon.stone {
+  background-position: 0% 0%;
+}
+.player-board .score-icon[data-type="1"] {
+  background-position: 0% 20%;
+}
+.player-board .score-icon[data-type="1"].star {
+  background-position-x: 100%;
+}
+.player-board .score-icon[data-type="2"] {
+  background-position: 0% 40%;
+}
+.player-board .score-icon[data-type="2"].star {
+  background-position-x: 100%;
+}
+.player-board .score-icon[data-type="3"] {
+  background-position: 0% 60%;
+}
+.player-board .score-icon[data-type="3"].star {
+  background-position-x: 100%;
+}
+.player-board .score-icon[data-type="4"] {
+  background-position: 0% 80%;
+}
+.player-board .score-icon[data-type="4"].star {
+  background-position-x: 100%;
+}
+.player-board .score-icon[data-type="5"] {
+  background-position: 0% 100%;
+}
+.player-board .score-icon[data-type="5"].star {
+  background-position-x: 100%;
 }
 
 .city {
@@ -238,6 +268,12 @@
     margin-top: 8px;
   }
 }
+.score-icon {
+  background: url("img/score-icons.png");
+  background-size: 200% auto;
+  vertical-align: middle;
+}
+
 #full-table {
   width: 100%;
   display: flex;
@@ -585,20 +621,6 @@ html, .mode_3d {
 .tile .face.subface2 {
   top: 71.5px;
   right: 0.5px;
-}
-
-.counters {
-  float: left;
-  margin-left: 15px;
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.counters div {
-  display: flex;
-  align-items: center;
-  margin-bottom: 2px;
 }
 
 .pieceicon {

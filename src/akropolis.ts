@@ -12,6 +12,9 @@ class Akropolis implements AkropolisGame {
     private tableCenter: TableCenter;
     private playersTables: PlayerTable[] = [];
     private stonesCounters: Counter[] = [];
+    private hexesCounters: Counter[][] = [];
+    private starsCounters: Counter[][] = [];
+    private colorPointsCounters: Counter[][] = [];
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
@@ -186,10 +189,10 @@ class Akropolis implements AkropolisGame {
         Object.values(gamedatas.players).forEach(player => {
             const playerId = Number(player.id);   
 
-            // hand cards counter
+            // Stones counter
             dojo.place(`<div class="counters">
                 <div id="stones-counter-wrapper-${player.id}" class="stones-counter">
-                    <div class="stones icon"></div> 
+                    <div class="stone score-icon"></div> 
                     <span id="stones-counter-${player.id}"></span>
                 </div>
             </div>`, `player_board_${player.id}`);
@@ -198,9 +201,43 @@ class Akropolis implements AkropolisGame {
             stonesCounter.create(`stones-counter-${playerId}`);
             stonesCounter.setValue(player.money);
             this.stonesCounters[playerId] = stonesCounter;
+
+            this.hexesCounters[playerId] = [];
+            this.starsCounters[playerId] = [];
+            this.colorPointsCounters[playerId] = [];
+            for (let i = 1; i <= 5; i++) {
+
+                dojo.place(`<div class="counters">
+                    <div id="color-points-${i}-counter-wrapper-${player.id}" class="color-points-counter">
+                        <div class="score-icon" data-type="${i}"></div> 
+                        <span id="hexes-${i}-counter-${player.id}"></span>
+                        <span class="multiplier">×</span>
+                        <div class="score-icon star" data-type="${i}"></div> 
+                        <span id="stars-${i}-counter-${player.id}"></span>
+                        <span class="multiplier">=</span>
+                        <span id="color-points-${i}-counter-${player.id}"></span>
+                    </div>
+                </div>`, `player_board_${player.id}`);
+    
+                const hexCounter: Counter = new ebg.counter();
+                hexCounter.create(`hexes-${i}-counter-${playerId}`);
+                hexCounter.setValue(0); // TODO
+                this.hexesCounters[playerId][i] = hexCounter;
+    
+                const starCounter: Counter = new ebg.counter();
+                starCounter.create(`stars-${i}-counter-${playerId}`);
+                starCounter.setValue(0); // TODO
+                this.starsCounters[playerId][i] = starCounter;
+    
+                const colorPointsCounter: Counter = new ebg.counter();
+                colorPointsCounter.create(`color-points-${i}-counter-${playerId}`);
+                colorPointsCounter.setValue(hexCounter.getValue() * starCounter.getValue());
+                this.colorPointsCounters[playerId][i] = colorPointsCounter;
+            }
         });
 
         this.setTooltipToClass('stones-counter', _('Number of stones'));
+        this.setTooltipToClass('color-points-counter', _('Score for this color (number of valid districts multiplied by matching stars)'));
     }
 
     private createPlayerTables(gamedatas: AkropolisGamedatas) {

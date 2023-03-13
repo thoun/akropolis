@@ -63,6 +63,9 @@ var Akropolis = /** @class */ (function () {
     function Akropolis() {
         this.playersTables = [];
         this.stonesCounters = [];
+        this.hexesCounters = [];
+        this.starsCounters = [];
+        this.colorPointsCounters = [];
         this.TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
     }
     /*
@@ -202,14 +205,33 @@ var Akropolis = /** @class */ (function () {
         var _this = this;
         Object.values(gamedatas.players).forEach(function (player) {
             var playerId = Number(player.id);
-            // hand cards counter
-            dojo.place("<div class=\"counters\">\n                <div id=\"stones-counter-wrapper-".concat(player.id, "\" class=\"stones-counter\">\n                    <div class=\"stones icon\"></div> \n                    <span id=\"stones-counter-").concat(player.id, "\"></span>\n                </div>\n            </div>"), "player_board_".concat(player.id));
+            // Stones counter
+            dojo.place("<div class=\"counters\">\n                <div id=\"stones-counter-wrapper-".concat(player.id, "\" class=\"stones-counter\">\n                    <div class=\"stone score-icon\"></div> \n                    <span id=\"stones-counter-").concat(player.id, "\"></span>\n                </div>\n            </div>"), "player_board_".concat(player.id));
             var stonesCounter = new ebg.counter();
             stonesCounter.create("stones-counter-".concat(playerId));
             stonesCounter.setValue(player.money);
             _this.stonesCounters[playerId] = stonesCounter;
+            _this.hexesCounters[playerId] = [];
+            _this.starsCounters[playerId] = [];
+            _this.colorPointsCounters[playerId] = [];
+            for (var i = 1; i <= 5; i++) {
+                dojo.place("<div class=\"counters\">\n                    <div id=\"color-points-".concat(i, "-counter-wrapper-").concat(player.id, "\" class=\"color-points-counter\">\n                        <div class=\"score-icon\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"hexes-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">\u00D7</span>\n                        <div class=\"score-icon star\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"stars-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">=</span>\n                        <span id=\"color-points-").concat(i, "-counter-").concat(player.id, "\"></span>\n                    </div>\n                </div>"), "player_board_".concat(player.id));
+                var hexCounter = new ebg.counter();
+                hexCounter.create("hexes-".concat(i, "-counter-").concat(playerId));
+                hexCounter.setValue(0); // TODO
+                _this.hexesCounters[playerId][i] = hexCounter;
+                var starCounter = new ebg.counter();
+                starCounter.create("stars-".concat(i, "-counter-").concat(playerId));
+                starCounter.setValue(0); // TODO
+                _this.starsCounters[playerId][i] = starCounter;
+                var colorPointsCounter = new ebg.counter();
+                colorPointsCounter.create("color-points-".concat(i, "-counter-").concat(playerId));
+                colorPointsCounter.setValue(hexCounter.getValue() * starCounter.getValue());
+                _this.colorPointsCounters[playerId][i] = colorPointsCounter;
+            }
         });
         this.setTooltipToClass('stones-counter', _('Number of stones'));
+        this.setTooltipToClass('color-points-counter', _('Score for this color (number of valid districts multiplied by matching stars)'));
     };
     Akropolis.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
