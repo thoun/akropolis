@@ -3,6 +3,18 @@ var TilesManager = /** @class */ (function () {
         this.game = game;
         // TODO
     }
+    TilesManager.prototype.createTile = function () {
+        var tile = document.createElement('div');
+        tile.id = "tile_11";
+        tile.classList.add("tile", "rotate60", "level1");
+        tile.style.left = "-77px";
+        tile.style.top = "7px";
+        tile.innerHTML = "\n        <div id=\"tile_11\" class=\"tile rotate60 level1\" style=\"left: -77px; top: -70px;\">\n            <div id=\"hex_11_0\" class=\"subface0 face face-6\" title=\"Volcan, niveau 1\"></div>\n            <div id=\"hex_11_1\" class=\"subface1 face face-1\" title=\"For\u00EAt, niveau 1\">\n                <div class=\"facelabel\">1</div>\n            </div>\n            <div id=\"hex_11_2\" class=\"subface2 face face-2\" title=\"Prairie, niveau 1\">\n                <div class=\"facelabel\">1</div>\n            </div>\n            <div class=\"sides\">\n                <div class=\"side side1\"></div>\n                <div class=\"side side2\"></div>\n                <div class=\"side side3\"></div>\n                <div class=\"side side4\"></div>\n                <div class=\"side side5\"></div>\n                <div class=\"side side6\"></div>\n            </div>\n        </div>\n        ";
+        return tile;
+    };
+    TilesManager.prototype.testTile = function () {
+        document.getElementById('test').appendChild(this.createTile());
+    };
     return TilesManager;
 }());
 var TableCenter = /** @class */ (function () {
@@ -19,8 +31,23 @@ var PlayerTable = /** @class */ (function () {
         this.game = game;
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
-        // TODO
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n            </div>\n            <div id=\"player-table-").concat(this.playerId, "-city\" class=\"city\"></div>\n        </div>\n        ");
+        dojo.place(html, document.getElementById('tables'));
+        this.createGrid(player.board.grid);
     }
+    PlayerTable.prototype.createGrid = function (grid) {
+        var _this = this;
+        Object.keys(grid).forEach(function (x) { return Object.keys(grid[x]).forEach(function (y) {
+            _this.createHex(Number(x), Number(y), grid[x][y]);
+        }); });
+    };
+    PlayerTable.prototype.createHex = function (x, y, types) {
+        var _a;
+        var typeArray = types[0].split('-');
+        var type = typeArray[0];
+        var plaza = typeArray[1] === 'plaza';
+        dojo.place("<div class=\"temp-hex\" style=\"--x: ".concat(x, "; --y: ").concat(y, "; --z: 1;\" data-type=\"").concat(type, "\" data-plaza=\"").concat(plaza, "\">").concat(type).concat(plaza ? "<br>(".concat((_a = typeArray[1]) !== null && _a !== void 0 ? _a : '', ")") : '', "</div>"), document.getElementById("player-table-".concat(this.playerId, "-city")));
+    };
     return PlayerTable;
 }());
 var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
@@ -53,9 +80,12 @@ var Akropolis = /** @class */ (function () {
         log("Starting game setup");
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
+        this.tilesManager = new TilesManager(this);
         this.tableCenter = new TableCenter(this, this.gamedatas);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
+        // TODO temp
+        // this.tilesManager.testTile();
         this.setupNotifications();
         this.setupPreferences();
         // this.addHelp();
@@ -162,7 +192,7 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.getOrderedPlayers = function (gamedatas) {
         var _this = this;
-        var players = Object.values(gamedatas.players).sort(function (a, b) { return a.playerNo - b.playerNo; });
+        var players = Object.values(gamedatas.players).sort(function (a, b) { return a.no - b.no; });
         var playerIndex = players.findIndex(function (player) { return Number(player.id) === Number(_this.player_id); });
         var orderedPlayers = playerIndex > 0 ? __spreadArray(__spreadArray([], players.slice(playerIndex), true), players.slice(0, playerIndex), true) : players;
         return orderedPlayers;

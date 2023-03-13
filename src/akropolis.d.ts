@@ -2,9 +2,18 @@
  * Your game interfaces
  */
 
+interface PlayerGrid {
+    [x: number]: {
+        [y: number]: string[];
+    }
+}
+
 interface AkropolisPlayer extends Player {
-    playerNo: number;
-    // TODO
+    no: number;
+    money: number;
+    board: {
+        grid: PlayerGrid;
+    };
 }
 
 interface AkropolisGamedatas {
@@ -24,6 +33,8 @@ interface AkropolisGamedatas {
 }
 
 interface AkropolisGame extends Game {
+    tilesManager: TilesManager;
+
     getPlayerId(): number;
 
     setTooltip(id: string, html: string): void;  

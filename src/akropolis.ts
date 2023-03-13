@@ -6,6 +6,7 @@ declare const _;
 declare const g_gamethemeurl;
 
 class Akropolis implements AkropolisGame {
+    public tilesManager: TilesManager;
 
     private gamedatas: AkropolisGamedatas;
     private tableCenter: TableCenter;
@@ -36,9 +37,14 @@ class Akropolis implements AkropolisGame {
 
         log('gamedatas', gamedatas);
 
+        this.tilesManager = new TilesManager(this);
+
         this.tableCenter = new TableCenter(this, this.gamedatas);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
+        
+        // TODO temp
+        // this.tilesManager.testTile();
 
         this.setupNotifications();
         this.setupPreferences();
@@ -168,7 +174,7 @@ class Akropolis implements AkropolisGame {
     }
 
     private getOrderedPlayers(gamedatas: AkropolisGamedatas) {
-        const players = Object.values(gamedatas.players).sort((a, b) => a.playerNo - b.playerNo);
+        const players = Object.values(gamedatas.players).sort((a, b) => a.no - b.no);
         const playerIndex = players.findIndex(player => Number(player.id) === Number((this as any).player_id));
         const orderedPlayers = playerIndex > 0 ? [...players.slice(playerIndex), ...players.slice(0, playerIndex)] : players;
         return orderedPlayers;

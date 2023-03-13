@@ -43,10 +43,746 @@
 */
 /* Note: you must not use any @import directive */
 /********* You can start writing your CSS below this line: **********/
+:root {
+  --hex-side: 48.5px;
+  --hex-height: 84px;
+}
+
+.temp-hex {
+  position: absolute;
+  width: calc(var(--hex-side) * 2);
+  height: var(--hex-height);
+  background: lightcyan;
+  left: calc(400px - var(--hex-side) + var(--hex-side) * var(--x) * 1.5);
+  top: calc(200px + var(--hex-height) * var(--y) / 2);
+  background-image: url("img/sprite.png");
+  background-size: auto 350%;
+  text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.temp-hex[data-type=quarry] {
+  background-position: 66% 80%;
+}
+.temp-hex[data-type=house] {
+  background-position: 66% 0%;
+}
+.temp-hex[data-type=house][data-plaza=true] {
+  background-position: 100% 20%;
+}
+.temp-hex[data-type=market] {
+  background-position: 66% 40%;
+}
+.temp-hex[data-type=market][data-plaza=true] {
+  background-position: 100% 60%;
+}
+.temp-hex[data-type=barrack] {
+  background-position: 33% 20%;
+}
+.temp-hex[data-type=barrack][data-plaza=true] {
+  background-position: 0% 0%;
+}
+.temp-hex[data-type=temple] {
+  background-position: 0% 80%;
+}
+.temp-hex[data-type=temple][data-plaza=true] {
+  background-position: 33% 100%;
+}
+.temp-hex[data-type=garden] {
+  background-position: 0% 40%;
+}
+.temp-hex[data-type=garden][data-plaza=true] {
+  background-position: 33% 60%;
+}
+
+.tile {
+  position: absolute;
+  width: 168px;
+  height: 168px;
+  transform-origin: 84px 97px;
+  transition: transform 350ms ease-in-out;
+  backface-visibility: hidden;
+  border-radius: 50% 50% 35% 35%;
+  will-change: transform;
+}
+.tile::after {
+  content: "";
+  background: no-repeat url(img/tile-mask.png);
+  background-size: cover;
+  position: absolute;
+  top: 1px;
+  width: 168px;
+  height: 168px;
+  transform: translateZ(0.1px);
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+.tile .face {
+  position: absolute;
+  width: 84px;
+  height: 97px;
+  background-size: 100% 100%;
+  backface-visibility: hidden;
+  will-change: transform, animation;
+  background-image: url("img/sprite.png");
+  background-size: auto 350%;
+}
+.tile .side.side1 {
+  transform: translatez(-0.5px) rotatez(90deg) translatex(103px) translatey(22px) rotatex(90deg);
+  z-index: -100;
+}
+.tile .side.side2 {
+  transform: translatez(-0.5px) rotatez(30deg) translatex(68px) translatey(121px) rotatex(90deg);
+  z-index: -100;
+}
+.tile .side.side3 {
+  transform: translatez(-0.5px) rotatez(30deg) translatex(139px) translatey(79px) rotatex(90deg);
+  z-index: -100;
+}
+.tile .side.side4 {
+  transform: translatez(-0.5px) rotatez(-30deg) translatex(-35px) translatey(140px) rotatex(90deg);
+  z-index: -100;
+}
+.tile .side.side5 {
+  transform: translatez(-0.5px) rotatez(90deg) translatex(32px) translatey(-20px) rotatex(90deg);
+  z-index: -100;
+}
+.tile .side.side6 {
+  transform: translatez(-0.5px) rotatez(-30deg) translatex(36px) translatey(181px) rotatex(90deg);
+  z-index: -100;
+}
+.tile .side.side1::after {
+  content: "";
+  transform: translatez(164px);
+  width: 48px;
+  height: 17px;
+  background: inherit;
+  position: absolute;
+}
+.tile .side.side2::after {
+  content: "";
+  transform: translatez(164px);
+  width: 48px;
+  height: 17px;
+  background: inherit;
+  position: absolute;
+}
+.tile .side.side3::after {
+  content: "";
+  transform: translatez(81px);
+  width: 48px;
+  height: 17px;
+  background: inherit;
+  position: absolute;
+}
+.tile .side.side4::after {
+  content: "";
+  transform: translatez(82px);
+  width: 48px;
+  height: 17px;
+  background: inherit;
+  position: absolute;
+}
+.tile .side.side5::after {
+  content: "";
+  transform: translatez(80px);
+  width: 48px;
+  height: 17px;
+  background: inherit;
+  position: absolute;
+}
+.tile .side.side6::after {
+  content: "";
+  transform: translatez(164px);
+  width: 48px;
+  height: 17px;
+  background: inherit;
+  position: absolute;
+}
+.tile .face, .tile .sides {
+  transform: translateZ(calc(20px * var(--level)));
+}
+
+.city {
+  position: relative;
+  width: 800px;
+  height: 400px;
+  border: 1px solid gray;
+}
+
 /* make space between buttons on touch devices */
 @media (hover: none) {
   #page-title .action-button.bgabutton, #page-title .bgabutton {
     margin-bottom: 8px;
     margin-top: 8px;
+  }
+}
+#full-table {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#full-table #test {
+  position: relative;
+}
+
+#tooltip3d {
+  display: none;
+}
+
+#controls-reminder {
+  position: relative;
+  color: white;
+  font-size: 12px;
+  padding-left: 30px;
+  padding-bottom: 8px;
+}
+
+#controls-reminder img {
+  position: absolute;
+  top: 0;
+  left: 2px;
+  width: 22px;
+  height: 30px;
+}
+
+html, .mode_3d {
+  background: #0b3975;
+}
+
+.mode_3d #game_play_area_wrap {
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  overflow: hidden;
+  height: 100vh;
+}
+
+#game_play_area {
+  will-change: transform;
+}
+
+.grabbinghand {
+  cursor: grabbing !important;
+  cursor: -webkit-grabbing !important;
+  cursor: moz-grabbing !important;
+}
+
+.mode_3d #game_play_area_background {
+  display: none;
+}
+
+#bg-anchor {
+  position: absolute;
+  background: blue;
+  width: 1024px;
+  height: 825px;
+  top: -439px;
+  left: -506px;
+  backface-visibility: hidden;
+}
+
+/*
+#full-table {
+  margin: 15px;
+  //height: 850px;
+  //width: 100%;
+  display: block;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: visible
+}*/
+#full-table div {
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+
+#count_remain {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  transform: translateZ(10px);
+  z-index: 200;
+  width: 50px;
+  height: 50px;
+  background: green;
+  background-size: contain;
+  background-repeat: no-repeat;
+  text-align: center;
+  color: #f6f5f4;
+  font: bold 25px/52px "Roboto", Arial, sans-serif;
+  text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.8);
+}
+
+#map_container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.mode_3d #full-table {
+  height: 1200px;
+}
+
+#map_scrollable, #map_scrollable_oversurface {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+#map_surface {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+#map_footer {
+  text-align: center;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+}
+@keyframes fade-out {
+  100% {
+    opacity: 0;
+  }
+}
+.fade-out {
+  animation: fade-out 350ms forwards ease-in-out !important;
+}
+
+.facelabel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  line-height: 97px;
+  font-size: 35px;
+  font-weight: bold;
+  color: #fff;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  text-shadow: 1px 1px 5px #000;
+  transform: translateZ(1px);
+  transition: transform 350ms ease-in-out;
+  backface-visibility: hidden;
+}
+
+.has-bldg .facelabel {
+  display: none;
+}
+
+#possible_rotator .facelabel {
+  font-size: 60px;
+}
+
+.face-1 .facelabel {
+  color: #689b34;
+}
+
+.face-2 .facelabel {
+  color: #abd62d;
+}
+
+.face-3 .facelabel {
+  color: #eee5b2;
+}
+
+.face-4 .facelabel {
+  color: #b7cbd1;
+}
+
+.face-5 .facelabel {
+  color: #94eaea;
+}
+
+.rotate60 .facelabel {
+  transform: rotatez(-60deg) translateZ(1px);
+}
+
+.rotate120 .facelabel {
+  transform: rotatez(-120deg) translateZ(1px);
+}
+
+.rotate180 .facelabel {
+  transform: rotatez(-180deg) translateZ(1px);
+}
+
+.rotate240 .facelabel {
+  transform: rotatez(-240deg) translateZ(1px);
+}
+
+.rotate300 .facelabel {
+  transform: rotatez(-300deg) translateZ(1px);
+}
+
+.face.possible {
+  position: absolute;
+  transform: translateZ(1px) scale(0.8);
+  cursor: pointer;
+  animation: 350ms fade-in ease-in-out;
+}
+
+.face.possible, #cancelator span, #buildPalette .rotator .facelabel {
+  background-image: orange;
+}
+
+.level1.possible {
+  transform: translateZ(23px) scale(0.8);
+}
+
+.level2.possible {
+  transform: translateZ(43px) scale(0.8);
+}
+
+.level3.possible {
+  transform: translateZ(63px) scale(0.8);
+}
+
+.level4.possible {
+  transform: translateZ(83px) scale(0.8);
+}
+
+.level5.possible {
+  transform: translateZ(103px) scale(0.8);
+}
+
+.level6.possible {
+  transform: translateZ(123px) scale(0.8);
+}
+
+#full-table .tile .face::after {
+  content: "";
+  position: absolute;
+  width: 84px;
+  height: 97px;
+  background-size: 100% 100%;
+  transform: translateZ(-17px);
+  backface-visibility: hidden;
+  z-index: -200;
+  border-radius: 20%;
+}
+
+#full-table .tile .face::after {
+  background-image: white;
+}
+
+#full-table .tile .side {
+  box-sizing: border-box;
+  position: absolute;
+  width: 48px;
+  height: 17px;
+  background: white;
+  background-size: 48px 17px;
+  transform-origin: bottom center;
+}
+
+#full-table .possible .side {
+  border-left: 3px solid #acc1de;
+  border-right: 3px solid #acc1de;
+  box-sizing: border-box;
+  position: absolute;
+  width: 97px;
+  height: 20px;
+  transform-origin: bottom center;
+  display: block;
+}
+
+.tile:hover::after {
+  background-position: 100% 0;
+}
+
+.tile.level1::after {
+  transform: translateZ(20.1px);
+}
+
+.tile.level2::after {
+  transform: translateZ(40.1px);
+}
+
+.tile.level3::after {
+  transform: translateZ(60.1px);
+}
+
+.tile.level4::after {
+  transform: translateZ(80.1px);
+}
+
+.tile.level5::after {
+  transform: translateZ(100.1px);
+}
+
+.tile.level6::after {
+  transform: translateZ(120.1px);
+}
+
+.tile.rotate60 {
+  transform: translate(-43px, -25px) rotatez(60deg);
+}
+
+.tile.rotate120 {
+  transform: translate(-43px, -73px) rotatez(120deg);
+}
+
+.tile.rotate180 {
+  transform: translate(0, -97px) rotatez(180deg);
+}
+
+.tile.rotate240 {
+  transform: translate(43px, -73px) rotatez(240deg);
+}
+
+.tile.rotate300 {
+  transform: translate(43px, -25px) rotatez(300deg);
+}
+
+.tile .face.subface0 {
+  top: 0.5px;
+  left: 42px;
+}
+
+.tile .face.subface1 {
+  top: 71.5px;
+  left: 0.5px;
+}
+
+.tile .face.subface2 {
+  top: 71.5px;
+  right: 0.5px;
+}
+
+.counters {
+  float: left;
+  margin-left: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.counters div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.pieceicon {
+  background-image: url(img/sides-hd-w.png);
+  background-size: 66px;
+  display: inline-block;
+  height: 40px;
+  width: 24px;
+  margin-right: 5px;
+}
+
+.preview {
+  height: 100px;
+  margin-left: 70px;
+  display: block;
+}
+
+.preview.unknown {
+  background: url(img/tile-back.png) 50% 50% no-repeat;
+}
+
+.preview .tile {
+  transform: scale3d(0.6, 0.6, 0.6);
+  transform-origin: 50% 0;
+}
+
+#full-table .tile.prior-move-white .face::after {
+  background-image: url(img/hex-white.png);
+}
+
+#full-table .tile.prior-move-white .side {
+  box-shadow: inset 0px 0px 0px 10px rgba(238, 238, 238, 0.5647058824);
+}
+
+#full-table .tile.prior-move-white .side::after {
+  box-shadow: inset 0px 0px 0px 10px rgba(238, 238, 238, 0.5647058824);
+}
+
+#full-table .tile.prior-move-yellow .face::after {
+  background-image: url(img/hex-yellow.png);
+}
+
+#full-table .tile.prior-move-yellow .side {
+  box-shadow: inset 0px 0px 0px 10px rgba(255, 168, 17, 0.5647058824);
+}
+
+#full-table .tile.prior-move-yellow .side::after {
+  box-shadow: inset 0px 0px 0px 10px rgba(255, 168, 17, 0.5647058824);
+}
+
+#full-table .tile.prior-move-red .face::after {
+  background-image: url(img/hex-red.png);
+}
+
+#full-table .tile.prior-move-red .side {
+  box-shadow: inset 0px 0px 0px 10px rgba(204, 0, 0, 0.5647058824);
+}
+
+#full-table .tile.prior-move-red .side::after {
+  box-shadow: inset 0px 0px 0px 10px rgba(204, 0, 0, 0.5647058824);
+}
+
+#full-table .tile.prior-move-brown .face::after {
+  background-image: url(img/hex-brown.png);
+}
+
+#full-table .tile.prior-move-brown .side {
+  box-shadow: inset 0px 0px 0px 10px rgba(109, 52, 33, 0.5647058824);
+}
+
+#full-table .tile.prior-move-brown .side::after {
+  box-shadow: inset 0px 0px 0px 10px rgba(109, 52, 33, 0.5647058824);
+}
+
+#full-table .tile.prior-move-black .face::after {
+  background-image: url(img/hex-black.png);
+}
+
+#full-table .tile.prior-move-black .side {
+  box-shadow: inset 0px 0px 0px 10px rgba(17, 17, 17, 0.5647058824);
+}
+
+#full-table .tile.prior-move-black .side::after {
+  box-shadow: inset 0px 0px 0px 10px rgba(17, 17, 17, 0.5647058824);
+}
+
+.palette {
+  transform-origin: 50% 50%;
+  transition: all 1s;
+  position: absolute;
+  border-radius: 50%;
+  height: 60px;
+  width: 60px;
+  transform: translate3d(12px, 16px, 10px);
+  animation: flipanim 0.5s ease forwards 1;
+  box-shadow: inset 0px 0px 5px 35px rgba(209, 255, 173, 0.68);
+}
+
+#cancelator {
+  width: 42px;
+  height: 47px;
+  position: absolute;
+  left: 0px;
+  margin: auto;
+}
+
+#cancelator span {
+  width: 84px;
+  height: 97px;
+  position: absolute;
+  font-size: 40px !important;
+  background-size: 100% 100%;
+  transform: translateX(-10px) scale(0.5) !important;
+  transform-origin: top center;
+  color: #fff;
+  left: 0px;
+  top: -5px;
+  user-select: none;
+}
+
+#buildPalette > :nth-child(1) {
+  animation: rotator1 1.5s ease forwards 1;
+}
+
+#buildPalette > :nth-child(2) {
+  animation: rotator2 1.5s ease forwards 1;
+}
+
+#buildPalette > :nth-child(3) {
+  animation: rotator3 1.5s ease forwards 1;
+}
+
+#buildPalette > :nth-child(4) {
+  animation: rotator4 1.5s ease forwards 1;
+}
+
+#buildPalette > :nth-child(5) {
+  animation: rotator5 1.5s ease forwards 1;
+}
+
+#buildPalette > :nth-child(6) {
+  animation: rotator6 1.5s ease forwards 1;
+}
+
+#buildPalette .rotator .facelabel {
+  width: 84px;
+  height: 97px;
+  position: absolute;
+  font-size: 60px;
+  background-size: 100% 100%;
+  transform: translateX(-50px) scale(0.25);
+  transform-origin: top center;
+  left: 0px;
+  top: -5px;
+  color: #fff;
+}
+
+.rotator {
+  position: absolute;
+  height: 40px;
+  width: 90px;
+  transform-origin: center right;
+  transform: rotate(0deg);
+  left: 0px;
+  margin-top: 40%;
+  transition: all 3s;
+  will-change: transform;
+}
+
+@keyframes rotator1 {
+  100% {
+    transform: rotate(60deg);
+  }
+}
+@keyframes rotator2 {
+  100% {
+    transform: rotate(120deg);
+  }
+}
+@keyframes rotator3 {
+  100% {
+    transform: rotate(180deg);
+  }
+}
+@keyframes rotator4 {
+  100% {
+    transform: rotate(240deg);
+  }
+}
+@keyframes rotator5 {
+  100% {
+    transform: rotate(300deg);
+  }
+}
+@keyframes rotator6 {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes flipanim {
+  100% {
+    height: 180px;
+    width: 180px;
+    transform: translate3d(-45px, -40px, 90px);
   }
 }

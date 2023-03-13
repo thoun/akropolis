@@ -9,8 +9,32 @@ class PlayerTable {
     constructor(private game: AkropolisGame, player: AkropolisPlayer) {
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId(); 
-        
-        // TODO
+
+        let html = `
+        <div id="player-table-${this.playerId}" class="player-table">
+            <div class="name-wrapper">
+                <span class="name" style="color: #${player.color};">${player.name}</span>
+            </div>
+            <div id="player-table-${this.playerId}-city" class="city"></div>
+        </div>
+        `;
+        dojo.place(html, document.getElementById('tables'));
+
+        this.createGrid(player.board.grid);
+    }
+
+    private createGrid(grid: PlayerGrid) {
+        Object.keys(grid).forEach(x => Object.keys(grid[x]).forEach(y => {
+            this.createHex(Number(x), Number(y), grid[x][y]);
+        }));
+    }
+    
+    private createHex(x: number, y: number, types: string[]) {
+        const typeArray = types[0].split('-');
+        const type = typeArray[0];
+        const plaza = typeArray[1] === 'plaza';
+
+        dojo.place(`<div class="temp-hex" style="--x: ${x}; --y: ${y}; --z: 1;" data-type="${type}" data-plaza="${plaza}">${type}${plaza ? `<br>(${typeArray[1] ?? ''})` : ''}</div>`, document.getElementById(`player-table-${this.playerId}-city`));
     }
 
 }

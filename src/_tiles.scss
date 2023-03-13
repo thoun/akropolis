@@ -1,0 +1,186 @@
+:root {
+  --hex-side: 48.5px;
+  --hex-height: 84px;
+}
+
+.temp-hex {
+  position: absolute;
+  width: calc(var(--hex-side) * 2);
+  height: var(--hex-height);
+  background: lightcyan;
+  left: calc(400px - var(--hex-side) + (var(--hex-side) * var(--x) * 1.5));
+  top: calc(200px + (var(--hex-height) * var(--y) / 2));
+  background-image: url("img/sprite.png");
+  background-size: auto 350%;
+  text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &[data-type="quarry"] {
+    background-position: 66% 80%;
+  }
+
+  &[data-type="house"] {
+    background-position: 66% 0%;
+    &[data-plaza="true"] {
+      background-position: 100% 20%;
+    }
+  }
+
+  &[data-type="market"] {
+    background-position: 66% 40%;
+    &[data-plaza="true"] {
+      background-position: 100% 60%;
+    }
+  }
+
+  &[data-type="barrack"] {
+    background-position: 33% 20%;
+    &[data-plaza="true"] {
+      background-position: 0% 0%;
+    }
+  }
+
+  &[data-type="temple"] {
+    background-position: 0% 80%;
+    &[data-plaza="true"] {
+      background-position: 33% 100%;
+    }
+  }
+
+  &[data-type="garden"] {
+    background-position: 0% 40%;
+    &[data-plaza="true"] {
+      background-position: 33% 60%;
+    }
+  }
+}
+
+.tile {
+  position: absolute;
+  width: 168px;
+  height: 168px;
+  transform-origin: 84px 97px;
+  transition: transform 350ms ease-in-out;
+  backface-visibility: hidden;
+  border-radius: 50% 50% 35% 35%;
+  will-change: transform;
+
+  &::after {
+    content: '';
+    background: no-repeat url(img/tile-mask.png);
+    background-size: cover;
+    position: absolute;
+    top: 1px;
+    width: 168px;
+    height: 168px;
+    transform: translateZ(0.1px);
+    backface-visibility: hidden;
+    pointer-events: none
+  }
+
+  .face {
+    position: absolute;
+    width: 84px;
+    height: 97px;
+    background-size: 100% 100%;
+    // border-radius: 30%;
+    backface-visibility: hidden;
+    will-change: transform, animation;
+    background-image: url("img/sprite.png");
+    background-size: auto 350%;
+  }
+
+  .side {
+    &.side1 {
+      transform: translatez(-0.5px) rotatez(90deg) translatex(103px) translatey(22px) rotatex(90deg);
+      z-index: -100;
+    }
+
+    &.side2 {
+      transform: translatez(-0.5px) rotatez(30deg) translatex(68px) translatey(121px) rotatex(90deg);
+      z-index: -100;
+    }
+
+    &.side3 {
+      transform: translatez(-0.5px) rotatez(30deg) translatex(139px) translatey(79px) rotatex(90deg);
+      z-index: -100;
+    }
+
+    &.side4 {
+      transform: translatez(-0.5px) rotatez(-30deg) translatex(-35px) translatey(140px) rotatex(90deg);
+      z-index: -100;
+    }
+
+    &.side5 {
+      transform: translatez(-0.5px) rotatez(90deg) translatex(32px) translatey(-20px) rotatex(90deg);
+      z-index: -100;
+    }
+
+    &.side6 {
+      transform: translatez(-0.5px) rotatez(-30deg) translatex(36px) translatey(181px) rotatex(90deg);
+      z-index: -100;
+    }
+
+    &.side1::after {
+      content: "";
+      transform: translatez(164px);
+      width: 48px;
+      height: 17px;
+      background: inherit;
+      position: absolute;
+    }
+
+    &.side2::after {
+      content: "";
+      transform: translatez(164px);
+      width: 48px;
+      height: 17px;
+      background: inherit;
+      position: absolute;
+    }
+
+    &.side3::after {
+      content: "";
+      transform: translatez(81px);
+      width: 48px;
+      height: 17px;
+      background: inherit;
+      position: absolute;
+    }
+
+    &.side4::after {
+      content: "";
+      transform: translatez(82px);
+      width: 48px;
+      height: 17px;
+      background: inherit;
+      position: absolute;
+    }
+
+    &.side5::after {
+      content: "";
+      transform: translatez(80px);
+      width: 48px;
+      height: 17px;
+      background: inherit;
+      position: absolute;
+    }
+
+    &.side6::after {
+      content: "";
+      transform: translatez(164px);
+      width: 48px;
+      height: 17px;
+      background: inherit;
+      position: absolute;
+    }
+  }
+
+  .face, .sides {
+    transform: translateZ(calc(20px * var(--level)));
+  }
+  
+}
