@@ -38,6 +38,7 @@ class Player extends \AKR\Helpers\DB_Model
   public function getUiData($currentPlayerId = null)
   {
     $data = parent::getUiData();
+    $data['board'] = $this->board()->getUiData();
     return $data;
   }
 
