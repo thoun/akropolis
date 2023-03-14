@@ -15,12 +15,6 @@
     display: inline-block;    
     width: 24px;
     height: 24px;
-    background-repeat: no-repeat;
-
-    &.stone {
-      background-position: 0% 0%;
-    }
-
     
     @for $i from 1 through 5 {
       &[data-type="#{$i}"] {

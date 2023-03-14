@@ -103,7 +103,7 @@
 
 .tile {
   position: absolute;
-  width: 168px;
+  /*width: 168px;
   height: 168px;
   transform-origin: 84px 97px;
   transition: transform 350ms ease-in-out;
@@ -122,5 +122,5 @@
     transform: translateZ(0.1px);
     backface-visibility: hidden;
     pointer-events: none
-  }
+  }*/
 }

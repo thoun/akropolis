@@ -40,6 +40,7 @@ interface AkropolisGame extends Game {
     getPlayerId(): number;
 
     setTooltip(id: string, html: string): void;  
+    chooseMarketTile(index: number): void;
     placeTile(x: number, y: number, z: number, r: number): void;
 }
 

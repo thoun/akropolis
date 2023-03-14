@@ -1,0 +1,55 @@
+#market { 
+    height: 200px;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: stretch;
+    gap: 10px;
+
+    .tile-with-cost {
+        cursor: pointer;
+        width: 186px;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+        align-items: center;
+
+        &.disabled {
+            background: #88888866;
+
+            .tile {
+                opacity: 0.8;
+            }
+
+            .cost {
+                color: red;
+            }
+        }
+
+        .tile {
+            position: relative;
+            width: 175px;
+            height: 170px;
+        }
+
+        .cost {
+            font-weight: bold;
+            text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
+            .score-icon {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    }
+
+
+    .hex {
+        position: absolute;
+        left: calc(50px - var(--hex-side) + (var(--hex-side) * var(--x) * 1.5));
+        top: calc(var(--hex-height) * var(--y) / 2);
+    }
+}

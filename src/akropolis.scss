@@ -63,20 +63,17 @@
   background: url('img/score-icons.png');
   background-size: 200% auto;
   vertical-align: middle;
+  background-repeat: no-repeat;
+
+  &.stone {
+    background-position: 0% 0%;
+  }
 }
 
 // TODO
 
 #full-table {
   width: 100%;
-  //height: 80vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  #test {
-    position: relative;
-  }
 }
 
 #tooltip3d {

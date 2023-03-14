@@ -10,17 +10,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 var TilesManager = /** @class */ (function () {
     function TilesManager(game) {
         this.game = game;
-        // TODO
     }
-    TilesManager.prototype.createTile = function () {
-        var tile = document.createElement('div');
-        tile.id = "tile_11";
-        tile.classList.add("tile", "rotate60", "level1");
-        tile.style.left = "-77px";
-        tile.style.top = "7px";
-        tile.innerHTML = "\n        <div id=\"tile_11\" class=\"tile rotate60 level1\" style=\"left: -77px; top: -70px;\">\n            <div id=\"hex_11_0\" class=\"subface0 face face-6\" title=\"Volcan, niveau 1\"></div>\n            <div id=\"hex_11_1\" class=\"subface1 face face-1\" title=\"For\u00EAt, niveau 1\">\n                <div class=\"facelabel\">1</div>\n            </div>\n            <div id=\"hex_11_2\" class=\"subface2 face face-2\" title=\"Prairie, niveau 1\">\n                <div class=\"facelabel\">1</div>\n            </div>\n            <div class=\"sides\">\n                <div class=\"side side1\"></div>\n                <div class=\"side side2\"></div>\n                <div class=\"side side3\"></div>\n                <div class=\"side side4\"></div>\n                <div class=\"side side5\"></div>\n                <div class=\"side side6\"></div>\n            </div>\n        </div>\n        ";
-        return tile;
-    };
     TilesManager.prototype.createHex = function (x, y, z, faceClasses) {
         var _a;
         if (faceClasses === void 0) { faceClasses = []; }
@@ -34,34 +24,63 @@ var TilesManager = /** @class */ (function () {
         hex.appendChild(face);
         return hex;
     };
-    TilesManager.prototype.createTileHex = function (x, y, z, type, plaza) {
+    TilesManager.prototype.createTileHex = function (x, y, z, type, plaza, withSides) {
+        if (withSides === void 0) { withSides = true; }
         var hex = this.createHex(x, y, z, ['temp']);
-        for (var i = 0; i < 6; i++) {
-            var side = document.createElement('div');
-            side.classList.add('side');
-            side.style.setProperty('--side', "".concat(i));
-            hex.appendChild(side);
+        if (withSides) {
+            for (var i = 0; i < 6; i++) {
+                var side = document.createElement('div');
+                side.classList.add('side');
+                side.style.setProperty('--side', "".concat(i));
+                hex.appendChild(side);
+            }
         }
         // temp
         var face = hex.getElementsByClassName('face')[0];
         face.dataset.type = type;
-        face.dataset.plaza = plaza.toString();
+        face.dataset.plaza = (plaza !== null && plaza !== void 0 ? plaza : false).toString();
         face.innerHTML = "".concat(type).concat(plaza ? "<br>(plaza)" : '', "<br>").concat(x, ", ").concat(y, ", ").concat(z);
         return hex;
     };
     TilesManager.prototype.createPossibleHex = function (x, y, z) {
         return this.createHex(x, y, z, ['possible']);
     };
-    TilesManager.prototype.testTile = function () {
-        document.getElementById('test').appendChild(this.createTile());
+    TilesManager.prototype.createMarketTile = function (hexes) {
+        var _this = this;
+        var XY = [
+            [0, 0],
+            [1, 1],
+            [0, 2],
+        ];
+        var tile = document.createElement('div');
+        tile.classList.add('tile');
+        hexes.forEach(function (hex, index) { return tile.appendChild(_this.createTileHex(XY[index][0], XY[index][1], 0, hex.type, hex.plaza, false)); });
+        return tile;
     };
     return TilesManager;
 }());
 var TableCenter = /** @class */ (function () {
-    function TableCenter(game, gamedatas) {
+    function TableCenter(game, tiles) {
+        var _this = this;
         this.game = game;
-        // TODO
+        tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
     }
+    TableCenter.prototype.addTile = function (hexes, index) {
+        var _this = this;
+        var tileWithCost = document.createElement('div');
+        tileWithCost.id = "market-tile-".concat(index);
+        tileWithCost.classList.add('tile-with-cost');
+        if (index > 0) {
+            tileWithCost.classList.add('disabled');
+        }
+        tileWithCost.appendChild(this.game.tilesManager.createMarketTile(hexes));
+        var cost = document.createElement('div');
+        cost.classList.add('cost');
+        cost.innerHTML = "\n            <span>".concat(index, "</span>\n            <div class=\"stone score-icon\"></div> \n        ");
+        tileWithCost.appendChild(cost);
+        tileWithCost.addEventListener('click', function () { return _this.game.chooseMarketTile(index); });
+        document.getElementById('market').appendChild(tileWithCost);
+    };
     return TableCenter;
 }());
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
@@ -136,7 +155,20 @@ var Akropolis = /** @class */ (function () {
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
         this.tilesManager = new TilesManager(this);
-        this.tableCenter = new TableCenter(this, this.gamedatas);
+        // temp
+        var marketTiles = [
+            [
+                { type: 'quarry' },
+                { type: 'quarry' },
+                { type: 'market', plaza: true },
+            ],
+            [
+                { type: 'temple', plaza: true },
+                { type: 'barrack' },
+                { type: 'market' },
+            ],
+        ];
+        this.tableCenter = new TableCenter(this, marketTiles);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         // TODO temp
@@ -309,6 +341,14 @@ var Akropolis = /** @class */ (function () {
         // Show the dialog
         helpDialog.setContent(html);
         helpDialog.show();
+    };
+    Akropolis.prototype.chooseMarketTile = function (index) {
+        if (!this.checkAction('chooseMarketTile')) {
+            return;
+        }
+        this.takeAction('chooseMarketTile', {
+            index: index,
+        });
     };
     Akropolis.prototype.placeTile = function (x, y, z, r) {
         if (!this.checkAction('placeTile')) {

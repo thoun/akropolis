@@ -135,25 +135,73 @@
 
 .tile {
   position: absolute;
-  width: 168px;
+  /*width: 168px;
   height: 168px;
   transform-origin: 84px 97px;
   transition: transform 350ms ease-in-out;
   backface-visibility: hidden;
   border-radius: 50% 50% 35% 35%;
   will-change: transform;
+
+  &::after {
+    content: '';
+    background: no-repeat url(img/tile-mask.png);
+    background-size: cover;
+    position: absolute;
+    top: 1px;
+    width: 168px;
+    height: 168px;
+    transform: translateZ(0.1px);
+    backface-visibility: hidden;
+    pointer-events: none
+  }*/
 }
-.tile::after {
-  content: "";
-  background: no-repeat url(img/tile-mask.png);
-  background-size: cover;
+
+#market {
+  height: 200px;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  align-items: stretch;
+  gap: 10px;
+}
+#market .tile-with-cost {
+  cursor: pointer;
+  width: 186px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+}
+#market .tile-with-cost.disabled {
+  background: rgba(136, 136, 136, 0.4);
+}
+#market .tile-with-cost.disabled .tile {
+  opacity: 0.8;
+}
+#market .tile-with-cost.disabled .cost {
+  color: red;
+}
+#market .tile-with-cost .tile {
+  position: relative;
+  width: 175px;
+  height: 170px;
+}
+#market .tile-with-cost .cost {
+  font-weight: bold;
+  text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+#market .tile-with-cost .cost .score-icon {
+  width: 24px;
+  height: 24px;
+}
+#market .hex {
   position: absolute;
-  top: 1px;
-  width: 168px;
-  height: 168px;
-  transform: translateZ(0.1px);
-  backface-visibility: hidden;
-  pointer-events: none;
+  left: calc(50px - var(--hex-side) + var(--hex-side) * var(--x) * 1.5);
+  top: calc(var(--hex-height) * var(--y) / 2);
 }
 
 .player-board .counters {
@@ -168,10 +216,6 @@
   display: inline-block;
   width: 24px;
   height: 24px;
-  background-repeat: no-repeat;
-}
-.player-board .score-icon.stone {
-  background-position: 0% 0%;
 }
 .player-board .score-icon[data-type="1"] {
   background-position: 0% 20%;
@@ -222,16 +266,14 @@
   background: url("img/score-icons.png");
   background-size: 200% auto;
   vertical-align: middle;
+  background-repeat: no-repeat;
+}
+.score-icon.stone {
+  background-position: 0% 0%;
 }
 
 #full-table {
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-#full-table #test {
-  position: relative;
 }
 
 #tooltip3d {

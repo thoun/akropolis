@@ -43,7 +43,21 @@ class Akropolis implements AkropolisGame {
 
         this.tilesManager = new TilesManager(this);
 
-        this.tableCenter = new TableCenter(this, this.gamedatas);
+        // temp
+        const marketTiles = [
+            [
+                { type: 'quarry' },
+                { type: 'quarry' },
+                { type: 'market', plaza: true },
+            ],
+            [
+                { type: 'temple', plaza: true },
+                { type: 'barrack' },
+                { type: 'market' },
+            ],
+        ];
+
+        this.tableCenter = new TableCenter(this, marketTiles);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         
@@ -276,6 +290,16 @@ class Akropolis implements AkropolisGame {
         helpDialog.setContent(html);
 
         helpDialog.show();
+    }
+
+    public chooseMarketTile(index: number): void {
+        if(!(this as any).checkAction('chooseMarketTile')) {
+            return;
+        }
+
+        this.takeAction('chooseMarketTile', {
+            index,
+        });
     }
 
     public placeTile(x: number, y: number, z: number, r: number): void {
