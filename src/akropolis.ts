@@ -42,22 +42,7 @@ class Akropolis implements AkropolisGame {
         log('gamedatas', gamedatas);
 
         this.tilesManager = new TilesManager(this);
-
-        // temp
-        const marketTiles = [
-            [
-                { type: 'quarry' },
-                { type: 'quarry' },
-                { type: 'market', plaza: true },
-            ],
-            [
-                { type: 'temple', plaza: true },
-                { type: 'barrack' },
-                { type: 'market' },
-            ],
-        ];
-
-        this.tableCenter = new TableCenter(this, marketTiles);
+        this.tableCenter = new TableCenter(this, gamedatas.dock);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         

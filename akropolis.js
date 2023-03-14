@@ -24,7 +24,7 @@ var TilesManager = /** @class */ (function () {
         hex.appendChild(face);
         return hex;
     };
-    TilesManager.prototype.createTileHex = function (x, y, z, type, plaza, withSides) {
+    TilesManager.prototype.createTileHex = function (x, y, z, types, withSides) {
         if (withSides === void 0) { withSides = true; }
         var hex = this.createHex(x, y, z, ['temp']);
         if (withSides) {
@@ -35,10 +35,13 @@ var TilesManager = /** @class */ (function () {
                 hex.appendChild(side);
             }
         }
-        // temp
         var face = hex.getElementsByClassName('face')[0];
+        var typeArray = types.split('-');
+        var type = typeArray[0];
+        var plaza = typeArray[1] === 'plaza';
         face.dataset.type = type;
         face.dataset.plaza = (plaza !== null && plaza !== void 0 ? plaza : false).toString();
+        // temp
         face.innerHTML = "".concat(type).concat(plaza ? "<br>(plaza)" : '', "<br>").concat(x, ", ").concat(y, ", ").concat(z);
         return hex;
     };
@@ -54,7 +57,7 @@ var TilesManager = /** @class */ (function () {
         ];
         var tile = document.createElement('div');
         tile.classList.add('tile');
-        hexes.forEach(function (hex, index) { return tile.appendChild(_this.createTileHex(XY[index][0], XY[index][1], 0, hex.type, hex.plaza, false)); });
+        hexes.forEach(function (hex, index) { return tile.appendChild(_this.createTileHex(XY[index][0], XY[index][1], 0, hex, false)); });
         return tile;
     };
     return TilesManager;
@@ -63,7 +66,7 @@ var TableCenter = /** @class */ (function () {
     function TableCenter(game, tiles) {
         var _this = this;
         this.game = game;
-        tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
+        tiles.forEach(function (tile, index) { return _this.addTile(tile.hexes, index); });
     }
     TableCenter.prototype.addTile = function (hexes, index) {
         var _this = this;
@@ -115,11 +118,8 @@ var PlayerTable = /** @class */ (function () {
             _this.createTileHex(Number(x), Number(y), Number(z), grid[x][y][z]);
         }); }); });
     };
-    PlayerTable.prototype.createTileHex = function (x, y, z, types) {
-        var typeArray = types.split('-');
-        var type = typeArray[0];
-        var plaza = typeArray[1] === 'plaza';
-        var hex = this.game.tilesManager.createTileHex(x, y, z, type, plaza);
+    PlayerTable.prototype.createTileHex = function (x, y, z, type) {
+        var hex = this.game.tilesManager.createTileHex(x, y, z, type);
         document.getElementById("player-table-".concat(this.playerId, "-city")).appendChild(hex);
     };
     PlayerTable.prototype.createPossibleHex = function (x, y, z) {
@@ -155,20 +155,7 @@ var Akropolis = /** @class */ (function () {
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
         this.tilesManager = new TilesManager(this);
-        // temp
-        var marketTiles = [
-            [
-                { type: 'quarry' },
-                { type: 'quarry' },
-                { type: 'market', plaza: true },
-            ],
-            [
-                { type: 'temple', plaza: true },
-                { type: 'barrack' },
-                { type: 'market' },
-            ],
-        ];
-        this.tableCenter = new TableCenter(this, marketTiles);
+        this.tableCenter = new TableCenter(this, gamedatas.dock);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         // TODO temp

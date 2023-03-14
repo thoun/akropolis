@@ -45,11 +45,8 @@ class PlayerTable {
         })));
     }
     
-    private createTileHex(x: number, y: number, z: number, types: string) {
-        const typeArray = types.split('-');
-        const type = typeArray[0];
-        const plaza = typeArray[1] === 'plaza';
-        const hex = this.game.tilesManager.createTileHex(x, y, z, type, plaza);
+    private createTileHex(x: number, y: number, z: number, type: string) {
+        const hex = this.game.tilesManager.createTileHex(x, y, z, type);
         document.getElementById(`player-table-${this.playerId}-city`).appendChild(hex);
     }
     

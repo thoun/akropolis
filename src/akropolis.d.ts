@@ -2,6 +2,13 @@
  * Your game interfaces
  */
 
+interface Tile {
+    hexes: string[];
+    id: number;
+    location: string;
+    pId: number;
+}
+
 interface PlayerGrid {
     [x: number]: {
         [y: number]: {
@@ -31,7 +38,7 @@ interface AkropolisGamedatas {
     tablespeed: string;
 
     // Add here variables you set up in getAllDatas
-    // TODO
+    dock: Tile[];
 }
 
 interface AkropolisGame extends Game {

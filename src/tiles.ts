@@ -14,7 +14,7 @@ class TilesManager {
         return hex;
     }
     
-    public createTileHex(x: number, y: number, z: number, type: string, plaza: boolean, withSides: boolean = true): HTMLDivElement {
+    public createTileHex(x: number, y: number, z: number, types: string, withSides: boolean = true): HTMLDivElement {
         const hex = this.createHex(x, y, z, ['temp']);
 
         if (withSides) {
@@ -26,10 +26,13 @@ class TilesManager {
             }
         }
 
-        // temp
         const face = hex.getElementsByClassName('face')[0] as HTMLDivElement;
+        const typeArray = types.split('-');
+        const type = typeArray[0];
+        const plaza = typeArray[1] === 'plaza';
         face.dataset.type = type;
         face.dataset.plaza = (plaza ?? false).toString();
+        // temp
         face.innerHTML = `${type}${plaza ? `<br>(plaza)` : ''}<br>${x}, ${y}, ${z}`;
         return hex;
     }
@@ -38,7 +41,7 @@ class TilesManager {
         return this.createHex(x, y, z, ['possible']);
     }
 
-    public createMarketTile(hexes: any[]): HTMLDivElement {
+    public createMarketTile(hexes: string[]): HTMLDivElement {
         const XY = [
             [0, 0],
             [1, 1],
@@ -46,7 +49,7 @@ class TilesManager {
         ]
         const tile = document.createElement('div');
         tile.classList.add('tile');
-        hexes.forEach((hex, index) => tile.appendChild(this.createTileHex(XY[index][0], XY[index][1], 0, hex.type, hex.plaza, false)));
+        hexes.forEach((hex, index) => tile.appendChild(this.createTileHex(XY[index][0], XY[index][1], 0, hex, false)));
         return tile;
     }
 }

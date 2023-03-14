@@ -1,9 +1,9 @@
 class TableCenter {
-    constructor(private game: AkropolisGame, tiles: any[]) {
-        tiles.forEach((tile, index) => this.addTile(tile, index));
+    constructor(private game: AkropolisGame, tiles: Tile[]) {
+        tiles.forEach((tile, index) => this.addTile(tile.hexes, index));
     }
 
-    public addTile(hexes: any[], index: number) {
+    public addTile(hexes: string[], index: number) {
         const tileWithCost = document.createElement('div');
         tileWithCost.id = `market-tile-${index}`;
         tileWithCost.classList.add('tile-with-cost');
