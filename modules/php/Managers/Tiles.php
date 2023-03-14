@@ -17,6 +17,7 @@ class Tiles extends \AKR\Helpers\Pieces
     return [
       'id' => (int) $tile['id'],
       'location' => $tile['location'],
+      'state' => $tile['state'],
       'pId' => (int) $tile['player_id'],
       'x' => (int) $tile['x'],
       'y' => (int) $tile['y'],
@@ -24,6 +25,11 @@ class Tiles extends \AKR\Helpers\Pieces
       'r' => (int) $tile['r'],
       'hexes' => self::$tiles[$tile['id']],
     ];
+  }
+
+  public function getUiData()
+  {
+    return self::getInLocation('dock')->toArray();
   }
 
   public function setupNewGame($players, $options)
@@ -50,6 +56,23 @@ class Tiles extends \AKR\Helpers\Pieces
     // Create the tiles
     self::create($tiles, 'deck');
     self::shuffle('deck');
+
+    self::refillDock();
+  }
+
+  public static function refillDock()
+  {
+    $nPlayers = Players::count();
+    $i = 0;
+    foreach (self::getInLocation('dock') as $i => $tile) {
+      self::move($tile['id'], 'dock', $i);
+    }
+
+    for (; $i < $nPlayers + 2; $i++) {
+      self::pickForLocation(1, 'deck', 'dock', $i);
+    }
+
+    return self::getInLocation('dock');
   }
 
   public static function getOfPlayer($pId)

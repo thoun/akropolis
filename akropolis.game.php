@@ -83,6 +83,7 @@ class Akropolis extends Table
     return [
       'prefs' => Preferences::getUiData($pId),
       'players' => Players::getUiData($pId),
+      'dock' => Tiles::getUiData(),
     ];
   }
 

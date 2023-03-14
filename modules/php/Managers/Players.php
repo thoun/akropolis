@@ -30,12 +30,14 @@ class Players extends \AKR\Helpers\DB_Manager
       'player_name',
       'player_avatar',
       'player_score',
+      'money',
     ]);
 
     $values = [];
+    $i = 1;
     foreach ($players as $pId => $player) {
       $color = array_shift($colors);
-      $values[] = [$pId, $color, $player['player_canal'], $player['player_name'], $player['player_avatar'], 0];
+      $values[] = [$pId, $color, $player['player_canal'], $player['player_name'], $player['player_avatar'], 0, $i++];
     }
     $query->values($values);
     Game::get()->reattributeColorsBasedOnPreferences($players, $gameInfos['player_colors']);
