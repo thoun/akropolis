@@ -30,7 +30,7 @@ $machinestates = [
     'descriptionmyturn' => clienttranslate('${you} must play a tile in their city'),
     'type' => 'activeplayer',
     'args' => 'argsPlaceTile',
-    'possibleactions' => ['placeTile'],
+    'possibleactions' => ['actPlaceTile'],
     'transitions' => ['placeTile' => ST_PLACE_TILE],
   ],
 
