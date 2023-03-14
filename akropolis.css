@@ -46,6 +46,7 @@
 :root {
   --hex-side: 48.5px;
   --hex-height: 84px;
+  --hex-thickness: 16px;
 }
 
 .hex {
@@ -54,65 +55,82 @@
   height: var(--hex-height);
   left: calc(400px - var(--hex-side) + var(--hex-side) * var(--x) * 1.5);
   top: calc(200px + var(--hex-height) * var(--y) / 2);
+  transform: translateZ(calc(var(--hex-thickness) * (var(--z) + 1)));
 }
-.hex.possible {
-  background: radial-gradient(rgba(255, 255, 255, 0.8), rgba(0, 255, 255, 0.5));
+.hex .face {
+  width: 100%;
+  height: 100%;
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+.hex .face.possible {
+  background: radial-gradient(rgba(255, 255, 255, 0.8), rgba(0, 255, 255, 0.5));
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
-.hex.possible button {
+.hex .face.possible button {
   width: auto;
   border: 1px solid gray;
   font-size: 11px;
   margin: 1px;
+  cursor: pointer;
 }
-.hex.temp {
+.hex .face.temp {
   font-weight: bold;
   text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
-  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.hex[data-type] {
+.hex .face[data-type] {
   background-image: url("img/sprite.png");
   background-size: auto 350%;
 }
-.hex[data-type=quarry] {
+.hex .face[data-type=quarry] {
   background-position: 66% 80%;
 }
-.hex[data-type=house] {
+.hex .face[data-type=house] {
   background-position: 66% 0%;
 }
-.hex[data-type=house][data-plaza=true] {
+.hex .face[data-type=house][data-plaza=true] {
   background-position: 100% 20%;
 }
-.hex[data-type=market] {
+.hex .face[data-type=market] {
   background-position: 66% 40%;
 }
-.hex[data-type=market][data-plaza=true] {
+.hex .face[data-type=market][data-plaza=true] {
   background-position: 100% 60%;
 }
-.hex[data-type=barrack] {
+.hex .face[data-type=barrack] {
   background-position: 33% 20%;
 }
-.hex[data-type=barrack][data-plaza=true] {
+.hex .face[data-type=barrack][data-plaza=true] {
   background-position: 0% 0%;
 }
-.hex[data-type=temple] {
+.hex .face[data-type=temple] {
   background-position: 0% 80%;
 }
-.hex[data-type=temple][data-plaza=true] {
+.hex .face[data-type=temple][data-plaza=true] {
   background-position: 33% 100%;
 }
-.hex[data-type=garden] {
+.hex .face[data-type=garden] {
   background-position: 0% 40%;
 }
-.hex[data-type=garden][data-plaza=true] {
+.hex .face[data-type=garden][data-plaza=true] {
   background-position: 33% 60%;
+}
+.hex .side {
+  top: 50%;
+  left: 50%;
+  position: absolute;
+  margin-left: -24px;
+  margin-top: -8px;
+  width: var(--hex-side);
+  height: 16px;
+  background: white;
+  transform: translateZ(calc(var(--hex-thickness) * -0.5)) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(41.5px); /* almost hex-height / 2 */
+  z-index: -100;
 }
 
 .tile {
@@ -136,91 +154,6 @@
   transform: translateZ(0.1px);
   backface-visibility: hidden;
   pointer-events: none;
-}
-.tile .face {
-  position: absolute;
-  width: 84px;
-  height: 97px;
-  background-size: 100% 100%;
-  backface-visibility: hidden;
-  will-change: transform, animation;
-  background-image: url("img/sprite.png");
-  background-size: auto 350%;
-}
-.tile .side.side1 {
-  transform: translatez(-0.5px) rotatez(90deg) translatex(103px) translatey(22px) rotatex(90deg);
-  z-index: -100;
-}
-.tile .side.side2 {
-  transform: translatez(-0.5px) rotatez(30deg) translatex(68px) translatey(121px) rotatex(90deg);
-  z-index: -100;
-}
-.tile .side.side3 {
-  transform: translatez(-0.5px) rotatez(30deg) translatex(139px) translatey(79px) rotatex(90deg);
-  z-index: -100;
-}
-.tile .side.side4 {
-  transform: translatez(-0.5px) rotatez(-30deg) translatex(-35px) translatey(140px) rotatex(90deg);
-  z-index: -100;
-}
-.tile .side.side5 {
-  transform: translatez(-0.5px) rotatez(90deg) translatex(32px) translatey(-20px) rotatex(90deg);
-  z-index: -100;
-}
-.tile .side.side6 {
-  transform: translatez(-0.5px) rotatez(-30deg) translatex(36px) translatey(181px) rotatex(90deg);
-  z-index: -100;
-}
-.tile .side.side1::after {
-  content: "";
-  transform: translatez(164px);
-  width: 48px;
-  height: 17px;
-  background: inherit;
-  position: absolute;
-}
-.tile .side.side2::after {
-  content: "";
-  transform: translatez(164px);
-  width: 48px;
-  height: 17px;
-  background: inherit;
-  position: absolute;
-}
-.tile .side.side3::after {
-  content: "";
-  transform: translatez(81px);
-  width: 48px;
-  height: 17px;
-  background: inherit;
-  position: absolute;
-}
-.tile .side.side4::after {
-  content: "";
-  transform: translatez(82px);
-  width: 48px;
-  height: 17px;
-  background: inherit;
-  position: absolute;
-}
-.tile .side.side5::after {
-  content: "";
-  transform: translatez(80px);
-  width: 48px;
-  height: 17px;
-  background: inherit;
-  position: absolute;
-}
-.tile .side.side6::after {
-  content: "";
-  transform: translatez(164px);
-  width: 48px;
-  height: 17px;
-  background: inherit;
-  position: absolute;
-}
-.tile .face, .tile .sides {
-  transform: translateZ(calc(20px * var(--level)));
 }
 
 .player-board .counters {

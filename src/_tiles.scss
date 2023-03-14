@@ -1,6 +1,7 @@
 :root {
   --hex-side: 48.5px;
   --hex-height: 84px;
+  --hex-thickness: 16px;
 }
 
 .hex {
@@ -9,75 +10,94 @@
   height: var(--hex-height);
   left: calc(400px - var(--hex-side) + (var(--hex-side) * var(--x) * 1.5));
   top: calc(200px + (var(--hex-height) * var(--y) / 2));
+  transform: translateZ(calc(var(--hex-thickness) * (var(--z) + 1)));
 
-  &.possible {
-    background: radial-gradient(rgba(255, 255, 255, 0.8), rgba(0, 255, 255, 0.5));
+  .face {
+    width: 100%;
+    height: 100%;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 
-    // temp
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    button {
-      width: auto;
-      border: 1px solid gray;
-      font-size: 11px;
-      margin: 1px;
+    &.possible {
+      background: radial-gradient(rgba(255, 255, 255, 0.8), rgba(0, 255, 255, 0.5));
+
+      // temp
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      button {
+        width: auto;
+        border: 1px solid gray;
+        font-size: 11px;
+        margin: 1px;
+        cursor: pointer;
+      }
+    }
+
+    &.temp {
+      font-weight: bold;
+      text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    &[data-type] {
+      background-image: url("img/sprite.png");
+      background-size: auto 350%;
+    }
+
+    &[data-type="quarry"] {
+      background-position: 66% 80%;
+    }
+
+    &[data-type="house"] {
+      background-position: 66% 0%;
+      &[data-plaza="true"] {
+        background-position: 100% 20%;
+      }
+    }
+
+    &[data-type="market"] {
+      background-position: 66% 40%;
+      &[data-plaza="true"] {
+        background-position: 100% 60%;
+      }
+    }
+
+    &[data-type="barrack"] {
+      background-position: 33% 20%;
+      &[data-plaza="true"] {
+        background-position: 0% 0%;
+      }
+    }
+
+    &[data-type="temple"] {
+      background-position: 0% 80%;
+      &[data-plaza="true"] {
+        background-position: 33% 100%;
+      }
+    }
+
+    &[data-type="garden"] {
+      background-position: 0% 40%;
+      &[data-plaza="true"] {
+        background-position: 33% 60%;
+      }
     }
   }
 
-  &.temp {
-    font-weight: bold;
-    text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
-    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  &[data-type] {
-    background-image: url("img/sprite.png");
-    background-size: auto 350%;
-  }
-
-  &[data-type="quarry"] {
-    background-position: 66% 80%;
-  }
-
-  &[data-type="house"] {
-    background-position: 66% 0%;
-    &[data-plaza="true"] {
-      background-position: 100% 20%;
-    }
-  }
-
-  &[data-type="market"] {
-    background-position: 66% 40%;
-    &[data-plaza="true"] {
-      background-position: 100% 60%;
-    }
-  }
-
-  &[data-type="barrack"] {
-    background-position: 33% 20%;
-    &[data-plaza="true"] {
-      background-position: 0% 0%;
-    }
-  }
-
-  &[data-type="temple"] {
-    background-position: 0% 80%;
-    &[data-plaza="true"] {
-      background-position: 33% 100%;
-    }
-  }
-
-  &[data-type="garden"] {
-    background-position: 0% 40%;
-    &[data-plaza="true"] {
-      background-position: 33% 60%;
-    }
+  .side {
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    margin-left: -24px;
+    margin-top: -8px;
+    width: var(--hex-side);
+    height: 16px;
+    background: white;
+    transform: translateZ(calc(var(--hex-thickness) * -0.5)) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(41.5px); /* almost hex-height / 2 */
+    z-index: -100;
   }
 }
 
@@ -103,107 +123,4 @@
     backface-visibility: hidden;
     pointer-events: none
   }
-
-  .face {
-    position: absolute;
-    width: 84px;
-    height: 97px;
-    background-size: 100% 100%;
-    // border-radius: 30%;
-    backface-visibility: hidden;
-    will-change: transform, animation;
-    background-image: url("img/sprite.png");
-    background-size: auto 350%;
-  }
-
-  .side {
-    &.side1 {
-      transform: translatez(-0.5px) rotatez(90deg) translatex(103px) translatey(22px) rotatex(90deg);
-      z-index: -100;
-    }
-
-    &.side2 {
-      transform: translatez(-0.5px) rotatez(30deg) translatex(68px) translatey(121px) rotatex(90deg);
-      z-index: -100;
-    }
-
-    &.side3 {
-      transform: translatez(-0.5px) rotatez(30deg) translatex(139px) translatey(79px) rotatex(90deg);
-      z-index: -100;
-    }
-
-    &.side4 {
-      transform: translatez(-0.5px) rotatez(-30deg) translatex(-35px) translatey(140px) rotatex(90deg);
-      z-index: -100;
-    }
-
-    &.side5 {
-      transform: translatez(-0.5px) rotatez(90deg) translatex(32px) translatey(-20px) rotatex(90deg);
-      z-index: -100;
-    }
-
-    &.side6 {
-      transform: translatez(-0.5px) rotatez(-30deg) translatex(36px) translatey(181px) rotatex(90deg);
-      z-index: -100;
-    }
-
-    &.side1::after {
-      content: "";
-      transform: translatez(164px);
-      width: 48px;
-      height: 17px;
-      background: inherit;
-      position: absolute;
-    }
-
-    &.side2::after {
-      content: "";
-      transform: translatez(164px);
-      width: 48px;
-      height: 17px;
-      background: inherit;
-      position: absolute;
-    }
-
-    &.side3::after {
-      content: "";
-      transform: translatez(81px);
-      width: 48px;
-      height: 17px;
-      background: inherit;
-      position: absolute;
-    }
-
-    &.side4::after {
-      content: "";
-      transform: translatez(82px);
-      width: 48px;
-      height: 17px;
-      background: inherit;
-      position: absolute;
-    }
-
-    &.side5::after {
-      content: "";
-      transform: translatez(80px);
-      width: 48px;
-      height: 17px;
-      background: inherit;
-      position: absolute;
-    }
-
-    &.side6::after {
-      content: "";
-      transform: translatez(164px);
-      width: 48px;
-      height: 17px;
-      background: inherit;
-      position: absolute;
-    }
-  }
-
-  .face, .sides {
-    transform: translateZ(calc(20px * var(--level)));
-  }
-  
 }

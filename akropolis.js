@@ -1,3 +1,12 @@
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 var TilesManager = /** @class */ (function () {
     function TilesManager(game) {
         this.game = game;
@@ -12,25 +21,36 @@ var TilesManager = /** @class */ (function () {
         tile.innerHTML = "\n        <div id=\"tile_11\" class=\"tile rotate60 level1\" style=\"left: -77px; top: -70px;\">\n            <div id=\"hex_11_0\" class=\"subface0 face face-6\" title=\"Volcan, niveau 1\"></div>\n            <div id=\"hex_11_1\" class=\"subface1 face face-1\" title=\"For\u00EAt, niveau 1\">\n                <div class=\"facelabel\">1</div>\n            </div>\n            <div id=\"hex_11_2\" class=\"subface2 face face-2\" title=\"Prairie, niveau 1\">\n                <div class=\"facelabel\">1</div>\n            </div>\n            <div class=\"sides\">\n                <div class=\"side side1\"></div>\n                <div class=\"side side2\"></div>\n                <div class=\"side side3\"></div>\n                <div class=\"side side4\"></div>\n                <div class=\"side side5\"></div>\n                <div class=\"side side6\"></div>\n            </div>\n        </div>\n        ";
         return tile;
     };
-    TilesManager.prototype.createHex = function (x, y, z, classes) {
+    TilesManager.prototype.createHex = function (x, y, z, faceClasses) {
         var _a;
-        if (classes === void 0) { classes = []; }
+        if (faceClasses === void 0) { faceClasses = []; }
         var hex = document.createElement('div');
-        (_a = hex.classList).add.apply(_a, classes);
+        hex.classList.add('hex');
         hex.style.setProperty('--x', "".concat(x));
         hex.style.setProperty('--y', "".concat(y));
         hex.style.setProperty('--z', "".concat(z));
+        var face = document.createElement('div');
+        (_a = face.classList).add.apply(_a, __spreadArray(['face'], faceClasses, false));
+        hex.appendChild(face);
         return hex;
     };
     TilesManager.prototype.createTileHex = function (x, y, z, type, plaza) {
-        var hex = this.createHex(x, y, z, ['temp', 'hex']);
-        hex.dataset.type = type;
-        hex.dataset.plaza = plaza.toString();
-        hex.innerHTML = "".concat(type).concat(plaza ? "<br>(plaza)" : '', "<br>").concat(x, ", ").concat(y, ", ").concat(z);
+        var hex = this.createHex(x, y, z, ['temp']);
+        for (var i = 0; i < 6; i++) {
+            var side = document.createElement('div');
+            side.classList.add('side');
+            side.style.setProperty('--side', "".concat(i));
+            hex.appendChild(side);
+        }
+        // temp
+        var face = hex.getElementsByClassName('face')[0];
+        face.dataset.type = type;
+        face.dataset.plaza = plaza.toString();
+        face.innerHTML = "".concat(type).concat(plaza ? "<br>(plaza)" : '', "<br>").concat(x, ", ").concat(y, ", ").concat(z);
         return hex;
     };
     TilesManager.prototype.createPossibleHex = function (x, y, z) {
-        return this.createHex(x, y, z, ['possible', 'hex']);
+        return this.createHex(x, y, z, ['possible']);
     };
     TilesManager.prototype.testTile = function () {
         document.getElementById('test').appendChild(this.createTile());
@@ -59,8 +79,9 @@ var PlayerTable = /** @class */ (function () {
         var _this = this;
         options.forEach(function (option) {
             var hex = _this.createPossibleHex(option.x, option.y, option.z);
+            var face = hex.getElementsByClassName('face')[0];
             option.r.forEach(function (r) {
-                hex.insertAdjacentHTML('beforeend', "<button id=\"place-tile-".concat(option.x, "-").concat(option.y, "-").concat(option.z, "-").concat(r, "\">placeTile r=").concat(r, "</button>"));
+                face.insertAdjacentHTML('beforeend', "<button id=\"place-tile-".concat(option.x, "-").concat(option.y, "-").concat(option.z, "-").concat(r, "\">placeTile r=").concat(r, "</button>"));
                 document.getElementById("place-tile-".concat(option.x, "-").concat(option.y, "-").concat(option.z, "-").concat(r)).addEventListener('click', function () { return _this.game.placeTile(option.x, option.y, option.z, r); });
             });
         });
@@ -89,15 +110,6 @@ var PlayerTable = /** @class */ (function () {
     };
     return PlayerTable;
 }());
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
         this.playersTables = [];
