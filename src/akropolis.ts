@@ -67,31 +67,31 @@ class Akropolis implements AkropolisGame {
         log('Entering state: ' + stateName, args.args);
 
         switch (stateName) {
-            /* example case 'chooseOperation':
-                this.onEnteringChooseOperation(args.args);
-                break;*/             
+            case 'placeTile':
+                this.onEnteringPlaceTile(args.args);
+                break;
         }
     }
     
-    /* example private onEnteringChooseOperation(args: EnteringChooseOperationArgs) {
+    private onEnteringPlaceTile(args: EnteringPlaceTileArgs) {
         if ((this as any).isCurrentPlayerActive()) {
-            this.getCurrentPlayerTable()?.setPossibleOperations(args.operations);
+            this.getCurrentPlayerTable().setPlaceTileOptions(args.options);
         }
-    }*/
+    }
 
     public onLeavingState(stateName: string) {
         log( 'Leaving state: '+stateName );
 
         switch (stateName) {
-            /* example case 'planificationChooseFaces':
-                this.onLeavingPlanificationChooseFaces();
-                break;*/
+            case 'placeTile':
+                this.onLeavingPlaceTile();
+                break;
         }
     }
 
-    /* example private onLeavingPlanificationChooseFaces() {
-        this.selectedPlanificationDice = {};
-    }*/
+    private onLeavingPlaceTile() {
+        this.getCurrentPlayerTable()?.removePlaceTileOptions();
+    }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -278,13 +278,18 @@ class Akropolis implements AkropolisGame {
         helpDialog.show();
     }
 
-    /* example public useFoulPlay() {
-        if(!(this as any).checkAction('useFoulPlay')) {
+    public placeTile(x: number, y: number, z: number, r: number): void {
+        if(!(this as any).checkAction('placeTile')) {
             return;
         }
 
-        this.takeAction('useFoulPlay');
-    }*/
+        this.takeAction('placeTile', {
+            x,
+            y,
+            z,
+            r,
+        });
+    }
 
     public takeAction(action: string, data?: any) {
         data = data || {};

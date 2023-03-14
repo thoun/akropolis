@@ -22,19 +22,40 @@ class PlayerTable {
 
         this.createGrid(player.board.grid);
     }
+    
+    public setPlaceTileOptions(options: PlaceTileOption[]) {
+        options.forEach(option => {
+            const hex = this.createPossibleHex(option.x, option.y, option.z);
+            option.r.forEach(r => {
+                hex.insertAdjacentHTML('beforeend', `<button id="place-tile-${option.x}-${option.y}-${option.z}-${r}">placeTile r=${r}</button>`);
+                document.getElementById(`place-tile-${option.x}-${option.y}-${option.z}-${r}`).addEventListener('click', () => this.game.placeTile(option.x, option.y, option.z, r));
+            })
+        })
+    }
+    
+    public removePlaceTileOptions() {
+        const options = document.getElementById(`player-table-${this.playerId}-city`).querySelectorAll('.possible');
+        Array.from(options).forEach(option => option.remove());
+    }
 
     private createGrid(grid: PlayerGrid) {
         Object.keys(grid).forEach(x => Object.keys(grid[x]).forEach(y => Object.keys(grid[x][y]).forEach(z => {
-            this.createHex(Number(x), Number(y), Number(z), grid[x][y]);
+            this.createTileHex(Number(x), Number(y), Number(z), grid[x][y][z]);
         })));
     }
     
-    private createHex(x: number, y: number, z: number, types: string[]) {
-        const typeArray = types[0].split('-');
+    private createTileHex(x: number, y: number, z: number, types: string) {
+        const typeArray = types.split('-');
         const type = typeArray[0];
         const plaza = typeArray[1] === 'plaza';
-
-        dojo.place(`<div class="temp-hex" style="--x: ${x}; --y: ${y}; --z: ${z};" data-type="${type}" data-plaza="${plaza}">${type}${plaza ? `<br>(${typeArray[1] ?? ''})` : ''}<br>${x}, ${y}, ${z}</div>`, document.getElementById(`player-table-${this.playerId}-city`));
+        const hex = this.game.tilesManager.createTileHex(x, y, z, type, plaza);
+        document.getElementById(`player-table-${this.playerId}-city`).appendChild(hex);
+    }
+    
+    private createPossibleHex(x: number, y: number, z: number) {
+        const hex = this.game.tilesManager.createPossibleHex(x, y, z);
+        document.getElementById(`player-table-${this.playerId}-city`).appendChild(hex);
+        return hex;
     }
 
 }

@@ -32,6 +32,27 @@ class TilesManager {
 
         return tile;
     }
+    
+    public createHex(x: number, y: number, z: number, classes: string[] = []): HTMLDivElement {
+        const hex = document.createElement('div');
+        hex.classList.add(...classes);
+        hex.style.setProperty('--x', `${x}`);
+        hex.style.setProperty('--y', `${y}`);
+        hex.style.setProperty('--z', `${z}`);
+        return hex;
+    }
+    
+    public createTileHex(x: number, y: number, z: number, type: string, plaza: boolean): HTMLDivElement {
+        const hex = this.createHex(x, y, z, ['temp', 'hex']);
+        hex.dataset.type = type;
+        hex.dataset.plaza = plaza.toString();
+        hex.innerHTML = `${type}${plaza ? `<br>(plaza)` : ''}<br>${x}, ${y}, ${z}`;
+        return hex;
+    }
+    
+    public createPossibleHex(x: number, y: number, z: number): HTMLDivElement {
+        return this.createHex(x, y, z, ['possible', 'hex']);
+    }
 
     public testTile() {
         document.getElementById('test').appendChild(this.createTile());

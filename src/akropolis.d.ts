@@ -40,12 +40,21 @@ interface AkropolisGame extends Game {
     getPlayerId(): number;
 
     setTooltip(id: string, html: string): void;  
-}
-/* Examples 
-interface EnteringChooseOperationArgs {
-    operations: { [operation: number]: Operation; };
+    placeTile(x: number, y: number, z: number, r: number): void;
 }
 
+interface PlaceTileOption {
+    x: number;
+    y: number;
+    z: number;
+    r: number[];
+}
+
+interface EnteringPlaceTileArgs {
+    options: PlaceTileOption[];
+}
+
+/* Examples 
 interface NotifSetPlayedOperationArgs {
     playerId: number;
     type: number;

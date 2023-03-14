@@ -3,21 +3,43 @@
   --hex-height: 84px;
 }
 
-.temp-hex {
+.hex {
   position: absolute;
   width: calc(var(--hex-side) * 2);
   height: var(--hex-height);
-  background: lightcyan;
   left: calc(400px - var(--hex-side) + (var(--hex-side) * var(--x) * 1.5));
   top: calc(200px + (var(--hex-height) * var(--y) / 2));
-  background-image: url("img/sprite.png");
-  background-size: auto 350%;
-  font-weight: bold;
-  text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
-  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+  &.possible {
+    background: radial-gradient(rgba(255, 255, 255, 0.8), rgba(0, 255, 255, 0.5));
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+
+    // temp
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    button {
+      width: auto;
+      border: 1px solid gray;
+      font-size: 11px;
+      margin: 1px;
+    }
+  }
+
+  &.temp {
+    font-weight: bold;
+    text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &[data-type] {
+    background-image: url("img/sprite.png");
+    background-size: auto 350%;
+  }
 
   &[data-type="quarry"] {
     background-position: 66% 80%;
