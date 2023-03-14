@@ -158,12 +158,20 @@
 }
 
 #market {
+  position: relative;
   height: 200px;
   display: flex;
   flex-direction: row-reverse;
   justify-content: center;
   align-items: stretch;
   gap: 10px;
+  font-weight: bold;
+  text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
+}
+#market #r {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 #market .tile-with-cost {
   cursor: pointer;
@@ -189,10 +197,12 @@
   position: relative;
   width: 175px;
   height: 170px;
+  transform: rotate(calc(60deg * var(--r)));
+}
+#market .tile-with-cost .tile .hex:first-child {
+  text-decoration: underline red double;
 }
 #market .tile-with-cost .cost {
-  font-weight: bold;
-  text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
   display: flex;
   align-items: center;
   gap: 5px;

@@ -27,11 +27,8 @@ class PlayerTable {
         options.forEach(option => {
             const hex = this.createPossibleHex(option.x, option.y, option.z);
             const face = hex.getElementsByClassName('face')[0] as HTMLDivElement;
-            option.r.forEach(r => {
-                face.insertAdjacentHTML('beforeend', `<button id="place-tile-${option.x}-${option.y}-${option.z}-${r}">placeTile r=${r}</button>`);
-                document.getElementById(`place-tile-${option.x}-${option.y}-${option.z}-${r}`).addEventListener('click', () => this.game.placeTile(option.x, option.y, option.z, r));
-            })
-        })
+            face.addEventListener('click', () => this.game.placeTile(option.x, option.y, option.z/*, r*/));
+        });
     }
     
     public removePlaceTileOptions() {

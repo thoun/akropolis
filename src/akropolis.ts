@@ -11,6 +11,7 @@ class Akropolis implements AkropolisGame {
     private gamedatas: AkropolisGamedatas;
     private tableCenter: TableCenter;
     private selectedTileId: number;
+    private rotation: number = 0;
     private playersTables: PlayerTable[] = [];
     private stonesCounters: Counter[] = [];
     private hexesCounters: Counter[][] = [];
@@ -99,20 +100,10 @@ class Akropolis implements AkropolisGame {
     public onUpdateActionButtons(stateName: string, args: any) {
         if ((this as any).isCurrentPlayerActive()) {
             switch (stateName) {
-                /* example case 'chooseOperation':
-                    const chooseOperationArgs = args as EnteringChooseOperationArgs;
-                    Object.keys(chooseOperationArgs.operations).forEach((type: any) => {
-                        const operation = chooseOperationArgs.operations[type];
-                        (this as any).addActionButton(`chooseOperation${type}_button`, `<div class="operation-icon" data-type="${type}"></div> ${operation.value}`, () => this.chooseOperation(type), null, null, 'gray');
-                        if (operation.disabled) {
-                            const button = document.getElementById(`chooseOperation${type}_button`);
-                            button.classList.add('disabled');
-                            if (operation.disabled == 'first-player') {
-                                button.insertAdjacentHTML('beforeend', `<div class="first-player-token"></div>`);
-                            }
-                        }    
-                    });
-                    break;*/
+                 case 'placeTile':
+                    (this as any).addActionButton(`decRotation_button`, `⤹`, () => this.decRotation());
+                    (this as any).addActionButton(`incRotation_button`, `⤸`, () => this.incRotation());
+                    break;
             }
         }
     }
@@ -282,7 +273,22 @@ class Akropolis implements AkropolisGame {
         this.selectedTileId = tileId;
     }
 
-    public placeTile(x: number, y: number, z: number, r: number): void {
+    public decRotation(): void {
+        this.setRotation(this.rotation == 0 ? 5 : this.rotation - 1);
+    }
+
+    public incRotation(): void {
+        this.setRotation(this.rotation == 5 ? 0 : this.rotation + 1);
+    }
+
+    private setRotation(rotation: number): void {
+        this.rotation = rotation;
+        document.getElementById('market').style.setProperty('--r', `${rotation}`);
+        // temp
+        document.getElementById('r').innerHTML = `r = ${rotation}`;
+    }
+
+    public placeTile(x: number, y: number, z: number): void {
         if(!(this as any).checkAction('actPlaceTile')) {
             return;
         }
@@ -291,7 +297,7 @@ class Akropolis implements AkropolisGame {
             x,
             y,
             z,
-            r,
+            r: this.rotation,
             tileId: this.selectedTileId,
         });
     }

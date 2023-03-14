@@ -107,10 +107,7 @@ var PlayerTable = /** @class */ (function () {
         options.forEach(function (option) {
             var hex = _this.createPossibleHex(option.x, option.y, option.z);
             var face = hex.getElementsByClassName('face')[0];
-            option.r.forEach(function (r) {
-                face.insertAdjacentHTML('beforeend', "<button id=\"place-tile-".concat(option.x, "-").concat(option.y, "-").concat(option.z, "-").concat(r, "\">placeTile r=").concat(r, "</button>"));
-                document.getElementById("place-tile-".concat(option.x, "-").concat(option.y, "-").concat(option.z, "-").concat(r)).addEventListener('click', function () { return _this.game.placeTile(option.x, option.y, option.z, r); });
-            });
+            face.addEventListener('click', function () { return _this.game.placeTile(option.x, option.y, option.z /*, r*/); });
         });
     };
     PlayerTable.prototype.removePlaceTileOptions = function () {
@@ -136,6 +133,7 @@ var PlayerTable = /** @class */ (function () {
 }());
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
+        this.rotation = 0;
         this.playersTables = [];
         this.stonesCounters = [];
         this.hexesCounters = [];
@@ -204,22 +202,13 @@ var Akropolis = /** @class */ (function () {
     //                        action status bar (ie: the HTML links in the status bar).
     //
     Akropolis.prototype.onUpdateActionButtons = function (stateName, args) {
+        var _this = this;
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
-                /* example case 'chooseOperation':
-                    const chooseOperationArgs = args as EnteringChooseOperationArgs;
-                    Object.keys(chooseOperationArgs.operations).forEach((type: any) => {
-                        const operation = chooseOperationArgs.operations[type];
-                        (this as any).addActionButton(`chooseOperation${type}_button`, `<div class="operation-icon" data-type="${type}"></div> ${operation.value}`, () => this.chooseOperation(type), null, null, 'gray');
-                        if (operation.disabled) {
-                            const button = document.getElementById(`chooseOperation${type}_button`);
-                            button.classList.add('disabled');
-                            if (operation.disabled == 'first-player') {
-                                button.insertAdjacentHTML('beforeend', `<div class="first-player-token"></div>`);
-                            }
-                        }
-                    });
-                    break;*/
+                case 'placeTile':
+                    this.addActionButton("decRotation_button", "\u2939", function () { return _this.decRotation(); });
+                    this.addActionButton("incRotation_button", "\u2938", function () { return _this.incRotation(); });
+                    break;
             }
         }
     };
@@ -337,7 +326,19 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.setSelectedTileId = function (tileId) {
         this.selectedTileId = tileId;
     };
-    Akropolis.prototype.placeTile = function (x, y, z, r) {
+    Akropolis.prototype.decRotation = function () {
+        this.setRotation(this.rotation == 0 ? 5 : this.rotation - 1);
+    };
+    Akropolis.prototype.incRotation = function () {
+        this.setRotation(this.rotation == 5 ? 0 : this.rotation + 1);
+    };
+    Akropolis.prototype.setRotation = function (rotation) {
+        this.rotation = rotation;
+        document.getElementById('market').style.setProperty('--r', "".concat(rotation));
+        // temp
+        document.getElementById('r').innerHTML = "r = ".concat(rotation);
+    };
+    Akropolis.prototype.placeTile = function (x, y, z) {
         if (!this.checkAction('actPlaceTile')) {
             return;
         }
@@ -345,7 +346,7 @@ var Akropolis = /** @class */ (function () {
             x: x,
             y: y,
             z: z,
-            r: r,
+            r: this.rotation,
             tileId: this.selectedTileId,
         });
     };

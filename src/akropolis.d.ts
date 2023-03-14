@@ -48,7 +48,7 @@ interface AkropolisGame extends Game {
 
     setTooltip(id: string, html: string): void;  
     setSelectedTileId(index: number): void;
-    placeTile(x: number, y: number, z: number, r: number): void;
+    placeTile(x: number, y: number, z: number/*, r: number*/): void;
 }
 
 interface PlaceTileOption {
