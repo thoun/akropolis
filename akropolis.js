@@ -21,6 +21,8 @@ var TilesManager = /** @class */ (function () {
         hex.style.setProperty('--z', "".concat(z));
         var face = document.createElement('div');
         (_a = face.classList).add.apply(_a, __spreadArray(['face'], faceClasses, false));
+        // temp
+        face.innerHTML = "".concat(x, ", ").concat(y, ", ").concat(z);
         hex.appendChild(face);
         return hex;
     };
@@ -41,8 +43,6 @@ var TilesManager = /** @class */ (function () {
         var plaza = typeArray[1] === 'plaza';
         face.dataset.type = type;
         face.dataset.plaza = (plaza !== null && plaza !== void 0 ? plaza : false).toString();
-        // temp
-        face.innerHTML = "".concat(type).concat(plaza ? "<br>(plaza)" : '', "<br>").concat(x, ", ").concat(y, ", ").concat(z);
         return hex;
     };
     TilesManager.prototype.createPossibleHex = function (x, y, z) {
@@ -73,9 +73,9 @@ var TableCenter = /** @class */ (function () {
         var tileWithCost = document.createElement('div');
         tileWithCost.id = "market-tile-".concat(tile.id);
         tileWithCost.classList.add('tile-with-cost');
-        if (index > 0) {
+        /* TODO if (index > 0) {
             tileWithCost.classList.add('disabled');
-        }
+        }*/
         tileWithCost.appendChild(this.game.tilesManager.createMarketTile(tile.hexes));
         var cost = document.createElement('div');
         cost.classList.add('cost');
@@ -102,17 +102,15 @@ var PlayerTable = /** @class */ (function () {
         dojo.place(html, document.getElementById('tables'));
         this.createGrid(player.board.grid);
     }
-    PlayerTable.prototype.setPlaceTileOptions = function (options) {
+    PlayerTable.prototype.setPlaceTileOptions = function (options, rotation) {
         var _this = this;
-        options.forEach(function (option) {
+        // clean previous
+        Array.from(document.getElementById("player-table-".concat(this.playerId, "-city")).querySelectorAll('.possible')).forEach(function (option) { return option.remove(); });
+        options.filter(function (option) { return option.r.some(function (r) { return r == rotation; }); }).forEach(function (option) {
             var hex = _this.createPossibleHex(option.x, option.y, option.z);
             var face = hex.getElementsByClassName('face')[0];
             face.addEventListener('click', function () { return _this.game.placeTile(option.x, option.y, option.z /*, r*/); });
         });
-    };
-    PlayerTable.prototype.removePlaceTileOptions = function () {
-        var options = document.getElementById("player-table-".concat(this.playerId, "-city")).querySelectorAll('.possible');
-        Array.from(options).forEach(function (option) { return option.remove(); });
     };
     PlayerTable.prototype.createGrid = function (grid) {
         var _this = this;
@@ -183,7 +181,7 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.onEnteringPlaceTile = function (args) {
         if (this.isCurrentPlayerActive()) {
-            this.getCurrentPlayerTable().setPlaceTileOptions(args.options);
+            this.getCurrentPlayerTable().setPlaceTileOptions(args.options, this.rotation);
         }
     };
     Akropolis.prototype.onLeavingState = function (stateName) {
@@ -196,7 +194,7 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.onLeavingPlaceTile = function () {
         var _a;
-        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.removePlaceTileOptions();
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setPlaceTileOptions([], this.rotation);
     };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -335,6 +333,7 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.setRotation = function (rotation) {
         this.rotation = rotation;
         document.getElementById('market').style.setProperty('--r', "".concat(rotation));
+        this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
         // temp
         document.getElementById('r').innerHTML = "r = ".concat(rotation);
     };

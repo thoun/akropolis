@@ -10,6 +10,8 @@ class TilesManager {
 
         const face = document.createElement('div');
         face.classList.add('face', ...faceClasses);
+        // temp
+        face.innerHTML = `${x}, ${y}, ${z}`;
         hex.appendChild(face);
         return hex;
     }
@@ -32,8 +34,6 @@ class TilesManager {
         const plaza = typeArray[1] === 'plaza';
         face.dataset.type = type;
         face.dataset.plaza = (plaza ?? false).toString();
-        // temp
-        face.innerHTML = `${type}${plaza ? `<br>(plaza)` : ''}<br>${x}, ${y}, ${z}`;
         return hex;
     }
     

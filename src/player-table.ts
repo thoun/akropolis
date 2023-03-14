@@ -23,17 +23,15 @@ class PlayerTable {
         this.createGrid(player.board.grid);
     }
     
-    public setPlaceTileOptions(options: PlaceTileOption[]) {
-        options.forEach(option => {
+    public setPlaceTileOptions(options: PlaceTileOption[], rotation: number) {
+        // clean previous
+        Array.from(document.getElementById(`player-table-${this.playerId}-city`).querySelectorAll('.possible')).forEach(option => option.remove());
+
+        options.filter(option => option.r.some(r => r == rotation)).forEach(option => {
             const hex = this.createPossibleHex(option.x, option.y, option.z);
             const face = hex.getElementsByClassName('face')[0] as HTMLDivElement;
             face.addEventListener('click', () => this.game.placeTile(option.x, option.y, option.z/*, r*/));
         });
-    }
-    
-    public removePlaceTileOptions() {
-        const options = document.getElementById(`player-table-${this.playerId}-city`).querySelectorAll('.possible');
-        Array.from(options).forEach(option => option.remove());
     }
 
     private createGrid(grid: PlayerGrid) {

@@ -7,9 +7,9 @@ class TableCenter {
         const tileWithCost = document.createElement('div');
         tileWithCost.id = `market-tile-${tile.id}`;
         tileWithCost.classList.add('tile-with-cost');
-        if (index > 0) {
+        /* TODO if (index > 0) {
             tileWithCost.classList.add('disabled');
-        }
+        }*/
         tileWithCost.appendChild(this.game.tilesManager.createMarketTile(tile.hexes));
         const cost = document.createElement('div');
         cost.classList.add('cost');

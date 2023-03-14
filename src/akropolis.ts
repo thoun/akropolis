@@ -76,7 +76,7 @@ class Akropolis implements AkropolisGame {
     
     private onEnteringPlaceTile(args: EnteringPlaceTileArgs) {
         if ((this as any).isCurrentPlayerActive()) {
-            this.getCurrentPlayerTable().setPlaceTileOptions(args.options);
+            this.getCurrentPlayerTable().setPlaceTileOptions(args.options, this.rotation);
         }
     }
 
@@ -91,7 +91,7 @@ class Akropolis implements AkropolisGame {
     }
 
     private onLeavingPlaceTile() {
-        this.getCurrentPlayerTable()?.removePlaceTileOptions();
+        this.getCurrentPlayerTable()?.setPlaceTileOptions([], this.rotation);
     }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -284,6 +284,7 @@ class Akropolis implements AkropolisGame {
     private setRotation(rotation: number): void {
         this.rotation = rotation;
         document.getElementById('market').style.setProperty('--r', `${rotation}`);
+        this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
         // temp
         document.getElementById('r').innerHTML = `r = ${rotation}`;
     }
