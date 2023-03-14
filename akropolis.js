@@ -62,17 +62,18 @@ var TilesManager = /** @class */ (function () {
     };
     return TilesManager;
 }());
-var TableCenter = /** @class */ (function () {
-    function TableCenter(game, tiles) {
+var ConstructionSite = /** @class */ (function () {
+    function ConstructionSite(game, tiles) {
         var _this = this;
         this.game = game;
         tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
     }
-    TableCenter.prototype.addTile = function (tile, index) {
+    ConstructionSite.prototype.addTile = function (tile, index) {
         var _this = this;
         var tileWithCost = document.createElement('div');
         tileWithCost.id = "market-tile-".concat(tile.id);
         tileWithCost.classList.add('tile-with-cost');
+        tileWithCost.dataset.cost = "".concat(index);
         /* TODO if (index > 0) {
             tileWithCost.classList.add('disabled');
         }*/
@@ -81,15 +82,25 @@ var TableCenter = /** @class */ (function () {
         cost.classList.add('cost');
         cost.innerHTML = "\n            <span>".concat(index, "</span>\n            <div class=\"stone score-icon\"></div> \n        ");
         tileWithCost.appendChild(cost);
-        tileWithCost.addEventListener('click', function () { return _this.setSelectedTileId(tile.id); });
+        tileWithCost.addEventListener('click', function () {
+            if (!tileWithCost.classList.contains('disabled')) {
+                _this.setSelectedTileId(tile.id);
+            }
+        });
         document.getElementById('market').appendChild(tileWithCost);
     };
-    TableCenter.prototype.setSelectedTileId = function (tileId) {
+    ConstructionSite.prototype.setSelectedTileId = function (tileId) {
         Array.from(document.getElementById('market').querySelectorAll('.selected')).forEach(function (option) { return option.classList.remove('selected'); });
         document.getElementById("market-tile-".concat(tileId)).classList.add('selected');
         this.game.setSelectedTileId(tileId);
     };
-    return TableCenter;
+    ConstructionSite.prototype.setDisabledTiles = function (playerMoney) {
+        Array.from(document.getElementById('market').querySelectorAll('.disabled')).forEach(function (option) { return option.classList.remove('disabled'); });
+        if (playerMoney !== null) {
+            Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(function (option) { return option.classList.toggle('disabled', Number(option.dataset.cost) > playerMoney); });
+        }
+    };
+    return ConstructionSite;
 }());
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
 var log = isDebug ? console.log.bind(window.console) : function () { };
@@ -156,7 +167,7 @@ var Akropolis = /** @class */ (function () {
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
         this.tilesManager = new TilesManager(this);
-        this.tableCenter = new TableCenter(this, gamedatas.dock);
+        this.constructionSite = new ConstructionSite(this, gamedatas.dock);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         // TODO temp
@@ -182,6 +193,7 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.onEnteringPlaceTile = function (args) {
         if (this.isCurrentPlayerActive()) {
             this.getCurrentPlayerTable().setPlaceTileOptions(args.options, this.rotation);
+            this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());
         }
     };
     Akropolis.prototype.onLeavingState = function (stateName) {

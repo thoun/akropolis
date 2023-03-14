@@ -9,7 +9,7 @@ class Akropolis implements AkropolisGame {
     public tilesManager: TilesManager;
 
     private gamedatas: AkropolisGamedatas;
-    private tableCenter: TableCenter;
+    private constructionSite: ConstructionSite;
     private selectedTileId: number;
     private rotation: number = 0;
     private playersTables: PlayerTable[] = [];
@@ -44,7 +44,7 @@ class Akropolis implements AkropolisGame {
         log('gamedatas', gamedatas);
 
         this.tilesManager = new TilesManager(this);
-        this.tableCenter = new TableCenter(this, gamedatas.dock);
+        this.constructionSite = new ConstructionSite(this, gamedatas.dock);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         
@@ -77,6 +77,7 @@ class Akropolis implements AkropolisGame {
     private onEnteringPlaceTile(args: EnteringPlaceTileArgs) {
         if ((this as any).isCurrentPlayerActive()) {
             this.getCurrentPlayerTable().setPlaceTileOptions(args.options, this.rotation);
+            this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());
         }
     }
 

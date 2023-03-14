@@ -24,6 +24,7 @@
         align-items: center;
 
         &.disabled {
+            cursor: not-allowed;
             background: #88888866;
 
             .tile {
