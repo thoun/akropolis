@@ -182,6 +182,9 @@
 #market .tile-with-cost.disabled .cost {
   color: red;
 }
+#market .tile-with-cost.selected {
+  box-shadow: 0 0 10px 8px red;
+}
 #market .tile-with-cost .tile {
   position: relative;
   width: 175px;

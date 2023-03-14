@@ -10,6 +10,7 @@ class Akropolis implements AkropolisGame {
 
     private gamedatas: AkropolisGamedatas;
     private tableCenter: TableCenter;
+    private selectedTileId: number;
     private playersTables: PlayerTable[] = [];
     private stonesCounters: Counter[] = [];
     private hexesCounters: Counter[][] = [];
@@ -277,26 +278,21 @@ class Akropolis implements AkropolisGame {
         helpDialog.show();
     }
 
-    public chooseMarketTile(index: number): void {
-        if(!(this as any).checkAction('chooseMarketTile')) {
-            return;
-        }
-
-        this.takeAction('chooseMarketTile', {
-            index,
-        });
+    public setSelectedTileId(tileId: number): void {
+        this.selectedTileId = tileId;
     }
 
     public placeTile(x: number, y: number, z: number, r: number): void {
-        if(!(this as any).checkAction('placeTile')) {
+        if(!(this as any).checkAction('actPlaceTile')) {
             return;
         }
 
-        this.takeAction('placeTile', {
+        this.takeAction('actPlaceTile', {
             x,
             y,
             z,
             r,
+            tileId: this.selectedTileId,
         });
     }
 

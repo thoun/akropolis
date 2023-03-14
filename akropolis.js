@@ -66,23 +66,28 @@ var TableCenter = /** @class */ (function () {
     function TableCenter(game, tiles) {
         var _this = this;
         this.game = game;
-        tiles.forEach(function (tile, index) { return _this.addTile(tile.hexes, index); });
+        tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
     }
-    TableCenter.prototype.addTile = function (hexes, index) {
+    TableCenter.prototype.addTile = function (tile, index) {
         var _this = this;
         var tileWithCost = document.createElement('div');
-        tileWithCost.id = "market-tile-".concat(index);
+        tileWithCost.id = "market-tile-".concat(tile.id);
         tileWithCost.classList.add('tile-with-cost');
         if (index > 0) {
             tileWithCost.classList.add('disabled');
         }
-        tileWithCost.appendChild(this.game.tilesManager.createMarketTile(hexes));
+        tileWithCost.appendChild(this.game.tilesManager.createMarketTile(tile.hexes));
         var cost = document.createElement('div');
         cost.classList.add('cost');
         cost.innerHTML = "\n            <span>".concat(index, "</span>\n            <div class=\"stone score-icon\"></div> \n        ");
         tileWithCost.appendChild(cost);
-        tileWithCost.addEventListener('click', function () { return _this.game.chooseMarketTile(index); });
+        tileWithCost.addEventListener('click', function () { return _this.setSelectedTileId(tile.id); });
         document.getElementById('market').appendChild(tileWithCost);
+    };
+    TableCenter.prototype.setSelectedTileId = function (tileId) {
+        Array.from(document.getElementById('market').querySelectorAll('.selected')).forEach(function (option) { return option.classList.remove('selected'); });
+        document.getElementById("market-tile-".concat(tileId)).classList.add('selected');
+        this.game.setSelectedTileId(tileId);
     };
     return TableCenter;
 }());
@@ -329,23 +334,19 @@ var Akropolis = /** @class */ (function () {
         helpDialog.setContent(html);
         helpDialog.show();
     };
-    Akropolis.prototype.chooseMarketTile = function (index) {
-        if (!this.checkAction('chooseMarketTile')) {
-            return;
-        }
-        this.takeAction('chooseMarketTile', {
-            index: index,
-        });
+    Akropolis.prototype.setSelectedTileId = function (tileId) {
+        this.selectedTileId = tileId;
     };
     Akropolis.prototype.placeTile = function (x, y, z, r) {
-        if (!this.checkAction('placeTile')) {
+        if (!this.checkAction('actPlaceTile')) {
             return;
         }
-        this.takeAction('placeTile', {
+        this.takeAction('actPlaceTile', {
             x: x,
             y: y,
             z: z,
             r: r,
+            tileId: this.selectedTileId,
         });
     };
     Akropolis.prototype.takeAction = function (action, data) {

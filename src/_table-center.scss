@@ -26,6 +26,10 @@
             }
         }
 
+        &.selected {
+            box-shadow: 0 0 10px 8px red;
+        }
+
         .tile {
             position: relative;
             width: 175px;
