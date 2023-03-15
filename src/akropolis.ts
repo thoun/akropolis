@@ -5,8 +5,10 @@ declare const dojo: Dojo;
 declare const _;
 declare const g_gamethemeurl;
 
+// Greek font used in rules : DalekPinpointBold. Free only for personal use
 class Akropolis implements AkropolisGame {
     public tilesManager: TilesManager;
+    public viewManager: ViewManager;
     public animationManager: AnimationManager;
 
     private gamedatas: AkropolisGamedatas;
@@ -44,9 +46,17 @@ class Akropolis implements AkropolisGame {
         
         this.gamedatas = gamedatas;
 
+        // Setup camera controls reminder
+        var reminderHtml = `<div id="controls-reminder">
+        <img src="${g_gamethemeurl}img/mouse-right.svg"></img>
+        ${_('Adjust camera with below controls or right-drag and scroll wheel')}
+        </div>`;
+        dojo.place(reminderHtml, 'controls3d_wrap', 'first');
+
         log('gamedatas', gamedatas);
 
         this.animationManager = new AnimationManager(this);
+        this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.remainingStacks);
         this.createPlayerPanels(gamedatas);
@@ -458,6 +468,16 @@ class Akropolis implements AkropolisGame {
     notif_dockRefill(notif: Notif<NotifDockRefillArgs>) {
         this.constructionSite.refill(notif.args.dock, notif.args.remainingStacks);
     } 
+
+    /* @Override */
+    public change3d(incXAxis: number, xpos: number, ypos: number, xAxis: number, incScale: number, is3Dactive: boolean, reset: boolean) {
+        this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);
+        /*(this as any).control3dscale = Math.min(ZOOM_MAX, (this as any).control3dscale);
+        if (arguments[4] > 0 && (this as any).control3dscale >= ZOOM_MAX) {
+            arguments[4] = 0;
+        }
+        return (this as any).inherited(arguments);*/
+    }
 
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */

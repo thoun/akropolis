@@ -27,6 +27,7 @@ interface AkropolisPlayer extends Player {
     board: {
         grid: PlayerGrid;
     };
+    tiles: Tile[]; // TODO Tisaac check if it matches back. No need to send initial tile, as it's already contained in grid. It's just to mark tiles shapes
 }
 
 interface AkropolisGamedatas {
@@ -45,9 +46,12 @@ interface AkropolisGamedatas {
     dock: Tile[];
     firstPlayerId: number; // TODO Tisaac check if it matches back
     remainingStacks: number; // TODO Tisaac check if it matches back
+    activatedVariants: string[]; // TODO Tisaac send activated variants (house, market, ...)
+    soloLevel?: number; // TODO Tisaac send solo level (1 to 3 if solo activated ?)
 }
 
 interface AkropolisGame extends Game {
+    viewManager: ViewManager;
     tilesManager: TilesManager;
 
     getPlayerId(): number;

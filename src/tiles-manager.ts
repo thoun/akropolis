@@ -15,7 +15,7 @@ class TilesManager {
     }
     
     public createTileHex(x: number, y: number, z: number, types: string, withSides: boolean = true): HTMLDivElement {
-        const hex = this.createHex(x, y, z, ['temp']);
+        const hex = this.createHex(x, y, z);
 
         if (withSides) {
             for (let i = 0; i < 6; i++) {

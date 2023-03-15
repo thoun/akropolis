@@ -3,14 +3,16 @@
   width: #{$hexSide * 4};
   height: #{$hexSide * 4};
 
-  &.temp {
-    animation: temp-tile-animation 1.5s alternate infinite ease-in-out;
+  &.preview {
+    .face, .side {
+      animation: preview-tile-animation 1s alternate infinite ease-in-out;
+    }
   }
 }
 
-@keyframes temp-tile-animation {
+@keyframes preview-tile-animation {
   100% { 
-    opacity: 0.75;
+    opacity: 0.7;
   }
 }
 
@@ -18,7 +20,7 @@
   position: absolute;
   width: #{$hexSide * 2};
   height: $hexHeight;
-  transform: translateZ(calc($hexHeight * (var(--z) + 1)));
+  transform: translateZ(calc($hexThickness * var(--z)));
 
   .face {
     width: 100%;
@@ -34,6 +36,8 @@
     &.possible {
       background-image: url("img/hex-possible.png");
       background-size: auto 100%;
+      transform: translateZ(1px) scale(0.8);
+      cursor: pointer;
 
       // temp
       line-height: 88px;
@@ -42,6 +46,7 @@
     &[data-type] {
       background-image: url("img/sprite.png");
       background-size: auto 350%;
+      transform: translateZ(calc($hexThickness * (var(--z) + 1)));
     }
 
     &[data-type="quarry"] {
@@ -111,12 +116,12 @@
     top: 50%;
     left: 50%;
     position: absolute;
-    margin-left: -24px;
-    margin-top: -8px;
+    margin-left: #{$hexSide * -0.5};
+    margin-top: #{$hexThickness * -0.5};
     width: $hexSide;
     height: $hexThickness;
-    background: white;
-    transform: translateZ(#{$hexThickness * -0.5}) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(#{$hexHeight / 2 - 0.1px});
+    background: url('img/texture-side.jpg');
+    transform: translateZ(#{$hexThickness * 0.5}) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(#{$hexHeight / 2 - 0.1px});
     z-index: -100;
   }
 }

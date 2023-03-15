@@ -210,7 +210,7 @@ var TilesManager = /** @class */ (function () {
     };
     TilesManager.prototype.createTileHex = function (x, y, z, types, withSides) {
         if (withSides === void 0) { withSides = true; }
-        var hex = this.createHex(x, y, z, ['temp']);
+        var hex = this.createHex(x, y, z);
         if (withSides) {
             for (var i = 0; i < 6; i++) {
                 var side = document.createElement('div');
@@ -302,6 +302,119 @@ var TilesManager = /** @class */ (function () {
     };
     return TilesManager;
 }());
+var ZOOM_MAX = 3;
+var ViewManager = /** @class */ (function () {
+    function ViewManager(game) {
+        this.game = game;
+        this.elements = [];
+        if (!dojo.hasClass("ebd-body", "mode_3d")) {
+            dojo.addClass("ebd-body", "mode_3d");
+            $("globalaction_3d").innerHTML = "2D"; // controls the upper right button
+            game.control3dxaxis = 40; // rotation in degrees of x axis (it has a limit of 0 to 80 degrees in the frameword so users cannot turn it upsidedown)
+            game.control3dzaxis = 0; // rotation in degrees of z axis
+            game.control3dxpos = -100; // center of screen in pixels
+            game.control3dypos = -50; // center of screen in pixels
+            game.control3dscale = 1; // zoom level, 1 is default 2 is double normal size,
+            game.control3dmode3d = true; // is the 3d enabled
+        }
+    }
+    ViewManager.prototype.draggableElement3d = function (element) {
+        var _this = this;
+        this.elements.push(element);
+        element.addEventListener('mousedown', function (e) { return _this.drag3dMouseDown(e); });
+        element.addEventListener('mouseup', function (e) { return _this.closeDragElement3d(e); });
+        element.addEventListener('mousewheel', function (e) { return _this.onMouseWheel(e); });
+        element.oncontextmenu = function () { return false; };
+        this.game.drag3d = element;
+    };
+    ViewManager.prototype.drag3dMouseDown = function (e) {
+        e = e || window.event;
+        if (e.which == 3) {
+            dojo.stopEvent(e);
+            $("ebd-body").onmousemove = dojo.hitch(this, this.elementDrag3d);
+            $("pagesection_gameview").onmouseleave = dojo.hitch(this, this.closeDragElement3d);
+            dojo.addClass($("pagesection_gameview"), "grabbinghand");
+        }
+    };
+    ViewManager.prototype.elementDrag3d = function (e) {
+        e = e || window.event;
+        dojo.stopEvent(e);
+        if (!this.isdragging) {
+            this.isdragging = true;
+            var viewportOffset = e.currentTarget.getBoundingClientRect();
+            var x = void 0;
+            if ((e.screenY - viewportOffset.top) > (3 * window.innerHeight / 4)) {
+                x = e.movementX;
+            }
+            else {
+                x = -1 * e.movementX;
+            }
+            this.game.change3d(e.movementY / (-10), 0, 0, x / (-10), 0, true, false);
+            this.isdragging = false;
+        }
+    };
+    ViewManager.prototype.closeDragElement3d = function (evt) {
+        /* stop moving when mouse button is released:*/
+        if (evt.which == 3) {
+            dojo.stopEvent(evt);
+            $("ebd-body").onmousemove = null;
+            dojo.removeClass($("pagesection_gameview"), "grabbinghand");
+        }
+    };
+    ViewManager.prototype.onMouseWheel = function (evt) {
+        dojo.stopEvent(evt);
+        var d = Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail))) * 0.1;
+        this.change3d(0, 0, 0, 0, d, true, false);
+    };
+    // override of framework function to apply 3D on each player city instead of the whole view
+    ViewManager.prototype.change3d = function (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) {
+        var _this = this;
+        this.game.control3dscale = Math.min(ZOOM_MAX, this.game.control3dscale);
+        if (incScale > 0 && this.game.control3dscale >= ZOOM_MAX) {
+            incScale = 0;
+        }
+        if (is3Dactive == false) {
+            this.game.control3dmode3d = !this.game.control3dmode3d;
+        }
+        if (this.game.control3dmode3d == false) {
+            if (dojo.hasClass("ebd-body", "mode_3d")) {
+                dojo.removeClass("ebd-body", "mode_3d");
+            }
+            $("ingame_menu_3d_label").innerHTML = __("lang_mainsite", "3D mode");
+            this.elements.forEach(function (element) { return element.style.transform = "rotatex(" + 0 + "deg) translate(" + 0 + "px," + 0 + "px) rotateZ(" + 0 + "deg)"; });
+        }
+        else {
+            if (!dojo.hasClass("ebd-body", "mode_3d")) {
+                dojo.addClass("ebd-body", "mode_3d");
+            }
+            dojo.addClass("ebd-body", "enableTransitions");
+            $("ingame_menu_3d_label").innerHTML = __("lang_mainsite", "2D mode");
+            this.game.control3dxaxis += incXAxis;
+            if (this.game.control3dxaxis >= 80) {
+                this.game.control3dxaxis = 80;
+            }
+            if (this.game.control3dxaxis <= 0) {
+                this.game.control3dxaxis = 0;
+            }
+            if (this.game.control3dscale < 0.5) {
+                this.game.control3dscale = 0.5;
+            }
+            this.game.control3dzaxis += xAxis;
+            this.game.control3dxpos += xpos;
+            this.game.control3dypos += ypos;
+            this.game.control3dscale += incScale;
+            if (reset == true) {
+                this.game.control3dxaxis = 0;
+                this.game.control3dzaxis = 0;
+                this.game.control3dxpos = 0;
+                this.game.control3dypos = 0;
+                this.game.control3dscale = 1;
+            }
+            this.elements.forEach(function (element) { return element.style.transform = "rotatex(" + _this.game.control3dxaxis + "deg) translate(" + _this.game.control3dypos + "px," + _this.game.control3dxpos + "px) rotateZ(" + _this.game.control3dzaxis + "deg) scale3d(" + _this.game.control3dscale + "," + _this.game.control3dscale + "," + _this.game.control3dscale + ")"; });
+        }
+    };
+    return ViewManager;
+}());
 var ConstructionSite = /** @class */ (function () {
     function ConstructionSite(game, tiles, remainingStacks) {
         var _this = this;
@@ -368,14 +481,19 @@ var PlayerTable = /** @class */ (function () {
         this.game = game;
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n            </div>\n            <div id=\"player-table-").concat(this.playerId, "-city\" class=\"city\"></div>\n        </div>\n        ");
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n            </div>\n            <div class=\"frame\">\n                <div id=\"player-table-").concat(this.playerId, "-city\" class=\"city\">\n                    <div id=\"player-table-").concat(this.playerId, "-grid\" class=\"grid\"></div>\n                </div>\n            </div>\n        </div>\n        ");
         dojo.place(html, document.getElementById('tables'));
+        this.city = document.getElementById("player-table-".concat(this.playerId, "-city"));
+        this.grid = document.getElementById("player-table-".concat(this.playerId, "-grid"));
         this.createGrid(player.board.grid);
+        //    transform: rotateX(10deg) translate(-100px, -100px) rotateZ(0deg) scale3d(0.7, 0.7, 0.7);
+        this.city.style.transform = "rotatex(" + game.control3dxaxis + "deg) translate(" + game.control3dypos + "px," + game.control3dxpos + "px) rotateZ(" + game.control3dzaxis + "deg) scale3d(" + game.control3dscale + "," + game.control3dscale + "," + game.control3dscale + ")";
+        this.game.viewManager.draggableElement3d(this.city);
     }
     PlayerTable.prototype.setPlaceTileOptions = function (options, rotation) {
         var _this = this;
         // clean previous
-        Array.from(document.getElementById("player-table-".concat(this.playerId, "-city")).querySelectorAll('.possible')).forEach(function (option) { return option.parentElement.remove(); });
+        Array.from(this.grid.querySelectorAll('.possible')).forEach(function (option) { return option.parentElement.remove(); });
         options /*.filter(option => option.r.some(r => r == rotation))*/.forEach(function (option) {
             var hex = _this.createPossibleHex(option.x, option.y, option.z);
             var face = hex.getElementsByClassName('face')[0];
@@ -384,17 +502,17 @@ var PlayerTable = /** @class */ (function () {
             });
         });
     };
-    PlayerTable.prototype.placeTile = function (tile, temp, selectedHexIndex) {
+    PlayerTable.prototype.placeTile = function (tile, preview, selectedHexIndex) {
         var _this = this;
         if (selectedHexIndex === void 0) { selectedHexIndex = null; }
-        var tileDiv = this.game.tilesManager.createTile(tile, true, temp ? ['temp'] : []);
+        var tileDiv = this.game.tilesManager.createTile(tile, true, preview ? ['preview'] : []);
         tileDiv.style.setProperty('--x', "".concat(tile.x));
         tileDiv.style.setProperty('--y', "".concat(tile.y));
         tileDiv.style.setProperty('--z', "".concat(tile.z));
         tileDiv.style.setProperty('--r', "".concat(tile.r));
         tileDiv.dataset.selectedHexIndex = "".concat(selectedHexIndex);
-        document.getElementById("player-table-".concat(this.playerId, "-city")).appendChild(tileDiv);
-        if (temp) {
+        this.grid.appendChild(tileDiv);
+        if (preview) {
             tile.hexes.forEach(function (hex, index) {
                 var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
                 if (index == selectedHexIndex) {
@@ -425,21 +543,22 @@ var PlayerTable = /** @class */ (function () {
         }); }); });
     };
     PlayerTable.prototype.createTileHex = function (x, y, z, types) {
-        var hex = this.game.tilesManager.createTileHex(x, y, z, types);
+        var hex = this.game.tilesManager.createTileHex(x, y, z, types, true);
         hex.id = "player-".concat(this.playerId, "-hex-").concat(x, "-").concat(y, "-").concat(z);
-        document.getElementById("player-table-".concat(this.playerId, "-city")).appendChild(hex);
+        this.grid.appendChild(hex);
         var _a = this.game.tilesManager.hexFromString(types), type = _a.type, plaza = _a.plaza;
         this.game.setTooltip(hex.id, "".concat(x, ", ").concat(y, ", ").concat(z, "<br><br>") + this.game.tilesManager.getHexTooltip(type, plaza));
     };
     PlayerTable.prototype.createPossibleHex = function (x, y, z) {
         var hex = this.game.tilesManager.createPossibleHex(x, y, z);
         hex.id = "player-".concat(this.playerId, "-possible-hex-").concat(x, "-").concat(y, "-").concat(z);
-        document.getElementById("player-table-".concat(this.playerId, "-city")).appendChild(hex);
+        this.grid.appendChild(hex);
         this.game.setTooltip(hex.id, "".concat(x, ", ").concat(y, ", ").concat(z));
         return hex;
     };
     return PlayerTable;
 }());
+// Greek font used in rules : DalekPinpointBold. Free only for personal use
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
         this.rotation = 0;
@@ -465,8 +584,12 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.setup = function (gamedatas) {
         log("Starting game setup");
         this.gamedatas = gamedatas;
+        // Setup camera controls reminder
+        var reminderHtml = "<div id=\"controls-reminder\">\n        <img src=\"".concat(g_gamethemeurl, "img/mouse-right.svg\"></img>\n        ").concat(_('Adjust camera with below controls or right-drag and scroll wheel'), "\n        </div>");
+        dojo.place(reminderHtml, 'controls3d_wrap', 'first');
         log('gamedatas', gamedatas);
         this.animationManager = new AnimationManager(this);
+        this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.remainingStacks);
         this.createPlayerPanels(gamedatas);
@@ -786,6 +909,15 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.notif_dockRefill = function (notif) {
         this.constructionSite.refill(notif.args.dock, notif.args.remainingStacks);
+    };
+    /* @Override */
+    Akropolis.prototype.change3d = function (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) {
+        this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);
+        /*(this as any).control3dscale = Math.min(ZOOM_MAX, (this as any).control3dscale);
+        if (arguments[4] > 0 && (this as any).control3dscale >= ZOOM_MAX) {
+            arguments[4] = 0;
+        }
+        return (this as any).inherited(arguments);*/
     };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */
