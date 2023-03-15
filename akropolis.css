@@ -318,6 +318,20 @@
 .city .tile[data-selected-hex-index="2"] {
   transform-origin: 72.75px 126px;
 }
+.city .tile::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("img/tile-mask.png");
+  background-size: 86% 86%;
+  background-position: 93% 0%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  transform: translateZ(16px);
+}
 .city .tile .hex {
   --z: 0;
   left: calc(48.5px * (0.5 + var(--x) * 1.5));
