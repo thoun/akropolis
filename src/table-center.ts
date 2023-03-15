@@ -11,7 +11,7 @@ class ConstructionSite {
         /* TODO if (index > 0) {
             tileWithCost.classList.add('disabled');
         }*/
-        tileWithCost.appendChild(this.game.tilesManager.createMarketTile(tile.hexes));
+        tileWithCost.appendChild(this.game.tilesManager.createMarketTile(tile));
         const cost = document.createElement('div');
         cost.classList.add('cost');
         cost.innerHTML = `
@@ -19,17 +19,18 @@ class ConstructionSite {
             <div class="stone score-icon"></div> 
         `;
         tileWithCost.appendChild(cost);
-        tileWithCost.addEventListener('click', () => {
+        /*tileWithCost.addEventListener('click', () => {
             if (!tileWithCost.classList.contains('disabled')) {
                 this.setSelectedTileId(tile.id);
             }
-        });
+        });*/
         document.getElementById('market').appendChild(tileWithCost);
     }
 
-    public setSelectedTileId(tileId: number) {
+    public setSelectedHex(tileId: number, tile: HTMLDivElement, hex: HTMLDivElement) {
         Array.from(document.getElementById('market').querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
         document.getElementById(`market-tile-${tileId}`).classList.add('selected');
+        hex.classList.add('selected');
         this.game.setSelectedTileId(tileId);
     }
 

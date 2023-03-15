@@ -1,7 +1,7 @@
-:root {
-  --hex-side: 48.5px;
-  --hex-height: 84px;
-  --hex-thickness: 16px;
+.tile {
+  position: absolute;
+  width: calc(var(--hex-side) * 4);
+  height: calc(var(--hex-side) * 4);
 }
 
 .hex {
@@ -83,6 +83,21 @@
       background-position: 0% 40%;
       &[data-plaza="true"] {
         background-position: 33% 60%;
+      }
+    }
+  }
+
+  &.selected {
+    .face {
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("img/hex-possible.png");
+        background-size: auto 100%;
       }
     }
   }

@@ -48,6 +48,7 @@ interface AkropolisGame extends Game {
 
     setTooltip(id: string, html: string): void;  
     setSelectedTileId(index: number): void;
+    constructionSiteHexClicked(tileId: number, tile: HTMLDivElement, hex: HTMLDivElement): void;
     placeTile(x: number, y: number, z: number/*, r: number*/): void;
 }
 

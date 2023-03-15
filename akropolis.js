@@ -11,21 +11,6 @@ var TilesManager = /** @class */ (function () {
     function TilesManager(game) {
         this.game = game;
     }
-    TilesManager.prototype.createHex = function (x, y, z, faceClasses) {
-        var _a;
-        if (faceClasses === void 0) { faceClasses = []; }
-        var hex = document.createElement('div');
-        hex.classList.add('hex');
-        hex.style.setProperty('--x', "".concat(x));
-        hex.style.setProperty('--y', "".concat(y));
-        hex.style.setProperty('--z', "".concat(z));
-        var face = document.createElement('div');
-        (_a = face.classList).add.apply(_a, __spreadArray(['face'], faceClasses, false));
-        // temp
-        face.innerHTML = "".concat(x, ", ").concat(y, ", ").concat(z);
-        hex.appendChild(face);
-        return hex;
-    };
     TilesManager.prototype.createTileHex = function (x, y, z, types, withSides) {
         if (withSides === void 0) { withSides = true; }
         var hex = this.createHex(x, y, z, ['temp']);
@@ -48,17 +33,40 @@ var TilesManager = /** @class */ (function () {
     TilesManager.prototype.createPossibleHex = function (x, y, z) {
         return this.createHex(x, y, z, ['possible']);
     };
-    TilesManager.prototype.createMarketTile = function (hexes) {
+    TilesManager.prototype.createMarketTile = function (tile) {
         var _this = this;
         var XY = [
             [0, 0],
             [1, 1],
             [0, 2],
         ];
-        var tile = document.createElement('div');
-        tile.classList.add('tile');
-        hexes.forEach(function (hex, index) { return tile.appendChild(_this.createTileHex(XY[index][0], XY[index][1], 0, hex, false)); });
-        return tile;
+        var tileDiv = document.createElement('div');
+        tileDiv.classList.add('tile');
+        var firstHex = null; // temp
+        tile.hexes.forEach(function (hex, index) {
+            var hexDiv = _this.createTileHex(XY[index][0], XY[index][1], 0, hex, false);
+            if (index == 0) {
+                firstHex = hexDiv;
+            } // temp
+            hexDiv.addEventListener('click', function () { return _this.game.constructionSiteHexClicked(tile.id, tileDiv, firstHex /* temp hexDiv*/); });
+            tileDiv.appendChild(hexDiv);
+        });
+        return tileDiv;
+    };
+    TilesManager.prototype.createHex = function (x, y, z, faceClasses) {
+        var _a;
+        if (faceClasses === void 0) { faceClasses = []; }
+        var hex = document.createElement('div');
+        hex.classList.add('hex');
+        hex.style.setProperty('--x', "".concat(x));
+        hex.style.setProperty('--y', "".concat(y));
+        hex.style.setProperty('--z', "".concat(z));
+        var face = document.createElement('div');
+        (_a = face.classList).add.apply(_a, __spreadArray(['face'], faceClasses, false));
+        // temp
+        face.innerHTML = "".concat(x, ", ").concat(y, ", ").concat(z);
+        hex.appendChild(face);
+        return hex;
     };
     return TilesManager;
 }());
@@ -69,7 +77,6 @@ var ConstructionSite = /** @class */ (function () {
         tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
     }
     ConstructionSite.prototype.addTile = function (tile, index) {
-        var _this = this;
         var tileWithCost = document.createElement('div');
         tileWithCost.id = "market-tile-".concat(tile.id);
         tileWithCost.classList.add('tile-with-cost');
@@ -77,21 +84,22 @@ var ConstructionSite = /** @class */ (function () {
         /* TODO if (index > 0) {
             tileWithCost.classList.add('disabled');
         }*/
-        tileWithCost.appendChild(this.game.tilesManager.createMarketTile(tile.hexes));
+        tileWithCost.appendChild(this.game.tilesManager.createMarketTile(tile));
         var cost = document.createElement('div');
         cost.classList.add('cost');
         cost.innerHTML = "\n            <span>".concat(index, "</span>\n            <div class=\"stone score-icon\"></div> \n        ");
         tileWithCost.appendChild(cost);
-        tileWithCost.addEventListener('click', function () {
+        /*tileWithCost.addEventListener('click', () => {
             if (!tileWithCost.classList.contains('disabled')) {
-                _this.setSelectedTileId(tile.id);
+                this.setSelectedTileId(tile.id);
             }
-        });
+        });*/
         document.getElementById('market').appendChild(tileWithCost);
     };
-    ConstructionSite.prototype.setSelectedTileId = function (tileId) {
+    ConstructionSite.prototype.setSelectedHex = function (tileId, tile, hex) {
         Array.from(document.getElementById('market').querySelectorAll('.selected')).forEach(function (option) { return option.classList.remove('selected'); });
         document.getElementById("market-tile-".concat(tileId)).classList.add('selected');
+        hex.classList.add('selected');
         this.game.setSelectedTileId(tileId);
     };
     ConstructionSite.prototype.setDisabledTiles = function (playerMoney) {
@@ -170,8 +178,6 @@ var Akropolis = /** @class */ (function () {
         this.constructionSite = new ConstructionSite(this, gamedatas.dock);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
-        // TODO temp
-        // this.tilesManager.testTile();
         this.setupNotifications();
         this.setupPreferences();
         // this.addHelp();
@@ -335,6 +341,10 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.setSelectedTileId = function (tileId) {
         this.selectedTileId = tileId;
+    };
+    Akropolis.prototype.constructionSiteHexClicked = function (tileId, tile, hex) {
+        this.selectedTileId = tileId;
+        this.constructionSite.setSelectedHex(tileId, tile, hex);
     };
     Akropolis.prototype.decRotation = function () {
         this.setRotation(this.rotation == 0 ? 5 : this.rotation - 1);

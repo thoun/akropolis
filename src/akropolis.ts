@@ -47,9 +47,6 @@ class Akropolis implements AkropolisGame {
         this.constructionSite = new ConstructionSite(this, gamedatas.dock);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
-        
-        // TODO temp
-        // this.tilesManager.testTile();
 
         this.setupNotifications();
         this.setupPreferences();
@@ -272,6 +269,11 @@ class Akropolis implements AkropolisGame {
 
     public setSelectedTileId(tileId: number): void {
         this.selectedTileId = tileId;
+    }
+    
+    public constructionSiteHexClicked(tileId: number, tile: HTMLDivElement, hex: HTMLDivElement): void {
+        this.selectedTileId = tileId;
+        this.constructionSite.setSelectedHex(tileId, tile, hex);
     }
 
     public decRotation(): void {

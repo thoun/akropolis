@@ -2,9 +2,8 @@
 
 <div id="full-table">
     <div id="market">
-        <div id="r">r = 0</div>
+        <div id="r">r = 0</div><!-- temp -->
     </div>
-    <div id="test"></div>
     <div id="tables"></div>
 </div>
 

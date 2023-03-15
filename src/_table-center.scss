@@ -9,6 +9,7 @@
     font-weight: bold;
     text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
 
+    // temp
     #r {
         position: absolute;
         top: 0;
@@ -16,12 +17,12 @@
     }
 
     .tile-with-cost {
-        cursor: pointer;
-        width: 186px;
+        width: calc(var(--hex-side) * 4);
         display: flex;
         justify-content: space-between;
         flex-direction: column;
         align-items: center;
+        border-radius: 20px;
 
         &.disabled {
             cursor: not-allowed;
@@ -29,6 +30,7 @@
 
             .tile {
                 opacity: 0.8;
+                pointer-events: none;
             }
 
             .cost {
@@ -36,20 +38,21 @@
             }
         }
 
+        &:not(.disabled) {
+            .tile {
+                .hex {
+                    cursor: pointer;
+                }
+            }
+        }
+
         &.selected {
-            box-shadow: 0 0 10px 8px red;
+            box-shadow: 0 0 10px 8px $selectionColor;
         }
 
         .tile {
             position: relative;
-            width: 175px;
-            height: 170px;
             transform: rotate(calc(60deg * var(--r)));
-
-            // temp
-            .hex:first-child {
-                text-decoration: underline red double;
-            }
         }
 
         .cost {
@@ -67,7 +70,7 @@
 
     .hex {
         position: absolute;
-        left: calc(50px - var(--hex-side) + (var(--hex-side) * var(--x) * 1.5));
+        left: calc(var(--hex-side) * (0.5 + var(--x) * 1.5));
         top: calc(var(--hex-height) * var(--y) / 2);
     }
 }
