@@ -10,7 +10,9 @@ class Akropolis implements AkropolisGame {
 
     private gamedatas: AkropolisGamedatas;
     private constructionSite: ConstructionSite;
-    private selectedTileId: number;
+    private selectedPosition: Partial<PlaceTileOption>;
+    private selectedTile: Tile;
+    private selectedTileHexIndex: number;
     private rotation: number = 0;
     private playersTables: PlayerTable[] = [];
     private stonesCounters: Counter[] = [];
@@ -73,6 +75,10 @@ class Akropolis implements AkropolisGame {
     
     private onEnteringPlaceTile(args: EnteringPlaceTileArgs) {
         if ((this as any).isCurrentPlayerActive()) {
+            this.selectedPosition = null;
+            this.selectedTile = null;
+            this.selectedTileHexIndex = null;
+            this.setRotation(0);
             this.getCurrentPlayerTable().setPlaceTileOptions(args.options, this.rotation);
             this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());
         }
@@ -101,6 +107,8 @@ class Akropolis implements AkropolisGame {
                  case 'placeTile':
                     (this as any).addActionButton(`decRotation_button`, `⤹`, () => this.decRotation());
                     (this as any).addActionButton(`incRotation_button`, `⤸`, () => this.incRotation());
+                    (this as any).addActionButton(`placeTile_button`, _('Confirm'), () => this.placeTile());
+                    (this as any).addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.cancelPlaceTile(), null, null, 'gray');
                     break;
             }
         }
@@ -266,43 +274,123 @@ class Akropolis implements AkropolisGame {
 
         helpDialog.show();
     }
+    
+    public constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement): void {
+        if (hex.classList.contains('selected')) {
+            this.incRotation();
+            return;
+        }
 
-    public setSelectedTileId(tileId: number): void {
-        this.selectedTileId = tileId;
+        this.selectedTile = tile;
+        this.selectedTileHexIndex = hexIndex;
+        this.constructionSite.setSelectedHex(tile.id, hex);
+
+        if (this.selectedPosition) {
+            const tileCoordinates = TILE_COORDINATES[hexIndex];
+            this.getCurrentPlayerTable().placeTile({
+                ...this.selectedTile,
+                x: this.selectedPosition.x - tileCoordinates[0],
+                y: this.selectedPosition.y - tileCoordinates[1],
+                z: this.selectedPosition.z,
+                r: this.rotation,
+            }, true, this.selectedTileHexIndex);
+        }
+    }
+
+    private findClosestRotation(rotations: number[]) {
+        let minDistance = 999;
+        let minIndex = 0;
+
+        rotations.forEach((r, index) => {
+            const distance = Math.min(Math.abs(this.rotation - r), Math.abs(this.rotation + 6 - r));
+            if (distance < minDistance) {
+                minDistance = distance;
+                minIndex = index;
+            }
+        });
+
+        return rotations[minIndex];
+    }
+
+    private getSelectedPositionOption() {
+        return (this.gamedatas.gamestate.args as EnteringPlaceTileArgs).options.find(o => 
+            o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z
+        );
     }
     
-    public constructionSiteHexClicked(tileId: number, tile: HTMLDivElement, hex: HTMLDivElement): void {
-        this.selectedTileId = tileId;
-        this.constructionSite.setSelectedHex(tileId, tile, hex);
+    public possiblePositionClicked(x: number, y: number, z: number): void {
+        if (!this.selectedTile) {
+            return;
+        }
+
+        this.getCurrentPlayerTable().setPlaceTileOptions([], this.rotation);
+        this.selectedPosition = {x, y, z};
+        const option = this.getSelectedPositionOption();
+        if (!option.r.includes(this.rotation)) {
+            this.setRotation(this.findClosestRotation(option.r));
+        }
+        const tileCoordinates = TILE_COORDINATES[this.selectedTileHexIndex];
+        this.getCurrentPlayerTable().placeTile({
+            ...this.selectedTile,
+            x: this.selectedPosition.x - tileCoordinates[0],
+            y: this.selectedPosition.y - tileCoordinates[1],
+            z: this.selectedPosition.z,
+            r: this.rotation,
+        }, true, this.selectedTileHexIndex);
     }
 
     public decRotation(): void {
-        this.setRotation(this.rotation == 0 ? 5 : this.rotation - 1);
+        if (this.selectedPosition) {
+            const option = this.getSelectedPositionOption();
+            const index = option.r.findIndex(r => r == this.rotation);
+            if (index !== -1 && option.r.length > 1) {
+                this.setRotation(option.r[index == 0 ? option.r.length - 1 : index - 1]);
+            }
+        } else {
+            this.setRotation(this.rotation == 0 ? 5 : this.rotation - 1);
+        }
     }
 
     public incRotation(): void {
-        this.setRotation(this.rotation == 5 ? 0 : this.rotation + 1);
+        if (this.selectedPosition) {
+            const option = this.getSelectedPositionOption();
+            const index = option.r.findIndex(r => r == this.rotation);
+            if (index !== -1 && option.r.length > 1) {
+                this.setRotation(option.r[index == option.r.length - 1 ? 0 : index + 1]);
+            }
+        } else {
+            this.setRotation(this.rotation == 5 ? 0 : this.rotation + 1);
+        }
     }
 
     private setRotation(rotation: number): void {
         this.rotation = rotation;
         document.getElementById('market').style.setProperty('--r', `${rotation}`);
-        this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+        if (!this.selectedPosition) {
+            this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+        }
+        this.getCurrentPlayerTable().rotateTempTile(this.rotation);
         // temp
         document.getElementById('r').innerHTML = `r = ${rotation}`;
     }
 
-    public placeTile(x: number, y: number, z: number): void {
+    public cancelPlaceTile() {
+        this.selectedPosition = null;
+        this.getCurrentPlayerTable().removeTempTile();
+        this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+    }
+
+    public placeTile(): void {
         if(!(this as any).checkAction('actPlaceTile')) {
             return;
         }
 
         this.takeAction('actPlaceTile', {
-            x,
-            y,
-            z,
+            x: this.selectedPosition.x,
+            y: this.selectedPosition.y,
+            z: this.selectedPosition.z,
             r: this.rotation,
-            tileId: this.selectedTileId,
+            tileId: this.selectedTile.id,
         });
     }
 
@@ -328,7 +416,7 @@ class Akropolis implements AkropolisGame {
         //log( 'notifications subscriptions setup' );
 
         const notifs = [
-            // example ['doubleElimination', 1],
+            ['placedTile', 1],
         ];
     
         notifs.forEach((notif) => {
@@ -337,9 +425,9 @@ class Akropolis implements AkropolisGame {
         });
     }
 
-    /* example notif_setRealizedObjective(notif: Notif<NotifSetRealizedObjectiveArgs>) {
-        this.markRealizedObjective(notif.args.letter, notif.args.realizedBy);
-    }*/
+    notif_placedTile(notif: Notif<NotifPlacedTileArgs>) {
+        this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile, false);
+    }
 
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */

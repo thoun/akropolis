@@ -11,7 +11,7 @@ class ConstructionSite {
         /* TODO if (index > 0) {
             tileWithCost.classList.add('disabled');
         }*/
-        tileWithCost.appendChild(this.game.tilesManager.createMarketTile(tile));
+        tileWithCost.appendChild(this.createMarketTile(tile));
         const cost = document.createElement('div');
         cost.classList.add('cost');
         cost.innerHTML = `
@@ -27,11 +27,10 @@ class ConstructionSite {
         document.getElementById('market').appendChild(tileWithCost);
     }
 
-    public setSelectedHex(tileId: number, tile: HTMLDivElement, hex: HTMLDivElement) {
+    public setSelectedHex(tileId: number, hex: HTMLDivElement) {
         Array.from(document.getElementById('market').querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
-        document.getElementById(`market-tile-${tileId}`).classList.add('selected');
-        hex.classList.add('selected');
-        this.game.setSelectedTileId(tileId);
+        document.getElementById(`market-tile-${tileId}`)?.classList.add('selected');
+        hex?.classList.add('selected');
     }
 
     public setDisabledTiles(playerMoney: number | null) {
@@ -40,5 +39,15 @@ class ConstructionSite {
         if (playerMoney !== null) {
             Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach((option: HTMLDivElement) => option.classList.toggle('disabled', Number(option.dataset.cost) > playerMoney));
         }
+    }
+
+    private createMarketTile(tile: Tile): HTMLDivElement {
+        const tileDiv = this.game.tilesManager.createTile(tile, false);
+        tile.hexes.forEach((hex, index) => {
+            const hexDiv: HTMLDivElement = tileDiv.querySelector(`[data-index="${index}"]`);
+            hexDiv.addEventListener('click', () => this.game.constructionSiteHexClicked(tile, index, hexDiv));
+            tileDiv.appendChild(hexDiv);
+        });
+        return tileDiv;
     }
 }

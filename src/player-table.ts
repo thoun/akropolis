@@ -6,6 +6,8 @@ class PlayerTable {
 
     private currentPlayer: boolean;
 
+    private tempTile: HTMLDivElement | null;
+
     constructor(private game: AkropolisGame, player: AkropolisPlayer) {
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId(); 
@@ -25,13 +27,47 @@ class PlayerTable {
     
     public setPlaceTileOptions(options: PlaceTileOption[], rotation: number) {
         // clean previous
-        Array.from(document.getElementById(`player-table-${this.playerId}-city`).querySelectorAll('.possible')).forEach(option => option.remove());
+        Array.from(document.getElementById(`player-table-${this.playerId}-city`).querySelectorAll('.possible')).forEach((option: HTMLElement) => option.parentElement.remove());
 
-        options.filter(option => option.r.some(r => r == rotation)).forEach(option => {
+        options/*.filter(option => option.r.some(r => r == rotation))*/.forEach(option => {
             const hex = this.createPossibleHex(option.x, option.y, option.z);
             const face = hex.getElementsByClassName('face')[0] as HTMLDivElement;
-            face.addEventListener('click', () => this.game.placeTile(option.x, option.y, option.z/*, r*/));
+            face.addEventListener('click', () => {
+                this.game.possiblePositionClicked(option.x, option.y, option.z);
+            });
         });
+    }
+
+    public placeTile(tile: Tile, temp: boolean, selectedHexIndex: number = null) {
+        const tileDiv = this.game.tilesManager.createTile(tile, true, temp ? ['temp'] : []);
+        tileDiv.style.setProperty('--x', `${tile.x}`);
+        tileDiv.style.setProperty('--y', `${tile.y}`);
+        tileDiv.style.setProperty('--z', `${tile.z}`);
+        tileDiv.style.setProperty('--r', `${tile.r}`);
+        tileDiv.dataset.selectedHexIndex = `${selectedHexIndex}`;
+        document.getElementById(`player-table-${this.playerId}-city`).appendChild(tileDiv);
+
+        if (temp) {
+            tile.hexes.forEach((hex, index) => {
+                const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`);
+                if (index == selectedHexIndex) { // temp
+                    hexDiv.classList.add('selected');
+                    hexDiv.addEventListener('click', () => this.game.incRotation());
+                } 
+            });
+
+            this.removeTempTile();
+            this.tempTile = tileDiv;
+        }
+    }
+
+    public rotateTempTile(r: number) {
+        this.tempTile?.style.setProperty('--r', `${r}`);
+    }
+    
+    public removeTempTile() {
+        this.tempTile?.remove();
+        this.tempTile = null;
     }
 
     private createGrid(grid: PlayerGrid) {

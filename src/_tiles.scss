@@ -1,45 +1,41 @@
 .tile {
   position: absolute;
-  width: calc(var(--hex-side) * 4);
-  height: calc(var(--hex-side) * 4);
+  width: calc($hexSide * 4);
+  height: calc($hexSide * 4);
+
+  &.temp {
+    animation: temp-tile-animation 1.5s alternate infinite ease-in-out;
+  }
+}
+
+@keyframes temp-tile-animation {
+  100% { 
+    opacity: 0.75;
+  }
 }
 
 .hex {
   position: absolute;
-  width: calc(var(--hex-side) * 2);
-  height: var(--hex-height);
-  left: calc(400px - var(--hex-side) + (var(--hex-side) * var(--x) * 1.5));
-  top: calc(200px + (var(--hex-height) * var(--y) / 2));
-  transform: translateZ(calc(var(--hex-thickness) * (var(--z) + 1)));
+  width: calc($hexSide * 2);
+  height: $hexHeight;
+  transform: translateZ(calc($hexHeight * (var(--z) + 1)));
 
   .face {
     width: 100%;
     height: 100%;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    
+    // temp
+    font-weight: bold;
+    text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
+    text-align: center;
+    line-height: 30px;
 
     &.possible {
       background: radial-gradient(rgba(255, 255, 255, 0.8), rgba(0, 255, 255, 0.5));
 
       // temp
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      button {
-        width: auto;
-        border: 1px solid gray;
-        font-size: 11px;
-        margin: 1px;
-        cursor: pointer;
-      }
-    }
-
-    &.temp {
-      font-weight: bold;
-      text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      line-height: 88px;
     }
 
     &[data-type] {
@@ -90,7 +86,7 @@
   &.selected {
     .face {
       &::after {
-        content: '';
+        content: '↻';
         position: absolute;
         top: 0;
         left: 0;
@@ -98,6 +94,13 @@
         bottom: 0;
         background-image: url("img/hex-possible.png");
         background-size: auto 100%;
+        text-align: center;
+        line-height: 84px;
+        font-size: 80px;
+        font-weight: bold;
+        color: #fff;
+        user-select: none;
+        text-shadow: 1px 1px 5px #000;
       }
     }
   }
@@ -108,34 +111,10 @@
     position: absolute;
     margin-left: -24px;
     margin-top: -8px;
-    width: var(--hex-side);
-    height: 16px;
+    width: $hexSide;
+    height: $hexThickness;
     background: white;
-    transform: translateZ(calc(var(--hex-thickness) * -0.5)) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(41.5px); /* almost hex-height / 2 */
+    transform: translateZ(#{$hexThickness * -0.5}) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(41.5px); /* almost hex-height / 2 */
     z-index: -100;
   }
-}
-
-.tile {
-  position: absolute;
-  /*width: 168px;
-  height: 168px;
-  transform-origin: 84px 97px;
-  transition: transform 350ms ease-in-out;
-  backface-visibility: hidden;
-  border-radius: 50% 50% 35% 35%;
-  will-change: transform;
-
-  &::after {
-    content: '';
-    background: no-repeat url(img/tile-mask.png);
-    background-size: cover;
-    position: absolute;
-    top: 1px;
-    width: 168px;
-    height: 168px;
-    transform: translateZ(0.1px);
-    backface-visibility: hidden;
-    pointer-events: none
-  }*/
 }

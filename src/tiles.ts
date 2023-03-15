@@ -1,3 +1,9 @@
+const TILE_COORDINATES = [
+    [0, 0],
+    [1, 1],
+    [0, 2],
+];
+
 class TilesManager {
     constructor(public game: AkropolisGame) {}
     
@@ -26,19 +32,14 @@ class TilesManager {
         return this.createHex(x, y, z, ['possible']);
     }
 
-    public createMarketTile(tile: Tile): HTMLDivElement {
-        const XY = [
-            [0, 0],
-            [1, 1],
-            [0, 2],
-        ]
+    public createTile(tile: Tile, withSides: boolean = true, classes: string[] = []): HTMLDivElement {
         const tileDiv = document.createElement('div');
-        tileDiv.classList.add('tile');
+        tileDiv.classList.add('tile', ...classes);
         let firstHex = null; // temp
         tile.hexes.forEach((hex, index) => {
-            const hexDiv = this.createTileHex(XY[index][0], XY[index][1], 0, hex, false);
+            const hexDiv = this.createTileHex(TILE_COORDINATES[index][0], TILE_COORDINATES[index][1], 0, hex, withSides);
+            hexDiv.dataset.index = `${index}`;
             if (index == 0) { firstHex = hexDiv; } // temp
-            hexDiv.addEventListener('click', () => this.game.constructionSiteHexClicked(tile.id, tileDiv, firstHex/* temp hexDiv*/));
             tileDiv.appendChild(hexDiv);
         });
         return tileDiv;

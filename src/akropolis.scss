@@ -48,11 +48,9 @@
 
 $selectionColor: #01C0FF;
 
-:root {
-  --hex-side: 48.5px;
-  --hex-height: 84px;
-  --hex-thickness: 16px;
-}
+$hexSide: 48.5px;
+$hexHeight: 84px; // sqrt(3) * size
+$hexThickness: 16px;
 
 @import 'tiles';
 @import 'table-center';

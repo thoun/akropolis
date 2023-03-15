@@ -43,51 +43,38 @@
 */
 /* Note: you must not use any @import directive */
 /********* You can start writing your CSS below this line: **********/
-:root {
-  --hex-side: 48.5px;
-  --hex-height: 84px;
-  --hex-thickness: 16px;
-}
-
 .tile {
   position: absolute;
-  width: calc(var(--hex-side) * 4);
-  height: calc(var(--hex-side) * 4);
+  width: 194px;
+  height: 194px;
+}
+.tile.temp {
+  animation: temp-tile-animation 1.5s alternate infinite ease-in-out;
 }
 
+@keyframes temp-tile-animation {
+  100% {
+    opacity: 0.75;
+  }
+}
 .hex {
   position: absolute;
-  width: calc(var(--hex-side) * 2);
-  height: var(--hex-height);
-  left: calc(400px - var(--hex-side) + var(--hex-side) * var(--x) * 1.5);
-  top: calc(200px + var(--hex-height) * var(--y) / 2);
-  transform: translateZ(calc(var(--hex-thickness) * (var(--z) + 1)));
+  width: 97px;
+  height: 84px;
+  transform: translateZ(calc(84px * (var(--z) + 1)));
 }
 .hex .face {
   width: 100%;
   height: 100%;
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  font-weight: bold;
+  text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
+  text-align: center;
+  line-height: 30px;
 }
 .hex .face.possible {
   background: radial-gradient(rgba(255, 255, 255, 0.8), rgba(0, 255, 255, 0.5));
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.hex .face.possible button {
-  width: auto;
-  border: 1px solid gray;
-  font-size: 11px;
-  margin: 1px;
-  cursor: pointer;
-}
-.hex .face.temp {
-  font-weight: bold;
-  text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  line-height: 88px;
 }
 .hex .face[data-type] {
   background-image: url("img/sprite.png");
@@ -127,7 +114,7 @@
   background-position: 33% 60%;
 }
 .hex.selected .face::after {
-  content: "";
+  content: "↻";
   position: absolute;
   top: 0;
   left: 0;
@@ -135,6 +122,13 @@
   bottom: 0;
   background-image: url("img/hex-possible.png");
   background-size: auto 100%;
+  text-align: center;
+  line-height: 84px;
+  font-size: 80px;
+  font-weight: bold;
+  color: #fff;
+  user-select: none;
+  text-shadow: 1px 1px 5px #000;
 }
 .hex .side {
   top: 50%;
@@ -142,35 +136,11 @@
   position: absolute;
   margin-left: -24px;
   margin-top: -8px;
-  width: var(--hex-side);
+  width: 48.5px;
   height: 16px;
   background: white;
-  transform: translateZ(calc(var(--hex-thickness) * -0.5)) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(41.5px); /* almost hex-height / 2 */
+  transform: translateZ(-8px) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(41.5px); /* almost hex-height / 2 */
   z-index: -100;
-}
-
-.tile {
-  position: absolute;
-  /*width: 168px;
-  height: 168px;
-  transform-origin: 84px 97px;
-  transition: transform 350ms ease-in-out;
-  backface-visibility: hidden;
-  border-radius: 50% 50% 35% 35%;
-  will-change: transform;
-
-  &::after {
-    content: '';
-    background: no-repeat url(img/tile-mask.png);
-    background-size: cover;
-    position: absolute;
-    top: 1px;
-    width: 168px;
-    height: 168px;
-    transform: translateZ(0.1px);
-    backface-visibility: hidden;
-    pointer-events: none
-  }*/
 }
 
 #market {
@@ -190,7 +160,7 @@
   right: 0;
 }
 #market .tile-with-cost {
-  width: calc(var(--hex-side) * 4);
+  width: 194px;
   display: flex;
   justify-content: space-between;
   flex-direction: column;
@@ -229,8 +199,8 @@
 }
 #market .hex {
   position: absolute;
-  left: calc(var(--hex-side) * (0.5 + var(--x) * 1.5));
-  top: calc(var(--hex-height) * var(--y) / 2);
+  left: calc(48.5px * (0.5 + var(--x) * 1.5));
+  top: calc(84px * var(--y) / 2);
 }
 
 .player-board .counters {
@@ -280,8 +250,30 @@
 .city {
   position: relative;
   width: 800px;
-  height: 400px;
+  height: 600px;
   border: 1px solid gray;
+}
+.city .hex {
+  left: calc(351.5px + 48.5px * var(--x) * 1.5);
+  top: calc(300px + 84px * var(--y) / 2);
+}
+.city .tile {
+  left: calc(327.25px + 48.5px * var(--x) * 1.5);
+  top: calc(300px + 84px * var(--y) / 2);
+  transform: rotate(calc(60deg * var(--r)));
+}
+.city .tile[data-selected-hex-index="0"] {
+  transform-origin: 72.75px 42px;
+}
+.city .tile[data-selected-hex-index="1"] {
+  transform-origin: 145.5px 84px;
+}
+.city .tile[data-selected-hex-index="2"] {
+  transform-origin: 72.75px 126px;
+}
+.city .tile .hex {
+  left: calc(48.5px * (0.5 + var(--x) * 1.5));
+  top: calc(84px * var(--y) / 2);
 }
 
 /* make space between buttons on touch devices */

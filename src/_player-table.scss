@@ -1,6 +1,35 @@
+$x0: 400px;
+$y0: 300px;
+
 .city {
     position: relative;
-    width: 800px;
-    height: 400px;
+    width: #{$x0 * 2};
+    height: #{$y0 * 2};
     border: 1px solid gray;
+
+    .hex {
+        left: calc($x0 - $hexSide + ($hexSide * var(--x) * 1.5));
+        top: calc($y0 + ($hexHeight * var(--y) / 2));
+    }
+
+    .tile {
+        left: calc($x0 - $hexSide * 1.5 + ($hexSide * var(--x) * 1.5));
+        top: calc($y0 + ($hexHeight * var(--y) / 2));
+        transform: rotate(calc(60deg * var(--r)));
+
+        &[data-selected-hex-index="0"] {
+            transform-origin: #{$hexSide * 1.5} #{$hexHeight * 0.5};
+        }
+        &[data-selected-hex-index="1"] {
+            transform-origin: #{$hexSide * 3} #{$hexHeight};
+        }
+        &[data-selected-hex-index="2"] {
+            transform-origin: #{$hexSide * 1.5} #{$hexHeight * 1.5};
+        }
+
+        .hex {
+            left: calc($hexSide * (0.5 + var(--x) * 1.5));
+            top: calc($hexHeight * var(--y) / 2);
+        }
+    }
 }

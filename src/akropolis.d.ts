@@ -7,6 +7,10 @@ interface Tile {
     id: number;
     location: string;
     pId: number;
+    x: number;
+    y: number;
+    z: number;
+    r: number;
 }
 
 interface PlayerGrid {
@@ -47,9 +51,9 @@ interface AkropolisGame extends Game {
     getPlayerId(): number;
 
     setTooltip(id: string, html: string): void;  
-    setSelectedTileId(index: number): void;
-    constructionSiteHexClicked(tileId: number, tile: HTMLDivElement, hex: HTMLDivElement): void;
-    placeTile(x: number, y: number, z: number/*, r: number*/): void;
+    constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement): void;
+    possiblePositionClicked(x: number, y: number, z: number): void;
+    incRotation(): void;
 }
 
 interface PlaceTileOption {
@@ -63,11 +67,6 @@ interface EnteringPlaceTileArgs {
     options: PlaceTileOption[];
 }
 
-/* Examples 
-interface NotifSetPlayedOperationArgs {
-    playerId: number;
-    type: number;
-    operationsNumber: number;
-    firstPlayer: boolean;
+interface NotifPlacedTileArgs {
+    tile: Tile;
 }
-*/

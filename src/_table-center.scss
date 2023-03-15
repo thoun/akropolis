@@ -17,7 +17,7 @@
     }
 
     .tile-with-cost {
-        width: calc(var(--hex-side) * 4);
+        width: calc($hexSide * 4);
         display: flex;
         justify-content: space-between;
         flex-direction: column;
@@ -70,7 +70,7 @@
 
     .hex {
         position: absolute;
-        left: calc(var(--hex-side) * (0.5 + var(--x) * 1.5));
-        top: calc(var(--hex-height) * var(--y) / 2);
+        left: calc($hexSide * (0.5 + var(--x) * 1.5));
+        top: calc($hexHeight * var(--y) / 2);
     }
 }

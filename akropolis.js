@@ -7,6 +7,11 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+var TILE_COORDINATES = [
+    [0, 0],
+    [1, 1],
+    [0, 2],
+];
 var TilesManager = /** @class */ (function () {
     function TilesManager(game) {
         this.game = game;
@@ -33,22 +38,20 @@ var TilesManager = /** @class */ (function () {
     TilesManager.prototype.createPossibleHex = function (x, y, z) {
         return this.createHex(x, y, z, ['possible']);
     };
-    TilesManager.prototype.createMarketTile = function (tile) {
+    TilesManager.prototype.createTile = function (tile, withSides, classes) {
+        var _a;
         var _this = this;
-        var XY = [
-            [0, 0],
-            [1, 1],
-            [0, 2],
-        ];
+        if (withSides === void 0) { withSides = true; }
+        if (classes === void 0) { classes = []; }
         var tileDiv = document.createElement('div');
-        tileDiv.classList.add('tile');
+        (_a = tileDiv.classList).add.apply(_a, __spreadArray(['tile'], classes, false));
         var firstHex = null; // temp
         tile.hexes.forEach(function (hex, index) {
-            var hexDiv = _this.createTileHex(XY[index][0], XY[index][1], 0, hex, false);
+            var hexDiv = _this.createTileHex(TILE_COORDINATES[index][0], TILE_COORDINATES[index][1], 0, hex, withSides);
+            hexDiv.dataset.index = "".concat(index);
             if (index == 0) {
                 firstHex = hexDiv;
             } // temp
-            hexDiv.addEventListener('click', function () { return _this.game.constructionSiteHexClicked(tile.id, tileDiv, firstHex /* temp hexDiv*/); });
             tileDiv.appendChild(hexDiv);
         });
         return tileDiv;
@@ -84,7 +87,7 @@ var ConstructionSite = /** @class */ (function () {
         /* TODO if (index > 0) {
             tileWithCost.classList.add('disabled');
         }*/
-        tileWithCost.appendChild(this.game.tilesManager.createMarketTile(tile));
+        tileWithCost.appendChild(this.createMarketTile(tile));
         var cost = document.createElement('div');
         cost.classList.add('cost');
         cost.innerHTML = "\n            <span>".concat(index, "</span>\n            <div class=\"stone score-icon\"></div> \n        ");
@@ -96,17 +99,27 @@ var ConstructionSite = /** @class */ (function () {
         });*/
         document.getElementById('market').appendChild(tileWithCost);
     };
-    ConstructionSite.prototype.setSelectedHex = function (tileId, tile, hex) {
+    ConstructionSite.prototype.setSelectedHex = function (tileId, hex) {
+        var _a;
         Array.from(document.getElementById('market').querySelectorAll('.selected')).forEach(function (option) { return option.classList.remove('selected'); });
-        document.getElementById("market-tile-".concat(tileId)).classList.add('selected');
-        hex.classList.add('selected');
-        this.game.setSelectedTileId(tileId);
+        (_a = document.getElementById("market-tile-".concat(tileId))) === null || _a === void 0 ? void 0 : _a.classList.add('selected');
+        hex === null || hex === void 0 ? void 0 : hex.classList.add('selected');
     };
     ConstructionSite.prototype.setDisabledTiles = function (playerMoney) {
         Array.from(document.getElementById('market').querySelectorAll('.disabled')).forEach(function (option) { return option.classList.remove('disabled'); });
         if (playerMoney !== null) {
             Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(function (option) { return option.classList.toggle('disabled', Number(option.dataset.cost) > playerMoney); });
         }
+    };
+    ConstructionSite.prototype.createMarketTile = function (tile) {
+        var _this = this;
+        var tileDiv = this.game.tilesManager.createTile(tile, false);
+        tile.hexes.forEach(function (hex, index) {
+            var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
+            hexDiv.addEventListener('click', function () { return _this.game.constructionSiteHexClicked(tile, index, hexDiv); });
+            tileDiv.appendChild(hexDiv);
+        });
+        return tileDiv;
     };
     return ConstructionSite;
 }());
@@ -124,12 +137,45 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.setPlaceTileOptions = function (options, rotation) {
         var _this = this;
         // clean previous
-        Array.from(document.getElementById("player-table-".concat(this.playerId, "-city")).querySelectorAll('.possible')).forEach(function (option) { return option.remove(); });
-        options.filter(function (option) { return option.r.some(function (r) { return r == rotation; }); }).forEach(function (option) {
+        Array.from(document.getElementById("player-table-".concat(this.playerId, "-city")).querySelectorAll('.possible')).forEach(function (option) { return option.parentElement.remove(); });
+        options /*.filter(option => option.r.some(r => r == rotation))*/.forEach(function (option) {
             var hex = _this.createPossibleHex(option.x, option.y, option.z);
             var face = hex.getElementsByClassName('face')[0];
-            face.addEventListener('click', function () { return _this.game.placeTile(option.x, option.y, option.z /*, r*/); });
+            face.addEventListener('click', function () {
+                _this.game.possiblePositionClicked(option.x, option.y, option.z);
+            });
         });
+    };
+    PlayerTable.prototype.placeTile = function (tile, temp, selectedHexIndex) {
+        var _this = this;
+        if (selectedHexIndex === void 0) { selectedHexIndex = null; }
+        var tileDiv = this.game.tilesManager.createTile(tile, true, temp ? ['temp'] : []);
+        tileDiv.style.setProperty('--x', "".concat(tile.x));
+        tileDiv.style.setProperty('--y', "".concat(tile.y));
+        tileDiv.style.setProperty('--z', "".concat(tile.z));
+        tileDiv.style.setProperty('--r', "".concat(tile.r));
+        tileDiv.dataset.selectedHexIndex = "".concat(selectedHexIndex);
+        document.getElementById("player-table-".concat(this.playerId, "-city")).appendChild(tileDiv);
+        if (temp) {
+            tile.hexes.forEach(function (hex, index) {
+                var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
+                if (index == selectedHexIndex) { // temp
+                    hexDiv.classList.add('selected');
+                    hexDiv.addEventListener('click', function () { return _this.game.incRotation(); });
+                }
+            });
+            this.removeTempTile();
+            this.tempTile = tileDiv;
+        }
+    };
+    PlayerTable.prototype.rotateTempTile = function (r) {
+        var _a;
+        (_a = this.tempTile) === null || _a === void 0 ? void 0 : _a.style.setProperty('--r', "".concat(r));
+    };
+    PlayerTable.prototype.removeTempTile = function () {
+        var _a;
+        (_a = this.tempTile) === null || _a === void 0 ? void 0 : _a.remove();
+        this.tempTile = null;
     };
     PlayerTable.prototype.createGrid = function (grid) {
         var _this = this;
@@ -148,6 +194,17 @@ var PlayerTable = /** @class */ (function () {
     };
     return PlayerTable;
 }());
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
         this.rotation = 0;
@@ -198,6 +255,10 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.onEnteringPlaceTile = function (args) {
         if (this.isCurrentPlayerActive()) {
+            this.selectedPosition = null;
+            this.selectedTile = null;
+            this.selectedTileHexIndex = null;
+            this.setRotation(0);
             this.getCurrentPlayerTable().setPlaceTileOptions(args.options, this.rotation);
             this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());
         }
@@ -224,6 +285,8 @@ var Akropolis = /** @class */ (function () {
                 case 'placeTile':
                     this.addActionButton("decRotation_button", "\u2939", function () { return _this.decRotation(); });
                     this.addActionButton("incRotation_button", "\u2938", function () { return _this.incRotation(); });
+                    this.addActionButton("placeTile_button", _('Confirm'), function () { return _this.placeTile(); });
+                    this.addActionButton("cancelPlaceTile_button", _('Cancel'), function () { return _this.cancelPlaceTile(); }, null, null, 'gray');
                     break;
             }
         }
@@ -339,36 +402,102 @@ var Akropolis = /** @class */ (function () {
         helpDialog.setContent(html);
         helpDialog.show();
     };
-    Akropolis.prototype.setSelectedTileId = function (tileId) {
-        this.selectedTileId = tileId;
+    Akropolis.prototype.constructionSiteHexClicked = function (tile, hexIndex, hex) {
+        if (hex.classList.contains('selected')) {
+            this.incRotation();
+            return;
+        }
+        this.selectedTile = tile;
+        this.selectedTileHexIndex = hexIndex;
+        this.constructionSite.setSelectedHex(tile.id, hex);
+        if (this.selectedPosition) {
+            var tileCoordinates = TILE_COORDINATES[hexIndex];
+            this.getCurrentPlayerTable().placeTile(__assign(__assign({}, this.selectedTile), { x: this.selectedPosition.x - tileCoordinates[0], y: this.selectedPosition.y - tileCoordinates[1], z: this.selectedPosition.z, r: this.rotation }), true, this.selectedTileHexIndex);
+        }
     };
-    Akropolis.prototype.constructionSiteHexClicked = function (tileId, tile, hex) {
-        this.selectedTileId = tileId;
-        this.constructionSite.setSelectedHex(tileId, tile, hex);
+    Akropolis.prototype.findClosestRotation = function (rotations) {
+        var _this = this;
+        var minDistance = 999;
+        var minIndex = 0;
+        rotations.forEach(function (r, index) {
+            var distance = Math.min(Math.abs(_this.rotation - r), Math.abs(_this.rotation + 6 - r));
+            if (distance < minDistance) {
+                minDistance = distance;
+                minIndex = index;
+            }
+        });
+        return rotations[minIndex];
+    };
+    Akropolis.prototype.getSelectedPositionOption = function () {
+        var _this = this;
+        return this.gamedatas.gamestate.args.options.find(function (o) {
+            return o.x == _this.selectedPosition.x && o.y == _this.selectedPosition.y && o.z == _this.selectedPosition.z;
+        });
+    };
+    Akropolis.prototype.possiblePositionClicked = function (x, y, z) {
+        if (!this.selectedTile) {
+            return;
+        }
+        this.getCurrentPlayerTable().setPlaceTileOptions([], this.rotation);
+        this.selectedPosition = { x: x, y: y, z: z };
+        var option = this.getSelectedPositionOption();
+        if (!option.r.includes(this.rotation)) {
+            this.setRotation(this.findClosestRotation(option.r));
+        }
+        var tileCoordinates = TILE_COORDINATES[this.selectedTileHexIndex];
+        this.getCurrentPlayerTable().placeTile(__assign(__assign({}, this.selectedTile), { x: this.selectedPosition.x - tileCoordinates[0], y: this.selectedPosition.y - tileCoordinates[1], z: this.selectedPosition.z, r: this.rotation }), true, this.selectedTileHexIndex);
     };
     Akropolis.prototype.decRotation = function () {
-        this.setRotation(this.rotation == 0 ? 5 : this.rotation - 1);
+        var _this = this;
+        if (this.selectedPosition) {
+            var option = this.getSelectedPositionOption();
+            var index = option.r.findIndex(function (r) { return r == _this.rotation; });
+            if (index !== -1 && option.r.length > 1) {
+                this.setRotation(option.r[index == 0 ? option.r.length - 1 : index - 1]);
+            }
+        }
+        else {
+            this.setRotation(this.rotation == 0 ? 5 : this.rotation - 1);
+        }
     };
     Akropolis.prototype.incRotation = function () {
-        this.setRotation(this.rotation == 5 ? 0 : this.rotation + 1);
+        var _this = this;
+        if (this.selectedPosition) {
+            var option = this.getSelectedPositionOption();
+            var index = option.r.findIndex(function (r) { return r == _this.rotation; });
+            if (index !== -1 && option.r.length > 1) {
+                this.setRotation(option.r[index == option.r.length - 1 ? 0 : index + 1]);
+            }
+        }
+        else {
+            this.setRotation(this.rotation == 5 ? 0 : this.rotation + 1);
+        }
     };
     Akropolis.prototype.setRotation = function (rotation) {
         this.rotation = rotation;
         document.getElementById('market').style.setProperty('--r', "".concat(rotation));
-        this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+        if (!this.selectedPosition) {
+            this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+        }
+        this.getCurrentPlayerTable().rotateTempTile(this.rotation);
         // temp
         document.getElementById('r').innerHTML = "r = ".concat(rotation);
     };
-    Akropolis.prototype.placeTile = function (x, y, z) {
+    Akropolis.prototype.cancelPlaceTile = function () {
+        this.selectedPosition = null;
+        this.getCurrentPlayerTable().removeTempTile();
+        this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+    };
+    Akropolis.prototype.placeTile = function () {
         if (!this.checkAction('actPlaceTile')) {
             return;
         }
         this.takeAction('actPlaceTile', {
-            x: x,
-            y: y,
-            z: z,
+            x: this.selectedPosition.x,
+            y: this.selectedPosition.y,
+            z: this.selectedPosition.z,
             r: this.rotation,
-            tileId: this.selectedTileId,
+            tileId: this.selectedTile.id,
         });
     };
     Akropolis.prototype.takeAction = function (action, data) {
@@ -391,16 +520,16 @@ var Akropolis = /** @class */ (function () {
         //log( 'notifications subscriptions setup' );
         var _this = this;
         var notifs = [
-        // example ['doubleElimination', 1],
+            ['placedTile', 1],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, "notif_".concat(notif[0]));
             _this.notifqueue.setSynchronous(notif[0], notif[1]);
         });
     };
-    /* example notif_setRealizedObjective(notif: Notif<NotifSetRealizedObjectiveArgs>) {
-        this.markRealizedObjective(notif.args.letter, notif.args.realizedBy);
-    }*/
+    Akropolis.prototype.notif_placedTile = function (notif) {
+        this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile, false);
+    };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */
     Akropolis.prototype.format_string_recursive = function (log, args) {
