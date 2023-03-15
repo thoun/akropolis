@@ -202,6 +202,12 @@ var TilesManager = /** @class */ (function () {
     function TilesManager(game) {
         this.game = game;
     }
+    TilesManager.prototype.hexFromString = function (types) {
+        var typeArray = types.split('-');
+        var type = typeArray[0];
+        var plaza = typeArray[1] === 'plaza';
+        return { type: type, plaza: plaza };
+    };
     TilesManager.prototype.createTileHex = function (x, y, z, types, withSides) {
         if (withSides === void 0) { withSides = true; }
         var hex = this.createHex(x, y, z, ['temp']);
@@ -214,9 +220,7 @@ var TilesManager = /** @class */ (function () {
             }
         }
         var face = hex.getElementsByClassName('face')[0];
-        var typeArray = types.split('-');
-        var type = typeArray[0];
-        var plaza = typeArray[1] === 'plaza';
+        var _a = this.hexFromString(types), type = _a.type, plaza = _a.plaza;
         face.dataset.type = type;
         face.dataset.plaza = (plaza !== null && plaza !== void 0 ? plaza : false).toString();
         return hex;
@@ -242,6 +246,47 @@ var TilesManager = /** @class */ (function () {
         });
         return tileDiv;
     };
+    TilesManager.prototype.getHexTooltip = function (type, plaza) {
+        if (plaza) {
+            return _("Plazas will multiply the points that you gain for Districts of the same type at the end of the game. The multipliers are represented by the stars. If you have several matching Plazas, their stars are cumulative.") + "<br><br>" + _("A Plaza does not need to border Districts of the same type.");
+        }
+        else if (type === 'quarry') {
+            return _("Quarries do not score any points at the end of the game, but they allow you to gain Stones. When an Architect covers a Quarry with another tile, they take 1 Stone from the reserve.");
+        }
+        else {
+            var title = null;
+            var firstLine = null;
+            var secondLine = null;
+            switch (type) {
+                case 'house':
+                    title = _('Houses');
+                    firstLine = _("The citizens of your city like to live together in one large neighborhood.");
+                    secondLine = _("You only earn points for Houses that are part of your largest group of adjacent Houses.");
+                    break;
+                case 'market':
+                    title = _('Markets');
+                    firstLine = _("Merchants don’t like competition, so want to be kept separate from other markets.");
+                    secondLine = _("A Market must not be adjacent to any other Market.");
+                    break;
+                case 'barrack':
+                    title = _('Barracks');
+                    firstLine = _("Soldiers keep watch over your city’s borders.");
+                    secondLine = _("Barracks must be placed on the edge of your city.");
+                    break;
+                case 'temple':
+                    title = _('Temples');
+                    firstLine = _("Priests attract followers from the surrounding area.");
+                    secondLine = _("Temples must be completely surrounded.");
+                    break;
+                case 'garden':
+                    title = _('Gardens');
+                    firstLine = _("Parks always enhance your city.");
+                    secondLine = _("There are no placement conditions on Gardens.");
+                    break;
+            }
+            return "".concat(_("A District can be constructed freely but to gain points, each one must meet the placement condition for its type and have least one Plaza of that color."), "\n                    <br><br>\n                    <strong>").concat(title, "</strong>\n                    <br><br>\n                    <i>").concat(firstLine, "</i><br>\n                    ").concat(secondLine, "\n                    <br><br>\n                    ").concat(_("A District constructed on a higher level of your City can earn you more points. The value of a District is defined by its construction height: a District built on the 1st level would be worth 1 point, on the 2nd level 2 points, on the 3rd level 3 points, etc."));
+        }
+    };
     TilesManager.prototype.createHex = function (x, y, z, faceClasses) {
         var _a;
         if (faceClasses === void 0) { faceClasses = []; }
@@ -260,29 +305,25 @@ var TilesManager = /** @class */ (function () {
     return TilesManager;
 }());
 var ConstructionSite = /** @class */ (function () {
-    function ConstructionSite(game, tiles) {
+    function ConstructionSite(game, tiles, remainingStacks) {
         var _this = this;
         this.game = game;
         tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
+        document.getElementById('remaining-stacks-counter').insertAdjacentText('beforebegin', _('Remaining stacks'));
+        this.remainingStacksCounter = new ebg.counter();
+        this.remainingStacksCounter.create("remaining-stacks-counter");
+        this.remainingStacksCounter.setValue(remainingStacks);
     }
     ConstructionSite.prototype.addTile = function (tile, index) {
         var tileWithCost = document.createElement('div');
         tileWithCost.id = "market-tile-".concat(tile.id);
         tileWithCost.classList.add('tile-with-cost');
         tileWithCost.dataset.cost = "".concat(index);
-        /* TODO if (index > 0) {
-            tileWithCost.classList.add('disabled');
-        }*/
         tileWithCost.appendChild(this.createMarketTile(tile));
         var cost = document.createElement('div');
         cost.classList.add('cost');
         cost.innerHTML = "\n            <span>".concat(index, "</span>\n            <div class=\"stone score-icon\"></div> \n        ");
         tileWithCost.appendChild(cost);
-        /*tileWithCost.addEventListener('click', () => {
-            if (!tileWithCost.classList.contains('disabled')) {
-                this.setSelectedTileId(tile.id);
-            }
-        });*/
         document.getElementById('market').appendChild(tileWithCost);
     };
     ConstructionSite.prototype.setSelectedHex = function (tileId, hex) {
@@ -297,13 +338,21 @@ var ConstructionSite = /** @class */ (function () {
             Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(function (option) { return option.classList.toggle('disabled', Number(option.dataset.cost) > playerMoney); });
         }
     };
+    ConstructionSite.prototype.refill = function (tiles, remainingStacks) {
+        var _this = this;
+        Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(function (option) { return option.remove(); });
+        tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
+        this.remainingStacksCounter.setValue(remainingStacks);
+    };
     ConstructionSite.prototype.createMarketTile = function (tile) {
         var _this = this;
         var tileDiv = this.game.tilesManager.createTile(tile, false);
         tile.hexes.forEach(function (hex, index) {
-            var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
-            hexDiv.addEventListener('click', function () { return _this.game.constructionSiteHexClicked(tile, index, hexDiv); });
-            tileDiv.appendChild(hexDiv);
+            var hexFace = tileDiv.querySelector("[data-index=\"".concat(index, "\"]")).getElementsByClassName('face')[0];
+            hexFace.id = "tile-".concat(tile.id, "-hex-").concat(index);
+            hexFace.addEventListener('click', function () { return _this.game.constructionSiteHexClicked(tile, index, hexFace); });
+            var _a = _this.game.tilesManager.hexFromString(hex), type = _a.type, plaza = _a.plaza;
+            _this.game.setTooltip(hexFace.id, _this.game.tilesManager.getHexTooltip(type, plaza));
         });
         return tileDiv;
     };
@@ -369,9 +418,12 @@ var PlayerTable = /** @class */ (function () {
             _this.createTileHex(Number(x), Number(y), Number(z), grid[x][y][z]);
         }); }); });
     };
-    PlayerTable.prototype.createTileHex = function (x, y, z, type) {
-        var hex = this.game.tilesManager.createTileHex(x, y, z, type);
+    PlayerTable.prototype.createTileHex = function (x, y, z, types) {
+        var hex = this.game.tilesManager.createTileHex(x, y, z, types);
+        hex.id = "player-".concat(this.playerId, "-hex-").concat(x, "-").concat(y, "-").concat(z);
         document.getElementById("player-table-".concat(this.playerId, "-city")).appendChild(hex);
+        var _a = this.game.tilesManager.hexFromString(types), type = _a.type, plaza = _a.plaza;
+        this.game.setTooltip(hex.id, this.game.tilesManager.getHexTooltip(type, plaza));
     };
     PlayerTable.prototype.createPossibleHex = function (x, y, z) {
         var hex = this.game.tilesManager.createPossibleHex(x, y, z);
@@ -408,7 +460,7 @@ var Akropolis = /** @class */ (function () {
         log('gamedatas', gamedatas);
         this.animationManager = new AnimationManager(this);
         this.tilesManager = new TilesManager(this);
-        this.constructionSite = new ConstructionSite(this, gamedatas.dock);
+        this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.remainingStacks);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         this.setupNotifications();
@@ -700,6 +752,7 @@ var Akropolis = /** @class */ (function () {
         var _this = this;
         var notifs = [
             ['placedTile', 1],
+            ['newFirstPlayer', 1],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, "notif_".concat(notif[0]));
@@ -708,6 +761,9 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.notif_placedTile = function (notif) {
         this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile, false);
+        if (notif.args.cost) {
+            this.stonesCounters[notif.args.tile.pId].incValue(-notif.args.cost);
+        }
     };
     Akropolis.prototype.notif_newFirstPlayer = function (notif) {
         var firstPlayerToken = document.getElementById('first-player-token');
@@ -716,6 +772,9 @@ var Akropolis = /** @class */ (function () {
         if (destinationId !== originId) {
             this.animationManager.attachWithSlideAnimation(firstPlayerToken, document.getElementById(destinationId), { zoom: 1 });
         }
+    };
+    Akropolis.prototype.notif_dockRefill = function (notif) {
+        this.constructionSite.refill(notif.args.dock, notif.args.remainingStacks);
     };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */

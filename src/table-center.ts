@@ -1,6 +1,13 @@
 class ConstructionSite {
-    constructor(private game: AkropolisGame, tiles: Tile[]) {
+    private remainingStacksCounter: Counter;
+
+    constructor(private game: AkropolisGame, tiles: Tile[], remainingStacks: number) {
         tiles.forEach((tile, index) => this.addTile(tile, index));
+
+        document.getElementById('remaining-stacks-counter').insertAdjacentText('beforebegin', _('Remaining stacks'));
+        this.remainingStacksCounter = new ebg.counter();
+        this.remainingStacksCounter.create(`remaining-stacks-counter`);
+        this.remainingStacksCounter.setValue(remainingStacks);
     }
 
     public addTile(tile: Tile, index: number) {
@@ -8,9 +15,6 @@ class ConstructionSite {
         tileWithCost.id = `market-tile-${tile.id}`;
         tileWithCost.classList.add('tile-with-cost');
         tileWithCost.dataset.cost = `${index}`;
-        /* TODO if (index > 0) {
-            tileWithCost.classList.add('disabled');
-        }*/
         tileWithCost.appendChild(this.createMarketTile(tile));
         const cost = document.createElement('div');
         cost.classList.add('cost');
@@ -19,11 +23,6 @@ class ConstructionSite {
             <div class="stone score-icon"></div> 
         `;
         tileWithCost.appendChild(cost);
-        /*tileWithCost.addEventListener('click', () => {
-            if (!tileWithCost.classList.contains('disabled')) {
-                this.setSelectedTileId(tile.id);
-            }
-        });*/
         document.getElementById('market').appendChild(tileWithCost);
     }
 
@@ -40,13 +39,22 @@ class ConstructionSite {
             Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach((option: HTMLDivElement) => option.classList.toggle('disabled', Number(option.dataset.cost) > playerMoney));
         }
     }
+    
+    public refill(tiles: Tile[], remainingStacks: number) {
+        Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(option => option.remove());
+        tiles.forEach((tile, index) => this.addTile(tile, index));
+
+        this.remainingStacksCounter.setValue(remainingStacks);
+    }
 
     private createMarketTile(tile: Tile): HTMLDivElement {
         const tileDiv = this.game.tilesManager.createTile(tile, false);
         tile.hexes.forEach((hex, index) => {
-            const hexDiv: HTMLDivElement = tileDiv.querySelector(`[data-index="${index}"]`);
-            hexDiv.addEventListener('click', () => this.game.constructionSiteHexClicked(tile, index, hexDiv));
-            tileDiv.appendChild(hexDiv);
+            const hexFace = tileDiv.querySelector(`[data-index="${index}"]`).getElementsByClassName('face')[0] as HTMLDivElement;
+            hexFace.id = `tile-${tile.id}-hex-${index}`;
+            hexFace.addEventListener('click', () => this.game.constructionSiteHexClicked(tile, index, hexFace));
+            const { type, plaza } = this.game.tilesManager.hexFromString(hex);
+            this.game.setTooltip(hexFace.id, this.game.tilesManager.getHexTooltip(type, plaza));
         });
         return tileDiv;
     }

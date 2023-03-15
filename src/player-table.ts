@@ -76,9 +76,13 @@ class PlayerTable {
         })));
     }
     
-    private createTileHex(x: number, y: number, z: number, type: string) {
-        const hex = this.game.tilesManager.createTileHex(x, y, z, type);
+    private createTileHex(x: number, y: number, z: number, types: string) {
+        const hex = this.game.tilesManager.createTileHex(x, y, z, types);
+        hex.id = `player-${this.playerId}-hex-${x}-${y}-${z}`;
         document.getElementById(`player-table-${this.playerId}-city`).appendChild(hex);
+        
+        const { type, plaza } = this.game.tilesManager.hexFromString(types);
+        this.game.setTooltip(hex.id, this.game.tilesManager.getHexTooltip(type, plaza));
     }
     
     private createPossibleHex(x: number, y: number, z: number) {

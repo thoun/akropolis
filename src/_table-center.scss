@@ -12,6 +12,12 @@
     #remaining-stacks {
         background: #FFFFFF66;
         border-radius: 20px;
+        padding: 5px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+        order: 999;
 
         #remaining-stacks-counter {
             font-weight: bold;

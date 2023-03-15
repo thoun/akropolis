@@ -160,6 +160,12 @@
 #market #remaining-stacks {
   background: rgba(255, 255, 255, 0.4);
   border-radius: 20px;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  order: 999;
 }
 #market #remaining-stacks #remaining-stacks-counter {
   font-weight: bold;
