@@ -50,10 +50,13 @@ class PlayerTable {
         if (temp) {
             tile.hexes.forEach((hex, index) => {
                 const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`);
-                if (index == selectedHexIndex) { // temp
+                if (index == selectedHexIndex) {
                     hexDiv.classList.add('selected');
                     hexDiv.addEventListener('click', () => this.game.incRotation());
                 } 
+                hexDiv.id = `player-${this.playerId}-tile-${tile.id}-hex-${index}`;
+                const { type, plaza } = this.game.tilesManager.hexFromString(hex);
+                this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));
             });
 
             this.removeTempTile();

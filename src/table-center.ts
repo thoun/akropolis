@@ -50,11 +50,11 @@ class ConstructionSite {
     private createMarketTile(tile: Tile): HTMLDivElement {
         const tileDiv = this.game.tilesManager.createTile(tile, false);
         tile.hexes.forEach((hex, index) => {
-            const hexFace = tileDiv.querySelector(`[data-index="${index}"]`).getElementsByClassName('face')[0] as HTMLDivElement;
-            hexFace.id = `tile-${tile.id}-hex-${index}`;
-            hexFace.addEventListener('click', () => this.game.constructionSiteHexClicked(tile, index, hexFace));
+            const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
+            hexDiv.id = `market-tile-${tile.id}-hex-${index}`;
+            hexDiv.addEventListener('click', () => this.game.constructionSiteHexClicked(tile, index, hexDiv));
             const { type, plaza } = this.game.tilesManager.hexFromString(hex);
-            this.game.setTooltip(hexFace.id, this.game.tilesManager.getHexTooltip(type, plaza));
+            this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));
         });
         return tileDiv;
     }

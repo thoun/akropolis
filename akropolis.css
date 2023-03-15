@@ -142,13 +142,13 @@
   width: 48.5px;
   height: 16px;
   background: white;
-  transform: translateZ(-8px) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(41.5px); /* almost hex-height / 2 */
+  transform: translateZ(-8px) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(41.9px);
   z-index: -100;
 }
 
 #market {
   position: relative;
-  height: 200px;
+  height: 220px;
   display: flex;
   flex-direction: row-reverse;
   justify-content: center;
@@ -186,7 +186,7 @@
 }
 #market .tile-with-cost.disabled {
   cursor: not-allowed;
-  background: rgba(136, 136, 136, 0.4);
+  background: rgba(255, 128, 128, 0.4);
 }
 #market .tile-with-cost.disabled .tile {
   opacity: 0.8;

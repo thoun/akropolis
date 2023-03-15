@@ -348,11 +348,11 @@ var ConstructionSite = /** @class */ (function () {
         var _this = this;
         var tileDiv = this.game.tilesManager.createTile(tile, false);
         tile.hexes.forEach(function (hex, index) {
-            var hexFace = tileDiv.querySelector("[data-index=\"".concat(index, "\"]")).getElementsByClassName('face')[0];
-            hexFace.id = "tile-".concat(tile.id, "-hex-").concat(index);
-            hexFace.addEventListener('click', function () { return _this.game.constructionSiteHexClicked(tile, index, hexFace); });
+            var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
+            hexDiv.id = "market-tile-".concat(tile.id, "-hex-").concat(index);
+            hexDiv.addEventListener('click', function () { return _this.game.constructionSiteHexClicked(tile, index, hexDiv); });
             var _a = _this.game.tilesManager.hexFromString(hex), type = _a.type, plaza = _a.plaza;
-            _this.game.setTooltip(hexFace.id, _this.game.tilesManager.getHexTooltip(type, plaza));
+            _this.game.setTooltip(hexDiv.id, _this.game.tilesManager.getHexTooltip(type, plaza));
         });
         return tileDiv;
     };
@@ -394,10 +394,13 @@ var PlayerTable = /** @class */ (function () {
         if (temp) {
             tile.hexes.forEach(function (hex, index) {
                 var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
-                if (index == selectedHexIndex) { // temp
+                if (index == selectedHexIndex) {
                     hexDiv.classList.add('selected');
                     hexDiv.addEventListener('click', function () { return _this.game.incRotation(); });
                 }
+                hexDiv.id = "player-".concat(_this.playerId, "-tile-").concat(tile.id, "-hex-").concat(index);
+                var _a = _this.game.tilesManager.hexFromString(hex), type = _a.type, plaza = _a.plaza;
+                _this.game.setTooltip(hexDiv.id, _this.game.tilesManager.getHexTooltip(type, plaza));
             });
             this.removeTempTile();
             this.tempTile = tileDiv;

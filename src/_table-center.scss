@@ -1,6 +1,6 @@
 #market { 
     position: relative; // temp
-    height: 200px;
+    height: 220px;
     display: flex;
     flex-direction: row-reverse;
     justify-content: center;
@@ -33,7 +33,7 @@
 
     .tile-with-cost {
         font-weight: bold;
-        width: calc($hexSide * 4);
+        width: #{$hexSide * 4};
         display: flex;
         justify-content: space-between;
         flex-direction: column;
@@ -42,7 +42,7 @@
 
         &.disabled {
             cursor: not-allowed;
-            background: #88888866;
+            background: rgba(255, 128, 128, 0.4);
 
             .tile {
                 opacity: 0.8;

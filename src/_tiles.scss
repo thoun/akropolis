@@ -1,7 +1,7 @@
 .tile {
   position: absolute;
-  width: calc($hexSide * 4);
-  height: calc($hexSide * 4);
+  width: #{$hexSide * 4};
+  height: #{$hexSide * 4};
 
   &.temp {
     animation: temp-tile-animation 1.5s alternate infinite ease-in-out;
@@ -16,7 +16,7 @@
 
 .hex {
   position: absolute;
-  width: calc($hexSide * 2);
+  width: #{$hexSide * 2};
   height: $hexHeight;
   transform: translateZ(calc($hexHeight * (var(--z) + 1)));
 
@@ -115,7 +115,7 @@
     width: $hexSide;
     height: $hexThickness;
     background: white;
-    transform: translateZ(#{$hexThickness * -0.5}) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(41.5px); /* almost hex-height / 2 */
+    transform: translateZ(#{$hexThickness * -0.5}) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(#{$hexHeight / 2 - 0.1px});
     z-index: -100;
   }
 }
