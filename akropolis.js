@@ -248,10 +248,10 @@ var TilesManager = /** @class */ (function () {
     };
     TilesManager.prototype.getHexTooltip = function (type, plaza) {
         if (plaza) {
-            return _("Plazas will multiply the points that you gain for Districts of the same type at the end of the game. The multipliers are represented by the stars. If you have several matching Plazas, their stars are cumulative.") + "<br><br>" + _("A Plaza does not need to border Districts of the same type.");
+            return "<strong>".concat(_('Plazas'), "</strong>\n            <br><br>\n            ").concat(_("Plazas will multiply the points that you gain for Districts of the same type at the end of the game. The multipliers are represented by the stars. If you have several matching Plazas, their stars are cumulative.") + "<br><br>" + _("A Plaza does not need to border Districts of the same type."));
         }
         else if (type === 'quarry') {
-            return _("Quarries do not score any points at the end of the game, but they allow you to gain Stones. When an Architect covers a Quarry with another tile, they take 1 Stone from the reserve.");
+            return "<strong>".concat(_('Quarries'), "</strong>\n            <br><br>\n            ").concat(_("Quarries do not score any points at the end of the game, but they allow you to gain Stones. When an Architect covers a Quarry with another tile, they take 1 Stone from the reserve."));
         }
         else {
             var title = null;
@@ -284,7 +284,7 @@ var TilesManager = /** @class */ (function () {
                     secondLine = _("There are no placement conditions on Gardens.");
                     break;
             }
-            return "".concat(_("A District can be constructed freely but to gain points, each one must meet the placement condition for its type and have least one Plaza of that color."), "\n                    <br><br>\n                    <strong>").concat(title, "</strong>\n                    <br><br>\n                    <i>").concat(firstLine, "</i><br>\n                    ").concat(secondLine, "\n                    <br><br>\n                    ").concat(_("A District constructed on a higher level of your City can earn you more points. The value of a District is defined by its construction height: a District built on the 1st level would be worth 1 point, on the 2nd level 2 points, on the 3rd level 3 points, etc."));
+            return "<strong>".concat(title, "</strong>\n                    <br><br>\n                    <i>").concat(firstLine, "</i><br>\n                    <strong>").concat(_('Score condition:'), "</strong> ").concat(secondLine, "\n                    <br><br>\n                    ").concat(_("A District constructed on a higher level of your City can earn you more points. The value of a District is defined by its construction height: a District built on the 1st level would be worth 1 point, on the 2nd level 2 points, on the 3rd level 3 points, etc."));
         }
     };
     TilesManager.prototype.createHex = function (x, y, z, faceClasses) {
@@ -297,8 +297,6 @@ var TilesManager = /** @class */ (function () {
         hex.style.setProperty('--z', "".concat(z));
         var face = document.createElement('div');
         (_a = face.classList).add.apply(_a, __spreadArray(['face'], faceClasses, false));
-        // temp
-        face.innerHTML = "".concat(x, ", ").concat(y, ", ").concat(z);
         hex.appendChild(face);
         return hex;
     };
@@ -315,16 +313,24 @@ var ConstructionSite = /** @class */ (function () {
         this.remainingStacksCounter.setValue(remainingStacks);
     }
     ConstructionSite.prototype.addTile = function (tile, index) {
+        var _this = this;
         var tileWithCost = document.createElement('div');
         tileWithCost.id = "market-tile-".concat(tile.id);
         tileWithCost.classList.add('tile-with-cost');
         tileWithCost.dataset.cost = "".concat(index);
-        tileWithCost.appendChild(this.createMarketTile(tile));
+        var tileDiv = this.createMarketTile(tile);
+        tileWithCost.appendChild(tileDiv);
         var cost = document.createElement('div');
         cost.classList.add('cost');
         cost.innerHTML = "\n            <span>".concat(index, "</span>\n            <div class=\"stone score-icon\"></div> \n        ");
         tileWithCost.appendChild(cost);
         document.getElementById('market').appendChild(tileWithCost);
+        tile.hexes.forEach(function (hex, index) {
+            var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
+            hexDiv.id = "market-tile-".concat(tile.id, "-hex-").concat(index);
+            var _a = _this.game.tilesManager.hexFromString(hex), type = _a.type, plaza = _a.plaza;
+            _this.game.setTooltip(hexDiv.id, _this.game.tilesManager.getHexTooltip(type, plaza));
+        });
     };
     ConstructionSite.prototype.setSelectedHex = function (tileId, hex) {
         var _a;
@@ -349,10 +355,7 @@ var ConstructionSite = /** @class */ (function () {
         var tileDiv = this.game.tilesManager.createTile(tile, false);
         tile.hexes.forEach(function (hex, index) {
             var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
-            hexDiv.id = "market-tile-".concat(tile.id, "-hex-").concat(index);
             hexDiv.addEventListener('click', function () { return _this.game.constructionSiteHexClicked(tile, index, hexDiv); });
-            var _a = _this.game.tilesManager.hexFromString(hex), type = _a.type, plaza = _a.plaza;
-            _this.game.setTooltip(hexDiv.id, _this.game.tilesManager.getHexTooltip(type, plaza));
         });
         return tileDiv;
     };
@@ -426,11 +429,13 @@ var PlayerTable = /** @class */ (function () {
         hex.id = "player-".concat(this.playerId, "-hex-").concat(x, "-").concat(y, "-").concat(z);
         document.getElementById("player-table-".concat(this.playerId, "-city")).appendChild(hex);
         var _a = this.game.tilesManager.hexFromString(types), type = _a.type, plaza = _a.plaza;
-        this.game.setTooltip(hex.id, this.game.tilesManager.getHexTooltip(type, plaza));
+        this.game.setTooltip(hex.id, "".concat(x, ", ").concat(y, ", ").concat(z, "<br><br>") + this.game.tilesManager.getHexTooltip(type, plaza));
     };
     PlayerTable.prototype.createPossibleHex = function (x, y, z) {
         var hex = this.game.tilesManager.createPossibleHex(x, y, z);
+        hex.id = "player-".concat(this.playerId, "-possible-hex-").concat(x, "-").concat(y, "-").concat(z);
         document.getElementById("player-table-".concat(this.playerId, "-city")).appendChild(hex);
+        this.game.setTooltip(hex.id, "".concat(x, ", ").concat(y, ", ").concat(z));
         return hex;
     };
     return PlayerTable;
@@ -518,6 +523,7 @@ var Akropolis = /** @class */ (function () {
                     this.addActionButton("incRotation_button", "\u2938", function () { return _this.incRotation(); });
                     this.addActionButton("placeTile_button", _('Confirm'), function () { return _this.placeTile(); });
                     this.addActionButton("cancelPlaceTile_button", _('Cancel'), function () { return _this.cancelPlaceTile(); }, null, null, 'gray');
+                    ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { return document.getElementById(id).classList.add('disabled'); });
                     break;
             }
         }
@@ -680,6 +686,7 @@ var Akropolis = /** @class */ (function () {
         }
         var tileCoordinates = TILE_COORDINATES[this.selectedTileHexIndex];
         this.getCurrentPlayerTable().placeTile(__assign(__assign({}, this.selectedTile), { x: this.selectedPosition.x - tileCoordinates[0], y: this.selectedPosition.y - tileCoordinates[1], z: this.selectedPosition.z, r: this.rotation }), true, this.selectedTileHexIndex);
+        ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { return document.getElementById(id).classList.remove('disabled'); });
     };
     Akropolis.prototype.decRotation = function () {
         var _this = this;
@@ -718,6 +725,7 @@ var Akropolis = /** @class */ (function () {
         document.getElementById('r').innerHTML = "r = ".concat(rotation);
     };
     Akropolis.prototype.cancelPlaceTile = function () {
+        ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { return document.getElementById(id).classList.add('disabled'); });
         this.selectedPosition = null;
         this.getCurrentPlayerTable().removeTempTile();
         this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);

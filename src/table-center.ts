@@ -15,7 +15,8 @@ class ConstructionSite {
         tileWithCost.id = `market-tile-${tile.id}`;
         tileWithCost.classList.add('tile-with-cost');
         tileWithCost.dataset.cost = `${index}`;
-        tileWithCost.appendChild(this.createMarketTile(tile));
+        const tileDiv = this.createMarketTile(tile);
+        tileWithCost.appendChild(tileDiv);
         const cost = document.createElement('div');
         cost.classList.add('cost');
         cost.innerHTML = `
@@ -24,6 +25,13 @@ class ConstructionSite {
         `;
         tileWithCost.appendChild(cost);
         document.getElementById('market').appendChild(tileWithCost);
+
+        tile.hexes.forEach((hex, index) => {
+            const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
+            hexDiv.id = `market-tile-${tile.id}-hex-${index}`;
+            const { type, plaza } = this.game.tilesManager.hexFromString(hex);
+            this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));
+        });
     }
 
     public setSelectedHex(tileId: number, hex: HTMLDivElement) {
@@ -51,10 +59,7 @@ class ConstructionSite {
         const tileDiv = this.game.tilesManager.createTile(tile, false);
         tile.hexes.forEach((hex, index) => {
             const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
-            hexDiv.id = `market-tile-${tile.id}-hex-${index}`;
             hexDiv.addEventListener('click', () => this.game.constructionSiteHexClicked(tile, index, hexDiv));
-            const { type, plaza } = this.game.tilesManager.hexFromString(hex);
-            this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));
         });
         return tileDiv;
     }

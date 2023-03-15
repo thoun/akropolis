@@ -52,9 +52,13 @@ class TilesManager {
 
     public getHexTooltip(type: string, plaza: boolean) {
         if (plaza) {
-            return _("Plazas will multiply the points that you gain for Districts of the same type at the end of the game. The multipliers are represented by the stars. If you have several matching Plazas, their stars are cumulative.") + `<br><br>` + _("A Plaza does not need to border Districts of the same type.");
+            return `<strong>${_('Plazas')}</strong>
+            <br><br>
+            ${_("Plazas will multiply the points that you gain for Districts of the same type at the end of the game. The multipliers are represented by the stars. If you have several matching Plazas, their stars are cumulative.") + `<br><br>` + _("A Plaza does not need to border Districts of the same type.")}`;
         } else if (type === 'quarry') {
-            return _("Quarries do not score any points at the end of the game, but they allow you to gain Stones. When an Architect covers a Quarry with another tile, they take 1 Stone from the reserve.");
+            return `<strong>${_('Quarries')}</strong>
+            <br><br>
+            ${_("Quarries do not score any points at the end of the game, but they allow you to gain Stones. When an Architect covers a Quarry with another tile, they take 1 Stone from the reserve.")}`;
         } else {
             let title = null;
             let firstLine = null;
@@ -89,12 +93,10 @@ class TilesManager {
                     break;
             }
 
-            return `${_("A District can be constructed freely but to gain points, each one must meet the placement condition for its type and have least one Plaza of that color.")}
-                    <br><br>
-                    <strong>${title}</strong>
+            return `<strong>${title}</strong>
                     <br><br>
                     <i>${firstLine}</i><br>
-                    ${secondLine}
+                    <strong>${_('Score condition:')}</strong> ${secondLine}
                     <br><br>
                     ${_("A District constructed on a higher level of your City can earn you more points. The value of a District is defined by its construction height: a District built on the 1st level would be worth 1 point, on the 2nd level 2 points, on the 3rd level 3 points, etc.")}`; 
         }
@@ -109,8 +111,7 @@ class TilesManager {
 
         const face = document.createElement('div');
         face.classList.add('face', ...faceClasses);
-        // temp
-        face.innerHTML = `${x}, ${y}, ${z}`;
+
         hex.appendChild(face);
         return hex;
     }
