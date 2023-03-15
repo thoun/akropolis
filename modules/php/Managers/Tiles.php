@@ -63,16 +63,20 @@ class Tiles extends \AKR\Helpers\Pieces
   public static function refillDock()
   {
     $nPlayers = Players::count();
-    $i = 0;
-    foreach (self::getInLocation('dock') as $i => $tile) {
-      self::move($tile['id'], 'dock', $i);
-    }
-
-    for (; $i < $nPlayers + 2; $i++) {
+    for ($i = self::countInLocation('dock'); $i < $nPlayers + 2; $i++) {
       self::pickForLocation(1, 'deck', 'dock', $i);
     }
 
     return self::getInLocation('dock');
+  }
+
+  public static function shiftDock($i)
+  {
+    for (; $i < 6; $i++) {
+      foreach (self::getInLocation('dock', $i + 1) as $tile) {
+        self::setState($tile['id'], $i);
+      }
+    }
   }
 
   public static function getOfPlayer($pId)

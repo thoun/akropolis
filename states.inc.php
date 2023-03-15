@@ -27,10 +27,17 @@ $machinestates = [
   ST_PLACE_TILE => [
     'name' => 'placeTile',
     'description' => clienttranslate('${actplayer} must place a tile in their city'),
-    'descriptionmyturn' => clienttranslate('${you} must play a tile in their city'),
+    'descriptionmyturn' => clienttranslate('${you} must play a tile in your city'),
     'type' => 'activeplayer',
     'args' => 'argsPlaceTile',
     'possibleactions' => ['actPlaceTile'],
+    'transitions' => ['next' => ST_NEXT_PLAYER],
+  ],
+
+  ST_NEXT_PLAYER => [
+    'name' => 'nextPlayer',
+    'type' => 'game',
+    'action' => 'stNextPlayer',
     'transitions' => ['placeTile' => ST_PLACE_TILE],
   ],
 

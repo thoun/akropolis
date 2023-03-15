@@ -34,6 +34,27 @@ class Notifications
     self::notify($pId, 'message', $txt, $args);
   }
 
+  public static function payForTile($player, $cost)
+  {
+    self::notifyAll('pay', clienttranslate('${player_name} pays ${cost} for taking the tile'), [
+      'player' => $player,
+      'cost' => $cost,
+    ]);
+  }
+
+  public static function placeTile($player, $tile)
+  {
+    self::notifyAll('placedTile', clienttranslate('${player_name} places a tile in their city'), [
+      'player' => $player,
+      'tile' => $tile,
+    ]);
+  }
+
+  public static function refill()
+  {
+    self::notifyAll('refillDock', clienttranslate('Dock is refilled'), []);
+  }
+
   ///////////////////////////////////////////////////////////////
   //  _   _           _       _            _
   // | | | |_ __   __| | __ _| |_ ___     / \   _ __ __ _ ___
