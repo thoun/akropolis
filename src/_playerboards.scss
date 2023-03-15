@@ -9,6 +9,10 @@
     .icon {
       margin-right: 5px;
     }
+
+    &>div {
+      flex: 1;
+    }
   }
 
   .score-icon {
@@ -25,5 +29,17 @@
         }
       }
     }
+  }
+
+  .first-player-token-wrapper {
+    position: relative;
+  }
+  
+  .first-player-token {
+    background-image: url('img/architect-token.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 20px;
+    height: 50px;
   }
 }

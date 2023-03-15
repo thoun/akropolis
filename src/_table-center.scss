@@ -6,8 +6,17 @@
     justify-content: center;
     align-items: stretch;
     gap: 10px;
-    font-weight: bold;
     text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
+    text-align: center;
+
+    #remaining-stacks {
+        background: #FFFFFF66;
+        border-radius: 20px;
+
+        #remaining-stacks-counter {
+            font-weight: bold;
+        }
+    }
 
     // temp
     #r {
@@ -17,6 +26,7 @@
     }
 
     .tile-with-cost {
+        font-weight: bold;
         width: calc($hexSide * 4);
         display: flex;
         justify-content: space-between;

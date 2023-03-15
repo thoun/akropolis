@@ -9,6 +9,9 @@
   },
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "bga-animations": "thoun/bga-animations"
+  },
   "devDependencies": {
     "sass": "^1.32.6",
     "typescript": "^4.1.3"

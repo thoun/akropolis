@@ -10,6 +10,9 @@
     "files": [
         "src/framework.d.ts",
         "src/counter.d.ts",
+        "node_modules/bga-animations/src/animations/slide-animation.ts",
+        "node_modules/bga-animations/src/animations-utils.ts",
+        "node_modules/bga-animations/src/animation-manager.ts",
         "src/akropolis.d.ts",
         "src/tiles.ts",
         "src/table-center.ts",

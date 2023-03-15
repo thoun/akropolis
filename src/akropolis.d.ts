@@ -43,6 +43,7 @@ interface AkropolisGamedatas {
 
     // Add here variables you set up in getAllDatas
     dock: Tile[];
+    firstPlayerId: number; // TODO Tisaac check if it matches back
 }
 
 interface AkropolisGame extends Game {
@@ -67,6 +68,10 @@ interface EnteringPlaceTileArgs {
     options: PlaceTileOption[];
 }
 
-interface NotifPlacedTileArgs {
+interface NotifPlacedTileArgs { // TODO Tisaac check if it matches back
     tile: Tile;
+}
+
+interface NotifNewFirstPlayerArgs { // TODO Tisaac check if it matches back
+    playerId: number;
 }

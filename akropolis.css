@@ -113,6 +113,9 @@
 .hex .face[data-type=garden][data-plaza=true] {
   background-position: 33% 60%;
 }
+.hex.selected .face {
+  cursor: pointer;
+}
 .hex.selected .face::after {
   content: "↻";
   position: absolute;
@@ -151,8 +154,15 @@
   justify-content: center;
   align-items: stretch;
   gap: 10px;
-  font-weight: bold;
   text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
+  text-align: center;
+}
+#market #remaining-stacks {
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+}
+#market #remaining-stacks #remaining-stacks-counter {
+  font-weight: bold;
 }
 #market #r {
   position: absolute;
@@ -160,6 +170,7 @@
   right: 0;
 }
 #market .tile-with-cost {
+  font-weight: bold;
   width: 194px;
   display: flex;
   justify-content: space-between;
@@ -211,6 +222,9 @@
 .player-board .counters .icon {
   margin-right: 5px;
 }
+.player-board .counters > div {
+  flex: 1;
+}
 .player-board .score-icon {
   display: inline-block;
   width: 24px;
@@ -245,6 +259,16 @@
 }
 .player-board .score-icon[data-type="5"].star {
   background-position-x: 100%;
+}
+.player-board .first-player-token-wrapper {
+  position: relative;
+}
+.player-board .first-player-token {
+  background-image: url("img/architect-token.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 20px;
+  height: 50px;
 }
 
 .city {

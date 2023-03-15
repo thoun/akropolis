@@ -7,6 +7,7 @@ declare const g_gamethemeurl;
 
 class Akropolis implements AkropolisGame {
     public tilesManager: TilesManager;
+    public animationManager: AnimationManager;
 
     private gamedatas: AkropolisGamedatas;
     private constructionSite: ConstructionSite;
@@ -45,6 +46,7 @@ class Akropolis implements AkropolisGame {
 
         log('gamedatas', gamedatas);
 
+        this.animationManager = new AnimationManager(this);
         this.tilesManager = new TilesManager(this);
         this.constructionSite = new ConstructionSite(this, gamedatas.dock);
         this.createPlayerPanels(gamedatas);
@@ -192,7 +194,11 @@ class Akropolis implements AkropolisGame {
                     <div class="stone score-icon"></div> 
                     <span id="stones-counter-${player.id}"></span>
                 </div>
+                <div id="first-player-token-wrapper-${player.id}" class="first-player-token-wrapper"></div>
             </div>`, `player_board_${player.id}`);
+            if (gamedatas.firstPlayerId == playerId) {
+                dojo.place(`<div id="first-player-token" class="first-player-token"></div>`, `first-player-token-wrapper-${player.id}`);
+            }
 
             const stonesCounter = new ebg.counter();
             stonesCounter.create(`stones-counter-${playerId}`);
@@ -428,6 +434,19 @@ class Akropolis implements AkropolisGame {
     notif_placedTile(notif: Notif<NotifPlacedTileArgs>) {
         this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile, false);
     }
+
+    notif_newFirstPlayer(notif: Notif<NotifNewFirstPlayerArgs>) {
+        const firstPlayerToken = document.getElementById('first-player-token');
+        const destinationId = `first-player-token-wrapper-${notif.args.playerId}`;
+        const originId = firstPlayerToken.parentElement.id;
+        if (destinationId !== originId) {
+            this.animationManager.attachWithSlideAnimation(
+                firstPlayerToken,
+                document.getElementById(destinationId),
+                { zoom: 1 },
+            );
+        }
+    } 
 
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */

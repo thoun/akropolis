@@ -85,6 +85,7 @@
 
   &.selected {
     .face {
+      cursor: pointer;
       &::after {
         content: '↻';
         position: absolute;
