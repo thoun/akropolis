@@ -592,6 +592,20 @@ var PlayerTable = /** @class */ (function () {
     };
     return PlayerTable;
 }());
+var TYPES = {
+    1: 'house',
+    2: 'market',
+    3: 'barrack',
+    4: 'temple',
+    5: 'garden',
+};
+var TYPES_REVERSE = {
+    house: 1,
+    market: 2,
+    barrack: 3,
+    temple: 4,
+    garden: 5,
+};
 // Greek font used in rules : DalekPinpointBold. Free only for personal use
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
@@ -757,20 +771,25 @@ var Akropolis = /** @class */ (function () {
             _this.hexesCounters[playerId] = [];
             _this.starsCounters[playerId] = [];
             _this.colorPointsCounters[playerId] = [];
-            for (var i = 1; i <= 5; i++) {
+            var _loop_1 = function (i) {
                 dojo.place("<div class=\"counters\">\n                    <div id=\"color-points-".concat(i, "-counter-wrapper-").concat(player.id, "\" class=\"color-points-counter\">\n                        <div class=\"score-icon star\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"stars-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">\u00D7</span>\n                        <div class=\"score-icon\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"hexes-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">=</span>\n                        <span id=\"color-points-").concat(i, "-counter-").concat(player.id, "\"></span>\n                    </div>\n                </div>"), "player_board_".concat(player.id));
-                var hexCounter = new ebg.counter();
-                hexCounter.create("hexes-".concat(i, "-counter-").concat(playerId));
-                hexCounter.setValue(0); // TODO
-                _this.hexesCounters[playerId][i] = hexCounter;
+                var starKey = Object.keys(player.board.scores.stars).find(function (key) { return key.startsWith(TYPES[i]); });
                 var starCounter = new ebg.counter();
                 starCounter.create("stars-".concat(i, "-counter-").concat(playerId));
-                starCounter.setValue(0); // TODO
+                starCounter.setValue(player.board.scores.stars[starKey]);
                 _this.starsCounters[playerId][i] = starCounter;
+                var hexKey = Object.keys(player.board.scores.districts).find(function (key) { return key.startsWith(TYPES[i]); });
+                var hexCounter = new ebg.counter();
+                hexCounter.create("hexes-".concat(i, "-counter-").concat(playerId));
+                hexCounter.setValue(player.board.scores.districts[hexKey]);
+                _this.hexesCounters[playerId][i] = hexCounter;
                 var colorPointsCounter = new ebg.counter();
                 colorPointsCounter.create("color-points-".concat(i, "-counter-").concat(playerId));
-                colorPointsCounter.setValue(hexCounter.getValue() * starCounter.getValue());
+                colorPointsCounter.setValue(starCounter.getValue() * hexCounter.getValue());
                 _this.colorPointsCounters[playerId][i] = colorPointsCounter;
+            };
+            for (var i = 1; i <= 5; i++) {
+                _loop_1(i);
             }
         });
         this.setTooltipToClass('stones-counter', _('Number of stones'));
@@ -800,6 +819,17 @@ var Akropolis = /** @class */ (function () {
         // Show the dialog
         helpDialog.setContent(html);
         helpDialog.show();
+    };
+    Akropolis.prototype.updateScores = function (playerId, scores) {
+        var _this = this;
+        Object.keys(TYPES_REVERSE).forEach(function (type) {
+            var i = TYPES_REVERSE[type];
+            var starKey = Object.keys(scores.stars).find(function (key) { return key.startsWith(type); });
+            var hexKey = Object.keys(scores.districts).find(function (key) { return key.startsWith(type); });
+            _this.starsCounters[playerId][i].toValue(scores.stars[starKey]);
+            _this.hexesCounters[playerId][i].toValue(scores.districts[hexKey]);
+            _this.colorPointsCounters[playerId][i].toValue(_this.starsCounters[playerId][i].getValue() * _this.hexesCounters[playerId][i].getValue());
+        });
     };
     Akropolis.prototype.constructionSiteHexClicked = function (tile, hexIndex, hex) {
         if (hex.classList.contains('selected')) {
@@ -927,6 +957,7 @@ var Akropolis = /** @class */ (function () {
             ['gainStones', 1],
             ['refillDock', 1],
             ['newFirstPlayer', 1],
+            ['updateScores', 1],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, "notif_".concat(notif[0]));
@@ -953,6 +984,9 @@ var Akropolis = /** @class */ (function () {
         if (destinationId !== originId) {
             this.animationManager.attachWithSlideAnimation(firstPlayerToken, document.getElementById(destinationId), { zoom: 1 });
         }
+    };
+    Akropolis.prototype.notif_updateScores = function (notif) {
+        this.updateScores(notif.args.player_id, notif.args.scores);
     };
     /* @Override */
     Akropolis.prototype.change3d = function (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) {
