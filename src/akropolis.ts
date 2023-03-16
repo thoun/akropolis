@@ -334,6 +334,12 @@ class Akropolis implements AkropolisGame {
         this.constructionSite.setSelectedHex(tile.id, hex);
 
         if (this.selectedPosition) {
+            const option = this.getSelectedPositionOption();
+            console.log(option);
+            if (!option.r.includes(this.rotation)) {
+                this.setRotation(this.findClosestRotation(option.r));
+            }
+            
             const tileCoordinates = TILE_COORDINATES[hexIndex];
             this.getCurrentPlayerTable().placeTile({
                 ...this.selectedTile,
@@ -416,7 +422,7 @@ class Akropolis implements AkropolisGame {
         this.rotation = rotation;
         document.getElementById('market').style.setProperty('--r', `${rotation}`);
         if (!this.selectedPosition) {
-            this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+            this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
         }
         this.getCurrentPlayerTable().rotateTempTile(this.rotation);
         // temp
@@ -427,7 +433,7 @@ class Akropolis implements AkropolisGame {
         [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
         this.selectedPosition = null;
         this.getCurrentPlayerTable().removeTempTile();
-        this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+        this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
     }
 
     public placeTile(): void {
