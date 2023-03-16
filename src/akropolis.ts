@@ -91,6 +91,7 @@ class Akropolis implements AkropolisGame {
             this.selectedTile = null;
             this.selectedTileHexIndex = null;
             this.setRotation(0);
+            this.constructionSite.setSelectable(true);
             this.getCurrentPlayerTable().setPlaceTileOptions(args.options, this.rotation);
             this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());
         }
@@ -108,6 +109,7 @@ class Akropolis implements AkropolisGame {
 
     private onLeavingPlaceTile() {
         this.getCurrentPlayerTable()?.setPlaceTileOptions([], this.rotation);
+        this.constructionSite.setSelectable(false);
     }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the

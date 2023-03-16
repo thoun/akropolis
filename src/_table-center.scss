@@ -54,14 +54,6 @@
             }
         }
 
-        &:not(.disabled) {
-            .tile {
-                .hex {
-                    cursor: pointer;
-                }
-            }
-        }
-
         &.selected {
             box-shadow: 0 0 10px 8px $selectionColor;
         }
@@ -81,6 +73,17 @@
                 height: 24px;
             }
         }
+    }
+
+    &.selectable {
+        .tile-with-cost:not(.disabled) {
+            .tile {
+                .hex {
+                    cursor: pointer;
+                }
+            }
+        }
+
     }
 
 

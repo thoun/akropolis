@@ -199,9 +199,6 @@
 #market .tile-with-cost.disabled .cost {
   color: red;
 }
-#market .tile-with-cost:not(.disabled) .tile .hex {
-  cursor: pointer;
-}
 #market .tile-with-cost.selected {
   box-shadow: 0 0 10px 8px #01C0FF;
 }
@@ -217,6 +214,9 @@
 #market .tile-with-cost .cost .score-icon {
   width: 24px;
   height: 24px;
+}
+#market.selectable .tile-with-cost:not(.disabled) .tile .hex {
+  cursor: pointer;
 }
 #market .hex {
   position: absolute;

@@ -1,8 +1,11 @@
 class ConstructionSite {
+    private market: HTMLDivElement;
     private tiles: Tile[];
     private remainingStacksCounter: Counter;
+    private selectionActivated: boolean = false;
 
     constructor(private game: AkropolisGame, tiles: Tile[], remainingStacks: number) {
+        this.market = document.getElementById('market') as HTMLDivElement;
         this.setTiles(this.orderTiles(tiles));
 
         document.getElementById('remaining-stacks-counter').insertAdjacentText('beforebegin', _('Remaining stacks'));
@@ -25,7 +28,7 @@ class ConstructionSite {
             <div class="stone score-icon"></div> 
         `;
         tileWithCost.appendChild(cost);
-        document.getElementById('market').appendChild(tileWithCost);
+        this.market.appendChild(tileWithCost);
 
         tile.hexes.forEach((hex, index) => {
             const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
@@ -36,16 +39,16 @@ class ConstructionSite {
     }
 
     public setSelectedHex(tileId: number, hex: HTMLDivElement) {
-        Array.from(document.getElementById('market').querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
+        Array.from(this.market.querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
         document.getElementById(`market-tile-${tileId}`)?.classList.add('selected');
         hex?.classList.add('selected');
     }
 
     public setDisabledTiles(playerMoney: number | null) {
-        Array.from(document.getElementById('market').querySelectorAll('.disabled')).forEach(option => option.classList.remove('disabled'));
+        Array.from(this.market.querySelectorAll('.disabled')).forEach(option => option.classList.remove('disabled'));
 
         if (playerMoney !== null) {
-            Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach((option: HTMLDivElement) => option.classList.toggle('disabled', Number(option.dataset.cost) > playerMoney));
+            Array.from(this.market.querySelectorAll('.tile-with-cost')).forEach((option: HTMLDivElement) => option.classList.toggle('disabled', Number(option.dataset.cost) > playerMoney));
         }
     }
     
@@ -63,10 +66,14 @@ class ConstructionSite {
         }
     }
 
+    public setSelectable(selectable: boolean) {
+        this.selectionActivated = selectable;
+        this.market.classList.toggle('selectable', selectable);
+    }
+
     private setTiles(tiles: Tile[]) {
         this.tiles = tiles;
-        Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(option => option.remove());
-        console.log(this.tiles);
+        Array.from(this.market.querySelectorAll('.tile-with-cost')).forEach(option => option.remove());
         this.tiles.forEach((tile, index) => this.addTile(tile, index));
     }
 
@@ -74,7 +81,11 @@ class ConstructionSite {
         const tileDiv = this.game.tilesManager.createTile(tile, false);
         tile.hexes.forEach((hex, index) => {
             const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
-            hexDiv.addEventListener('click', () => this.game.constructionSiteHexClicked(tile, index, hexDiv));
+            hexDiv.addEventListener('click', () => {
+                if (this.selectionActivated) {
+                    this.game.constructionSiteHexClicked(tile, index, hexDiv);
+                }
+            });
         });
         return tileDiv;
     }

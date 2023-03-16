@@ -418,6 +418,8 @@ var ViewManager = /** @class */ (function () {
 var ConstructionSite = /** @class */ (function () {
     function ConstructionSite(game, tiles, remainingStacks) {
         this.game = game;
+        this.selectionActivated = false;
+        this.market = document.getElementById('market');
         this.setTiles(this.orderTiles(tiles));
         document.getElementById('remaining-stacks-counter').insertAdjacentText('beforebegin', _('Remaining stacks'));
         this.remainingStacksCounter = new ebg.counter();
@@ -436,7 +438,7 @@ var ConstructionSite = /** @class */ (function () {
         cost.classList.add('cost');
         cost.innerHTML = "\n            <span>".concat(index, "</span>\n            <div class=\"stone score-icon\"></div> \n        ");
         tileWithCost.appendChild(cost);
-        document.getElementById('market').appendChild(tileWithCost);
+        this.market.appendChild(tileWithCost);
         tile.hexes.forEach(function (hex, index) {
             var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
             hexDiv.id = "market-tile-".concat(tile.id, "-hex-").concat(index);
@@ -446,14 +448,14 @@ var ConstructionSite = /** @class */ (function () {
     };
     ConstructionSite.prototype.setSelectedHex = function (tileId, hex) {
         var _a;
-        Array.from(document.getElementById('market').querySelectorAll('.selected')).forEach(function (option) { return option.classList.remove('selected'); });
+        Array.from(this.market.querySelectorAll('.selected')).forEach(function (option) { return option.classList.remove('selected'); });
         (_a = document.getElementById("market-tile-".concat(tileId))) === null || _a === void 0 ? void 0 : _a.classList.add('selected');
         hex === null || hex === void 0 ? void 0 : hex.classList.add('selected');
     };
     ConstructionSite.prototype.setDisabledTiles = function (playerMoney) {
-        Array.from(document.getElementById('market').querySelectorAll('.disabled')).forEach(function (option) { return option.classList.remove('disabled'); });
+        Array.from(this.market.querySelectorAll('.disabled')).forEach(function (option) { return option.classList.remove('disabled'); });
         if (playerMoney !== null) {
-            Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(function (option) { return option.classList.toggle('disabled', Number(option.dataset.cost) > playerMoney); });
+            Array.from(this.market.querySelectorAll('.tile-with-cost')).forEach(function (option) { return option.classList.toggle('disabled', Number(option.dataset.cost) > playerMoney); });
         }
     };
     ConstructionSite.prototype.refill = function (tiles, remainingStacks) {
@@ -467,11 +469,14 @@ var ConstructionSite = /** @class */ (function () {
             this.setTiles(this.tiles);
         }
     };
+    ConstructionSite.prototype.setSelectable = function (selectable) {
+        this.selectionActivated = selectable;
+        this.market.classList.toggle('selectable', selectable);
+    };
     ConstructionSite.prototype.setTiles = function (tiles) {
         var _this = this;
         this.tiles = tiles;
-        Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(function (option) { return option.remove(); });
-        console.log(this.tiles);
+        Array.from(this.market.querySelectorAll('.tile-with-cost')).forEach(function (option) { return option.remove(); });
         this.tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
     };
     ConstructionSite.prototype.createMarketTile = function (tile) {
@@ -479,7 +484,11 @@ var ConstructionSite = /** @class */ (function () {
         var tileDiv = this.game.tilesManager.createTile(tile, false);
         tile.hexes.forEach(function (hex, index) {
             var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
-            hexDiv.addEventListener('click', function () { return _this.game.constructionSiteHexClicked(tile, index, hexDiv); });
+            hexDiv.addEventListener('click', function () {
+                if (_this.selectionActivated) {
+                    _this.game.constructionSiteHexClicked(tile, index, hexDiv);
+                }
+            });
         });
         return tileDiv;
     };
@@ -643,6 +652,7 @@ var Akropolis = /** @class */ (function () {
             this.selectedTile = null;
             this.selectedTileHexIndex = null;
             this.setRotation(0);
+            this.constructionSite.setSelectable(true);
             this.getCurrentPlayerTable().setPlaceTileOptions(args.options, this.rotation);
             this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());
         }
@@ -658,6 +668,7 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.onLeavingPlaceTile = function () {
         var _a;
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setPlaceTileOptions([], this.rotation);
+        this.constructionSite.setSelectable(false);
     };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
