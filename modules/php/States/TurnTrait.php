@@ -26,8 +26,9 @@ trait TurnTrait
     ];
   }
 
-  public function actPlaceTile($tileId, $pos, $r)
+  public function actPlaceTile($tileId, $hex, $pos, $r)
   {
+    $player = Players::getActive();
     // Sanity check
     self::checkAction('actPlaceTile');
     $args = $this->argsPlaceTile();
@@ -37,35 +38,40 @@ trait TurnTrait
     }
     $tile = Tiles::getSingle($tileId);
     $cost = $tile['state'];
-    // Check position
-    $optionId = Utils::search($args['options'], function ($option) use ($pos) {
+    // Check position : always go back to top left hex on tile
+    $pos = $player->board()->getCorrespondingPos($pos, $r, $hex);
+    $optionId = Utils::search($args['options'][0], function ($option) use ($pos) {
       return Utils::compareZones($option, $pos) == 0;
     });
     if ($optionId === false) {
       throw new \BgaVisibleSystemException('Impossible hex. Should not happen');
     }
     // Check rotation
-    $option = $args['options'][$optionId];
+    $option = $args['options'][0][$optionId];
     if (!in_array($r, $option['r'])) {
       throw new \BgaVisibleSystemException('Impossible rotation. Should not happen');
     }
-
-    // Place tile
-    $player = Players::getActive();
-    $player->board()->addTile($tileId, $pos, $r);
-    $tile = Tiles::getSingle($tileId);
-    Notifications::placeTile($player, $tile);
 
     // Pay money if needed
     if ($cost > 0) {
       $player->incMoney(-$cost);
       Notifications::payForTile($player, $cost);
     }
+
+    // Place tile
+    $money = $player->board()->addTile($tileId, $pos, $r);
+    $tile = Tiles::getSingle($tileId);
+    Notifications::placeTile($player, $tile);
+    // Gain money if recovering quarries
+    if ($money > 0) {
+      $player->incMoney($money);
+      Notifications::gainStones($player, $money);
+    }
+
+    // Shift remaining tiles
     Tiles::shiftDock($cost);
 
-    // Gain money if recovering quarries : TODO
     // Update score if live scoring : TODO
-    // Notify : TODO
 
     $this->gamestate->nextState('next');
   }

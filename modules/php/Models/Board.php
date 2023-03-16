@@ -96,6 +96,16 @@ class Board
     $tile = Tiles::add($tileId, $this->pId, $pos, $rotation);
     $this->tiles[$tileId] = $tile;
     $this->addTileAux($tile);
+
+    $bonus = 0;
+    foreach ($this->getCoveredHexes($pos, $rotation) as $cell) {
+      $cell['z']--;
+      if ($cell['z'] >= 0 && $this->getTypeAtPos($cell) == QUARRY) {
+        $bonus++;
+      }
+    }
+
+    return $bonus;
   }
 
   /**

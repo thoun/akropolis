@@ -42,6 +42,14 @@ class Notifications
     ]);
   }
 
+  public static function gainStones($player, $money)
+  {
+    self::notifyAll('gainStones', clienttranslate('${player_name} covers ${n} quarry(ies) and gains ${n} stone(s)'), [
+      'player' => $player,
+      'n' => $money,
+    ]);
+  }
+
   public static function placeTile($player, $tile)
   {
     self::notifyAll('placedTile', clienttranslate('${player_name} places a tile in their city'), [
