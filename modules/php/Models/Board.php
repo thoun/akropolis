@@ -37,7 +37,6 @@ class Board
   {
     $liveScoring = Globals::isLiveScoring();
     return [
-      'grid' => $this->grid,
       'tiles' => $this->tiles->toArray(),
       'scores' => $liveScoring ? $this->getScores() : null,
     ];
@@ -267,11 +266,14 @@ class Board
   /**
    * getMaxHeightAtPos: return the maxium built at a given $x,$y cell
    */
-  public function getMaxHeightAtPos($cell)
+  public function getMaxHeightAtPos($cell, $increaseZ = true)
   {
     $column = $this->grid[$cell['x']][$cell['y']] ?? [];
     $heights = array_keys($column);
     $cell['z'] = empty($heights) ? 0 : max($heights) + 1;
+    if (!$increaseZ) {
+      $cell['z']--;
+    }
     return $cell;
   }
 
@@ -311,84 +313,96 @@ class Board
       $districts[$district] = 0;
     }
 
-    $components = $this->computeComponents();
-    foreach ($components as $component) {
-      $type = $component['type'];
-      $size = $component['size'];
-      if (!in_array($type, \DISTRICTS)) {
-        continue; // Don't care about plazas and quarries
+    list($cells, $components, $marks) = $this->computeComponents();
+    foreach ($cells as $cell) {
+      $type = $this->getTypeAtPos($cell);
+      $h = $cell['z'] + 1;
+      $double = false;
+      if (!in_array($type, \DISTRICTS) || $type == HOUSE) {
+        continue; // Don't care about plazas and quarries, and house will be treated later
       }
+      $neighbours = $this->getNeighbours($cell, true);
+      $builtNeighbours = $this->getBuiltNeighbours($cell);
 
-      // House => keep only biggest district
-      if ($type == \HOUSE) {
-        // HOUSE VARIANT : double the point of house is more than 10
-        if (Globals::isVariant(HOUSE) && $size >= 10) {
-          $size *= 2;
+      // Market : dont score market if adjacent to other marker
+      if ($type == MARKET) {
+        $nextToMarket = false;
+        $nextToPlaza = false;
+        foreach ($builtNeighbours as $pos) {
+          $nextToMarket = $nextToMarket || $this->getTypeAtPos($pos) == MARKET;
+          $nextToPlaza = $nextToPlaza || $this->getTypeAtPos($pos) == MARKET_PLAZA;
         }
 
-        $districts[HOUSE] = max($districts[HOUSE], $size);
-        continue;
-      }
-      // Dont score market if adjacent to other marker
-      elseif ($type == MARKET) {
-        if ($size > 1) {
+        if ($nextToMarket) {
           continue;
         }
         // MARKET VARIANT : double size if adjacent to PLAZA
-        if (Globals::isVariant(MARKET)) {
-          foreach ($this->getBuiltNeighbours($component['cells'][0]) as $pos) {
-            if ($this->getTypeAtPos($pos) == \MARKET_PLAZA) {
-              $size *= 2;
-            }
-          }
+        if (Globals::isVariant(MARKET) && $nextToPlaza) {
+          $double = true;
         }
       }
       // Dont score barracks if not on the edge
       elseif ($type == BARRACK) {
-        $size = 0;
-        foreach ($component['cells'] as $cell) {
-          $builtNeighbours = $this->getBuiltNeighbours($cell);
-          $h = $cell['z'] + 1;
-          if (count($builtNeighbours) < 6) {
-            $size += $h;
+        // We must count empty cells ourselves to avoid Lake...
+        $emptyCells = 0;
+        foreach ($neighbours as $pos) {
+          $uid = self::getCellId($pos);
+          if (!$this->isCellBuilt($pos) && ($marks[$uid] ?? 0) === 1) {
+            $emptyCells++;
           }
+        }
 
-          // BARRACK VARIANT : double size if 3 or 4 empty neighbours
-          if (Globals::isVariant(BARRACK) && count($builtNeighbours) == 2) {
-            $size += $h;
-          }
+        if ($emptyCells == 0) {
+          continue;
+        }
+
+        // BARRACK VARIANT : double size if 3 or 4 empty neighbours
+        if (Globals::isVariant(BARRACK) && $emptyCells >= 3) {
+          $double = true;
         }
       }
       // Dont score temple if not fully built around
       elseif ($type == TEMPLE) {
-        $size = 0;
-        foreach ($component['cells'] as $cell) {
-          $builtNeighbours = $this->getBuiltNeighbours($cell);
-          if (count($builtNeighbours) == 6) {
-            $h = $cell['z'] + 1;
-            $size += $h;
+        if (count($builtNeighbours) < 6) {
+          continue;
+        }
 
-            // TEMPLE VARIANT : double size if height > 1
-            if ($h >= 2 && Globals::isVariant(TEMPLE)) {
-              $size += $h;
-            }
-          }
+        // TEMPLE VARIANT : double size if height > 1
+        if ($cell['z'] > 0 && Globals::isVariant(TEMPLE)) {
+          $double = true;
         }
       }
       // GARDEN VARIANT : double size if adjacent to lakes
       elseif ($type == GARDEN && Globals::isVariant(GARDEN)) {
-        $size = 0;
-        foreach ($component['cells'] as $cell) {
-          $h = $cell['z'] + 1;
-          $size += $h;
-          if (false) {
-            // TODO
-            $size += $h;
+        // count Lakes
+        $lakes = 0;
+        foreach ($neighbours as $pos) {
+          $uid = self::getCellId($pos);
+          if (!$this->isCellBuilt($pos) && ($marks[$uid] ?? 0) !== 1) {
+            $lakes++;
           }
+        }
+
+        if ($lakes > 0) {
+          $double = true;
         }
       }
 
-      $districts[$type] += $size;
+      $districts[$type] += ($cell['z'] + 1) * ($double ? 2 : 1);
+    }
+
+    // SCORE BIGGEST HOUSE
+    foreach ($components as $component) {
+      if ($component['type'] != HOUSE) {
+        continue;
+      }
+      $size = $component['size'];
+      // HOUSE VARIANT : double the point of house is more than 10
+      if (Globals::isVariant(HOUSE) && $size >= 10) {
+        $size *= 2;
+      }
+
+      $districts[HOUSE] = max($districts[HOUSE], $size);
     }
 
     return $districts;
@@ -397,6 +411,25 @@ class Board
   public function computeComponents()
   {
     $cells = $this->getVisibleBuiltCells();
+
+    // To detect outside zone, find "rectangle" that contains the all board
+    $minX = 0;
+    $maxX = 0;
+    $minY = 0;
+    $maxY = 0;
+    foreach ($cells as $cell) {
+      $minX = min($minX, $cell['x']);
+      $maxX = max($maxX, $cell['x']);
+      $minY = min($minY, $cell['y']);
+      $maxY = max($maxY, $cell['y']);
+    }
+    $minX--;
+    $maxX++;
+    $minY--;
+    $maxY++;
+
+    // Now add one of this exterior cell as first cell to treat
+    array_unshift($cells, ['x' => $minX, 'y' => $minX % 2 == 0 ? 0 : 1, 'z' => 0]);
 
     $marks = [];
     $components = [];
@@ -422,7 +455,12 @@ class Board
         $size += $cell['z'] + 1;
 
         foreach (self::getNeighbours($cell) as $pos) {
-          $pos = $this->getMaxHeightAtPos($pos);
+          if ($pos['x'] < $minX || $pos['x'] > $maxX || $pos['y'] < $minY || $pos['y'] > $maxY) {
+            continue;
+          }
+
+          $pos = $this->getMaxHeightAtPos($pos, false);
+          $pos['z'] = max(0, $pos['z']);
           if ($this->getTypeAtPos($pos) == $type) {
             $queue[] = $pos;
           }
@@ -437,7 +475,7 @@ class Board
       $mark++;
     }
 
-    return $components;
+    return [$cells, $components, $marks];
   }
 
   /////////////////////////////////////////////
@@ -478,8 +516,8 @@ class Board
   {
     $cells = [];
     foreach (self::getNeighbours($cell) as $cell) {
-      $cell = $this->getMaxHeightAtPos($cell);
-      if ($cell['z'] > 0) {
+      $cell = $this->getMaxHeightAtPos($cell, false);
+      if ($cell['z'] >= 0) {
         $cells[] = $cell;
       }
     }
