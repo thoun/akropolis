@@ -5,6 +5,22 @@ declare const dojo: Dojo;
 declare const _;
 declare const g_gamethemeurl;
 
+const TYPES = {
+    1: 'house',
+    2: 'market',
+    3: 'barrack',
+    4: 'temple',
+    5: 'garden',
+};
+
+const TYPES_REVERSE = {
+    house: 1,
+    market: 2,
+    barrack: 3,
+    temple: 4,
+    garden: 5,
+};
+
 // Greek font used in rules : DalekPinpointBold. Free only for personal use
 class Akropolis implements AkropolisGame {
     public tilesManager: TilesManager;
@@ -235,19 +251,21 @@ class Akropolis implements AkropolisGame {
                     </div>
                 </div>`, `player_board_${player.id}`);
     
-                const hexCounter: Counter = new ebg.counter();
-                hexCounter.create(`hexes-${i}-counter-${playerId}`);
-                hexCounter.setValue(0); // TODO
-                this.hexesCounters[playerId][i] = hexCounter;
-    
+                const starKey = Object.keys(player.board.scores.stars).find(key => key.startsWith(TYPES[i]));
                 const starCounter: Counter = new ebg.counter();
                 starCounter.create(`stars-${i}-counter-${playerId}`);
-                starCounter.setValue(0); // TODO
+                starCounter.setValue(player.board.scores.stars[starKey]);
                 this.starsCounters[playerId][i] = starCounter;
+    
+                const hexKey = Object.keys(player.board.scores.districts).find(key => key.startsWith(TYPES[i]));
+                const hexCounter: Counter = new ebg.counter();
+                hexCounter.create(`hexes-${i}-counter-${playerId}`);
+                hexCounter.setValue(player.board.scores.districts[hexKey]);
+                this.hexesCounters[playerId][i] = hexCounter;
     
                 const colorPointsCounter: Counter = new ebg.counter();
                 colorPointsCounter.create(`color-points-${i}-counter-${playerId}`);
-                colorPointsCounter.setValue(hexCounter.getValue() * starCounter.getValue());
+                colorPointsCounter.setValue(starCounter.getValue() * hexCounter.getValue());
                 this.colorPointsCounters[playerId][i] = colorPointsCounter;
             }
         });
@@ -292,6 +310,17 @@ class Akropolis implements AkropolisGame {
         helpDialog.setContent(html);
 
         helpDialog.show();
+    }
+    
+    private updateScores(playerId: number, scores: Scores) {
+        Object.keys(TYPES_REVERSE).forEach(type => {
+            const i = TYPES_REVERSE[type];
+            const starKey = Object.keys(scores.stars).find(key => key.startsWith(type));
+            const hexKey = Object.keys(scores.districts).find(key => key.startsWith(type));
+            this.starsCounters[playerId][i].toValue(scores.stars[starKey]);
+            this.hexesCounters[playerId][i].toValue(scores.districts[hexKey]);
+            this.colorPointsCounters[playerId][i].toValue(this.starsCounters[playerId][i].getValue() * this.hexesCounters[playerId][i].getValue());
+        })
     }
     
     public constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement): void {
@@ -443,6 +472,7 @@ class Akropolis implements AkropolisGame {
             ['gainStones', 1],
             ['refillDock', 1],
             ['newFirstPlayer', 1],
+            ['updateScores', 1],
         ];
     
         notifs.forEach((notif) => {
@@ -479,6 +509,10 @@ class Akropolis implements AkropolisGame {
                 { zoom: 1 },
             );
         }
+    }
+
+    notif_updateScores(notif: Notif<NotifUpdateScoresArgs>) {
+        this.updateScores(notif.args.player_id, notif.args.scores);
     }
 
     /* @Override */

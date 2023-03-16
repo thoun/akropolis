@@ -22,9 +22,15 @@ interface PlayerGrid {
     }
 }
 
+interface Scores {
+    districts: { [type: string]: number };
+    stars: { [type: string]: number };
+}
+
 interface PlayerBoard {
     grid: PlayerGrid;
     tiles: Tile[];
+    scores: Scores;
 }
 
 interface AkropolisPlayer extends Player {
@@ -98,4 +104,9 @@ interface NotifNewFirstPlayerArgs { // TODO Tisaac check if it matches back
 interface NotifDockRefillArgs {
     dock: Tile[];
     deck: number;
+}
+
+interface NotifUpdateScoresArgs {
+    player_id: number;
+    scores: Scores;
 }
