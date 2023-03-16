@@ -57,6 +57,7 @@ class PlayerTable {
         tileDiv.style.setProperty('--r', `${tile.r}`);
         tileDiv.dataset.selectedHexIndex = `${selectedHexIndex}`;
         this.grid.appendChild(tileDiv);
+        this.removeTempTile();
 
         if (preview) {
             tile.hexes.forEach((hex, index) => {
@@ -70,7 +71,6 @@ class PlayerTable {
                 this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));
             });
 
-            this.removeTempTile();
             this.tempTile = tileDiv;
         }
     }

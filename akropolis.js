@@ -512,6 +512,7 @@ var PlayerTable = /** @class */ (function () {
         tileDiv.style.setProperty('--r', "".concat(tile.r));
         tileDiv.dataset.selectedHexIndex = "".concat(selectedHexIndex);
         this.grid.appendChild(tileDiv);
+        this.removeTempTile();
         if (preview) {
             tile.hexes.forEach(function (hex, index) {
                 var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
@@ -523,7 +524,6 @@ var PlayerTable = /** @class */ (function () {
                 var _a = _this.game.tilesManager.hexFromString(hex), type = _a.type, plaza = _a.plaza;
                 _this.game.setTooltip(hexDiv.id, _this.game.tilesManager.getHexTooltip(type, plaza));
             });
-            this.removeTempTile();
             this.tempTile = tileDiv;
         }
     };

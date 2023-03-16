@@ -34,10 +34,8 @@ $y0: 300px;
         left: calc($hexSide * -1.5 + ($hexSide * var(--x) * 1.5));
         top: calc(($hexHeight * var(--y) / 2));
         transform: translateZ(calc($hexThickness * var(--z))) rotate(calc(60deg * var(--r)));
-
-        &[data-selected-hex-index="0"] {
-            transform-origin: #{$hexSide * 1.5} #{$hexHeight * 0.5};
-        }
+        transform-origin: #{$hexSide * 1.5} #{$hexHeight * 0.5};
+        
         &[data-selected-hex-index="1"] {
             transform-origin: #{$hexSide * 3} #{$hexHeight};
         }
