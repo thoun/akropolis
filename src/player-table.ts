@@ -83,19 +83,15 @@ class PlayerTable {
         this.tempTile = null;
     }
 
-    private tileHasHex(tile: Tile, x: number, y: number, z: number) {
-        return tile.z == z && TILE_COORDINATES.some(tileCoordinates => tile.x + tileCoordinates[0] == x && tile.y + tileCoordinates[1] == y);
+    private createStartTile() {
+        this.createTileHex(0, 0, 0, 'house-plaza');
+        this.createTileHex(0, -2, 0, 'quarry');
+        this.createTileHex(1, 1, 0, 'quarry');
+        this.createTileHex(-1, 1, 0, 'quarry');
     }
 
     private createGrid(board: PlayerBoard) {
-        const grid = board.grid;
-        Object.keys(grid).forEach(x => Object.keys(grid[x]).forEach(y => Object.keys(grid[x][y]).forEach(z => {
-            // we only want hexes that aren't already sent in tiles. So basically, it will be the starting tile
-            if (!board.tiles.some(tile => this.tileHasHex(tile, Number(x), Number(y), Number(z)))) {
-                this.createTileHex(Number(x), Number(y), Number(z), grid[x][y][z]);
-            }
-        })));
-
+        this.createStartTile();
         board.tiles.forEach(tile => this.placeTile(tile));
     }
     

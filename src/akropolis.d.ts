@@ -14,21 +14,12 @@ interface Tile {
     state: number;
 }
 
-interface PlayerGrid {
-    [x: number]: {
-        [y: number]: {
-            [z: number]: string;
-        }
-    }
-}
-
 interface Scores {
     districts: { [type: string]: number };
     stars: { [type: string]: number };
 }
 
 interface PlayerBoard {
-    grid: PlayerGrid;
     tiles: Tile[];
     scores: Scores;
 }

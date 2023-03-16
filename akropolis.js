@@ -561,18 +561,15 @@ var PlayerTable = /** @class */ (function () {
         (_a = this.tempTile) === null || _a === void 0 ? void 0 : _a.remove();
         this.tempTile = null;
     };
-    PlayerTable.prototype.tileHasHex = function (tile, x, y, z) {
-        return tile.z == z && TILE_COORDINATES.some(function (tileCoordinates) { return tile.x + tileCoordinates[0] == x && tile.y + tileCoordinates[1] == y; });
+    PlayerTable.prototype.createStartTile = function () {
+        this.createTileHex(0, 0, 0, 'house-plaza');
+        this.createTileHex(0, -2, 0, 'quarry');
+        this.createTileHex(1, 1, 0, 'quarry');
+        this.createTileHex(-1, 1, 0, 'quarry');
     };
     PlayerTable.prototype.createGrid = function (board) {
         var _this = this;
-        var grid = board.grid;
-        Object.keys(grid).forEach(function (x) { return Object.keys(grid[x]).forEach(function (y) { return Object.keys(grid[x][y]).forEach(function (z) {
-            // we only want hexes that aren't already sent in tiles. So basically, it will be the starting tile
-            if (!board.tiles.some(function (tile) { return _this.tileHasHex(tile, Number(x), Number(y), Number(z)); })) {
-                _this.createTileHex(Number(x), Number(y), Number(z), grid[x][y][z]);
-            }
-        }); }); });
+        this.createStartTile();
         board.tiles.forEach(function (tile) { return _this.placeTile(tile); });
     };
     PlayerTable.prototype.createTileHex = function (x, y, z, types) {
