@@ -67,7 +67,7 @@ class Tiles extends \AKR\Helpers\Pieces
       self::pickForLocation(1, 'deck', 'dock', $i);
     }
 
-    return self::getInLocation('dock');
+    return self::getInLocation('dock')->toArray();
   }
 
   public static function shiftDock($i)

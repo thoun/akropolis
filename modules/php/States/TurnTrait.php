@@ -71,9 +71,7 @@ trait TurnTrait
     // Change state and refill if needed
     if (Tiles::countInLocation('dock') == 1) {
       if (Tiles::countInLocation('deck') > 0) {
-        Tiles::refillDock();
-        
-        $dock = Tiles::getUiData();
+        $dock = Tiles::refillDock();        
         $deck = Tiles::countInLocation('deck');
         Notifications::refill($dock, $deck);
       } else {
