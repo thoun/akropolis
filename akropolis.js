@@ -653,7 +653,7 @@ var Akropolis = /** @class */ (function () {
             this.selectedTileHexIndex = null;
             this.setRotation(0);
             this.constructionSite.setSelectable(true);
-            this.getCurrentPlayerTable().setPlaceTileOptions(args.options, this.rotation);
+            this.getCurrentPlayerTable().setPlaceTileOptions(args.options[0], this.rotation);
             this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());
         }
     };
@@ -829,7 +829,7 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.getSelectedPositionOption = function () {
         var _this = this;
-        return this.gamedatas.gamestate.args.options.find(function (o) {
+        return this.gamedatas.gamestate.args.options[this.selectedTileHexIndex].find(function (o) {
             return o.x == _this.selectedPosition.x && o.y == _this.selectedPosition.y && o.z == _this.selectedPosition.z;
         });
     };
@@ -899,6 +899,7 @@ var Akropolis = /** @class */ (function () {
             z: this.selectedPosition.z,
             r: this.rotation,
             tileId: this.selectedTile.id,
+            hex: this.selectedTileHexIndex,
         });
     };
     Akropolis.prototype.takeAction = function (action, data) {
@@ -923,6 +924,7 @@ var Akropolis = /** @class */ (function () {
         var notifs = [
             ['placedTile', 1],
             ['pay', 1],
+            ['gainStones', 1],
             ['refillDock', 1],
             ['newFirstPlayer', 1],
         ];
@@ -937,6 +939,9 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.notif_pay = function (notif) {
         this.stonesCounters[notif.args.player_id].incValue(-notif.args.cost);
+    };
+    Akropolis.prototype.notif_gainStones = function (notif) {
+        this.stonesCounters[notif.args.player_id].incValue(+notif.args.n);
     };
     Akropolis.prototype.notif_refillDock = function (notif) {
         this.constructionSite.refill(notif.args.dock, notif.args.deck / (Object.keys(this.gamedatas.players).length + 1));

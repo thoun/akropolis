@@ -39,11 +39,12 @@ class action_akropolis extends APP_GameAction
   {
     self::setAjaxMode();
     $tileId = (int) self::getArg('tileId', AT_int, true);
+    $hex = (int) self::getArg('hex', AT_int, true);
     $x = (int) self::getArg('x', AT_int, true);
     $y = (int) self::getArg('y', AT_int, true);
     $z = (int) self::getArg('z', AT_int, true);
     $r = (int) self::getArg('r', AT_int, true);
-    $this->game->actPlaceTile($tileId, ['x' => $x, 'y' => $y, 'z' => $z], $r);
+    $this->game->actPlaceTile($tileId, $hex, ['x' => $x, 'y' => $y, 'z' => $z], $r);
     self::ajaxResponse();
   }
 }

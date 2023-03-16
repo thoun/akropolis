@@ -92,7 +92,7 @@ class Akropolis implements AkropolisGame {
             this.selectedTileHexIndex = null;
             this.setRotation(0);
             this.constructionSite.setSelectable(true);
-            this.getCurrentPlayerTable().setPlaceTileOptions(args.options, this.rotation);
+            this.getCurrentPlayerTable().setPlaceTileOptions(args.options[0], this.rotation);
             this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());
         }
     }
@@ -332,7 +332,7 @@ class Akropolis implements AkropolisGame {
     }
 
     private getSelectedPositionOption() {
-        return (this.gamedatas.gamestate.args as EnteringPlaceTileArgs).options.find(o => 
+        return (this.gamedatas.gamestate.args as EnteringPlaceTileArgs).options[this.selectedTileHexIndex].find(o => 
             o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z
         );
     }
@@ -412,6 +412,7 @@ class Akropolis implements AkropolisGame {
             z: this.selectedPosition.z,
             r: this.rotation,
             tileId: this.selectedTile.id,
+            hex: this.selectedTileHexIndex,
         });
     }
 
@@ -439,6 +440,7 @@ class Akropolis implements AkropolisGame {
         const notifs = [
             ['placedTile', 1],
             ['pay', 1],
+            ['gainStones', 1],
             ['refillDock', 1],
             ['newFirstPlayer', 1],
         ];
@@ -456,6 +458,10 @@ class Akropolis implements AkropolisGame {
 
     notif_pay(notif: Notif<NotifPayArgs>) {
         this.stonesCounters[notif.args.player_id].incValue(-notif.args.cost);
+    }
+
+    notif_gainStones(notif: Notif<NotifGainStonesArgs>) {
+        this.stonesCounters[notif.args.player_id].incValue(+notif.args.n);
     }
 
     notif_refillDock(notif: Notif<NotifDockRefillArgs>) {

@@ -73,7 +73,7 @@ interface PlaceTileOption {
 }
 
 interface EnteringPlaceTileArgs {
-    options: PlaceTileOption[];
+    options: PlaceTileOption[][];
 }
 
 interface NotifPlacedTileArgs {
@@ -86,11 +86,16 @@ interface NotifPayArgs {
     cost: number;
 }
 
+interface NotifGainStonesArgs {
+    player_id: number;
+    n: number;
+}
+
 interface NotifNewFirstPlayerArgs { // TODO Tisaac check if it matches back
     playerId: number;
 }
 
-interface NotifDockRefillArgs { // TODO Tisaac check if it matches back
+interface NotifDockRefillArgs {
     dock: Tile[];
     deck: number;
 }
