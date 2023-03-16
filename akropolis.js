@@ -483,9 +483,9 @@ var ConstructionSite = /** @class */ (function () {
         });
         return tileDiv;
     };
-    // temp
+    // temp ? remove if sorted by state ASC on back-end side
     ConstructionSite.prototype.orderTiles = function (tiles) {
-        tiles.sort(function (a, b) { return Number(a.state) - Number(b.state); });
+        tiles.sort(function (a, b) { return a.state - b.state; });
         return tiles;
     };
     return ConstructionSite;

@@ -79,9 +79,9 @@ class ConstructionSite {
         return tileDiv;
     }
 
-    // temp
+    // temp ? remove if sorted by state ASC on back-end side
     private orderTiles(tiles: Tile[]) {
-        tiles.sort((a, b) => Number(a.state) - Number(b.state));
+        tiles.sort((a, b) => a.state - b.state);
         return tiles;
     }
 }

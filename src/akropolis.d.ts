@@ -11,7 +11,7 @@ interface Tile {
     y: number;
     z: number;
     r: number;
-    state: string; // TODO Tisaac state should be a number
+    state: number;
 }
 
 interface PlayerGrid {

@@ -17,7 +17,7 @@ class Tiles extends \AKR\Helpers\Pieces
     return [
       'id' => (int) $tile['id'],
       'location' => $tile['location'],
-      'state' => $tile['state'],
+      'state' => (int) $tile['state'],
       'pId' => (int) $tile['player_id'],
       'x' => (int) $tile['x'],
       'y' => (int) $tile['y'],
