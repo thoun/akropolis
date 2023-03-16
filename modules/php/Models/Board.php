@@ -5,6 +5,7 @@ use AKR\Managers\Players;
 use AKR\Helpers\UserException;
 use AKR\Helpers\Utils;
 use AKR\Helpers\Collection;
+use AKR\Core\Globals;
 
 /*
  * Board: all utility functions concerning a Zoo Map
@@ -34,9 +35,19 @@ class Board
 
   public function getUiData()
   {
+    $liveScoring = Globals::isLiveScoring();
     return [
       'grid' => $this->grid,
       'tiles' => $this->tiles->toArray(),
+      'scores' => $liveScoring ? $this->getScores() : null,
+    ];
+  }
+
+  public function getScores()
+  {
+    return [
+      'districts' => $this->getDistrictSizes(),
+      'stars' => $this->getPlazaStars(),
     ];
   }
 
@@ -264,6 +275,134 @@ class Board
     return $cell;
   }
 
+  //////////////////////////////////
+  //  ____
+  // / ___|  ___ ___  _ __ ___
+  // \___ \ / __/ _ \| '__/ _ \
+  //  ___) | (_| (_) | | |  __/
+  // |____/ \___\___/|_|  \___|
+  //////////////////////////////////
+  public function getPlazaStars()
+  {
+    $plazas = [];
+    foreach (PLAZAS as $plaza) {
+      $plazas[$plaza] = 0;
+    }
+
+    foreach ($this->getVisibleBuiltCells() as $cell) {
+      $type = $this->getTypeAtPos($cell);
+      if (in_array($type, PLAZAS)) {
+        $plazas[$type]++;
+      }
+    }
+
+    // Multiply by nbr of stars
+    foreach (PLAZAS as $plaza) {
+      $plazas[$plaza] *= \PLAZAS_MULT[$plaza];
+    }
+
+    return $plazas;
+  }
+
+  public function getDistrictSizes()
+  {
+    $districts = [];
+    foreach (\DISTRICTS as $district) {
+      $districts[$district] = 0;
+    }
+
+    $components = $this->computeComponents();
+    foreach ($components as $component) {
+      $type = $component['type'];
+      $size = $component['size'];
+      if (!in_array($type, \DISTRICTS)) {
+        continue; // Don't care about plazas and quarries
+      }
+
+      // House => keep only biggest district
+      if ($type == \HOUSE) {
+        $districts[HOUSE] = max($districts[HOUSE], $size);
+        continue;
+      }
+      // Dont score market if adjacent to other marker
+      elseif ($type == MARKET) {
+        if ($size > 1) {
+          continue;
+        }
+      }
+      // Dont score barracks if not on the edge
+      elseif ($type == BARRACK) {
+        $size = 0;
+        foreach ($component['cells'] as $cell) {
+          $builtNeighbours = $this->getBuiltNeighbours($cell);
+          if (count($builtNeighbours) < 6) {
+            $size += $cell['z'] + 1;
+          }
+        }
+      }
+      // Dont score temple if not fully built around
+      elseif ($type == TEMPLE) {
+        $size = 0;
+        foreach ($component['cells'] as $cell) {
+          $builtNeighbours = $this->getBuiltNeighbours($cell);
+          if (count($builtNeighbours) == 6) {
+            $size += $cell['z'] + 1;
+          }
+        }
+      }
+
+      $districts[$type] += $size;
+    }
+
+    return $districts;
+  }
+
+  public function computeComponents()
+  {
+    $cells = $this->getVisibleBuiltCells();
+
+    $marks = [];
+    $components = [];
+    $mark = 1;
+    foreach ($cells as $cell) {
+      $queue = [$cell];
+      $uid = self::getCellId($cell);
+      if (isset($marks[$uid])) {
+        continue;
+      }
+
+      $type = $this->getTypeAtPos($cell);
+      $component = [];
+      $size = 0;
+      while (!empty($queue)) {
+        $cell = array_pop($queue);
+        $uid = self::getCellId($cell);
+        if (isset($marks[$uid])) {
+          continue;
+        }
+        $marks[$uid] = $mark;
+        $component[] = $cell;
+        $size += $cell['z'] + 1;
+
+        foreach (self::getNeighbours($cell) as $pos) {
+          $pos = $this->getMaxHeightAtPos($pos);
+          if ($this->getTypeAtPos($pos) == $type) {
+            $queue[] = $pos;
+          }
+        }
+      }
+
+      $components[] = [
+        'type' => $type,
+        'cells' => $component,
+        'size' => $size,
+      ];
+      $mark++;
+    }
+
+    return $components;
+  }
+
   /////////////////////////////////////////////
   //   ____      _     _   _   _ _   _ _
   //  / ___|_ __(_) __| | | | | | |_(_) |___
@@ -281,6 +420,30 @@ class Board
         foreach ($column as $z => $type) {
           $cells[] = ['x' => $x, 'y' => $y, 'z' => $z];
         }
+      }
+    }
+    return $cells;
+  }
+
+  public function getVisibleBuiltCells()
+  {
+    $cells = [];
+    foreach ($this->grid as $x => $row) {
+      foreach ($row as $y => $column) {
+        $z = max(array_keys($column));
+        $cells[] = ['x' => $x, 'y' => $y, 'z' => $z];
+      }
+    }
+    return $cells;
+  }
+
+  public function getBuiltNeighbours($cell)
+  {
+    $cells = [];
+    foreach (self::getNeighbours($cell) as $cell) {
+      $cell = $this->getMaxHeightAtPos($cell);
+      if ($cell['z'] > 0) {
+        $cells[] = $cell;
       }
     }
     return $cells;

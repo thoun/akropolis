@@ -71,7 +71,11 @@ trait TurnTrait
     // Shift remaining tiles
     Tiles::shiftDock($cost);
 
-    // Update score if live scoring : TODO
+    // Update score if live scoring
+    if (Globals::isLiveScoring()) {
+      $scores = $player->board()->getScores();
+      Notifications::updateScores($player, $scores);
+    }
 
     $this->gamestate->nextState('next');
   }

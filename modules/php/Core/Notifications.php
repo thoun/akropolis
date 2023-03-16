@@ -66,6 +66,14 @@ class Notifications
     ]);
   }
 
+  public static function updateScores($player, $scores)
+  {
+    self::notifyAl('updateScores', '', [
+      'player' => $player,
+      'scores' => $scores,
+    ]);
+  }
+
   ///////////////////////////////////////////////////////////////
   //  _   _           _       _            _
   // | | | |_ __   __| | __ _| |_ ___     / \   _ __ __ _ ___
