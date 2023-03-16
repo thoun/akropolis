@@ -223,11 +223,11 @@ class Akropolis implements AkropolisGame {
 
                 dojo.place(`<div class="counters">
                     <div id="color-points-${i}-counter-wrapper-${player.id}" class="color-points-counter">
-                        <div class="score-icon" data-type="${i}"></div> 
-                        <span id="hexes-${i}-counter-${player.id}"></span>
-                        <span class="multiplier">×</span>
                         <div class="score-icon star" data-type="${i}"></div> 
                         <span id="stars-${i}-counter-${player.id}"></span>
+                        <span class="multiplier">×</span>
+                        <div class="score-icon" data-type="${i}"></div> 
+                        <span id="hexes-${i}-counter-${player.id}"></span>
                         <span class="multiplier">=</span>
                         <span id="color-points-${i}-counter-${player.id}"></span>
                     </div>
