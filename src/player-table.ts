@@ -29,7 +29,7 @@ class PlayerTable {
         this.city = document.getElementById(`player-table-${this.playerId}-city`) as HTMLDivElement;
         this.grid = document.getElementById(`player-table-${this.playerId}-grid`) as HTMLDivElement;
 
-        this.createGrid(player.board.grid);
+        this.createGrid(player.board);
 
         //    transform: rotateX(10deg) translate(-100px, -100px) rotateZ(0deg) scale3d(0.7, 0.7, 0.7);
         this.city.style.transform = "rotatex(" + (game as any).control3dxaxis + "deg) translate(" + (game as any).control3dypos + "px," + (game as any).control3dxpos + "px) rotateZ(" + (game as any).control3dzaxis + "deg) scale3d(" + (game as any).control3dscale + "," + (game as any).control3dscale + "," + (game as any).control3dscale + ")";
@@ -49,7 +49,7 @@ class PlayerTable {
         });
     }
 
-    public placeTile(tile: Tile, preview: boolean, selectedHexIndex: number = null) {
+    public placeTile(tile: Tile, preview: boolean = false, selectedHexIndex: number = null) {
         const tileDiv = this.game.tilesManager.createTile(tile, true, preview ? ['preview'] : []);
         tileDiv.style.setProperty('--x', `${tile.x}`);
         tileDiv.style.setProperty('--y', `${tile.y}`);
@@ -84,10 +84,20 @@ class PlayerTable {
         this.tempTile = null;
     }
 
-    private createGrid(grid: PlayerGrid) {
+    private tileHasHex(tile: Tile, x: number, y: number, z: number) {
+        return tile.z == z && TILE_COORDINATES.some(tileCoordinates => tile.x + tileCoordinates[0] == x && tile.y + tileCoordinates[1] == y);
+    }
+
+    private createGrid(board: PlayerBoard) {
+        const grid = board.grid;
         Object.keys(grid).forEach(x => Object.keys(grid[x]).forEach(y => Object.keys(grid[x][y]).forEach(z => {
-            this.createTileHex(Number(x), Number(y), Number(z), grid[x][y][z]);
+            // we only want hexes that aren't already sent in tiles. So basically, it will be the starting tile
+            if (!board.tiles.some(tile => this.tileHasHex(tile, Number(x), Number(y), Number(z)))) {
+                this.createTileHex(Number(x), Number(y), Number(z), grid[x][y][z]);
+            }
         })));
+
+        board.tiles.forEach(tile => this.placeTile(tile));
     }
     
     private createTileHex(x: number, y: number, z: number, types: string) {

@@ -22,13 +22,15 @@ interface PlayerGrid {
     }
 }
 
+interface PlayerBoard {
+    grid: PlayerGrid;
+    tiles: Tile[];
+}
+
 interface AkropolisPlayer extends Player {
     no: number;
     money: number;
-    board: {
-        grid: PlayerGrid;
-    };
-    tiles: Tile[]; // TODO Tisaac check if it matches back. No need to send initial tile, as it's already contained in grid. It's just to mark tiles shapes
+    board: PlayerBoard;
 }
 
 interface AkropolisGamedatas {

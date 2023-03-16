@@ -36,7 +36,7 @@ class Board
   {
     return [
       'grid' => $this->grid,
-      'tiles' => $this->tiles,
+      'tiles' => $this->tiles->toArray(),
     ];
   }
 

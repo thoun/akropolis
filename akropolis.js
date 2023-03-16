@@ -501,7 +501,7 @@ var PlayerTable = /** @class */ (function () {
         dojo.place(html, document.getElementById('tables'));
         this.city = document.getElementById("player-table-".concat(this.playerId, "-city"));
         this.grid = document.getElementById("player-table-".concat(this.playerId, "-grid"));
-        this.createGrid(player.board.grid);
+        this.createGrid(player.board);
         //    transform: rotateX(10deg) translate(-100px, -100px) rotateZ(0deg) scale3d(0.7, 0.7, 0.7);
         this.city.style.transform = "rotatex(" + game.control3dxaxis + "deg) translate(" + game.control3dypos + "px," + game.control3dxpos + "px) rotateZ(" + game.control3dzaxis + "deg) scale3d(" + game.control3dscale + "," + game.control3dscale + "," + game.control3dscale + ")";
         this.game.viewManager.draggableElement3d(this.city);
@@ -520,6 +520,7 @@ var PlayerTable = /** @class */ (function () {
     };
     PlayerTable.prototype.placeTile = function (tile, preview, selectedHexIndex) {
         var _this = this;
+        if (preview === void 0) { preview = false; }
         if (selectedHexIndex === void 0) { selectedHexIndex = null; }
         var tileDiv = this.game.tilesManager.createTile(tile, true, preview ? ['preview'] : []);
         tileDiv.style.setProperty('--x', "".concat(tile.x));
@@ -552,11 +553,19 @@ var PlayerTable = /** @class */ (function () {
         (_a = this.tempTile) === null || _a === void 0 ? void 0 : _a.remove();
         this.tempTile = null;
     };
-    PlayerTable.prototype.createGrid = function (grid) {
+    PlayerTable.prototype.tileHasHex = function (tile, x, y, z) {
+        return tile.z == z && TILE_COORDINATES.some(function (tileCoordinates) { return tile.x + tileCoordinates[0] == x && tile.y + tileCoordinates[1] == y; });
+    };
+    PlayerTable.prototype.createGrid = function (board) {
         var _this = this;
+        var grid = board.grid;
         Object.keys(grid).forEach(function (x) { return Object.keys(grid[x]).forEach(function (y) { return Object.keys(grid[x][y]).forEach(function (z) {
-            _this.createTileHex(Number(x), Number(y), Number(z), grid[x][y][z]);
+            // we only want hexes that aren't already sent in tiles. So basically, it will be the starting tile
+            if (!board.tiles.some(function (tile) { return _this.tileHasHex(tile, Number(x), Number(y), Number(z)); })) {
+                _this.createTileHex(Number(x), Number(y), Number(z), grid[x][y][z]);
+            }
         }); }); });
+        board.tiles.forEach(function (tile) { return _this.placeTile(tile); });
     };
     PlayerTable.prototype.createTileHex = function (x, y, z, types) {
         var hex = this.game.tilesManager.createTileHex(x, y, z, types, true);
@@ -912,7 +921,7 @@ var Akropolis = /** @class */ (function () {
         });
     };
     Akropolis.prototype.notif_placedTile = function (notif) {
-        this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile, false);
+        this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile);
         this.constructionSite.removeTile(notif.args.tile);
     };
     Akropolis.prototype.notif_pay = function (notif) {

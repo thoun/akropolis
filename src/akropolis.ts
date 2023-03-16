@@ -448,7 +448,7 @@ class Akropolis implements AkropolisGame {
     }
 
     notif_placedTile(notif: Notif<NotifPlacedTileArgs>) {
-        this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile, false);
+        this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile);
         this.constructionSite.removeTile(notif.args.tile);
     }
 
