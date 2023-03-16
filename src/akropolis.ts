@@ -58,7 +58,7 @@ class Akropolis implements AkropolisGame {
         this.animationManager = new AnimationManager(this);
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
-        this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.remainingStacks);
+        this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Object.keys(this.gamedatas.players).length + 1));
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
 
@@ -436,6 +436,8 @@ class Akropolis implements AkropolisGame {
 
         const notifs = [
             ['placedTile', 1],
+            ['pay', 1],
+            ['refillDock', 1],
             ['newFirstPlayer', 1],
         ];
     
@@ -447,9 +449,15 @@ class Akropolis implements AkropolisGame {
 
     notif_placedTile(notif: Notif<NotifPlacedTileArgs>) {
         this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile, false);
-        if (notif.args.cost) {
-            this.stonesCounters[notif.args.tile.pId].incValue(-notif.args.cost);
-        }
+        this.constructionSite.removeTile(notif.args.tile);
+    }
+
+    notif_pay(notif: Notif<NotifPayArgs>) {
+        this.stonesCounters[notif.args.player_id].incValue(-notif.args.cost);
+    }
+
+    notif_refillDock(notif: Notif<NotifDockRefillArgs>) {
+        this.constructionSite.refill(notif.args.dock, notif.args.deck / (Object.keys(this.gamedatas.players).length + 1));
     }
 
     notif_newFirstPlayer(notif: Notif<NotifNewFirstPlayerArgs>) {
@@ -463,11 +471,7 @@ class Akropolis implements AkropolisGame {
                 { zoom: 1 },
             );
         }
-    } 
-
-    notif_dockRefill(notif: Notif<NotifDockRefillArgs>) {
-        this.constructionSite.refill(notif.args.dock, notif.args.remainingStacks);
-    } 
+    }
 
     /* @Override */
     public change3d(incXAxis: number, xpos: number, ypos: number, xAxis: number, incScale: number, is3Dactive: boolean, reset: boolean) {

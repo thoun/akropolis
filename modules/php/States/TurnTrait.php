@@ -72,7 +72,10 @@ trait TurnTrait
     if (Tiles::countInLocation('dock') == 1) {
       if (Tiles::countInLocation('deck') > 0) {
         Tiles::refillDock();
-        Notifications::refill();
+        
+        $dock = Tiles::getUiData();
+        $deck = Tiles::countInLocation('deck');
+        Notifications::refill($dock, $deck);
       } else {
         die('EOG');
         return;

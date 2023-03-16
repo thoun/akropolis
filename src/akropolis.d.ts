@@ -11,6 +11,7 @@ interface Tile {
     y: number;
     z: number;
     r: number;
+    state: string; // TODO Tisaac state should be a number
 }
 
 interface PlayerGrid {
@@ -45,7 +46,7 @@ interface AkropolisGamedatas {
     // Add here variables you set up in getAllDatas
     dock: Tile[];
     firstPlayerId: number; // TODO Tisaac check if it matches back
-    remainingStacks: number; // TODO Tisaac check if it matches back
+    deck: number; // remaining tiles
     activatedVariants: string[]; // TODO Tisaac send activated variants (house, market, ...)
     soloLevel?: number; // TODO Tisaac send solo level (1 to 3 if solo activated ?)
 }
@@ -73,9 +74,14 @@ interface EnteringPlaceTileArgs {
     options: PlaceTileOption[];
 }
 
-interface NotifPlacedTileArgs { // TODO Tisaac check if it matches back
+interface NotifPlacedTileArgs {
+    player_id: number;
     tile: Tile;
-    cost: number; // TODO Tisaac check if we let it here or if we move it to a dedicated notif
+}
+
+interface NotifPayArgs {
+    player_id: number;
+    cost: number;
 }
 
 interface NotifNewFirstPlayerArgs { // TODO Tisaac check if it matches back
@@ -84,5 +90,5 @@ interface NotifNewFirstPlayerArgs { // TODO Tisaac check if it matches back
 
 interface NotifDockRefillArgs { // TODO Tisaac check if it matches back
     dock: Tile[];
-    remainingStacks: number;
+    deck: number;
 }

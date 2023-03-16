@@ -1,8 +1,9 @@
 class ConstructionSite {
+    private tiles: Tile[];
     private remainingStacksCounter: Counter;
 
     constructor(private game: AkropolisGame, tiles: Tile[], remainingStacks: number) {
-        tiles.forEach((tile, index) => this.addTile(tile, index));
+        this.setTiles(this.orderTiles(tiles));
 
         document.getElementById('remaining-stacks-counter').insertAdjacentText('beforebegin', _('Remaining stacks'));
         this.remainingStacksCounter = new ebg.counter();
@@ -49,10 +50,24 @@ class ConstructionSite {
     }
     
     public refill(tiles: Tile[], remainingStacks: number) {
-        Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(option => option.remove());
-        tiles.forEach((tile, index) => this.addTile(tile, index));
+        this.setTiles(this.orderTiles(tiles));
 
         this.remainingStacksCounter.setValue(remainingStacks);
+    }
+
+    public removeTile(tile: Tile) {
+        const index = this.tiles.findIndex(t => t.id == tile.id);
+        if (index !== -1) {
+            this.tiles.splice(index, 1);
+            this.setTiles(this.tiles);
+        }
+    }
+
+    private setTiles(tiles: Tile[]) {
+        this.tiles = tiles;
+        Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(option => option.remove());
+        console.log(this.tiles);
+        this.tiles.forEach((tile, index) => this.addTile(tile, index));
     }
 
     private createMarketTile(tile: Tile): HTMLDivElement {
@@ -62,5 +77,11 @@ class ConstructionSite {
             hexDiv.addEventListener('click', () => this.game.constructionSiteHexClicked(tile, index, hexDiv));
         });
         return tileDiv;
+    }
+
+    // temp
+    private orderTiles(tiles: Tile[]) {
+        tiles.sort((a, b) => Number(a.state) - Number(b.state));
+        return tiles;
     }
 }

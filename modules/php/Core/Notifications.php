@@ -50,9 +50,12 @@ class Notifications
     ]);
   }
 
-  public static function refill()
+  public static function refill($dock, $deck)
   {
-    self::notifyAll('refillDock', clienttranslate('Dock is refilled'), []);
+    self::notifyAll('refillDock', clienttranslate('Dock is refilled'), [
+      'dock' => $dock,
+      'deck' => $deck,
+    ]);
   }
 
   ///////////////////////////////////////////////////////////////

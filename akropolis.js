@@ -417,9 +417,8 @@ var ViewManager = /** @class */ (function () {
 }());
 var ConstructionSite = /** @class */ (function () {
     function ConstructionSite(game, tiles, remainingStacks) {
-        var _this = this;
         this.game = game;
-        tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
+        this.setTiles(this.orderTiles(tiles));
         document.getElementById('remaining-stacks-counter').insertAdjacentText('beforebegin', _('Remaining stacks'));
         this.remainingStacksCounter = new ebg.counter();
         this.remainingStacksCounter.create("remaining-stacks-counter");
@@ -458,10 +457,22 @@ var ConstructionSite = /** @class */ (function () {
         }
     };
     ConstructionSite.prototype.refill = function (tiles, remainingStacks) {
-        var _this = this;
-        Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(function (option) { return option.remove(); });
-        tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
+        this.setTiles(this.orderTiles(tiles));
         this.remainingStacksCounter.setValue(remainingStacks);
+    };
+    ConstructionSite.prototype.removeTile = function (tile) {
+        var index = this.tiles.findIndex(function (t) { return t.id == tile.id; });
+        if (index !== -1) {
+            this.tiles.splice(index, 1);
+            this.setTiles(this.tiles);
+        }
+    };
+    ConstructionSite.prototype.setTiles = function (tiles) {
+        var _this = this;
+        this.tiles = tiles;
+        Array.from(document.getElementById('market').querySelectorAll('.tile-with-cost')).forEach(function (option) { return option.remove(); });
+        console.log(this.tiles);
+        this.tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
     };
     ConstructionSite.prototype.createMarketTile = function (tile) {
         var _this = this;
@@ -471,6 +482,11 @@ var ConstructionSite = /** @class */ (function () {
             hexDiv.addEventListener('click', function () { return _this.game.constructionSiteHexClicked(tile, index, hexDiv); });
         });
         return tileDiv;
+    };
+    // temp
+    ConstructionSite.prototype.orderTiles = function (tiles) {
+        tiles.sort(function (a, b) { return Number(a.state) - Number(b.state); });
+        return tiles;
     };
     return ConstructionSite;
 }());
@@ -591,7 +607,7 @@ var Akropolis = /** @class */ (function () {
         this.animationManager = new AnimationManager(this);
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
-        this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.remainingStacks);
+        this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Object.keys(this.gamedatas.players).length + 1));
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         this.setupNotifications();
@@ -886,6 +902,8 @@ var Akropolis = /** @class */ (function () {
         var _this = this;
         var notifs = [
             ['placedTile', 1],
+            ['pay', 1],
+            ['refillDock', 1],
             ['newFirstPlayer', 1],
         ];
         notifs.forEach(function (notif) {
@@ -895,9 +913,13 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.notif_placedTile = function (notif) {
         this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile, false);
-        if (notif.args.cost) {
-            this.stonesCounters[notif.args.tile.pId].incValue(-notif.args.cost);
-        }
+        this.constructionSite.removeTile(notif.args.tile);
+    };
+    Akropolis.prototype.notif_pay = function (notif) {
+        this.stonesCounters[notif.args.player_id].incValue(-notif.args.cost);
+    };
+    Akropolis.prototype.notif_refillDock = function (notif) {
+        this.constructionSite.refill(notif.args.dock, notif.args.deck / (Object.keys(this.gamedatas.players).length + 1));
     };
     Akropolis.prototype.notif_newFirstPlayer = function (notif) {
         var firstPlayerToken = document.getElementById('first-player-token');
@@ -906,9 +928,6 @@ var Akropolis = /** @class */ (function () {
         if (destinationId !== originId) {
             this.animationManager.attachWithSlideAnimation(firstPlayerToken, document.getElementById(destinationId), { zoom: 1 });
         }
-    };
-    Akropolis.prototype.notif_dockRefill = function (notif) {
-        this.constructionSite.refill(notif.args.dock, notif.args.remainingStacks);
     };
     /* @Override */
     Akropolis.prototype.change3d = function (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) {
