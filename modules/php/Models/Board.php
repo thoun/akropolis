@@ -321,6 +321,11 @@ class Board
 
       // House => keep only biggest district
       if ($type == \HOUSE) {
+        // HOUSE VARIANT : double the point of house is more than 10
+        if (Globals::isVariant(HOUSE) && $size >= 10) {
+          $size *= 2;
+        }
+
         $districts[HOUSE] = max($districts[HOUSE], $size);
         continue;
       }
@@ -329,14 +334,28 @@ class Board
         if ($size > 1) {
           continue;
         }
+        // MARKET VARIANT : double size if adjacent to PLAZA
+        if (Globals::isVariant(MARKET)) {
+          foreach ($this->getBuiltNeighbours($component['cells'][0]) as $pos) {
+            if ($this->getTypeAtPos($pos) == \MARKET_PLAZA) {
+              $size *= 2;
+            }
+          }
+        }
       }
       // Dont score barracks if not on the edge
       elseif ($type == BARRACK) {
         $size = 0;
         foreach ($component['cells'] as $cell) {
           $builtNeighbours = $this->getBuiltNeighbours($cell);
+          $h = $cell['z'] + 1;
           if (count($builtNeighbours) < 6) {
-            $size += $cell['z'] + 1;
+            $size += $h;
+          }
+
+          // BARRACK VARIANT : double size if 3 or 4 empty neighbours
+          if (Globals::isVariant(BARRACK) && count($builtNeighbours) == 2) {
+            $size += $h;
           }
         }
       }
@@ -346,7 +365,25 @@ class Board
         foreach ($component['cells'] as $cell) {
           $builtNeighbours = $this->getBuiltNeighbours($cell);
           if (count($builtNeighbours) == 6) {
-            $size += $cell['z'] + 1;
+            $h = $cell['z'] + 1;
+            $size += $h;
+
+            // TEMPLE VARIANT : double size if height > 1
+            if ($h >= 2 && Globals::isVariant(TEMPLE)) {
+              $size += $h;
+            }
+          }
+        }
+      }
+      // GARDEN VARIANT : double size if adjacent to lakes
+      elseif ($type == GARDEN && Globals::isVariant(GARDEN)) {
+        $size = 0;
+        foreach ($component['cells'] as $cell) {
+          $h = $cell['z'] + 1;
+          $size += $h;
+          if (false) {
+            // TODO
+            $size += $h;
           }
         }
       }

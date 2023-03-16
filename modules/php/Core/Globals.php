@@ -150,4 +150,9 @@ class Globals extends \AKR\Helpers\DB_Manager
         $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_TEMPLE] ?? 0) == \OPTION_VARIANT_ENABLED,
     ]);
   }
+
+  public static function isVariant($type)
+  {
+    return self::getVariants()[$type];
+  }
 }
