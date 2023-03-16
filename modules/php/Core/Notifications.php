@@ -68,7 +68,7 @@ class Notifications
 
   public static function updateScores($player, $scores)
   {
-    self::notifyAl('updateScores', '', [
+    self::notifyAll('updateScores', '', [
       'player' => $player,
       'scores' => $scores,
     ]);
