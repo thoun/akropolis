@@ -11,7 +11,11 @@ trait TurnTrait
   public function argsPlaceTile()
   {
     $player = Players::getActive();
-    $options = $player->board()->getPlacementOptions();
+    $options = [];
+    for ($hex = 0; $hex < 3; $hex++) {
+      $options[$hex] = $player->board()->getPlacementOptions($hex);
+    }
+
     $tiles = Tiles::getInLocation('dock')->filter(function ($tile) use ($player) {
       return $tile['state'] <= $player->getMoney();
     });
@@ -71,7 +75,7 @@ trait TurnTrait
     // Change state and refill if needed
     if (Tiles::countInLocation('dock') == 1) {
       if (Tiles::countInLocation('deck') > 0) {
-        $dock = Tiles::refillDock();        
+        $dock = Tiles::refillDock();
         $deck = Tiles::countInLocation('deck');
         Notifications::refill($dock, $deck);
       } else {

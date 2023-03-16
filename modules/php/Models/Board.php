@@ -186,7 +186,7 @@ class Board
   /**
    * getPlacementOptions: return all the possible positions to place a new tile
    */
-  public function getPlacementOptions()
+  public function getPlacementOptions($hex)
   {
     $options = [];
     $cells = $this->getCellsAsDist($this->getBuiltCells(), 2);
@@ -194,7 +194,8 @@ class Board
       $pos = $this->getMaxHeightAtPos($cell);
       $rotations = [];
       for ($r = 0; $r < 6; $r++) {
-        if ($this->isValidOption($pos, $r)) {
+        $realPos = $this->getCorrespondingPos($pos, $r, $hex);
+        if ($this->isValidOption($realPos, $r)) {
           $rotations[] = $r;
         }
       }
@@ -206,6 +207,16 @@ class Board
     }
 
     return $options;
+  }
+
+  public function getCorrespondingPos($pos, $r, $hex)
+  {
+    $hexOffset = self::getRotatedHex(['x' => -TILE_GEOMETRY[$hex][0], 'y' => -TILE_GEOMETRY[$hex][1]], $r);
+    return [
+      'x' => $pos['x'] + $hexOffset['x'],
+      'y' => $pos['y'] + $hexOffset['y'],
+      'z' => $pos['z'],
+    ];
   }
 
   /**
