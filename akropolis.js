@@ -246,6 +246,15 @@ var TilesManager = /** @class */ (function () {
         });
         return tileDiv;
     };
+    TilesManager.prototype.getTypeTitle = function (type) {
+        switch (type) {
+            case 'house': return _('Houses');
+            case 'market': return _('Markets');
+            case 'barrack': return _('Barracks');
+            case 'temple': return _('Temples');
+            case 'garden': return _('Gardens');
+        }
+    };
     TilesManager.prototype.getHexTooltip = function (type, plaza) {
         if (plaza) {
             return "<strong>".concat(_('Plazas'), "</strong>\n            <br><br>\n            ").concat(_("Plazas will multiply the points that you gain for Districts of the same type at the end of the game. The multipliers are represented by the stars. If you have several matching Plazas, their stars are cumulative.") + "<br><br>" + _("A Plaza does not need to border Districts of the same type."));
@@ -254,37 +263,45 @@ var TilesManager = /** @class */ (function () {
             return "<strong>".concat(_('Quarries'), "</strong>\n            <br><br>\n            ").concat(_("Quarries do not score any points at the end of the game, but they allow you to gain Stones. When an Architect covers a Quarry with another tile, they take 1 Stone from the reserve."));
         }
         else {
-            var title = null;
             var firstLine = null;
             var secondLine = null;
             switch (type) {
                 case 'house':
-                    title = _('Houses');
                     firstLine = _("The citizens of your city like to live together in one large neighborhood.");
                     secondLine = _("You only earn points for Houses that are part of your largest group of adjacent Houses.");
                     break;
                 case 'market':
-                    title = _('Markets');
                     firstLine = _("Merchants don’t like competition, so want to be kept separate from other markets.");
                     secondLine = _("A Market must not be adjacent to any other Market.");
                     break;
                 case 'barrack':
-                    title = _('Barracks');
                     firstLine = _("Soldiers keep watch over your city’s borders.");
                     secondLine = _("Barracks must be placed on the edge of your city.");
                     break;
                 case 'temple':
-                    title = _('Temples');
                     firstLine = _("Priests attract followers from the surrounding area.");
                     secondLine = _("Temples must be completely surrounded.");
                     break;
                 case 'garden':
-                    title = _('Gardens');
                     firstLine = _("Parks always enhance your city.");
                     secondLine = _("There are no placement conditions on Gardens.");
                     break;
             }
-            return "<strong>".concat(title, "</strong>\n                    <br><br>\n                    <i>").concat(firstLine, "</i><br>\n                    <strong>").concat(_('Score condition:'), "</strong> ").concat(secondLine, "\n                    <br><br>\n                    ").concat(_("A District constructed on a higher level of your City can earn you more points. The value of a District is defined by its construction height: a District built on the 1st level would be worth 1 point, on the 2nd level 2 points, on the 3rd level 3 points, etc."));
+            return "<strong>".concat(this.getTypeTitle(type), "</strong>\n                    <br><br>\n                    <i>").concat(firstLine, "</i><br>\n                    <strong>").concat(_('Score condition:'), "</strong> ").concat(secondLine, "\n                    <br><br>\n                    ").concat(_("A District constructed on a higher level of your City can earn you more points. The value of a District is defined by its construction height: a District built on the 1st level would be worth 1 point, on the 2nd level 2 points, on the 3rd level 3 points, etc."));
+        }
+    };
+    TilesManager.prototype.getVariantTooltip = function (type) {
+        switch (type) {
+            case 'house':
+                return _("If your group of Houses Districts has a value of 10 or more, its points are doubled.");
+            case 'market':
+                return _("If your Market District is next to a Market Plaza, its points are doubled.");
+            case 'barrack':
+                return _("If your Barracks has 3 or 4 empty spaces adjacent to it, its points are doubled.");
+            case 'temple':
+                return _("If your Temple is built on a higher level, its points are doubled.");
+            case 'garden':
+                return _("If your Garden is adjacent to a lake (an empty space that is completely surrounded), its points are doubled.");
         }
     };
     TilesManager.prototype.createHex = function (x, y, z, faceClasses) {
@@ -790,7 +807,7 @@ var Akropolis = /** @class */ (function () {
             _this.starsCounters[playerId] = [];
             _this.colorPointsCounters[playerId] = [];
             var _loop_1 = function (i) {
-                dojo.place("<div class=\"counters\">\n                    <div id=\"color-points-".concat(i, "-counter-wrapper-").concat(player.id, "\" class=\"color-points-counter\">\n                        <div class=\"score-icon star\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"stars-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">\u00D7</span>\n                        <div class=\"score-icon\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"hexes-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">=</span>\n                        <span id=\"color-points-").concat(i, "-counter-").concat(player.id, "\"></span>\n                    </div>\n                </div>"), "player_board_".concat(player.id));
+                dojo.place("<div class=\"counters\" id=\"color-points-".concat(i, "-counter-border\">\n                    <div id=\"color-points-").concat(i, "-counter-wrapper-").concat(player.id, "\" class=\"color-points-counter\">\n                        <div class=\"score-icon star\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"stars-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">\u00D7</span>\n                        <div class=\"score-icon\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"hexes-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">=</span>\n                        <span id=\"color-points-").concat(i, "-counter-").concat(player.id, "\"></span>\n                    </div>\n                </div>"), "player_board_".concat(player.id));
                 var starKey = Object.keys(player.board.scores.stars).find(function (key) { return key.startsWith(TYPES[i]); });
                 var starCounter = new ebg.counter();
                 starCounter.create("stars-".concat(i, "-counter-").concat(playerId));
@@ -805,13 +822,22 @@ var Akropolis = /** @class */ (function () {
                 colorPointsCounter.create("color-points-".concat(i, "-counter-").concat(playerId));
                 colorPointsCounter.setValue(starCounter.getValue() * hexCounter.getValue());
                 _this.colorPointsCounters[playerId][i] = colorPointsCounter;
+                var someVariants = gamedatas.activatedVariants.length > 0;
+                var activated = gamedatas.activatedVariants.some(function (variant) { return variant == TYPES[i]; });
+                if (someVariants) {
+                    document.getElementById("color-points-".concat(i, "-counter-border")).style.setProperty('--border-color', activated ? 'darkgreen' : 'darkred');
+                }
+                var tooltip = "".concat(_('Score for this color (number of valid districts multiplied by matching stars)'), "\n                <br><br>\n                <strong>").concat(_this.tilesManager.getTypeTitle(TYPES[i]), "</strong>");
+                if (someVariants) {
+                    tooltip += "<br><br>\n                    <strong>".concat(_('Variant'), "</strong><br>\n                    ").concat(_('Activated:'), " <strong style=\"color: ").concat(activated ? _('darkgreen') : _('darkred'), ";\">").concat(activated ? _('Yes') : _('No'), "</strong><br>\n                    ").concat(_(_this.tilesManager.getVariantTooltip(TYPES[i])));
+                }
+                _this.setTooltip("color-points-".concat(i, "-counter-border"), tooltip);
             };
             for (var i = 1; i <= 5; i++) {
                 _loop_1(i);
             }
         });
         this.setTooltipToClass('stones-counter', _('Number of stones'));
-        this.setTooltipToClass('color-points-counter', _('Score for this color (number of valid districts multiplied by matching stars)'));
     };
     Akropolis.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;

@@ -86,6 +86,7 @@ class Akropolis extends Table
       'dock' => Tiles::getUiData(),
       'deck' => Tiles::countInLocation('deck'),
       'firstPlayerId' => Globals::getFirstPlayer(),
+      'activatedVariants' => ['market', 'garden'], // TODO Tisaac send activated variants (house, market, ...)
     ];
   }
 

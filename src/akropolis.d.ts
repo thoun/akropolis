@@ -44,9 +44,9 @@ interface AkropolisGamedatas {
 
     // Add here variables you set up in getAllDatas
     dock: Tile[];
-    firstPlayerId: number; // TODO Tisaac check if it matches back
+    firstPlayerId: number;
     deck: number; // remaining tiles
-    activatedVariants: string[]; // TODO Tisaac send activated variants (house, market, ...)
+    activatedVariants: string[];
     soloLevel?: number; // TODO Tisaac send solo level (1 to 3 if solo activated ?)
 }
 

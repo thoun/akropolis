@@ -239,7 +239,7 @@ class Akropolis implements AkropolisGame {
             this.colorPointsCounters[playerId] = [];
             for (let i = 1; i <= 5; i++) {
 
-                dojo.place(`<div class="counters">
+                dojo.place(`<div class="counters" id="color-points-${i}-counter-border">
                     <div id="color-points-${i}-counter-wrapper-${player.id}" class="color-points-counter">
                         <div class="score-icon star" data-type="${i}"></div> 
                         <span id="stars-${i}-counter-${player.id}"></span>
@@ -267,11 +267,29 @@ class Akropolis implements AkropolisGame {
                 colorPointsCounter.create(`color-points-${i}-counter-${playerId}`);
                 colorPointsCounter.setValue(starCounter.getValue() * hexCounter.getValue());
                 this.colorPointsCounters[playerId][i] = colorPointsCounter;
+
+                const someVariants = gamedatas.activatedVariants.length > 0;
+                const activated = gamedatas.activatedVariants.some(variant => variant == TYPES[i]);
+                if (someVariants) {
+                    document.getElementById(`color-points-${i}-counter-border`).style.setProperty('--border-color', activated ? 'darkgreen' : 'darkred');
+                }
+
+                let tooltip = `${_('Score for this color (number of valid districts multiplied by matching stars)')}
+                <br><br>
+                <strong>${this.tilesManager.getTypeTitle(TYPES[i])}</strong>`;
+
+                if (someVariants) {
+                    tooltip += `<br><br>
+                    <strong>${_('Variant')}</strong><br>
+                    ${_('Activated:')} <strong style="color: ${activated ? _('darkgreen') : _('darkred')};">${activated ? _('Yes') : _('No')}</strong><br>
+                    ${_(this.tilesManager.getVariantTooltip(TYPES[i]))}`;
+                }
+
+                this.setTooltip(`color-points-${i}-counter-border`, tooltip);
             }
         });
 
-        this.setTooltipToClass('stones-counter', _('Number of stones'));
-        this.setTooltipToClass('color-points-counter', _('Score for this color (number of valid districts multiplied by matching stars)'));
+        this.setTooltipToClass('stones-counter', _('Number of stones'));        
     }
 
     private createPlayerTables(gamedatas: AkropolisGamedatas) {
