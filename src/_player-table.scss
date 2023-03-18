@@ -1,6 +1,16 @@
 $x0: 400px;
 $y0: 300px;
 
+/*.flag {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: rotateX(90deg) translateY(30px);
+    width: 5px;
+    height: 100px;
+    background: var(--flag-color);
+}*/
+
 .frame {
     position: relative;
     height: #{$y0 * 2};
@@ -14,9 +24,13 @@ $y0: 300px;
     position: relative;
 
     .grid {
+        --x-shift: 0;
+        --y-shift: 0;
+
         position: absolute;
-        top: 50%;
-        left: 50%;
+        left: calc(50% - ($hexSide * var(--x-shift) * 1.5));
+        top: calc(50% - ($hexHeight * var(--y-shift) / 2));
+        transition: top 1s, left 1s;
     }
 
     width: 100%;

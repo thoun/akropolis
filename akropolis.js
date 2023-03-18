@@ -501,12 +501,24 @@ var ConstructionSite = /** @class */ (function () {
 }());
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
 var log = isDebug ? console.log.bind(window.console) : function () { };
+var TILE_SHIFT_BY_ROTATION = [
+    { minX: 0, maxX: 1, minY: 0, maxY: 2, },
+    { minX: -1, maxX: 0, minY: 0, maxY: 2, },
+    { minX: -1, maxX: 0, minY: -1, maxY: 1, },
+    { minX: -1, maxX: 0, minY: -2, maxY: 0, },
+    { minX: 0, maxX: 1, minY: -2, maxY: 0, },
+    { minX: 0, maxX: 1, minY: 1, maxY: 1, },
+];
 var PlayerTable = /** @class */ (function () {
     function PlayerTable(game, player) {
         this.game = game;
+        this.minX = -1;
+        this.maxX = 1;
+        this.minY = -2;
+        this.maxY = 1;
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n            </div>\n            <div class=\"frame\">\n                <div id=\"player-table-").concat(this.playerId, "-city\" class=\"city\">\n                    <div id=\"player-table-").concat(this.playerId, "-grid\" class=\"grid\"></div>\n                </div>\n            </div>\n        </div>\n        ");
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n            </div>\n            <div class=\"frame\">\n                <div id=\"player-table-").concat(this.playerId, "-city\" class=\"city\">\n                    <!--<div class=\"flag\" style=\"--flag-color: red; top: 50%; left: 50%;\"></div>-->\n                    <div id=\"player-table-").concat(this.playerId, "-grid\" class=\"grid\">\n                        <!--<div class=\"flag\" style=\"--flag-color: blue;\"></div>-->\n                    </div>\n                </div>\n            </div>\n        </div>\n        ");
         dojo.place(html, document.getElementById('tables'));
         this.city = document.getElementById("player-table-".concat(this.playerId, "-city"));
         this.grid = document.getElementById("player-table-".concat(this.playerId, "-grid"));
@@ -537,7 +549,7 @@ var PlayerTable = /** @class */ (function () {
         tileDiv.style.setProperty('--r', "".concat(tile.r));
         tileDiv.dataset.selectedHexIndex = "".concat(selectedHexIndex);
         this.grid.appendChild(tileDiv);
-        this.removeTempTile();
+        this.removePreviewTile();
         if (preview) {
             tile.hexes.forEach(function (hex, index) {
                 var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
@@ -549,17 +561,27 @@ var PlayerTable = /** @class */ (function () {
                 var _a = _this.game.tilesManager.hexFromString(hex), type = _a.type, plaza = _a.plaza;
                 _this.game.setTooltip(hexDiv.id, _this.game.tilesManager.getHexTooltip(type, plaza));
             });
-            this.tempTile = tileDiv;
+            this.previewTile = tileDiv;
+        }
+        else {
+            this.minX = Math.min(this.minX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].minX);
+            this.minY = Math.min(this.minY, tile.y + TILE_SHIFT_BY_ROTATION[tile.r].minY);
+            this.maxX = Math.max(this.maxX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].maxX);
+            this.maxY = Math.max(this.maxY, tile.y + TILE_SHIFT_BY_ROTATION[tile.r].maxY);
+            var middleX = (this.maxX + this.minX) / 2;
+            var middleY = (this.maxY + this.minY) / 2;
+            this.grid.style.setProperty('--x-shift', '' + middleX);
+            this.grid.style.setProperty('--y-shift', '' + middleY);
         }
     };
-    PlayerTable.prototype.rotateTempTile = function (r) {
+    PlayerTable.prototype.rotatePreviewTile = function (r) {
         var _a;
-        (_a = this.tempTile) === null || _a === void 0 ? void 0 : _a.style.setProperty('--r', "".concat(r));
+        (_a = this.previewTile) === null || _a === void 0 ? void 0 : _a.style.setProperty('--r', "".concat(r));
     };
-    PlayerTable.prototype.removeTempTile = function () {
+    PlayerTable.prototype.removePreviewTile = function () {
         var _a;
-        (_a = this.tempTile) === null || _a === void 0 ? void 0 : _a.remove();
-        this.tempTile = null;
+        (_a = this.previewTile) === null || _a === void 0 ? void 0 : _a.remove();
+        this.previewTile = null;
     };
     PlayerTable.prototype.createStartTile = function () {
         this.createTileHex(0, 0, 0, 'house-plaza');
@@ -912,14 +934,14 @@ var Akropolis = /** @class */ (function () {
         if (!this.selectedPosition) {
             this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
         }
-        this.getCurrentPlayerTable().rotateTempTile(this.rotation);
+        this.getCurrentPlayerTable().rotatePreviewTile(this.rotation);
         // temp
         document.getElementById('r').innerHTML = "r = ".concat(rotation);
     };
     Akropolis.prototype.cancelPlaceTile = function () {
         ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { return document.getElementById(id).classList.add('disabled'); });
         this.selectedPosition = null;
-        this.getCurrentPlayerTable().removeTempTile();
+        this.getCurrentPlayerTable().removePreviewTile();
         this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
         this.updateRotationButtonState();
     };

@@ -1,13 +1,27 @@
 const isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
 const log = isDebug ? console.log.bind(window.console) : function () { };
 
+const TILE_SHIFT_BY_ROTATION = [
+    { minX: 0, maxX: 1, minY: 0, maxY: 2, },
+    { minX: -1, maxX: 0, minY: 0, maxY: 2, },
+    { minX: -1, maxX: 0, minY: -1, maxY: 1, },
+    { minX: -1, maxX: 0, minY: -2, maxY: 0, },
+    { minX: 0, maxX: 1, minY: -2, maxY: 0, },
+    { minX: 0, maxX: 1, minY: 1, maxY: 1, },
+];
+
 class PlayerTable {
     public playerId: number;
 
     private currentPlayer: boolean;
     private city: HTMLDivElement;
     private grid: HTMLDivElement;
-    private tempTile: HTMLDivElement | null;
+    private previewTile: HTMLDivElement | null;
+
+    private minX = -1;
+    private maxX = 1;
+    private minY = -2;
+    private maxY = 1;
 
     constructor(private game: AkropolisGame, player: AkropolisPlayer) {
         this.playerId = Number(player.id);
@@ -20,7 +34,10 @@ class PlayerTable {
             </div>
             <div class="frame">
                 <div id="player-table-${this.playerId}-city" class="city">
-                    <div id="player-table-${this.playerId}-grid" class="grid"></div>
+                    <!--<div class="flag" style="--flag-color: red; top: 50%; left: 50%;"></div>-->
+                    <div id="player-table-${this.playerId}-grid" class="grid">
+                        <!--<div class="flag" style="--flag-color: blue;"></div>-->
+                    </div>
                 </div>
             </div>
         </div>
@@ -56,7 +73,7 @@ class PlayerTable {
         tileDiv.style.setProperty('--r', `${tile.r}`);
         tileDiv.dataset.selectedHexIndex = `${selectedHexIndex}`;
         this.grid.appendChild(tileDiv);
-        this.removeTempTile();
+        this.removePreviewTile();
 
         if (preview) {
             tile.hexes.forEach((hex, index) => {
@@ -70,17 +87,28 @@ class PlayerTable {
                 this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));
             });
 
-            this.tempTile = tileDiv;
+            this.previewTile = tileDiv;
+        } else {
+            this.minX = Math.min(this.minX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].minX);
+            this.minY = Math.min(this.minY, tile.y + TILE_SHIFT_BY_ROTATION[tile.r].minY);
+            this.maxX = Math.max(this.maxX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].maxX);
+            this.maxY = Math.max(this.maxY, tile.y + TILE_SHIFT_BY_ROTATION[tile.r].maxY);
+
+            const middleX = (this.maxX + this.minX) / 2;
+            const middleY = (this.maxY + this.minY) / 2;
+
+            this.grid.style.setProperty('--x-shift', ''+middleX);
+            this.grid.style.setProperty('--y-shift', ''+middleY);
         }
     }
 
-    public rotateTempTile(r: number) {
-        this.tempTile?.style.setProperty('--r', `${r}`);
+    public rotatePreviewTile(r: number) {
+        this.previewTile?.style.setProperty('--r', `${r}`);
     }
     
-    public removeTempTile() {
-        this.tempTile?.remove();
-        this.tempTile = null;
+    public removePreviewTile() {
+        this.previewTile?.remove();
+        this.previewTile = null;
     }
 
     private createStartTile() {
@@ -111,5 +139,4 @@ class PlayerTable {
         this.game.setTooltip(hex.id, `${x}, ${y}, ${z}`);
         return hex;
     }
-
 }

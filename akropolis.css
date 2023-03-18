@@ -281,6 +281,15 @@
   height: 50px;
 }
 
+/*.flag {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: rotateX(90deg) translateY(30px);
+    width: 5px;
+    height: 100px;
+    background: var(--flag-color);
+}*/
 .frame {
   position: relative;
   height: 600px;
@@ -296,9 +305,12 @@
   height: 100%;
 }
 .city .grid {
+  --x-shift: 0;
+  --y-shift: 0;
   position: absolute;
-  top: 50%;
-  left: 50%;
+  left: calc(50% - 48.5px * var(--x-shift) * 1.5);
+  top: calc(50% - 84px * var(--y-shift) / 2);
+  transition: top 1s, left 1s;
 }
 .city .hex {
   left: calc(-48.5px + 48.5px * var(--x) * 1.5);
