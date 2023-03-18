@@ -88,8 +88,8 @@ interface NotifGainStonesArgs {
     n: number;
 }
 
-interface NotifNewFirstPlayerArgs { // TODO Tisaac check if it matches back
-    playerId: number;
+interface NotifUpdateFirstPlayerArgs {
+    pId: number;
 }
 
 interface NotifDockRefillArgs {

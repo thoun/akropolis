@@ -40,6 +40,9 @@ class Players extends \AKR\Helpers\DB_Manager
       $values[] = [$pId, $color, $player['player_canal'], $player['player_name'], $player['player_avatar'], 0, $i++];
     }
     $query->values($values);
+
+    self::determineFirstPlayer();
+
     Game::get()->reattributeColorsBasedOnPreferences($players, $gameInfos['player_colors']);
     Game::get()->reloadPlayersBasicInfos();
   }
@@ -105,5 +108,23 @@ class Players extends \AKR\Helpers\DB_Manager
         return $player->getUiData($pId);
       })
       ->toAssoc();
+  }
+
+  public static function determineFirstPlayer()
+  {
+    $pId = self::getFirstPlayerId();
+    Globals::setFirstPlayer($pId);
+  }
+
+  /*
+   * Get first player according to player_no
+   */
+  public static function getFirstPlayerId()
+  {
+    return self::DB()
+      ->select(['player_id'])
+      ->orderBy('player_no', 'ASC')
+      ->getSingle()
+      ->getId();
   }
 }

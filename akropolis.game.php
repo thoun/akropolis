@@ -85,6 +85,7 @@ class Akropolis extends Table
       'players' => Players::getUiData($pId),
       'dock' => Tiles::getUiData(),
       'deck' => Tiles::countInLocation('deck'),
+      'firstPlayerId' => Globals::getFirstPlayer(),
     ];
   }
 

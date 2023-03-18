@@ -74,6 +74,13 @@ class Notifications
     ]);
   }
 
+  public static function updateFirstPlayer($pId)
+  {
+    self::notifyAll('updateFirstPlayer', '', [
+      'pId' => $pId,
+    ]);
+  }
+
   ///////////////////////////////////////////////////////////////
   //  _   _           _       _            _
   // | | | |_ __   __| | __ _| |_ ___     / \   _ __ __ _ ___

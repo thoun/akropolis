@@ -88,14 +88,18 @@ trait TurnTrait
         $dock = Tiles::refillDock();
         $deck = Tiles::countInLocation('deck');
         Notifications::refill($dock, $deck);
+
+        $pId = (int)Players::getNextId((int)Players::getActiveId());
+        Globals::setFirstPlayer($pId);
+        Notifications::updateFirstPlayer($pId);
       } else {
         die('EOG');
         return;
       }
     }
+    self::giveExtraTime(Players::getActive()->getId());
+    $this->activeNextPlayer();    
 
-    $this->activeNextPlayer();
-    // giveExtraTime TODO
     $this->gamestate->nextState('placeTile');
   }
 }

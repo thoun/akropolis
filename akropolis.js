@@ -986,7 +986,7 @@ var Akropolis = /** @class */ (function () {
             ['pay', 1],
             ['gainStones', 1],
             ['refillDock', 1],
-            ['newFirstPlayer', 1],
+            ['updateFirstPlayer', 1],
             ['updateScores', 1],
         ];
         notifs.forEach(function (notif) {
@@ -1007,9 +1007,9 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.notif_refillDock = function (notif) {
         this.constructionSite.refill(notif.args.dock, notif.args.deck / (Object.keys(this.gamedatas.players).length + 1));
     };
-    Akropolis.prototype.notif_newFirstPlayer = function (notif) {
+    Akropolis.prototype.notif_updateFirstPlayer = function (notif) {
         var firstPlayerToken = document.getElementById('first-player-token');
-        var destinationId = "first-player-token-wrapper-".concat(notif.args.playerId);
+        var destinationId = "first-player-token-wrapper-".concat(notif.args.pId);
         var originId = firstPlayerToken.parentElement.id;
         if (destinationId !== originId) {
             this.animationManager.attachWithSlideAnimation(firstPlayerToken, document.getElementById(destinationId), { zoom: 1 });

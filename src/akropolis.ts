@@ -485,7 +485,7 @@ class Akropolis implements AkropolisGame {
             ['pay', 1],
             ['gainStones', 1],
             ['refillDock', 1],
-            ['newFirstPlayer', 1],
+            ['updateFirstPlayer', 1],
             ['updateScores', 1],
         ];
     
@@ -512,9 +512,9 @@ class Akropolis implements AkropolisGame {
         this.constructionSite.refill(notif.args.dock, notif.args.deck / (Object.keys(this.gamedatas.players).length + 1));
     }
 
-    notif_newFirstPlayer(notif: Notif<NotifNewFirstPlayerArgs>) {
+    notif_updateFirstPlayer(notif: Notif<NotifUpdateFirstPlayerArgs>) {
         const firstPlayerToken = document.getElementById('first-player-token');
-        const destinationId = `first-player-token-wrapper-${notif.args.playerId}`;
+        const destinationId = `first-player-token-wrapper-${notif.args.pId}`;
         const originId = firstPlayerToken.parentElement.id;
         if (destinationId !== originId) {
             this.animationManager.attachWithSlideAnimation(
