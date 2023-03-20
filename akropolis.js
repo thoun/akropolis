@@ -358,7 +358,7 @@ var ViewManager = /** @class */ (function () {
     };
     ViewManager.prototype.drag3dMouseDown = function (e) {
         e = e || window.event;
-        if (e.which == 3) {
+        if (e.buttons == 2) {
             dojo.stopEvent(e);
             $("ebd-body").onmousemove = dojo.hitch(this, this.elementDrag3d);
             $("pagesection_gameview").onmouseleave = dojo.hitch(this, this.closeDragElement3d);
@@ -368,7 +368,7 @@ var ViewManager = /** @class */ (function () {
     ViewManager.prototype.elementDrag3d = function (e) {
         e = e || window.event;
         dojo.stopEvent(e);
-        if (e.which != 3) {
+        if (e.buttons != 2) {
             $("ebd-body").onmousemove = null;
             dojo.removeClass($("pagesection_gameview"), "grabbinghand");
         }
@@ -388,7 +388,7 @@ var ViewManager = /** @class */ (function () {
     };
     ViewManager.prototype.closeDragElement3d = function (evt) {
         /* stop moving when mouse button is released:*/
-        if (evt.which == 3) {
+        if (evt.buttons == 2) {
             evt.preventDefault();
             evt.stopImmediatePropagation();
             $("ebd-body").onmousemove = null;

@@ -44,7 +44,7 @@ class ViewManager {
 
     private drag3dMouseDown(e: MouseEvent) {
         e = e || window.event as MouseEvent;
-        if (e.which == 3) {
+        if (e.buttons == 2) {
             dojo.stopEvent(e);
             $("ebd-body").onmousemove = dojo.hitch(this, this.elementDrag3d);
             $("pagesection_gameview").onmouseleave = dojo.hitch(this, this.closeDragElement3d);
@@ -55,7 +55,7 @@ class ViewManager {
     private elementDrag3d(e: MouseEvent) {
         e = e || window.event as MouseEvent;
         dojo.stopEvent(e);
-        if (e.which != 3) {
+        if (e.buttons != 2) {
             $("ebd-body").onmousemove = null;
             dojo.removeClass($("pagesection_gameview"), "grabbinghand");
         }
@@ -75,7 +75,7 @@ class ViewManager {
 
     private closeDragElement3d(evt: MouseEvent) {
         /* stop moving when mouse button is released:*/
-        if (evt.which == 3) {
+        if (evt.buttons == 2) {
             evt.preventDefault();
             evt.stopImmediatePropagation();
             $("ebd-body").onmousemove = null;
