@@ -1,20 +1,31 @@
 const ZOOM_MAX = 3;
+declare const __;
 
 class ViewManager {
     private isdragging: boolean;
     private elements: HTMLDivElement[] = [];
+    // private rotating: boolean = false;
 
     constructor(public game: AkropolisGame) {
         if (!dojo.hasClass("ebd-body", "mode_3d")) {
             dojo.addClass("ebd-body", "mode_3d");
             $("globalaction_3d").innerHTML = "2D"; // controls the upper right button
-            (game as any).control3dxaxis = 40; // rotation in degrees of x axis (it has a limit of 0 to 80 degrees in the frameword so users cannot turn it upsidedown)
-            (game as any).control3dzaxis = 0; // rotation in degrees of z axis
-            (game as any).control3dxpos = -100; // center of screen in pixels
-            (game as any).control3dypos = -50; // center of screen in pixels
-            (game as any).control3dscale = 1; // zoom level, 1 is default 2 is double normal size,
-            (game as any).control3dmode3d = true; // is the 3d enabled
+            this.setDefaultView();
         }
+    }
+
+    private setDefaultView() {
+        (this.game as any).control3dxaxis = 40; // rotation in degrees of x axis (it has a limit of 0 to 80 degrees in the frameword so users cannot turn it upsidedown)
+        (this.game as any).control3dzaxis = 0; // rotation in degrees of z axis
+        (this.game as any).control3dxpos = -100; // center of screen in pixels
+        (this.game as any).control3dypos = -50; // center of screen in pixels
+        (this.game as any).control3dscale = 1; // zoom level, 1 is default 2 is double normal size,
+        (this.game as any).control3dmode3d = true; // is the 3d enabled
+    }
+
+    public resetView() {
+        this.setDefaultView();
+        this.change3d(0, 0, 0, 0, 0, true, true);
     }
 
     public draggableElement3d(element: HTMLDivElement) {
@@ -22,8 +33,12 @@ class ViewManager {
         element.addEventListener('mousedown', e => this.drag3dMouseDown(e));
         element.addEventListener('mouseup', e => this.closeDragElement3d(e));
         element.addEventListener('mousewheel', e => this.onMouseWheel(e));
+        element.addEventListener('contextmenu', e => {            
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return false;
+        });
 
-        element.oncontextmenu = () => false;
         (this.game as any).drag3d = element;
     }
 
@@ -40,6 +55,10 @@ class ViewManager {
     private elementDrag3d(e: MouseEvent) {
         e = e || window.event as MouseEvent;
         dojo.stopEvent(e);
+        if (e.which != 3) {
+            $("ebd-body").onmousemove = null;
+            dojo.removeClass($("pagesection_gameview"), "grabbinghand");
+        }
         if (!this.isdragging) {
             this.isdragging = true;
             const viewportOffset = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -49,7 +68,7 @@ class ViewManager {
             } else {
                 x = -1 * e.movementX;
             }
-            (this.game as any).change3d(e.movementY / (-10), 0, 0, x / (-10), 0, true, false);
+            /*(this.game as any)*/this.change3d(e.movementY / (-10), 0, 0, x / (-10), 0, true, false);
             this.isdragging = false;
         }
     }
@@ -106,14 +125,11 @@ class ViewManager {
             (this.game as any).control3dxpos += xpos;
             (this.game as any).control3dypos += ypos;
             (this.game as any).control3dscale += incScale;
-            if (reset == true) {
-                (this.game as any).control3dxaxis = 0;
-                (this.game as any).control3dzaxis = 0;
-                (this.game as any).control3dxpos = 0;
-                (this.game as any).control3dypos = 0;
-                (this.game as any).control3dscale = 1;
+            if (reset) {
+                this.setDefaultView();
             }
+            dojo.toggleClass($("pagesection_gameview"), "view-changed", !reset);
             this.elements.forEach(element => element.style.transform = "rotatex(" + (this.game as any).control3dxaxis + "deg) translate(" + (this.game as any).control3dypos + "px," + (this.game as any).control3dxpos + "px) rotateZ(" + (this.game as any).control3dzaxis + "deg) scale3d(" + (this.game as any).control3dscale + "," + (this.game as any).control3dscale + "," + (this.game as any).control3dscale + ")");
         }
-    },  
+    }  
 }

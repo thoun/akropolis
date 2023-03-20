@@ -33,6 +33,7 @@ class PlayerTable {
                 <span class="name" style="color: #${player.color};">${player.name}</span>
             </div>
             <div class="frame">
+                <button type="button" id="reset-view-${this.playerId}" class="bgabutton bgabutton_gray reset-view-button">${_('Reset view')}</button>
                 <div id="player-table-${this.playerId}-city" class="city">
                     <!--<div class="flag" style="--flag-color: red; top: 50%; left: 50%;"></div>-->
                     <div id="player-table-${this.playerId}-grid" class="grid">
@@ -45,6 +46,7 @@ class PlayerTable {
         dojo.place(html, document.getElementById('tables'));
         this.city = document.getElementById(`player-table-${this.playerId}-city`) as HTMLDivElement;
         this.grid = document.getElementById(`player-table-${this.playerId}-grid`) as HTMLDivElement;
+        document.getElementById(`reset-view-${this.playerId}`).addEventListener('click', () => this.game.viewManager.resetView());
 
         this.createGrid(player.board);
 

@@ -321,27 +321,39 @@ var TilesManager = /** @class */ (function () {
 }());
 var ZOOM_MAX = 3;
 var ViewManager = /** @class */ (function () {
+    // private rotating: boolean = false;
     function ViewManager(game) {
         this.game = game;
         this.elements = [];
         if (!dojo.hasClass("ebd-body", "mode_3d")) {
             dojo.addClass("ebd-body", "mode_3d");
             $("globalaction_3d").innerHTML = "2D"; // controls the upper right button
-            game.control3dxaxis = 40; // rotation in degrees of x axis (it has a limit of 0 to 80 degrees in the frameword so users cannot turn it upsidedown)
-            game.control3dzaxis = 0; // rotation in degrees of z axis
-            game.control3dxpos = -100; // center of screen in pixels
-            game.control3dypos = -50; // center of screen in pixels
-            game.control3dscale = 1; // zoom level, 1 is default 2 is double normal size,
-            game.control3dmode3d = true; // is the 3d enabled
+            this.setDefaultView();
         }
     }
+    ViewManager.prototype.setDefaultView = function () {
+        this.game.control3dxaxis = 40; // rotation in degrees of x axis (it has a limit of 0 to 80 degrees in the frameword so users cannot turn it upsidedown)
+        this.game.control3dzaxis = 0; // rotation in degrees of z axis
+        this.game.control3dxpos = -100; // center of screen in pixels
+        this.game.control3dypos = -50; // center of screen in pixels
+        this.game.control3dscale = 1; // zoom level, 1 is default 2 is double normal size,
+        this.game.control3dmode3d = true; // is the 3d enabled
+    };
+    ViewManager.prototype.resetView = function () {
+        this.setDefaultView();
+        this.change3d(0, 0, 0, 0, 0, true, true);
+    };
     ViewManager.prototype.draggableElement3d = function (element) {
         var _this = this;
         this.elements.push(element);
         element.addEventListener('mousedown', function (e) { return _this.drag3dMouseDown(e); });
         element.addEventListener('mouseup', function (e) { return _this.closeDragElement3d(e); });
         element.addEventListener('mousewheel', function (e) { return _this.onMouseWheel(e); });
-        element.oncontextmenu = function () { return false; };
+        element.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return false;
+        });
         this.game.drag3d = element;
     };
     ViewManager.prototype.drag3dMouseDown = function (e) {
@@ -356,6 +368,10 @@ var ViewManager = /** @class */ (function () {
     ViewManager.prototype.elementDrag3d = function (e) {
         e = e || window.event;
         dojo.stopEvent(e);
+        if (e.which != 3) {
+            $("ebd-body").onmousemove = null;
+            dojo.removeClass($("pagesection_gameview"), "grabbinghand");
+        }
         if (!this.isdragging) {
             this.isdragging = true;
             var viewportOffset = e.currentTarget.getBoundingClientRect();
@@ -366,7 +382,7 @@ var ViewManager = /** @class */ (function () {
             else {
                 x = -1 * e.movementX;
             }
-            this.game.change3d(e.movementY / (-10), 0, 0, x / (-10), 0, true, false);
+            /*(this.game as any)*/ this.change3d(e.movementY / (-10), 0, 0, x / (-10), 0, true, false);
             this.isdragging = false;
         }
     };
@@ -421,13 +437,10 @@ var ViewManager = /** @class */ (function () {
             this.game.control3dxpos += xpos;
             this.game.control3dypos += ypos;
             this.game.control3dscale += incScale;
-            if (reset == true) {
-                this.game.control3dxaxis = 0;
-                this.game.control3dzaxis = 0;
-                this.game.control3dxpos = 0;
-                this.game.control3dypos = 0;
-                this.game.control3dscale = 1;
+            if (reset) {
+                this.setDefaultView();
             }
+            dojo.toggleClass($("pagesection_gameview"), "view-changed", !reset);
             this.elements.forEach(function (element) { return element.style.transform = "rotatex(" + _this.game.control3dxaxis + "deg) translate(" + _this.game.control3dypos + "px," + _this.game.control3dxpos + "px) rotateZ(" + _this.game.control3dzaxis + "deg) scale3d(" + _this.game.control3dscale + "," + _this.game.control3dscale + "," + _this.game.control3dscale + ")"; });
         }
     };
@@ -535,6 +548,7 @@ var TILE_SHIFT_BY_ROTATION = [
 ];
 var PlayerTable = /** @class */ (function () {
     function PlayerTable(game, player) {
+        var _this = this;
         this.game = game;
         this.minX = -1;
         this.maxX = 1;
@@ -542,10 +556,11 @@ var PlayerTable = /** @class */ (function () {
         this.maxY = 1;
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n            </div>\n            <div class=\"frame\">\n                <div id=\"player-table-").concat(this.playerId, "-city\" class=\"city\">\n                    <!--<div class=\"flag\" style=\"--flag-color: red; top: 50%; left: 50%;\"></div>-->\n                    <div id=\"player-table-").concat(this.playerId, "-grid\" class=\"grid\">\n                        <!--<div class=\"flag\" style=\"--flag-color: blue;\"></div>-->\n                    </div>\n                </div>\n            </div>\n        </div>\n        ");
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n            </div>\n            <div class=\"frame\">\n                <button type=\"button\" id=\"reset-view-").concat(this.playerId, "\" class=\"bgabutton bgabutton_gray reset-view-button\">").concat(_('Reset view'), "</button>\n                <div id=\"player-table-").concat(this.playerId, "-city\" class=\"city\">\n                    <!--<div class=\"flag\" style=\"--flag-color: red; top: 50%; left: 50%;\"></div>-->\n                    <div id=\"player-table-").concat(this.playerId, "-grid\" class=\"grid\">\n                        <!--<div class=\"flag\" style=\"--flag-color: blue;\"></div>-->\n                    </div>\n                </div>\n            </div>\n        </div>\n        ");
         dojo.place(html, document.getElementById('tables'));
         this.city = document.getElementById("player-table-".concat(this.playerId, "-city"));
         this.grid = document.getElementById("player-table-".concat(this.playerId, "-grid"));
+        document.getElementById("reset-view-".concat(this.playerId)).addEventListener('click', function () { return _this.game.viewManager.resetView(); });
         this.createGrid(player.board);
         this.city.style.transform = "rotatex(" + game.control3dxaxis + "deg) translate(" + game.control3dypos + "px," + game.control3dxpos + "px) rotateZ(" + game.control3dzaxis + "deg) scale3d(" + game.control3dscale + "," + game.control3dscale + "," + game.control3dscale + ")";
         this.game.viewManager.draggableElement3d(this.city);

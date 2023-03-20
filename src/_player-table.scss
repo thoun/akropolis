@@ -79,3 +79,15 @@ $y0: 300px;
         }
     }
 }
+
+.reset-view-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: none;
+    width: auto;
+}
+
+.view-changed .reset-view-button {
+    display: unset;
+}
