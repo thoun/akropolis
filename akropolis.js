@@ -437,6 +437,7 @@ var ConstructionSite = /** @class */ (function () {
         this.game = game;
         this.selectionActivated = false;
         this.market = document.getElementById('market');
+        this.remainingstacksDiv = document.getElementById('remaining-stacks');
         this.setTiles(this.orderTiles(tiles));
         document.getElementById('remaining-stacks-counter').insertAdjacentText('beforebegin', _('Remaining stacks'));
         this.remainingStacksCounter = new ebg.counter();
@@ -476,7 +477,12 @@ var ConstructionSite = /** @class */ (function () {
         }
     };
     ConstructionSite.prototype.refill = function (tiles, remainingStacks) {
-        this.setTiles(this.orderTiles(tiles));
+        var _this = this;
+        var orderedTiles = this.orderTiles(tiles);
+        this.setTiles(orderedTiles);
+        orderedTiles.forEach(function (tile) {
+            return _this.game.animationManager.slideFromElement(document.getElementById("market-tile-".concat(tile.id)), _this.remainingstacksDiv);
+        });
         this.remainingStacksCounter.setValue(remainingStacks);
     };
     ConstructionSite.prototype.removeTile = function (tile) {

@@ -52,6 +52,7 @@ interface AkropolisGamedatas {
 
 interface AkropolisGame extends Game {
     viewManager: ViewManager;
+    animationManager: AnimationManager;
     tilesManager: TilesManager;
 
     getPlayerId(): number;

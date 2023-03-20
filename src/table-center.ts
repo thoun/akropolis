@@ -1,11 +1,13 @@
 class ConstructionSite {
     private market: HTMLDivElement;
     private tiles: Tile[];
+    private remainingstacksDiv: HTMLDivElement;
     private remainingStacksCounter: Counter;
     private selectionActivated: boolean = false;
 
     constructor(private game: AkropolisGame, tiles: Tile[], remainingStacks: number) {
         this.market = document.getElementById('market') as HTMLDivElement;
+        this.remainingstacksDiv = document.getElementById('remaining-stacks') as HTMLDivElement;
         this.setTiles(this.orderTiles(tiles));
 
         document.getElementById('remaining-stacks-counter').insertAdjacentText('beforebegin', _('Remaining stacks'));
@@ -53,7 +55,14 @@ class ConstructionSite {
     }
     
     public refill(tiles: Tile[], remainingStacks: number) {
-        this.setTiles(this.orderTiles(tiles));
+        const orderedTiles = this.orderTiles(tiles);
+        this.setTiles(orderedTiles);
+        orderedTiles.forEach(tile => 
+            this.game.animationManager.slideFromElement(
+                document.getElementById(`market-tile-${tile.id}`),
+                this.remainingstacksDiv,
+            )
+        ); 
 
         this.remainingStacksCounter.setValue(remainingStacks);
     }
