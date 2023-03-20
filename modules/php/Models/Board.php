@@ -425,8 +425,8 @@ class Board
     }
     $minX--;
     $maxX++;
-    $minY--;
-    $maxY++;
+    $minY -= 2;
+    $maxY += 2;
 
     // Now add one of this exterior cell as first cell to treat
     array_unshift($cells, ['x' => $minX, 'y' => $minX % 2 == 0 ? 0 : 1, 'z' => 0]);

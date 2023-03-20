@@ -87,7 +87,7 @@ class Players extends \AKR\Helpers\DB_Manager
   {
     $pId = is_int($player) ? $player : $player->getId();
     $table = Game::get()->getNextPlayerTable();
-    return $table[$pId];
+    return (int) $table[$pId];
   }
 
   /*

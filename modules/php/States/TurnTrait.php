@@ -82,6 +82,9 @@ trait TurnTrait
 
   public function stNextPlayer()
   {
+    $activePId = (int) Players::getActiveId();
+    $nextPId = Players::getNextId($activePId);
+
     // Change state and refill if needed
     if (Tiles::countInLocation('dock') == 1) {
       if (Tiles::countInLocation('deck') > 0) {
@@ -89,16 +92,15 @@ trait TurnTrait
         $deck = Tiles::countInLocation('deck');
         Notifications::refill($dock, $deck);
 
-        $pId = (int)Players::getNextId((int)Players::getActiveId());
-        Globals::setFirstPlayer($pId);
-        Notifications::updateFirstPlayer($pId);
+        Globals::setFirstPlayer($nextPId);
+        Notifications::updateFirstPlayer($nextPId);
       } else {
         die('EOG');
         return;
       }
     }
-    self::giveExtraTime(Players::getActive()->getId());
-    $this->activeNextPlayer();    
+    $this->activeNextPlayer();
+    self::giveExtraTime($nextPId);
 
     $this->gamestate->nextState('placeTile');
   }
