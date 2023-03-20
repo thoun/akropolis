@@ -174,11 +174,6 @@
 #market #remaining-stacks #remaining-stacks-counter {
   font-weight: bold;
 }
-#market #r {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
 #market .tile-with-cost {
   font-weight: bold;
   width: 194px;

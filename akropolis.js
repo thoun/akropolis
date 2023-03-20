@@ -373,7 +373,8 @@ var ViewManager = /** @class */ (function () {
     ViewManager.prototype.closeDragElement3d = function (evt) {
         /* stop moving when mouse button is released:*/
         if (evt.which == 3) {
-            dojo.stopEvent(evt);
+            evt.preventDefault();
+            evt.stopImmediatePropagation();
             $("ebd-body").onmousemove = null;
             dojo.removeClass($("pagesection_gameview"), "grabbinghand");
         }
@@ -622,13 +623,12 @@ var PlayerTable = /** @class */ (function () {
         hex.id = "player-".concat(this.playerId, "-hex-").concat(x, "-").concat(y, "-").concat(z);
         this.grid.appendChild(hex);
         var _a = this.game.tilesManager.hexFromString(types), type = _a.type, plaza = _a.plaza;
-        this.game.setTooltip(hex.id, "".concat(x, ", ").concat(y, ", ").concat(z, "<br><br>") + this.game.tilesManager.getHexTooltip(type, plaza));
+        this.game.setTooltip(hex.id, this.game.tilesManager.getHexTooltip(type, plaza));
     };
     PlayerTable.prototype.createPossibleHex = function (x, y, z) {
         var hex = this.game.tilesManager.createPossibleHex(x, y, z);
         hex.id = "player-".concat(this.playerId, "-possible-hex-").concat(x, "-").concat(y, "-").concat(z);
         this.grid.appendChild(hex);
-        this.game.setTooltip(hex.id, "".concat(x, ", ").concat(y, ", ").concat(z));
         return hex;
     };
     return PlayerTable;
@@ -967,8 +967,6 @@ var Akropolis = /** @class */ (function () {
             this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
         }
         this.getCurrentPlayerTable().rotatePreviewTile(this.rotation);
-        // temp
-        document.getElementById('r').innerHTML = "r = ".concat(rotation);
     };
     Akropolis.prototype.cancelPlaceTile = function () {
         ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { return document.getElementById(id).classList.add('disabled'); });

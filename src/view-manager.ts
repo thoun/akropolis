@@ -57,7 +57,8 @@ class ViewManager {
     private closeDragElement3d(evt: MouseEvent) {
         /* stop moving when mouse button is released:*/
         if (evt.which == 3) {
-            dojo.stopEvent(evt);
+            evt.preventDefault();
+            evt.stopImmediatePropagation();
             $("ebd-body").onmousemove = null;
             dojo.removeClass($("pagesection_gameview"), "grabbinghand");
         }

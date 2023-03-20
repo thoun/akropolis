@@ -129,14 +129,13 @@ class PlayerTable {
         this.grid.appendChild(hex);
         
         const { type, plaza } = this.game.tilesManager.hexFromString(types);
-        this.game.setTooltip(hex.id, `${x}, ${y}, ${z}<br><br>` + this.game.tilesManager.getHexTooltip(type, plaza));
+        this.game.setTooltip(hex.id, this.game.tilesManager.getHexTooltip(type, plaza));
     }
     
     private createPossibleHex(x: number, y: number, z: number) {
         const hex = this.game.tilesManager.createPossibleHex(x, y, z);
         hex.id = `player-${this.playerId}-possible-hex-${x}-${y}-${z}`;
         this.grid.appendChild(hex);
-        this.game.setTooltip(hex.id, `${x}, ${y}, ${z}`);
         return hex;
     }
 }

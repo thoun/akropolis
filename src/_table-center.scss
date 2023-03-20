@@ -24,13 +24,6 @@
         }
     }
 
-    // temp
-    #r {
-        position: absolute;
-        top: 0;
-        right: 0;
-    }
-
     .tile-with-cost {
         font-weight: bold;
         width: #{$hexSide * 4};

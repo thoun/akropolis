@@ -445,8 +445,6 @@ class Akropolis implements AkropolisGame {
             this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
         }
         this.getCurrentPlayerTable().rotatePreviewTile(this.rotation);
-        // temp
-        document.getElementById('r').innerHTML = `r = ${rotation}`;
     }
 
     public cancelPlaceTile() {
