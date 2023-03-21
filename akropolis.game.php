@@ -80,13 +80,21 @@ class Akropolis extends Table
   public function getAllDatas()
   {
     $pId = self::getCurrentPId();
+
+    $activatedVariants = [];
+    foreach(DISTRICTS as $district) {
+      if (Globals::isVariant($district)) {
+        $activatedVariants[] = $district;
+      }
+    }
+
     return [
       'prefs' => Preferences::getUiData($pId),
       'players' => Players::getUiData($pId),
       'dock' => Tiles::getUiData(),
       'deck' => Tiles::countInLocation('deck'),
       'firstPlayerId' => Globals::getFirstPlayer(),
-      'activatedVariants' => ['market', 'garden'], // TODO Tisaac send activated variants (house, market, ...)
+      'activatedVariants' => $activatedVariants,
     ];
   }
 

@@ -850,7 +850,7 @@ var Akropolis = /** @class */ (function () {
                         colorPointsCounter.setValue(starCounter.getValue() * hexCounter.getValue());
                         _this.colorPointsCounters[playerId][i] = colorPointsCounter;
                     }
-                    var activated = gamedatas.activatedVariants.some(function (variant) { return variant == TYPES[i]; });
+                    var activated = gamedatas.activatedVariants.some(function (variant) { return variant.startsWith(TYPES[i]); });
                     if (someVariants) {
                         document.getElementById("color-points-".concat(i, "-counter-border-").concat(player.id)).style.setProperty('--border-color', activated ? 'darkgreen' : 'darkred');
                     }

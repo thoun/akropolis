@@ -279,7 +279,7 @@ class Akropolis implements AkropolisGame {
                         this.colorPointsCounters[playerId][i] = colorPointsCounter;
                     }
 
-                    const activated = gamedatas.activatedVariants.some(variant => variant == TYPES[i]);
+                    const activated = gamedatas.activatedVariants.some(variant => variant.startsWith(TYPES[i]));
                     if (someVariants) {
                         document.getElementById(`color-points-${i}-counter-border-${player.id}`).style.setProperty('--border-color', activated ? 'darkgreen' : 'darkred');
                     }
