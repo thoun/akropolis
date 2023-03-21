@@ -13,7 +13,6 @@ const TILE_SHIFT_BY_ROTATION = [
 class PlayerTable {
     public playerId: number;
 
-    private currentPlayer: boolean;
     private city: HTMLDivElement;
     private grid: HTMLDivElement;
     private previewTile: HTMLDivElement | null;
@@ -24,15 +23,14 @@ class PlayerTable {
     private maxY = 1;
 
     constructor(private game: AkropolisGame, player: AkropolisPlayer) {
-        this.playerId = Number(player.id);
-        this.currentPlayer = this.playerId == this.game.getPlayerId(); 
+        this.playerId = Number(player.id); 
 
         let html = `
         <div id="player-table-${this.playerId}" class="player-table">
-            <div class="name-wrapper">
-                <span class="name" style="color: #${player.color};">${player.name}</span>
+            <div class="name" style="color: #${player.color};">
+                ${this.playerId == 0 ? this.getSoloName(player.soloLevel) : player.name}
             </div>
-            <div class="frame">
+            <div id="player-table-${this.playerId}-frame" class="frame">
                 <button type="button" id="reset-view-${this.playerId}" class="bgabutton bgabutton_gray reset-view-button">${_('Reset view')}</button>
                 <div id="player-table-${this.playerId}-city" class="city">
                     <!--<div class="flag" style="--flag-color: red; top: 50%; left: 50%;"></div>-->
@@ -43,7 +41,12 @@ class PlayerTable {
             </div>
         </div>
         `;
-        dojo.place(html, document.getElementById('tables'));
+        document.getElementById('tables').insertAdjacentHTML('beforeend', html);
+        if (player.soloLevel) {
+            document.getElementById(`player-table-${this.playerId}-frame`).insertAdjacentHTML('beforebegin', `
+            <div class="solo-text">${this.getSoloText(player.soloLevel)}</div>
+            `);
+        }
         this.city = document.getElementById(`player-table-${this.playerId}-city`) as HTMLDivElement;
         this.grid = document.getElementById(`player-table-${this.playerId}-grid`) as HTMLDivElement;
         document.getElementById(`reset-view-${this.playerId}`).addEventListener('click', () => this.game.viewManager.resetView());
@@ -139,5 +142,21 @@ class PlayerTable {
         hex.id = `player-${this.playerId}-possible-hex-${x}-${y}-${z}`;
         this.grid.appendChild(hex);
         return hex;
+    }
+
+    private getSoloName(level: number) {
+        switch (level) {
+            case 1: return _('Hippodamos (Easy level)');
+            case 2: return _('Metagenes (Medium level)');
+            case 3: return _('Callicrates (Hard level)');
+        }
+    }
+
+    private getSoloText(level: number) {
+        switch (level) {
+            case 1: return _('All the Districts of Hippodamos are considered to be at the 1st level.');
+            case 2: return _('All the Districts of Metagenes are considered to be at the 1st level. Metagenes earns 2 additional points for each Quarry he owns.');
+            case 3: return _('All Callicrates Districts are considered to be at the 2nd level.');
+        }
     }
 }

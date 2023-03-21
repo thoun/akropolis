@@ -71,6 +71,12 @@ class Akropolis implements AkropolisGame {
 
         log('gamedatas', gamedatas);
 
+        // TODO TEMP
+        /*gamedatas.soloPlayer = structuredClone(gamedatas.players[2343493]);
+        gamedatas.soloPlayer.id = '0';
+        gamedatas.soloPlayer.soloLevel = 1;
+        gamedatas.soloPlayer.color = '000000';*/
+
         this.animationManager = new AnimationManager(this);
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
@@ -213,8 +219,36 @@ class Akropolis implements AkropolisGame {
     }
 
     private createPlayerPanels(gamedatas: AkropolisGamedatas) {
+        const players = Object.values(gamedatas.players);
+        const soloPlayer = gamedatas.soloPlayer;
 
-        Object.values(gamedatas.players).forEach(player => {
+        if (soloPlayer) {
+            dojo.place(`
+            <div id="overall_player_board_0" class="player-board current-player-board">					
+                <div class="player_board_inner" id="player_board_inner_982fff">
+                    
+                    <div class="emblemwrap" id="avatar_active_wrap_0">
+                        <div src="img/gear.png" alt="" class="avatar avatar_active" id="avatar_active_0"></div>
+                    </div>
+                                               
+                    <div class="player-name" id="player_name_0">
+                        ${soloPlayer.name}
+                    </div>
+                    <div id="player_board_0" class="player_board_content">
+                        <div class="player_score">
+                            <span id="player_score_0" class="player_score_value">0</span> <i class="fa fa-star" id="icon_point_0"></i>           
+                        </div>
+                    </div>
+                </div>
+            </div>`, `overall_player_board_${players[0].id}`, 'after');
+
+            const tomScoreCounter = new ebg.counter();
+            tomScoreCounter.create(`player_score_0`);
+            tomScoreCounter.setValue(soloPlayer.score);
+            (this as any).scoreCtrl[0] = tomScoreCounter;
+        }
+
+        (soloPlayer ? [...players, gamedatas.soloPlayer] : players).forEach(player => {
             const playerId = Number(player.id);   
 
             // Stones counter
@@ -309,6 +343,11 @@ class Akropolis implements AkropolisGame {
         orderedPlayers.forEach(player => 
             this.createPlayerTable(gamedatas, Number(player.id))
         );
+
+        if (gamedatas.soloPlayer) {
+            const table = new PlayerTable(this, gamedatas.soloPlayer);
+            this.playersTables.push(table);
+        }
     }
 
     private createPlayerTable(gamedatas: AkropolisGamedatas, playerId: number) {

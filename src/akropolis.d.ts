@@ -28,6 +28,7 @@ interface AkropolisPlayer extends Player {
     no: number;
     money: number;
     board: PlayerBoard;
+    soloLevel?: number; // TODO check
 }
 
 interface AkropolisGamedatas {
@@ -47,6 +48,7 @@ interface AkropolisGamedatas {
     firstPlayerId: number;
     deck: number; // remaining tiles
     activatedVariants: string[];
+    soloPlayer?: AkropolisPlayer;
     soloLevel?: number; // TODO Tisaac send solo level (1 to 3 if solo activated ?)
 }
 
