@@ -95,7 +95,9 @@ class Akropolis extends Table
    */
   function getGameProgression()
   {
-    return 0; // TODO
+    $placed = Tiles::countInLocation('board');
+    $allTilesToPlace = Tiles::getSelectWhere(null, null, null)->count() - 1;
+    return $placed * 100 / $allTilesToPlace;
   }
 
   function actChangePreference($pref, $value)

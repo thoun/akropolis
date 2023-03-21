@@ -39,6 +39,7 @@ $machinestates = [
     'type' => 'game',
     'action' => 'stNextPlayer',
     'transitions' => ['placeTile' => ST_PLACE_TILE],
+    "updateGameProgression" => true,
   ],
 
   // Final state.
