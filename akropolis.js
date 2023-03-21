@@ -824,38 +824,45 @@ var Akropolis = /** @class */ (function () {
             stonesCounter.create("stones-counter-".concat(playerId));
             stonesCounter.setValue(player.money);
             _this.stonesCounters[playerId] = stonesCounter;
-            _this.hexesCounters[playerId] = [];
-            _this.starsCounters[playerId] = [];
-            _this.colorPointsCounters[playerId] = [];
-            var _loop_1 = function (i) {
-                dojo.place("<div class=\"counters\" id=\"color-points-".concat(i, "-counter-border\">\n                    <div id=\"color-points-").concat(i, "-counter-wrapper-").concat(player.id, "\" class=\"color-points-counter\">\n                        <div class=\"score-icon star\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"stars-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">\u00D7</span>\n                        <div class=\"score-icon\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"hexes-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">=</span>\n                        <span id=\"color-points-").concat(i, "-counter-").concat(player.id, "\"></span>\n                    </div>\n                </div>"), "player_board_".concat(player.id));
-                var starKey = Object.keys(player.board.scores.stars).find(function (key) { return key.startsWith(TYPES[i]); });
-                var starCounter = new ebg.counter();
-                starCounter.create("stars-".concat(i, "-counter-").concat(playerId));
-                starCounter.setValue(player.board.scores.stars[starKey]);
-                _this.starsCounters[playerId][i] = starCounter;
-                var hexKey = Object.keys(player.board.scores.districts).find(function (key) { return key.startsWith(TYPES[i]); });
-                var hexCounter = new ebg.counter();
-                hexCounter.create("hexes-".concat(i, "-counter-").concat(playerId));
-                hexCounter.setValue(player.board.scores.districts[hexKey]);
-                _this.hexesCounters[playerId][i] = hexCounter;
-                var colorPointsCounter = new ebg.counter();
-                colorPointsCounter.create("color-points-".concat(i, "-counter-").concat(playerId));
-                colorPointsCounter.setValue(starCounter.getValue() * hexCounter.getValue());
-                _this.colorPointsCounters[playerId][i] = colorPointsCounter;
-                var someVariants = gamedatas.activatedVariants.length > 0;
-                var activated = gamedatas.activatedVariants.some(function (variant) { return variant == TYPES[i]; });
-                if (someVariants) {
-                    document.getElementById("color-points-".concat(i, "-counter-border")).style.setProperty('--border-color', activated ? 'darkgreen' : 'darkred');
+            var someVariants = gamedatas.activatedVariants.length > 0;
+            var showScores = Boolean(player.board.scores);
+            if (showScores || someVariants) {
+                _this.hexesCounters[playerId] = [];
+                _this.starsCounters[playerId] = [];
+                _this.colorPointsCounters[playerId] = [];
+                var _loop_1 = function (i) {
+                    var html = showScores ? "<div class=\"counters\" id=\"color-points-".concat(i, "-counter-border-").concat(player.id, "\">\n                        <div id=\"color-points-").concat(i, "-counter-wrapper-").concat(player.id, "\" class=\"color-points-counter\">\n                            <div class=\"score-icon star\" data-type=\"").concat(i, "\"></div> \n                            <span id=\"stars-").concat(i, "-counter-").concat(player.id, "\"></span>\n                            <span class=\"multiplier\">\u00D7</span>\n                            <div class=\"score-icon\" data-type=\"").concat(i, "\"></div> \n                            <span id=\"hexes-").concat(i, "-counter-").concat(player.id, "\"></span>\n                            <span class=\"multiplier\">=</span>\n                            <span id=\"color-points-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        </div>\n                    </div>") :
+                        "<div class=\"counters\" id=\"color-points-".concat(i, "-counter-border-").concat(player.id, "\">\n                            <div id=\"color-points-").concat(i, "-counter-wrapper-").concat(player.id, "\" class=\"color-points-counter\">\n                                <div class=\"score-icon\" data-type=\"").concat(i, "\"></div> \n                            </div>\n                        </div>");
+                    dojo.place(html, "player_board_".concat(player.id));
+                    if (showScores) {
+                        var starKey = Object.keys(player.board.scores.stars).find(function (key) { return key.startsWith(TYPES[i]); });
+                        var starCounter = new ebg.counter();
+                        starCounter.create("stars-".concat(i, "-counter-").concat(playerId));
+                        starCounter.setValue(player.board.scores.stars[starKey]);
+                        _this.starsCounters[playerId][i] = starCounter;
+                        var hexKey = Object.keys(player.board.scores.districts).find(function (key) { return key.startsWith(TYPES[i]); });
+                        var hexCounter = new ebg.counter();
+                        hexCounter.create("hexes-".concat(i, "-counter-").concat(playerId));
+                        hexCounter.setValue(player.board.scores.districts[hexKey]);
+                        _this.hexesCounters[playerId][i] = hexCounter;
+                        var colorPointsCounter = new ebg.counter();
+                        colorPointsCounter.create("color-points-".concat(i, "-counter-").concat(playerId));
+                        colorPointsCounter.setValue(starCounter.getValue() * hexCounter.getValue());
+                        _this.colorPointsCounters[playerId][i] = colorPointsCounter;
+                    }
+                    var activated = gamedatas.activatedVariants.some(function (variant) { return variant == TYPES[i]; });
+                    if (someVariants) {
+                        document.getElementById("color-points-".concat(i, "-counter-border-").concat(player.id)).style.setProperty('--border-color', activated ? 'darkgreen' : 'darkred');
+                    }
+                    var tooltip = "".concat(_('Score for this color (number of valid districts multiplied by matching stars)'), "\n                    <br><br>\n                    <strong>").concat(_this.tilesManager.getTypeTitle(TYPES[i]), "</strong>");
+                    if (someVariants) {
+                        tooltip += "<br><br>\n                        <strong>".concat(_('Variant'), "</strong><br>\n                        ").concat(_('Activated:'), " <strong style=\"color: ").concat(activated ? _('darkgreen') : _('darkred'), ";\">").concat(activated ? _('Yes') : _('No'), "</strong><br>\n                        ").concat(_(_this.tilesManager.getVariantTooltip(TYPES[i])));
+                    }
+                    _this.setTooltip("color-points-".concat(i, "-counter-border-").concat(player.id), tooltip);
+                };
+                for (var i = 1; i <= 5; i++) {
+                    _loop_1(i);
                 }
-                var tooltip = "".concat(_('Score for this color (number of valid districts multiplied by matching stars)'), "\n                <br><br>\n                <strong>").concat(_this.tilesManager.getTypeTitle(TYPES[i]), "</strong>");
-                if (someVariants) {
-                    tooltip += "<br><br>\n                    <strong>".concat(_('Variant'), "</strong><br>\n                    ").concat(_('Activated:'), " <strong style=\"color: ").concat(activated ? _('darkgreen') : _('darkred'), ";\">").concat(activated ? _('Yes') : _('No'), "</strong><br>\n                    ").concat(_(_this.tilesManager.getVariantTooltip(TYPES[i])));
-                }
-                _this.setTooltip("color-points-".concat(i, "-counter-border"), tooltip);
-            };
-            for (var i = 1; i <= 5; i++) {
-                _loop_1(i);
             }
         });
         this.setTooltipToClass('stones-counter', _('Number of stones'));
