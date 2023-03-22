@@ -34,11 +34,13 @@ class Tiles extends \AKR\Helpers\Pieces
 
   public function setupNewGame($players, $options)
   {
+    $nPlayers = max(2, count($players));
+
     $tiles = [];
     foreach (self::$tiles as $id => $tile) {
       // Check number of players of tile
       if (
-        self::$tilesPlayers[$id] > count($players) &&
+        self::$tilesPlayers[$id] > $nPlayers &&
         ($options[OPTION_ALL_TILES] ?? OPTION_ALL_TILES_DISABLED) == OPTION_ALL_TILES_DISABLED
       ) {
         continue;
@@ -62,7 +64,7 @@ class Tiles extends \AKR\Helpers\Pieces
 
   public static function refillDock()
   {
-    $nPlayers = Players::count();
+    $nPlayers = max(2, Players::count());
     for ($i = self::countInLocation('dock'); $i < $nPlayers + 2; $i++) {
       self::pickForLocation(1, 'deck', 'dock', $i);
     }

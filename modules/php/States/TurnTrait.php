@@ -52,10 +52,29 @@ trait TurnTrait
       throw new \BgaVisibleSystemException('Impossible rotation. Should not happen');
     }
 
+    $this->actPlaceTileAux($player, $tileId, $hex, $pos, $r);
+    $this->gamestate->nextState('next');
+  }
+
+  /**
+   * Auxiliary function that place the tile => can be reused for Architect
+   */
+  public function actPlaceTileAux($player, $tileId, $hex, $pos, $r)
+  {
+    $tile = Tiles::getSingle($tileId);
+    $cost = $tile['state'];
+    // Check position : always go back to top left hex on tile
+    $pos = $player->board()->getCorrespondingPos($pos, $r, $hex);
+
     // Pay money if needed
     if ($cost > 0) {
       $player->incMoney(-$cost);
       Notifications::payForTile($player, $cost);
+      if (Globals::isSolo() && $player->getId() != ARCHITECT_ID) {
+        $architect = Players::getArchitect();
+        $architect->incMoney($cost);
+        // TODO : notify ??
+      }
     }
 
     // Place tile
@@ -76,16 +95,35 @@ trait TurnTrait
       $scores = $player->board()->getScores();
       Notifications::updateScores($player, $scores);
     }
-
-    $this->gamestate->nextState('next');
   }
 
   public function stNextPlayer()
   {
     $activePId = (int) Players::getActiveId();
-    $nextPId = Players::getNextId($activePId);
+    $nextPId = Globals::isSolo() ? 0 : Players::getNextId($activePId);
 
-    // Change state and refill if needed
+    // Refill if needed
+    $this->refillIfNeeded($nextPId);
+
+    // Auto play architect if solo
+    if (Globals::isSolo()) {
+      $this->stArchitectTurn();
+      $this->refillIfNeeded($activePId);
+    }
+    // Otherwise, move to next player
+    else {
+      $this->activeNextPlayer();
+    }
+
+    self::giveExtraTime($nextPId);
+    $this->gamestate->nextState(Globals::isEndOfGame() ? 'end' : 'placeTile');
+  }
+
+  /**
+   * Refill the dock if needed and trigger detect end of game
+   */
+  public function refillIfNeeded($nextPId)
+  {
     if (Tiles::countInLocation('dock') == 1) {
       if (Tiles::countInLocation('deck') > 0) {
         $dock = Tiles::refillDock();
@@ -95,13 +133,46 @@ trait TurnTrait
         Globals::setFirstPlayer($nextPId);
         Notifications::updateFirstPlayer($nextPId);
       } else {
-        die('EOG');
-        return;
+        Globals::setEndOfGame(true);
       }
     }
-    $this->activeNextPlayer();
-    self::giveExtraTime($nextPId);
+  }
 
-    $this->gamestate->nextState('placeTile');
+  public function stArchitectTurn()
+  {
+    $architect = Players::getArchitect();
+    $options = $architect->board()->getPlacementOptions(0);
+
+    // Keep only options at ground level
+    Utils::filter($options, function ($option) {
+      return $option['z'] == 0;
+    });
+
+    // Keep the closest one to the center
+    $min = null;
+    $minOption = null;
+    foreach ($options as $option) {
+      $dist = abs($option['x']) + abs($option['y']);
+      if (is_null($min) || $dist < $min) {
+        $min = $dist;
+        $minOption = $option;
+      }
+    }
+
+    // Find the tile
+    $tiles = Tiles::getInLocation('dock')->order(function ($tile1, $tile2) {
+      return $tile1['state'] - $tile2['state'];
+    });
+    $tilesWithPlaza = $tiles->filter(function ($tile) use ($architect) {
+      return $tile['state'] <= $architect->getMoney() && count(array_intersect(PLAZAS, $tile['hexes'])) > 0;
+    });
+
+    if ($tilesWithPlaza->empty()) {
+      $tileId = $tiles->first()['id'];
+    } else {
+      $tileId = $tilesWithPlaza->first()['id'];
+    }
+
+    $this->actPlaceTileAux($architect, $tileId, 0, $minOption, $minOption['r'][0]);
   }
 }

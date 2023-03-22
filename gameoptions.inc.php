@@ -52,7 +52,36 @@ $game_options = [
     'displaycondition' => [
       [
         'type' => 'maxplayers',
-        'value' => [2, 3],
+        'value' => [1, 2, 3],
+      ],
+    ],
+  ],
+
+  \OPTION_SOLO_LVL => [
+    'name' => totranslate('Architect level'),
+    'values' => [
+      \OPTION_SOLO_LVL_0 => [
+        'name' => totranslate('Easy'),
+        'description' => totranslate('All the Architect\'s districts are considered on the ground level.'),
+      ],
+      \OPTION_SOLO_LVL_1 => [
+        'name' => totranslate('Medium'),
+        'description' => totranslate(
+          'All the Architect\'s districts are considered on the ground level, and each quarry is worth 2 points.'
+        ),
+        'nobeginner' => true,
+      ],
+      \OPTION_SOLO_LVL_2 => [
+        'name' => totranslate('Hard'),
+        'description' => totranslate('All the Architect\'s districts are considered on the first floor.'),
+        'nobeginner' => true,
+      ],
+    ],
+    'default' => OPTION_SOLO_LVL_0,
+    'displaycondition' => [
+      [
+        'type' => 'maxplayers',
+        'value' => [1],
       ],
     ],
   ],

@@ -386,7 +386,7 @@ class QueryBuilder extends \APP_DbObject
   // Syntaxic sugar
   public function wherePlayer($pId)
   {
-    return $pId == null ? $this : $this->where('player_id', $pId);
+    return is_null($pId) ? $this : $this->where('player_id', $pId);
   }
 
   /*

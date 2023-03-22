@@ -110,6 +110,11 @@ class Players extends \AKR\Helpers\DB_Manager
       ->toAssoc();
   }
 
+  public function getArchitect()
+  {
+    return Globals::isSolo() ? new \AKR\Models\Architect(null) : null;
+  }
+
   public static function determineFirstPlayer()
   {
     $pId = self::getFirstPlayerId();

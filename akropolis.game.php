@@ -82,7 +82,7 @@ class Akropolis extends Table
     $pId = self::getCurrentPId();
 
     $activatedVariants = [];
-    foreach(DISTRICTS as $district) {
+    foreach (DISTRICTS as $district) {
       if (Globals::isVariant($district)) {
         $activatedVariants[] = $district;
       }
@@ -95,6 +95,7 @@ class Akropolis extends Table
       'deck' => Tiles::countInLocation('deck'),
       'firstPlayerId' => Globals::getFirstPlayer(),
       'activatedVariants' => $activatedVariants,
+      'soloPlayer' => Players::getArchitect()->getUiData($pId),
     ];
   }
 
@@ -105,7 +106,7 @@ class Akropolis extends Table
   {
     $placed = Tiles::countInLocation('board');
     $allTilesToPlace = Tiles::getSelectWhere(null, null, null)->count() - 1;
-    return $placed * 100 / $allTilesToPlace;
+    return ($placed * 100) / $allTilesToPlace;
   }
 
   function actChangePreference($pref, $value)

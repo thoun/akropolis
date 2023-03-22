@@ -14,6 +14,9 @@ class Globals extends \AKR\Helpers\DB_Manager
     'variants' => 'obj',
     'liveScoring' => 'bool',
     'firstPlayer' => 'int',
+    'solo' => 'bool',
+    'architect' => 'obj',
+    'endOfGame' => 'bool',
   ];
 
   protected static $table = 'global_variables';
@@ -150,6 +153,15 @@ class Globals extends \AKR\Helpers\DB_Manager
       \TEMPLE =>
         $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_TEMPLE] ?? 0) == \OPTION_VARIANT_ENABLED,
     ]);
+
+    self::setSolo(count($players) == 1);
+    if (count($players) == 1) {
+      self::setArchitect([
+        'lvl' => $options[OPTION_SOLO_LVL] ?? 0,
+        'money' => 2,
+        'score' => 0,
+      ]);
+    }
   }
 
   public static function isVariant($type)
