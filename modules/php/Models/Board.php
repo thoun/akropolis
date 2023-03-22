@@ -303,6 +303,11 @@ class Board
       $plazas[$plaza] *= \PLAZAS_MULT[$plaza];
     }
 
+    // ARCHITECT => score 2 per quarry
+    if ($this->pId == \ARCHITECT_ID) {
+      $plazas[QUARRY] = 2;
+    }
+
     return $plazas;
   }
 
@@ -317,12 +322,12 @@ class Board
     foreach ($cells as $cell) {
       $type = $this->getTypeAtPos($cell);
 
-      // Handle architect scoring here
+      // Handle ARCHITECT scoring here
       if ($this->pId == ARCHITECT_ID) {
         if (in_array($type, \DISTRICTS)) {
           $districts[$type] += $this->player->getLvl() == 2 ? 2 : 1;
         } elseif ($type == QUARRY && $this->player->getLvl() == 1) {
-          $districts[QUARRY] = ($districts[QUARRY] ?? 0) + 2;
+          $districts[QUARRY] = ($districts[QUARRY] ?? 0) + 1;
         }
         continue;
       }

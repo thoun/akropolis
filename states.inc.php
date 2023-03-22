@@ -38,8 +38,17 @@ $machinestates = [
     'name' => 'nextPlayer',
     'type' => 'game',
     'action' => 'stNextPlayer',
-    'transitions' => ['placeTile' => ST_PLACE_TILE],
-    "updateGameProgression" => true,
+    'transitions' => ['placeTile' => ST_PLACE_TILE, 'end' => ST_PRE_END_OF_GAME],
+    'updateGameProgression' => true,
+  ],
+
+  ST_PRE_END_OF_GAME => [
+    'name' => 'preEndOfGame',
+    'description' => '',
+    'descriptionmyturn' => '',
+    'action' => 'stPreEndOfGame',
+    'type' => 'activeplayer',
+    'transitions' => ['' => ST_END_GAME],
   ],
 
   // Final state.

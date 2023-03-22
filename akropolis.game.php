@@ -42,6 +42,8 @@ class Akropolis extends Table
 {
   use AKR\DebugTrait;
   use AKR\States\TurnTrait;
+  use AKR\States\ArchitectTurnTrait;
+  use AKR\States\EndOfGameTrait;
 
   public static $instance = null;
   function __construct()
@@ -95,7 +97,7 @@ class Akropolis extends Table
       'deck' => Tiles::countInLocation('deck'),
       'firstPlayerId' => Globals::getFirstPlayer(),
       'activatedVariants' => $activatedVariants,
-      'soloPlayer' => Players::getArchitect()->getUiData($pId),
+      'soloPlayer' => Globals::isSolo() ? Players::getArchitect()->getUiData($pId) : null,
     ];
   }
 
