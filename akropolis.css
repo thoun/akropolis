@@ -248,26 +248,32 @@
   width: 24px;
   height: 24px;
 }
+.player-board .score-icon[data-type="0"] {
+  background-position: 0% 16.6666666667%;
+}
+.player-board .score-icon[data-type="0"].star {
+  background-position-x: 100%;
+}
 .player-board .score-icon[data-type="1"] {
-  background-position: 0% 20%;
+  background-position: 0% 33.3333333333%;
 }
 .player-board .score-icon[data-type="1"].star {
   background-position-x: 100%;
 }
 .player-board .score-icon[data-type="2"] {
-  background-position: 0% 40%;
+  background-position: 0% 50%;
 }
 .player-board .score-icon[data-type="2"].star {
   background-position-x: 100%;
 }
 .player-board .score-icon[data-type="3"] {
-  background-position: 0% 60%;
+  background-position: 0% 66.6666666667%;
 }
 .player-board .score-icon[data-type="3"].star {
   background-position-x: 100%;
 }
 .player-board .score-icon[data-type="4"] {
-  background-position: 0% 80%;
+  background-position: 0% 83.3333333333%;
 }
 .player-board .score-icon[data-type="4"].star {
   background-position-x: 100%;

@@ -28,9 +28,9 @@
     width: 24px;
     height: 24px;
     
-    @for $i from 1 through 5 {
+    @for $i from 0 through 5 {
       &[data-type="#{$i}"] {
-        background-position: 0% #{$i * 20%};
+        background-position: 0% #{($i + 1) * 100% / 6};
 
         &.star {
           background-position-x: 100%;

@@ -665,6 +665,7 @@ var PlayerTable = /** @class */ (function () {
     return PlayerTable;
 }());
 var TYPES = {
+    0: 'quarry',
     1: 'house',
     2: 'market',
     3: 'barrack',
@@ -672,6 +673,7 @@ var TYPES = {
     5: 'garden',
 };
 var TYPES_REVERSE = {
+    quarry: 0,
     house: 1,
     market: 2,
     barrack: 3,
@@ -883,7 +885,7 @@ var Akropolis = /** @class */ (function () {
                 }
                 _this.setTooltip("color-points-".concat(i, "-counter-border-").concat(player.id), tooltip);
             };
-            for (var i = 1; i <= 5; i++) {
+            for (var i = (playerId == 0 && player.lvl == 1 ? 0 : 1); i <= 5; i++) {
                 _loop_1(i);
             }
         });

@@ -6,6 +6,7 @@ declare const _;
 declare const g_gamethemeurl;
 
 const TYPES = {
+    0: 'quarry',
     1: 'house',
     2: 'market',
     3: 'barrack',
@@ -14,6 +15,7 @@ const TYPES = {
 };
 
 const TYPES_REVERSE = {
+    quarry: 0,
     house: 1,
     market: 2,
     barrack: 3,
@@ -266,7 +268,7 @@ class Akropolis implements AkropolisGame {
             this.hexesCounters[playerId] = [];
             this.starsCounters[playerId] = [];
             this.colorPointsCounters[playerId] = [];
-            for (let i = 1; i <= 5; i++) {
+            for (let i = (playerId == 0 && player.lvl == 1 ? 0 : 1); i <= 5; i++) {
                 let html = `<div class="counters ${!showScores && !someVariants ? 'hide-live-scores' : ''}" id="color-points-${i}-counter-border-${player.id}">
                     <div id="color-points-${i}-counter-wrapper-${player.id}" class="color-points-counter">
                         <span class="${!showScores ? 'hide-live-scores' : ''}">
