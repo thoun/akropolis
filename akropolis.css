@@ -158,6 +158,7 @@
   justify-content: center;
   align-items: stretch;
   gap: 10px;
+  margin: 15px;
   text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
   text-align: center;
 }
@@ -280,20 +281,36 @@
 }
 
 .player-table {
-  /*.flag {
-      position: absolute;
-      left: 0;
-      top: 0;
-      transform: rotateX(90deg) translateY(30px);
-      width: 5px;
-      height: 100px;
-      background: var(--flag-color);
-  }*/
+  margin: 5px;
 }
-.player-table .name {
+.player-table .name-wrapper {
+  background: rgba(225, 123, 35, 0.5333333333);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.player-table .name-wrapper .name {
   font-weight: bold;
+  font-size: 16pt;
+  padding: 5px 0;
+}
+.player-table .name-wrapper .pattern {
+  background: url("img/title-pattern.svg");
+  background-repeat: repeat-x;
+  height: 12px;
+  flex: 1;
+}
+.player-table .name-wrapper .pattern.left {
+  background-position: right center;
+}
+.player-table .name-wrapper .pattern.right {
+  background-position: left center;
+}
+.player-table .solo-text {
+  background: rgba(255, 255, 255, 0.5333333333);
 }
 .player-table .frame {
+  margin-top: 5px;
   position: relative;
   height: 600px;
   overflow: hidden;

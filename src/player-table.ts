@@ -28,8 +28,10 @@ class PlayerTable {
         let html = `
         <div id="player-table-${this.playerId}" class="player-table">
             <div class="name-wrapper" style="color: #${player.color};">
+                <div class="pattern left"></div>
                 <span class="name">${this.playerId == 0 ? _(player.name) : player.name}</span>
                 ${this.playerId == 0 ? `<span class="difficulty">(${this.getSoloDifficulty(player.lvl + 1)})</span>` : ''}
+                <div class="pattern right"></div>
             </div>
             <div id="player-table-${this.playerId}-frame" class="frame">
                 <button type="button" id="reset-view-${this.playerId}" class="bgabutton bgabutton_gray reset-view-button">${_('Reset view')}</button>

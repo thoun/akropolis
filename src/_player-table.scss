@@ -2,21 +2,42 @@ $x0: 400px;
 $y0: 300px;
 
 .player-table {
-    /*.flag {
-        position: absolute;
-        left: 0;
-        top: 0;
-        transform: rotateX(90deg) translateY(30px);
-        width: 5px;
-        height: 100px;
-        background: var(--flag-color);
-    }*/
+    margin: 5px;
 
-    .name {
-        font-weight: bold;
+    .name-wrapper {
+        background: #e17b2388;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .name {
+            font-weight: bold;
+            font-size: 16pt;
+            padding: 5px 0;
+        }
+    
+        .pattern {
+            background: url('img/title-pattern.svg');
+            background-repeat: repeat-x;
+            height: 12px;
+            flex: 1;
+
+            &.left {
+                background-position: right center;
+            }
+
+            &.right {
+                background-position: left center;
+            }
+        }
+    }
+
+    .solo-text {
+        background: #FFFFFF88;
     }
 
     .frame {
+        margin-top: 5px;
         position: relative;
         height: #{$y0 * 2};
         overflow: hidden;
