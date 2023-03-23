@@ -17,7 +17,7 @@ trait EndOfGameTrait
       Notifications::updateScores($player, $scores);
 
       if (!Globals::isSolo()) {
-        $player->setScore($scores);
+        $player->setScore($score);
       }
     }
 
