@@ -8,35 +8,16 @@ use AKR\Helpers\Utils;
 
 trait EndOfGameTrait
 {
-  public function computeScore($scores)
-  {
-    $map = [
-      BARRACK => \BARRACK_PLAZA,
-      MARKET => \MARKET_PLAZA,
-      TEMPLE => \TEMPLE_PLAZA,
-      HOUSE => \HOUSE_PLAZA,
-      GARDEN => \GARDEN_PLAZA,
-      QUARRY => QUARRY,
-    ];
-
-    $score = 0;
-    foreach ($scores['districts'] as $type => $size) {
-      $score += $size * $scores['stars'][$map[$type]];
-    }
-
-    return $score;
-  }
-
   public function stPreEndOfGame()
   {
     Globals::setLiveScoring(true);
     foreach (Players::getAll() as $player) {
       $scores = $player->board()->getScores();
-      $score = $this->computeScore($scores);
+      $score = $scores['score'];
       Notifications::updateScores($player, $scores);
 
       if (!Globals::isSolo()) {
-        $player->setScore($score);
+        $player->setScore($scores);
       }
     }
 

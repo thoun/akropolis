@@ -44,10 +44,12 @@ class Board
 
   public function getScores()
   {
-    return [
+    $scores = [
       'districts' => $this->getDistrictSizes(),
       'stars' => $this->getPlazaStars(),
     ];
+    $scores['score'] = $this->computeScore($scores);
+    return $scores;
   }
 
   public function refresh()
@@ -284,6 +286,27 @@ class Board
   //  ___) | (_| (_) | | |  __/
   // |____/ \___\___/|_|  \___|
   //////////////////////////////////
+  public function computeScore($scores)
+  {
+    $map = [
+      BARRACK => \BARRACK_PLAZA,
+      MARKET => \MARKET_PLAZA,
+      TEMPLE => \TEMPLE_PLAZA,
+      HOUSE => \HOUSE_PLAZA,
+      GARDEN => \GARDEN_PLAZA,
+      QUARRY => QUARRY,
+    ];
+
+    $score = 0;
+    foreach ($scores['districts'] as $type => $size) {
+      $score += $size * $scores['stars'][$map[$type]];
+    }
+
+    $score += $this->player->getMoney();
+
+    return $score;
+  }
+
   public function getPlazaStars()
   {
     $plazas = [];
