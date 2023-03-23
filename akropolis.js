@@ -678,7 +678,6 @@ var TYPES_REVERSE = {
     temple: 4,
     garden: 5,
 };
-// Greek font used in rules : DalekPinpointBold. Free only for personal use
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
         this.rotation = 0;
@@ -851,46 +850,45 @@ var Akropolis = /** @class */ (function () {
             _this.stonesCounters[playerId] = stonesCounter;
             var someVariants = gamedatas.activatedVariants.length > 0;
             var showScores = Boolean(player.board.scores);
-            if (showScores || someVariants) {
-                _this.hexesCounters[playerId] = [];
-                _this.starsCounters[playerId] = [];
-                _this.colorPointsCounters[playerId] = [];
-                var _loop_1 = function (i) {
-                    var html = showScores ? "<div class=\"counters\" id=\"color-points-".concat(i, "-counter-border-").concat(player.id, "\">\n                        <div id=\"color-points-").concat(i, "-counter-wrapper-").concat(player.id, "\" class=\"color-points-counter\">\n                            <div class=\"score-icon star\" data-type=\"").concat(i, "\"></div> \n                            <span id=\"stars-").concat(i, "-counter-").concat(player.id, "\"></span>\n                            <span class=\"multiplier\">\u00D7</span>\n                            <div class=\"score-icon\" data-type=\"").concat(i, "\"></div> \n                            <span id=\"hexes-").concat(i, "-counter-").concat(player.id, "\"></span>\n                            <span class=\"multiplier\">=</span>\n                            <span id=\"color-points-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        </div>\n                    </div>") :
-                        "<div class=\"counters\" id=\"color-points-".concat(i, "-counter-border-").concat(player.id, "\">\n                            <div id=\"color-points-").concat(i, "-counter-wrapper-").concat(player.id, "\" class=\"color-points-counter\">\n                                <div class=\"score-icon\" data-type=\"").concat(i, "\"></div> \n                            </div>\n                        </div>");
-                    dojo.place(html, "player_board_".concat(player.id));
-                    if (showScores) {
-                        var starKey = Object.keys(player.board.scores.stars).find(function (key) { return key.startsWith(TYPES[i]); });
-                        var starCounter = new ebg.counter();
-                        starCounter.create("stars-".concat(i, "-counter-").concat(playerId));
-                        starCounter.setValue(player.board.scores.stars[starKey]);
-                        _this.starsCounters[playerId][i] = starCounter;
-                        var hexKey = Object.keys(player.board.scores.districts).find(function (key) { return key.startsWith(TYPES[i]); });
-                        var hexCounter = new ebg.counter();
-                        hexCounter.create("hexes-".concat(i, "-counter-").concat(playerId));
-                        hexCounter.setValue(player.board.scores.districts[hexKey]);
-                        _this.hexesCounters[playerId][i] = hexCounter;
-                        var colorPointsCounter = new ebg.counter();
-                        colorPointsCounter.create("color-points-".concat(i, "-counter-").concat(playerId));
-                        colorPointsCounter.setValue(starCounter.getValue() * hexCounter.getValue());
-                        _this.colorPointsCounters[playerId][i] = colorPointsCounter;
-                    }
-                    var activated = gamedatas.activatedVariants.some(function (variant) { return variant.startsWith(TYPES[i]); });
-                    if (someVariants) {
-                        document.getElementById("color-points-".concat(i, "-counter-border-").concat(player.id)).style.setProperty('--border-color', activated ? 'darkgreen' : 'darkred');
-                    }
-                    var tooltip = "".concat(_('Score for this color (number of valid districts multiplied by matching stars)'), "\n                    <br><br>\n                    <strong>").concat(_this.tilesManager.getTypeTitle(TYPES[i]), "</strong>");
-                    if (someVariants) {
-                        tooltip += "<br><br>\n                        <strong>".concat(_('Variant'), "</strong><br>\n                        ").concat(_('Activated:'), " <strong style=\"color: ").concat(activated ? _('darkgreen') : _('darkred'), ";\">").concat(activated ? _('Yes') : _('No'), "</strong><br>\n                        ").concat(_(_this.tilesManager.getVariantTooltip(TYPES[i])));
-                    }
-                    _this.setTooltip("color-points-".concat(i, "-counter-border-").concat(player.id), tooltip);
-                };
-                for (var i = 1; i <= 5; i++) {
-                    _loop_1(i);
+            _this.hexesCounters[playerId] = [];
+            _this.starsCounters[playerId] = [];
+            _this.colorPointsCounters[playerId] = [];
+            var _loop_1 = function (i) {
+                var html = "<div class=\"counters ".concat(!showScores && !someVariants ? 'hide-live-scores' : '', "\" id=\"color-points-").concat(i, "-counter-border-").concat(player.id, "\">\n                    <div id=\"color-points-").concat(i, "-counter-wrapper-").concat(player.id, "\" class=\"color-points-counter\">\n                        <span class=\"").concat(!showScores ? 'hide-live-scores' : '', "\">\n                        <div class=\"score-icon star\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"stars-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">\u00D7</span>\n                        </span>\n                        <div class=\"score-icon\" data-type=\"").concat(i, "\"></div> \n                        <span class=\"").concat(!showScores ? 'hide-live-scores' : '', "\">\n                        <span id=\"hexes-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">=</span>\n                        <span id=\"color-points-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        </span>\n                    </div>\n                </div>");
+                dojo.place(html, "player_board_".concat(player.id));
+                var starKey = showScores ? Object.keys(player.board.scores.stars).find(function (key) { return key.startsWith(TYPES[i]); }) : null;
+                var starCounter = new ebg.counter();
+                starCounter.create("stars-".concat(i, "-counter-").concat(playerId));
+                starCounter.setValue(showScores ? player.board.scores.stars[starKey] : 0);
+                _this.starsCounters[playerId][i] = starCounter;
+                var hexKey = showScores ? Object.keys(player.board.scores.districts).find(function (key) { return key.startsWith(TYPES[i]); }) : null;
+                var hexCounter = new ebg.counter();
+                hexCounter.create("hexes-".concat(i, "-counter-").concat(playerId));
+                hexCounter.setValue(showScores ? player.board.scores.districts[hexKey] : 0);
+                _this.hexesCounters[playerId][i] = hexCounter;
+                var colorPointsCounter = new ebg.counter();
+                colorPointsCounter.create("color-points-".concat(i, "-counter-").concat(playerId));
+                colorPointsCounter.setValue(starCounter.getValue() * hexCounter.getValue());
+                _this.colorPointsCounters[playerId][i] = colorPointsCounter;
+                if (showScores) {
+                    setTimeout(function () { return _this.setPlayerScore(playerId, player.board.scores.score); }, 100);
                 }
+                var activated = gamedatas.activatedVariants.some(function (variant) { return variant.startsWith(TYPES[i]); });
+                if (someVariants) {
+                    document.getElementById("color-points-".concat(i, "-counter-border-").concat(player.id)).style.setProperty('--border-color', activated ? 'darkgreen' : 'darkred');
+                }
+                var tooltip = "".concat(_('Score for this color (number of valid districts multiplied by matching stars)'), "\n                <br><br>\n                <strong>").concat(_this.tilesManager.getTypeTitle(TYPES[i]), "</strong>");
+                if (someVariants) {
+                    tooltip += "<br><br>\n                    <strong>".concat(_('Variant'), "</strong><br>\n                    ").concat(_('Activated:'), " <strong style=\"color: ").concat(activated ? _('darkgreen') : _('darkred'), ";\">").concat(activated ? _('Yes') : _('No'), "</strong><br>\n                    ").concat(_(_this.tilesManager.getVariantTooltip(TYPES[i])));
+                }
+                _this.setTooltip("color-points-".concat(i, "-counter-border-").concat(player.id), tooltip);
+            };
+            for (var i = 1; i <= 5; i++) {
+                _loop_1(i);
             }
         });
         this.setTooltipToClass('stones-counter', _('Number of stones'));
+        this.setTooltipToClass("player_score_value", _('The sum of the score for each color, plus 1 point for each stone'));
     };
     Akropolis.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
@@ -907,22 +905,41 @@ var Akropolis = /** @class */ (function () {
         var table = new PlayerTable(this, gamedatas.players[playerId]);
         this.playersTables.push(table);
     };
-    Akropolis.prototype.addHelp = function () {
-        var _this = this;
-        dojo.place("\n            <button id=\"akropolis-help-button\">?</button>\n        ", 'left-side');
-        document.getElementById('akropolis-help-button').addEventListener('click', function () { return _this.showHelp(); });
+    Akropolis.prototype.setPlayerScore = function (playerId, score) {
+        if (this.scoreCtrl[playerId]) {
+            this.scoreCtrl[playerId].toValue(score);
+        }
+        else {
+            document.getElementById("player_score_".concat(playerId)).innerHTML = '' + score;
+        }
     };
-    Akropolis.prototype.showHelp = function () {
-        var helpDialog = new ebg.popindialog();
+    /*private addHelp() {
+        dojo.place(`
+            <button id="akropolis-help-button">?</button>
+        `, 'left-side');
+        document.getElementById('akropolis-help-button').addEventListener('click', () => this.showHelp());
+    }
+
+    private showHelp() {
+        const helpDialog = new ebg.popindialog();
         helpDialog.create('akropolisHelpDialog');
-        helpDialog.setTitle(_("Card details").toUpperCase());
-        var html = "\n        <div id=\"help-popin\">\n            TODO\n        </div>\n        ";
+        helpDialog.setTitle(_*("Card details").toUpperCase());
+
+        
+        let html = `
+        <div id="help-popin">
+            TODO
+        </div>
+        `;
+        
         // Show the dialog
         helpDialog.setContent(html);
+
         helpDialog.show();
-    };
+    }*/
     Akropolis.prototype.updateScores = function (playerId, scores) {
         var _this = this;
+        Array.from(document.querySelectorAll('.hide-live-scores')).forEach(function (element) { return element.classList.remove('hide-live-scores'); });
         Object.keys(TYPES_REVERSE).forEach(function (type) {
             var i = TYPES_REVERSE[type];
             var starKey = Object.keys(scores.stars).find(function (key) { return key.startsWith(type); });
@@ -931,6 +948,7 @@ var Akropolis = /** @class */ (function () {
             _this.hexesCounters[playerId][i].toValue(scores.districts[hexKey]);
             _this.colorPointsCounters[playerId][i].toValue(_this.starsCounters[playerId][i].getValue() * _this.hexesCounters[playerId][i].getValue());
         });
+        this.setPlayerScore(playerId, scores.score);
     };
     Akropolis.prototype.constructionSiteHexClicked = function (tile, hexIndex, hex) {
         if (hex.classList.contains('selected')) {
@@ -942,7 +960,6 @@ var Akropolis = /** @class */ (function () {
         this.constructionSite.setSelectedHex(tile.id, hex);
         if (this.selectedPosition) {
             var option = this.getSelectedPositionOption();
-            console.log(option);
             if (!option.r.includes(this.rotation)) {
                 this.setRotation(this.findClosestRotation(option.r));
             }

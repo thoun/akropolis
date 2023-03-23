@@ -21,7 +21,6 @@ const TYPES_REVERSE = {
     garden: 5,
 };
 
-// Greek font used in rules : DalekPinpointBold. Free only for personal use
 class Akropolis implements AkropolisGame {
     public tilesManager: TilesManager;
     public viewManager: ViewManager;
@@ -264,71 +263,72 @@ class Akropolis implements AkropolisGame {
 
             const someVariants = gamedatas.activatedVariants.length > 0;
             const showScores = Boolean(player.board.scores);
-            if (showScores || someVariants) {
-                this.hexesCounters[playerId] = [];
-                this.starsCounters[playerId] = [];
-                this.colorPointsCounters[playerId] = [];
-                for (let i = 1; i <= 5; i++) {
-                    let html = showScores ? `<div class="counters" id="color-points-${i}-counter-border-${player.id}">
-                        <div id="color-points-${i}-counter-wrapper-${player.id}" class="color-points-counter">
-                            <div class="score-icon star" data-type="${i}"></div> 
-                            <span id="stars-${i}-counter-${player.id}"></span>
-                            <span class="multiplier">×</span>
-                            <div class="score-icon" data-type="${i}"></div> 
-                            <span id="hexes-${i}-counter-${player.id}"></span>
-                            <span class="multiplier">=</span>
-                            <span id="color-points-${i}-counter-${player.id}"></span>
-                        </div>
-                    </div>` :
-                    `<div class="counters" id="color-points-${i}-counter-border-${player.id}">
-                            <div id="color-points-${i}-counter-wrapper-${player.id}" class="color-points-counter">
-                                <div class="score-icon" data-type="${i}"></div> 
-                            </div>
-                        </div>`;
+            this.hexesCounters[playerId] = [];
+            this.starsCounters[playerId] = [];
+            this.colorPointsCounters[playerId] = [];
+            for (let i = 1; i <= 5; i++) {
+                let html = `<div class="counters ${!showScores && !someVariants ? 'hide-live-scores' : ''}" id="color-points-${i}-counter-border-${player.id}">
+                    <div id="color-points-${i}-counter-wrapper-${player.id}" class="color-points-counter">
+                        <span class="${!showScores ? 'hide-live-scores' : ''}">
+                        <div class="score-icon star" data-type="${i}"></div> 
+                        <span id="stars-${i}-counter-${player.id}"></span>
+                        <span class="multiplier">×</span>
+                        </span>
+                        <div class="score-icon" data-type="${i}"></div> 
+                        <span class="${!showScores ? 'hide-live-scores' : ''}">
+                        <span id="hexes-${i}-counter-${player.id}"></span>
+                        <span class="multiplier">=</span>
+                        <span id="color-points-${i}-counter-${player.id}"></span>
+                        </span>
+                    </div>
+                </div>`;
 
-                    dojo.place(html, `player_board_${player.id}`);
-        
-                    if (showScores) {
-                        const starKey = Object.keys(player.board.scores.stars).find(key => key.startsWith(TYPES[i]));
-                        const starCounter: Counter = new ebg.counter();
-                        starCounter.create(`stars-${i}-counter-${playerId}`);
-                        starCounter.setValue(player.board.scores.stars[starKey]);
-                        this.starsCounters[playerId][i] = starCounter;
-            
-                        const hexKey = Object.keys(player.board.scores.districts).find(key => key.startsWith(TYPES[i]));
-                        const hexCounter: Counter = new ebg.counter();
-                        hexCounter.create(`hexes-${i}-counter-${playerId}`);
-                        hexCounter.setValue(player.board.scores.districts[hexKey]);
-                        this.hexesCounters[playerId][i] = hexCounter;
-            
-                        const colorPointsCounter: Counter = new ebg.counter();
-                        colorPointsCounter.create(`color-points-${i}-counter-${playerId}`);
-                        colorPointsCounter.setValue(starCounter.getValue() * hexCounter.getValue());
-                        this.colorPointsCounters[playerId][i] = colorPointsCounter;
-                    }
+                dojo.place(html, `player_board_${player.id}`);
+    
+                const starKey = showScores ? Object.keys(player.board.scores.stars).find(key => key.startsWith(TYPES[i])) : null;
+                const starCounter: Counter = new ebg.counter();
+                starCounter.create(`stars-${i}-counter-${playerId}`);
+                starCounter.setValue(showScores ? player.board.scores.stars[starKey] : 0);
+                this.starsCounters[playerId][i] = starCounter;
+    
+                const hexKey = showScores ? Object.keys(player.board.scores.districts).find(key => key.startsWith(TYPES[i])) : null;
+                const hexCounter: Counter = new ebg.counter();
+                hexCounter.create(`hexes-${i}-counter-${playerId}`);
+                hexCounter.setValue(showScores ? player.board.scores.districts[hexKey] : 0);
+                this.hexesCounters[playerId][i] = hexCounter;
+    
+                const colorPointsCounter: Counter = new ebg.counter();
+                colorPointsCounter.create(`color-points-${i}-counter-${playerId}`);
+                colorPointsCounter.setValue(starCounter.getValue() * hexCounter.getValue());
+                this.colorPointsCounters[playerId][i] = colorPointsCounter;
 
-                    const activated = gamedatas.activatedVariants.some(variant => variant.startsWith(TYPES[i]));
-                    if (someVariants) {
-                        document.getElementById(`color-points-${i}-counter-border-${player.id}`).style.setProperty('--border-color', activated ? 'darkgreen' : 'darkred');
-                    }
-
-                    let tooltip = `${_('Score for this color (number of valid districts multiplied by matching stars)')}
-                    <br><br>
-                    <strong>${this.tilesManager.getTypeTitle(TYPES[i])}</strong>`;
-
-                    if (someVariants) {
-                        tooltip += `<br><br>
-                        <strong>${_('Variant')}</strong><br>
-                        ${_('Activated:')} <strong style="color: ${activated ? _('darkgreen') : _('darkred')};">${activated ? _('Yes') : _('No')}</strong><br>
-                        ${_(this.tilesManager.getVariantTooltip(TYPES[i]))}`;
-                    }
-
-                    this.setTooltip(`color-points-${i}-counter-border-${player.id}`, tooltip);
+                if (showScores) {
+                    setTimeout(() => this.setPlayerScore(playerId, player.board.scores.score), 100);
                 }
+
+                const activated = gamedatas.activatedVariants.some(variant => variant.startsWith(TYPES[i]));
+                if (someVariants) {
+                    document.getElementById(`color-points-${i}-counter-border-${player.id}`).style.setProperty('--border-color', activated ? 'darkgreen' : 'darkred');
+                }
+
+                let tooltip = `${_('Score for this color (number of valid districts multiplied by matching stars)')}
+                <br><br>
+                <strong>${this.tilesManager.getTypeTitle(TYPES[i])}</strong>`;
+
+                if (someVariants) {
+                    tooltip += `<br><br>
+                    <strong>${_('Variant')}</strong><br>
+                    ${_('Activated:')} <strong style="color: ${activated ? _('darkgreen') : _('darkred')};">${activated ? _('Yes') : _('No')}</strong><br>
+                    ${_(this.tilesManager.getVariantTooltip(TYPES[i]))}`;
+                }
+
+                this.setTooltip(`color-points-${i}-counter-border-${player.id}`, tooltip);
+                
             }
         });
 
-        this.setTooltipToClass('stones-counter', _('Number of stones'));        
+        this.setTooltipToClass('stones-counter', _('Number of stones'));   
+        this.setTooltipToClass(`player_score_value`, _('The sum of the score for each color, plus 1 point for each stone'));     
     }
 
     private createPlayerTables(gamedatas: AkropolisGamedatas) {
@@ -348,8 +348,16 @@ class Akropolis implements AkropolisGame {
         const table = new PlayerTable(this, gamedatas.players[playerId]);
         this.playersTables.push(table);
     }
+    
+    private setPlayerScore(playerId: number, score: number) {
+        if ((this as any).scoreCtrl[playerId]) {
+            (this as any).scoreCtrl[playerId].toValue(score);
+        } else {
+            document.getElementById(`player_score_${playerId}`).innerHTML = ''+score;
+        }
+    }
 
-    private addHelp() {
+    /*private addHelp() {
         dojo.place(`
             <button id="akropolis-help-button">?</button>
         `, 'left-side');
@@ -359,7 +367,7 @@ class Akropolis implements AkropolisGame {
     private showHelp() {
         const helpDialog = new ebg.popindialog();
         helpDialog.create('akropolisHelpDialog');
-        helpDialog.setTitle(_("Card details").toUpperCase());
+        helpDialog.setTitle(_*("Card details").toUpperCase());
 
         
         let html = `
@@ -372,9 +380,11 @@ class Akropolis implements AkropolisGame {
         helpDialog.setContent(html);
 
         helpDialog.show();
-    }
+    }*/
     
     private updateScores(playerId: number, scores: Scores) {
+        Array.from(document.querySelectorAll('.hide-live-scores')).forEach(element => element.classList.remove('hide-live-scores'));
+
         Object.keys(TYPES_REVERSE).forEach(type => {
             const i = TYPES_REVERSE[type];
             const starKey = Object.keys(scores.stars).find(key => key.startsWith(type));
@@ -382,7 +392,8 @@ class Akropolis implements AkropolisGame {
             this.starsCounters[playerId][i].toValue(scores.stars[starKey]);
             this.hexesCounters[playerId][i].toValue(scores.districts[hexKey]);
             this.colorPointsCounters[playerId][i].toValue(this.starsCounters[playerId][i].getValue() * this.hexesCounters[playerId][i].getValue());
-        })
+        });
+        this.setPlayerScore(playerId, scores.score);
     }
     
     public constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement): void {
@@ -397,7 +408,6 @@ class Akropolis implements AkropolisGame {
 
         if (this.selectedPosition) {
             const option = this.getSelectedPositionOption();
-            console.log(option);
             if (!option.r.includes(this.rotation)) {
                 this.setRotation(this.findClosestRotation(option.r));
             }

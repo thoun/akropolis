@@ -17,6 +17,7 @@ interface Tile {
 interface Scores {
     districts: { [type: string]: number };
     stars: { [type: string]: number };
+    score: number;
 }
 
 interface PlayerBoard {
