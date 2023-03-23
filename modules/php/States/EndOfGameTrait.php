@@ -46,5 +46,7 @@ trait EndOfGameTrait
       $scoreArchitect = $this->computeScore($architect->board()->getScores());
       $player->setScore($scoreArchitect < $score ? 1 : 0);
     }
+
+    $this->gamestate->nextState('');
   }
 }
