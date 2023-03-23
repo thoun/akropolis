@@ -84,6 +84,6 @@
     .hex {
         position: absolute;
         left: calc($hexSide * (0.5 + var(--x) * 1.5));
-        top: calc($hexHeight * var(--y) / 2);
+        top: calc(($hexHeight * var(--y) / 2) + 16px);
     }
 }

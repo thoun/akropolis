@@ -223,7 +223,7 @@
 #market .hex {
   position: absolute;
   left: calc(48.5px * (0.5 + var(--x) * 1.5));
-  top: calc(84px * var(--y) / 2);
+  top: calc(84px * var(--y) / 2 + 16px);
 }
 
 .player-board .counters {
