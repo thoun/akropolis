@@ -25,7 +25,7 @@ class Architect extends Player
     $this->id = 0;
     $this->no = 2;
     $this->money = $infos['money'];
-    $this->lvl = $infos['lvl'];
+    $this->lvl = (int) $infos['lvl'];
 
     $lvlNames = [
       0 => clienttranslate('Hippodamos'),
