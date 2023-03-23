@@ -115,7 +115,9 @@ trait TurnTrait
       $this->activeNextPlayer();
     }
 
-    self::giveExtraTime($nextPId);
+    if ($nextPId != 0) {
+      self::giveExtraTime($nextPId);
+    }
     $this->gamestate->nextState(Globals::isEndOfGame() ? 'end' : 'placeTile');
   }
 
