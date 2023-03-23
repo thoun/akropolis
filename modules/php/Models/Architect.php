@@ -40,6 +40,13 @@ class Architect extends Player
     $this->zombie = false;
   }
 
+  public function getUiData($currentPlayerId = null)
+  {
+    $data = parent::getUiData();
+    $data['lvl'] = $this->getLvl();
+    return $data;
+  }
+
   public function incMoney($money)
   {
     $this->money += $money;
