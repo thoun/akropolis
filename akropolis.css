@@ -43,6 +43,12 @@
 */
 /* Note: you must not use any @import directive */
 /********* You can start writing your CSS below this line: **********/
+@font-face {
+  font-family: "xtraregular";
+  src: url("img/xtra-webfont.woff2") format("woff2"), url("img/xtra-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
 .tile {
   position: absolute;
   width: 194px;
@@ -293,6 +299,7 @@
   font-weight: bold;
   font-size: 16pt;
   padding: 5px 0;
+  font-family: "xtraregular";
 }
 .player-table .name-wrapper .pattern {
   background: url("img/title-pattern.svg");
