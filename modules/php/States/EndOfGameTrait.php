@@ -25,8 +25,16 @@ trait EndOfGameTrait
     // IF solo : score of 1 if bigger than architect, otherwise 0
     if (Globals::isSolo()) {
       $architect = Players::getArchitect();
-      $scoreArchitect = $this->computeScore($architect->board()->getScores());
-      $player->setScore($scoreArchitect < $score ? 1 : 0);
+      $scoreArchitect = $architect->board()->getScores()['score'];
+
+      if ($scoreArchitect < $score) {
+        $win = true;
+      } elseif ($scoreArchitect == $score) {
+        $win = $player->getMoney() > $architect->getMoney();
+      } else {
+        $win = false;
+      }
+      $player->setScore($win ? 1 : 0);
     }
 
     $this->gamestate->nextState('');
