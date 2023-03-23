@@ -62,7 +62,7 @@ $gameinfos = [
   // the formula used to compute "player_score_aux". This description will be used as a tooltip to explain
   // the tie breaker to the players.
   // Note: if you are NOT using any tie breaker, leave the empty string.
-  'tie_breaker_description' => totranslate('The player with the most stones'),
+  'tie_breaker_description' => totranslate('Number of stones'),
 
   // If in the game, all losers are equal (no score to rank them or explicit in the rules that losers are not ranked between them), set this to true
   // The game end result will display "Winner" for the 1st player and "Loser" for all other players

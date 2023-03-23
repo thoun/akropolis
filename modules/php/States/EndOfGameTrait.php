@@ -19,6 +19,7 @@ trait EndOfGameTrait
       if (!Globals::isSolo()) {
         $player->setScore($score);
       }
+      $player->setScoreAux($player->getMoney());
     }
 
     // IF solo : score of 1 if bigger than architect, otherwise 0
