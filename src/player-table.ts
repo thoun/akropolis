@@ -27,8 +27,9 @@ class PlayerTable {
 
         let html = `
         <div id="player-table-${this.playerId}" class="player-table">
-            <div class="name" style="color: #${player.color};">
-                ${this.playerId == 0 ? this.getSoloName(player.soloLevel) : player.name}
+            <div class="name-wrapper" style="color: #${player.color};">
+                <span class="name">${this.playerId == 0 ? _(player.name) : player.name}</span>
+                ${this.playerId == 0 ? `<span class="difficulty">(${this.getSoloDifficulty(player.lvl + 1)})</span>` : ''}
             </div>
             <div id="player-table-${this.playerId}-frame" class="frame">
                 <button type="button" id="reset-view-${this.playerId}" class="bgabutton bgabutton_gray reset-view-button">${_('Reset view')}</button>
@@ -42,9 +43,9 @@ class PlayerTable {
         </div>
         `;
         document.getElementById('tables').insertAdjacentHTML('beforeend', html);
-        if (player.soloLevel) {
+        if (this.playerId == 0) {
             document.getElementById(`player-table-${this.playerId}-frame`).insertAdjacentHTML('beforebegin', `
-            <div class="solo-text">${this.getSoloText(player.soloLevel)}</div>
+            <div class="solo-text">${this.getSoloText(player.lvl + 1)}</div>
             `);
         }
         this.city = document.getElementById(`player-table-${this.playerId}-city`) as HTMLDivElement;
@@ -144,11 +145,11 @@ class PlayerTable {
         return hex;
     }
 
-    private getSoloName(level: number) {
+    private getSoloDifficulty(level: number) {
         switch (level) {
-            case 1: return _('Hippodamos (Easy level)');
-            case 2: return _('Metagenes (Medium level)');
-            case 3: return _('Callicrates (Hard level)');
+            case 1: return _('Easy level');
+            case 2: return _('Medium level');
+            case 3: return _('Hard level');
         }
     }
 

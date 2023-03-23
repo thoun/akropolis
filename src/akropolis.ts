@@ -71,12 +71,6 @@ class Akropolis implements AkropolisGame {
 
         log('gamedatas', gamedatas);
 
-        // TODO TEMP
-        /*gamedatas.soloPlayer = structuredClone(gamedatas.players[2343493]);
-        gamedatas.soloPlayer.id = '0';
-        gamedatas.soloPlayer.soloLevel = 1;
-        gamedatas.soloPlayer.color = '000000';*/
-
         this.animationManager = new AnimationManager(this);
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
@@ -228,11 +222,11 @@ class Akropolis implements AkropolisGame {
                 <div class="player_board_inner" id="player_board_inner_982fff">
                     
                     <div class="emblemwrap" id="avatar_active_wrap_0">
-                        <div src="img/gear.png" alt="" class="avatar avatar_active" id="avatar_active_0"></div>
+                        <img src="${g_gamethemeurl}img/gear.png" alt="" class="avatar avatar_active" id="avatar_active_0" />
                     </div>
                                                
                     <div class="player-name" id="player_name_0">
-                        ${soloPlayer.name}
+                        ${_(soloPlayer.name)}
                     </div>
                     <div id="player_board_0" class="player_board_content">
                         <div class="player_score">

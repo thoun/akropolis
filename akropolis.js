@@ -555,10 +555,10 @@ var PlayerTable = /** @class */ (function () {
         this.minY = -2;
         this.maxY = 1;
         this.playerId = Number(player.id);
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div class=\"name\" style=\"color: #").concat(player.color, ";\">\n                ").concat(this.playerId == 0 ? this.getSoloName(player.soloLevel) : player.name, "\n            </div>\n            <div id=\"player-table-").concat(this.playerId, "-frame\" class=\"frame\">\n                <button type=\"button\" id=\"reset-view-").concat(this.playerId, "\" class=\"bgabutton bgabutton_gray reset-view-button\">").concat(_('Reset view'), "</button>\n                <div id=\"player-table-").concat(this.playerId, "-city\" class=\"city\">\n                    <!--<div class=\"flag\" style=\"--flag-color: red; top: 50%; left: 50%;\"></div>-->\n                    <div id=\"player-table-").concat(this.playerId, "-grid\" class=\"grid\">\n                        <!--<div class=\"flag\" style=\"--flag-color: blue;\"></div>-->\n                    </div>\n                </div>\n            </div>\n        </div>\n        ");
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div class=\"name-wrapper\" style=\"color: #").concat(player.color, ";\">\n                <span class=\"name\">").concat(this.playerId == 0 ? _(player.name) : player.name, "</span>\n                ").concat(this.playerId == 0 ? "<span class=\"difficulty\">(".concat(this.getSoloDifficulty(player.lvl + 1), ")</span>") : '', "\n            </div>\n            <div id=\"player-table-").concat(this.playerId, "-frame\" class=\"frame\">\n                <button type=\"button\" id=\"reset-view-").concat(this.playerId, "\" class=\"bgabutton bgabutton_gray reset-view-button\">").concat(_('Reset view'), "</button>\n                <div id=\"player-table-").concat(this.playerId, "-city\" class=\"city\">\n                    <!--<div class=\"flag\" style=\"--flag-color: red; top: 50%; left: 50%;\"></div>-->\n                    <div id=\"player-table-").concat(this.playerId, "-grid\" class=\"grid\">\n                        <!--<div class=\"flag\" style=\"--flag-color: blue;\"></div>-->\n                    </div>\n                </div>\n            </div>\n        </div>\n        ");
         document.getElementById('tables').insertAdjacentHTML('beforeend', html);
-        if (player.soloLevel) {
-            document.getElementById("player-table-".concat(this.playerId, "-frame")).insertAdjacentHTML('beforebegin', "\n            <div class=\"solo-text\">".concat(this.getSoloText(player.soloLevel), "</div>\n            "));
+        if (this.playerId == 0) {
+            document.getElementById("player-table-".concat(this.playerId, "-frame")).insertAdjacentHTML('beforebegin', "\n            <div class=\"solo-text\">".concat(this.getSoloText(player.lvl + 1), "</div>\n            "));
         }
         this.city = document.getElementById("player-table-".concat(this.playerId, "-city"));
         this.grid = document.getElementById("player-table-".concat(this.playerId, "-grid"));
@@ -648,11 +648,11 @@ var PlayerTable = /** @class */ (function () {
         this.grid.appendChild(hex);
         return hex;
     };
-    PlayerTable.prototype.getSoloName = function (level) {
+    PlayerTable.prototype.getSoloDifficulty = function (level) {
         switch (level) {
-            case 1: return _('Hippodamos (Easy level)');
-            case 2: return _('Metagenes (Medium level)');
-            case 3: return _('Callicrates (Hard level)');
+            case 1: return _('Easy level');
+            case 2: return _('Medium level');
+            case 3: return _('Hard level');
         }
     };
     PlayerTable.prototype.getSoloText = function (level) {
@@ -708,11 +708,6 @@ var Akropolis = /** @class */ (function () {
         var reminderHtml = "<div id=\"controls-reminder\">\n        <img src=\"".concat(g_gamethemeurl, "img/mouse-right.svg\"></img>\n        ").concat(_('Adjust camera with below controls or right-drag and scroll wheel'), "\n        </div>");
         dojo.place(reminderHtml, 'controls3d_wrap', 'first');
         log('gamedatas', gamedatas);
-        // TODO TEMP
-        /*gamedatas.soloPlayer = structuredClone(gamedatas.players[2343493]);
-        gamedatas.soloPlayer.id = '0';
-        gamedatas.soloPlayer.soloLevel = 1;
-        gamedatas.soloPlayer.color = '000000';*/
         this.animationManager = new AnimationManager(this);
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
@@ -837,7 +832,7 @@ var Akropolis = /** @class */ (function () {
         var players = Object.values(gamedatas.players);
         var soloPlayer = gamedatas.soloPlayer;
         if (soloPlayer) {
-            dojo.place("\n            <div id=\"overall_player_board_0\" class=\"player-board current-player-board\">\t\t\t\t\t\n                <div class=\"player_board_inner\" id=\"player_board_inner_982fff\">\n                    \n                    <div class=\"emblemwrap\" id=\"avatar_active_wrap_0\">\n                        <div src=\"img/gear.png\" alt=\"\" class=\"avatar avatar_active\" id=\"avatar_active_0\"></div>\n                    </div>\n                                               \n                    <div class=\"player-name\" id=\"player_name_0\">\n                        ".concat(soloPlayer.name, "\n                    </div>\n                    <div id=\"player_board_0\" class=\"player_board_content\">\n                        <div class=\"player_score\">\n                            <span id=\"player_score_0\" class=\"player_score_value\">0</span> <i class=\"fa fa-star\" id=\"icon_point_0\"></i>           \n                        </div>\n                    </div>\n                </div>\n            </div>"), "overall_player_board_".concat(players[0].id), 'after');
+            dojo.place("\n            <div id=\"overall_player_board_0\" class=\"player-board current-player-board\">\t\t\t\t\t\n                <div class=\"player_board_inner\" id=\"player_board_inner_982fff\">\n                    \n                    <div class=\"emblemwrap\" id=\"avatar_active_wrap_0\">\n                        <img src=\"".concat(g_gamethemeurl, "img/gear.png\" alt=\"\" class=\"avatar avatar_active\" id=\"avatar_active_0\" />\n                    </div>\n                                               \n                    <div class=\"player-name\" id=\"player_name_0\">\n                        ").concat(_(soloPlayer.name), "\n                    </div>\n                    <div id=\"player_board_0\" class=\"player_board_content\">\n                        <div class=\"player_score\">\n                            <span id=\"player_score_0\" class=\"player_score_value\">0</span> <i class=\"fa fa-star\" id=\"icon_point_0\"></i>           \n                        </div>\n                    </div>\n                </div>\n            </div>"), "overall_player_board_".concat(players[0].id), 'after');
             var tomScoreCounter = new ebg.counter();
             tomScoreCounter.create("player_score_0");
             tomScoreCounter.setValue(soloPlayer.score);
