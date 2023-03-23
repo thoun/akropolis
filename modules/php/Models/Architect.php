@@ -29,8 +29,8 @@ class Architect extends Player
 
     $lvlNames = [
       0 => clienttranslate('Hippodamos'),
-      1 => clienttranslate('Métagénès'),
-      2 => clienttranslate('Callicratès'),
+      1 => clienttranslate('Metagenes'),
+      2 => clienttranslate('Callicrates'),
     ];
     $this->name = $lvlNames[$infos['lvl']];
     $this->color = '000000';
