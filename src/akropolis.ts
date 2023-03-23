@@ -14,15 +14,6 @@ const TYPES = {
     5: 'garden',
 };
 
-const TYPES_REVERSE = {
-    quarry: 0,
-    house: 1,
-    market: 2,
-    barrack: 3,
-    temple: 4,
-    garden: 5,
-};
-
 class Akropolis implements AkropolisGame {
     public tilesManager: TilesManager;
     public viewManager: ViewManager;
@@ -78,6 +69,8 @@ class Akropolis implements AkropolisGame {
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Object.keys(this.gamedatas.players).length + 1));
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
+
+        document.getElementsByTagName('body')[0].addEventListener('keydown', e => this.onKeyPress(e));
 
         this.setupNotifications();
         this.setupPreferences();
@@ -351,6 +344,54 @@ class Akropolis implements AkropolisGame {
         this.playersTables.push(table);
     }
     
+    private onKeyPress(event: KeyboardEvent): void {
+        if (['TEXTAREA', 'INPUT'].includes((event.target as HTMLElement).nodeName) || !(this as any).isCurrentPlayerActive()) {
+            return;
+        }
+
+        const canRotate = !(this.selectedPosition && this.getSelectedPositionOption().r.length <= 1);
+        const canConfirmCancel = this.selectedPosition;
+
+        switch (event.key) { // event.keyCode
+            case ' ': // 32
+            case 'Space': // 32
+            case 'Tab': // 9
+            case 'Shift': // 16
+            case 'Control': // 17
+            case 'ArrowRight': // 39
+            case 'ArrowDown': // 40
+                if (canRotate) {
+                    this.incRotation();
+                }
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                break;
+            case 'Alt': // 18            
+            case 'ArrowUp': // 38
+            case 'ArrowLeft': // 37
+                if (canRotate) {
+                    this.decRotation();
+                }
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                break;
+            case 'Enter': // 13
+                if (canConfirmCancel) {
+                    this.placeTile();
+                }
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                break;
+            case 'Escape': // 27
+                if (canConfirmCancel) {
+                    this.cancelPlaceTile();
+                }
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                break;
+        }
+    }
+    
     private setPlayerScore(playerId: number, score: number) {
         if ((this as any).scoreCtrl[playerId]) {
             (this as any).scoreCtrl[playerId].toValue(score);
@@ -387,14 +428,14 @@ class Akropolis implements AkropolisGame {
     private updateScores(playerId: number, scores: Scores) {
         Array.from(document.querySelectorAll('.hide-live-scores')).forEach(element => element.classList.remove('hide-live-scores'));
 
-        Object.keys(TYPES_REVERSE).forEach(type => {
-            const i = TYPES_REVERSE[type];
+        for (let i = (playerId == 0 && this.gamedatas.soloPlayer.lvl == 1 ? 0 : 1); i <= 5; i++) {
+            const type = TYPES[i];
             const starKey = Object.keys(scores.stars).find(key => key.startsWith(type));
             const hexKey = Object.keys(scores.districts).find(key => key.startsWith(type));
             this.starsCounters[playerId][i].toValue(scores.stars[starKey]);
             this.hexesCounters[playerId][i].toValue(scores.districts[hexKey]);
             this.colorPointsCounters[playerId][i].toValue(this.starsCounters[playerId][i].getValue() * this.hexesCounters[playerId][i].getValue());
-        });
+        };
         this.setPlayerScore(playerId, scores.score);
     }
     

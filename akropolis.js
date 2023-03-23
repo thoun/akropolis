@@ -672,14 +672,6 @@ var TYPES = {
     4: 'temple',
     5: 'garden',
 };
-var TYPES_REVERSE = {
-    quarry: 0,
-    house: 1,
-    market: 2,
-    barrack: 3,
-    temple: 4,
-    garden: 5,
-};
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
         this.rotation = 0;
@@ -703,6 +695,7 @@ var Akropolis = /** @class */ (function () {
         "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
     */
     Akropolis.prototype.setup = function (gamedatas) {
+        var _this = this;
         log("Starting game setup");
         this.gamedatas = gamedatas;
         // Setup camera controls reminder
@@ -715,6 +708,7 @@ var Akropolis = /** @class */ (function () {
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Object.keys(this.gamedatas.players).length + 1));
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
+        document.getElementsByTagName('body')[0].addEventListener('keydown', function (e) { return _this.onKeyPress(e); });
         this.setupNotifications();
         this.setupPreferences();
         // this.addHelp();
@@ -907,6 +901,51 @@ var Akropolis = /** @class */ (function () {
         var table = new PlayerTable(this, gamedatas.players[playerId]);
         this.playersTables.push(table);
     };
+    Akropolis.prototype.onKeyPress = function (event) {
+        if (['TEXTAREA', 'INPUT'].includes(event.target.nodeName) || !this.isCurrentPlayerActive()) {
+            return;
+        }
+        var canRotate = !(this.selectedPosition && this.getSelectedPositionOption().r.length <= 1);
+        var canConfirmCancel = this.selectedPosition;
+        switch (event.key) { // event.keyCode
+            case ' ': // 32
+            case 'Space': // 32
+            case 'Tab': // 9
+            case 'Shift': // 16
+            case 'Control': // 17
+            case 'ArrowRight': // 39
+            case 'ArrowDown': // 40
+                if (canRotate) {
+                    this.incRotation();
+                }
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                break;
+            case 'Alt': // 18            
+            case 'ArrowUp': // 38
+            case 'ArrowLeft': // 37
+                if (canRotate) {
+                    this.decRotation();
+                }
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                break;
+            case 'Enter': // 13
+                if (canConfirmCancel) {
+                    this.placeTile();
+                }
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                break;
+            case 'Escape': // 27
+                if (canConfirmCancel) {
+                    this.cancelPlaceTile();
+                }
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                break;
+        }
+    };
     Akropolis.prototype.setPlayerScore = function (playerId, score) {
         if (this.scoreCtrl[playerId]) {
             this.scoreCtrl[playerId].toValue(score);
@@ -940,16 +979,20 @@ var Akropolis = /** @class */ (function () {
         helpDialog.show();
     }*/
     Akropolis.prototype.updateScores = function (playerId, scores) {
-        var _this = this;
         Array.from(document.querySelectorAll('.hide-live-scores')).forEach(function (element) { return element.classList.remove('hide-live-scores'); });
-        Object.keys(TYPES_REVERSE).forEach(function (type) {
-            var i = TYPES_REVERSE[type];
+        var _loop_2 = function (i) {
+            var type = TYPES[i];
             var starKey = Object.keys(scores.stars).find(function (key) { return key.startsWith(type); });
             var hexKey = Object.keys(scores.districts).find(function (key) { return key.startsWith(type); });
-            _this.starsCounters[playerId][i].toValue(scores.stars[starKey]);
-            _this.hexesCounters[playerId][i].toValue(scores.districts[hexKey]);
-            _this.colorPointsCounters[playerId][i].toValue(_this.starsCounters[playerId][i].getValue() * _this.hexesCounters[playerId][i].getValue());
-        });
+            this_1.starsCounters[playerId][i].toValue(scores.stars[starKey]);
+            this_1.hexesCounters[playerId][i].toValue(scores.districts[hexKey]);
+            this_1.colorPointsCounters[playerId][i].toValue(this_1.starsCounters[playerId][i].getValue() * this_1.hexesCounters[playerId][i].getValue());
+        };
+        var this_1 = this;
+        for (var i = (playerId == 0 && this.gamedatas.soloPlayer.lvl == 1 ? 0 : 1); i <= 5; i++) {
+            _loop_2(i);
+        }
+        ;
         this.setPlayerScore(playerId, scores.score);
     };
     Akropolis.prototype.constructionSiteHexClicked = function (tile, hexIndex, hex) {
