@@ -421,6 +421,26 @@ class Board
       $districts[HOUSE] = max($districts[HOUSE], $size);
     }
 
+    // HANDLE VARIANTS FOR ARCHITECT
+    if ($this->pId == ARCHITECT_ID) {
+      foreach (\DISTRICTS as $type) {
+        if (!Globals::isVariant($type)) {
+          continue;
+        }
+
+        // Only double the houses if more than 10 in size
+        if ($type == HOUSE && $districts[HOUSE] < 10) {
+          continue;
+        }
+        // Only double temple if they arent at ground lvl <=> hard mode
+        if ($type == TEMPLE && $this->player->getLvl() < 2) {
+          continue;
+        }
+
+        $districts[$type] *= 2;
+      }
+    }
+
     return $districts;
   }
 
