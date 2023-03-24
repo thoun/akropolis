@@ -672,6 +672,11 @@ var TYPES = {
     4: 'temple',
     5: 'garden',
 };
+var HEX_QUANTITIES = {
+    2: [5, 18, 4, 12, 4, 10, 4, 8, 3, 6],
+    3: [6, 27, 5, 16, 5, 13, 5, 10, 4, 7],
+    4: [7, 36, 6, 20, 6, 16, 6, 12, 5, 8],
+};
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
         this.rotation = 0;
@@ -713,7 +718,7 @@ var Akropolis = /** @class */ (function () {
         document.getElementsByTagName('body')[0].addEventListener('keydown', function (e) { return _this.onKeyPress(e); });
         this.setupNotifications();
         this.setupPreferences();
-        // this.addHelp();
+        this.addHelp(/*allTiles ? 4 :*/ Math.max(2, Object.keys(gamedatas.players).length));
         log("Ending game setup");
     };
     ///////////////////////////////////////////////////
@@ -902,6 +907,13 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.createPlayerTable = function (gamedatas, playerId) {
         var table = new PlayerTable(this, gamedatas.players[playerId]);
         this.playersTables.push(table);
+    };
+    Akropolis.prototype.addHelp = function (playerCount) {
+        var labels = HEX_QUANTITIES[playerCount].map(function (label, index) { return "<span class=\"label\" data-row=\"".concat(Math.floor(index / 2), "\"  data-column=\"").concat(Math.floor(index % 2), "\">").concat(label, "</span>"); }).join('');
+        dojo.place("\n            <button id=\"quantities-help-button\" data-folded=\"true\">".concat(labels, "</button>\n        "), 'left-side');
+        var helpButton = document.getElementById('quantities-help-button');
+        helpButton.addEventListener('click', function () { return helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true'; });
+        this.setTooltip('quantities-help-button', _('Plazzas / District quantities'));
     };
     Akropolis.prototype.onKeyPress = function (event) {
         if (['TEXTAREA', 'INPUT'].includes(event.target.nodeName) || !this.isCurrentPlayerActive()) {

@@ -399,6 +399,72 @@
   display: unset;
 }
 
+#quantities-help-button {
+  position: fixed;
+  bottom: 12px;
+  left: 5px;
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  box-shadow: 3px 5px 5px 0px rgb(0, 0, 0);
+  cursor: pointer;
+  z-index: 949;
+  overflow: hidden;
+  background-size: contain;
+  transition: width 0.5s, height 0.5s, border-radius 0.5s;
+  background-image: url("img/reminder-card.jpg");
+}
+#quantities-help-button .label {
+  position: absolute;
+  color: black;
+  font-size: 12pt;
+  opacity: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  font-weight: bold;
+}
+#quantities-help-button .label[data-row="0"] {
+  top: 17px;
+}
+#quantities-help-button .label[data-row="1"] {
+  top: 80px;
+}
+#quantities-help-button .label[data-row="2"] {
+  top: 143px;
+}
+#quantities-help-button .label[data-row="3"] {
+  top: 206px;
+}
+#quantities-help-button .label[data-row="4"] {
+  top: 269px;
+}
+#quantities-help-button .label[data-row="5"] {
+  top: 332px;
+}
+#quantities-help-button .label[data-column="0"] {
+  left: 70px;
+}
+#quantities-help-button .label[data-column="1"] {
+  left: 210px;
+}
+#quantities-help-button[data-folded=false] {
+  width: 300px;
+  height: 324px;
+  border-radius: 5px;
+}
+#quantities-help-button[data-folded=false] .label {
+  opacity: 1;
+}
+
+/* we show help button if user has no mouse ( = no tooltips) */
+@media (hover: hover) {
+  #seasaltpaper-help-button, #quantities-help-button {
+    bottom: 5px;
+  }
+}
 /* make space between buttons on touch devices */
 @media (hover: none) {
   #page-title .action-button.bgabutton, #page-title .bgabutton {

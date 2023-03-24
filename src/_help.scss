@@ -1,0 +1,57 @@
+#quantities-help-button {
+    position: fixed;
+    bottom: 12px;
+    left: 5px;
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    box-shadow: 3px 5px 5px 0px rgb(0 0 0);
+    cursor: pointer;
+    z-index: 949;
+    overflow: hidden;
+    background-size: contain;
+    transition: width 0.5s, height 0.5s, border-radius 0.5s;
+    background-image: url('img/reminder-card.jpg');
+
+    .label {
+        position: absolute;
+        color: black;
+        font-size: 12pt;
+        opacity: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+        font-weight: bold;
+
+        @for $i from 0 through 5 {
+            &[data-row="#{$i}"] {
+              top: #{17 + $i * 63}px;
+            }
+        }
+        @for $i from 0 through 1 {
+            &[data-column="#{$i}"] {
+              left: #{70 + $i * 140}px;
+            }
+        }
+    }
+    
+    &[data-folded="false"] {
+        width: 300px;
+        height: 324px;
+        border-radius: 5px;
+        
+        .label {
+            opacity: 1;
+        }
+    }
+}
+
+/* we show help button if user has no mouse ( = no tooltips) */
+@media (hover: hover) {
+    #seasaltpaper-help-button, #quantities-help-button {
+        //display: none;
+        bottom: 5px;
+    }
+}

@@ -14,6 +14,12 @@ const TYPES = {
     5: 'garden',
 };
 
+const HEX_QUANTITIES = {
+    2: [5,18, 4,12, 4,10, 4,8, 3,6],
+    3: [6,27, 5,16, 5,13, 5,10, 4,7],
+    4: [7,36, 6,20, 6,16, 6,12, 5,8],
+};
+
 class Akropolis implements AkropolisGame {
     public tilesManager: TilesManager;
     public viewManager: ViewManager;
@@ -78,7 +84,7 @@ class Akropolis implements AkropolisGame {
 
         this.setupNotifications();
         this.setupPreferences();
-        // this.addHelp();
+        this.addHelp(/*allTiles ? 4 :*/ Math.max(2, Object.keys(gamedatas.players).length));
 
         log( "Ending game setup" );
     }
@@ -346,6 +352,16 @@ class Akropolis implements AkropolisGame {
     private createPlayerTable(gamedatas: AkropolisGamedatas, playerId: number) {
         const table = new PlayerTable(this, gamedatas.players[playerId]);
         this.playersTables.push(table);
+    }
+
+    private addHelp(playerCount: number) {
+        let labels = HEX_QUANTITIES[playerCount].map((label, index) => `<span class="label" data-row="${Math.floor(index / 2)}"  data-column="${Math.floor(index % 2)}">${label}</span>`).join('');
+        dojo.place(`
+            <button id="quantities-help-button" data-folded="true">${labels}</button>
+        `, 'left-side');
+        const helpButton = document.getElementById('quantities-help-button');
+        helpButton.addEventListener('click', () => helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true');
+        this.setTooltip('quantities-help-button', _('Plazzas / District quantities'))
     }
     
     private onKeyPress(event: KeyboardEvent): void {
