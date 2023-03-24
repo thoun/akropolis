@@ -55,7 +55,11 @@ class Akropolis implements AkropolisGame {
         this.gamedatas = gamedatas;
 
         // Setup camera controls reminder
-        var reminderHtml = `<div id="controls-reminder">
+        var reminderHtml = document.getElementsByTagName('body')[0].classList.contains('touch-device') ?
+        `<div id="controls-reminder">
+        ${_('You can drag this block')}
+        </div>`
+        : `<div id="controls-reminder">
         <img src="${g_gamethemeurl}img/mouse-right.svg"></img>
         ${_('Adjust camera with below controls or right-drag and scroll wheel')}
         </div>`;

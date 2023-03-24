@@ -699,7 +699,9 @@ var Akropolis = /** @class */ (function () {
         log("Starting game setup");
         this.gamedatas = gamedatas;
         // Setup camera controls reminder
-        var reminderHtml = "<div id=\"controls-reminder\">\n        <img src=\"".concat(g_gamethemeurl, "img/mouse-right.svg\"></img>\n        ").concat(_('Adjust camera with below controls or right-drag and scroll wheel'), "\n        </div>");
+        var reminderHtml = document.getElementsByTagName('body')[0].classList.contains('touch-device') ?
+            "<div id=\"controls-reminder\">\n        ".concat(_('You can drag this block'), "\n        </div>")
+            : "<div id=\"controls-reminder\">\n        <img src=\"".concat(g_gamethemeurl, "img/mouse-right.svg\"></img>\n        ").concat(_('Adjust camera with below controls or right-drag and scroll wheel'), "\n        </div>");
         dojo.place(reminderHtml, 'controls3d_wrap', 'first');
         log('gamedatas', gamedatas);
         this.animationManager = new AnimationManager(this);
