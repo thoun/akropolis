@@ -42,9 +42,9 @@ class Notifications
     ]);
   }
 
-  public static function gainStones($player, $money)
+  public static function gainStones($player, $money, bool $silent = false)
   {
-    self::notifyAll('gainStones', clienttranslate('${player_name} covers ${n} quarry(ies) and gains ${n} stone(s)'), [
+    self::notifyAll('gainStones', $silent ? '' : clienttranslate('${player_name} covers ${n} quarry(ies) and gains ${n} stone(s)'), [
       'player' => $player,
       'n' => $money,
     ]);

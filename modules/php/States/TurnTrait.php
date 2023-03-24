@@ -73,7 +73,7 @@ trait TurnTrait
       if (Globals::isSolo() && $player->getId() != ARCHITECT_ID) {
         $architect = Players::getArchitect();
         $architect->incMoney($cost);
-        // TODO : notify ??
+        Notifications::gainStones($architect, $cost, true);
       }
     }
 
