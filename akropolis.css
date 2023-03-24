@@ -158,9 +158,9 @@
 
 #market {
   position: relative;
-  height: 220px;
   display: flex;
   flex-direction: row-reverse;
+  flex-wrap: wrap-reverse;
   justify-content: center;
   align-items: stretch;
   gap: 10px;
