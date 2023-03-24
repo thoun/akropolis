@@ -168,6 +168,10 @@
   text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
   text-align: center;
 }
+#market.left-to-right {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
 #market #remaining-stacks {
   background: rgba(255, 255, 255, 0.4);
   border-radius: 20px;
