@@ -103,14 +103,12 @@ class ViewManager {
             if (dojo.hasClass("ebd-body", "mode_3d")) {
                 dojo.removeClass("ebd-body", "mode_3d");
             }
-            $("ingame_menu_3d_label").innerHTML = __("lang_mainsite", "3D mode");
             this.elements.forEach(element => element.style.transform = "rotatex(" + 0 + "deg) translate(" + 0 + "px," + 0 + "px) rotateZ(" + 0 + "deg)");
         } else {
             if (!dojo.hasClass("ebd-body", "mode_3d")) {
                 dojo.addClass("ebd-body", "mode_3d");
             }
             dojo.addClass("ebd-body", "enableTransitions");
-            $("ingame_menu_3d_label").innerHTML = __("lang_mainsite", "2D mode");
             (this.game as any).control3dxaxis += incXAxis;
             if ((this.game as any).control3dxaxis >= 80) {
                 (this.game as any).control3dxaxis = 80;

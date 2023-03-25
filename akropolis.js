@@ -414,7 +414,6 @@ var ViewManager = /** @class */ (function () {
             if (dojo.hasClass("ebd-body", "mode_3d")) {
                 dojo.removeClass("ebd-body", "mode_3d");
             }
-            $("ingame_menu_3d_label").innerHTML = __("lang_mainsite", "3D mode");
             this.elements.forEach(function (element) { return element.style.transform = "rotatex(" + 0 + "deg) translate(" + 0 + "px," + 0 + "px) rotateZ(" + 0 + "deg)"; });
         }
         else {
@@ -422,7 +421,6 @@ var ViewManager = /** @class */ (function () {
                 dojo.addClass("ebd-body", "mode_3d");
             }
             dojo.addClass("ebd-body", "enableTransitions");
-            $("ingame_menu_3d_label").innerHTML = __("lang_mainsite", "2D mode");
             this.game.control3dxaxis += incXAxis;
             if (this.game.control3dxaxis >= 80) {
                 this.game.control3dxaxis = 80;
@@ -718,7 +716,7 @@ var Akropolis = /** @class */ (function () {
         document.getElementsByTagName('body')[0].addEventListener('keydown', function (e) { return _this.onKeyPress(e); });
         this.setupNotifications();
         this.setupPreferences();
-        this.addHelp(/*allTiles ? 4 :*/ Math.max(2, Object.keys(gamedatas.players).length));
+        this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
         log("Ending game setup");
     };
     ///////////////////////////////////////////////////
@@ -882,7 +880,7 @@ var Akropolis = /** @class */ (function () {
                 }
                 var tooltip = "".concat(_('Score for this color (number of valid districts multiplied by matching stars)'), "\n                <br><br>\n                <strong>").concat(_this.tilesManager.getTypeTitle(TYPES[i]), "</strong>");
                 if (someVariants) {
-                    tooltip += "<br><br>\n                    <strong>".concat(_('Variant'), "</strong><br>\n                    ").concat(_('Activated:'), " <strong style=\"color: ").concat(activated ? _('darkgreen') : _('darkred'), ";\">").concat(activated ? _('Yes') : _('No'), "</strong><br>\n                    ").concat(_(_this.tilesManager.getVariantTooltip(TYPES[i])));
+                    tooltip += "<br><br>\n                    <strong>".concat(_('Variant'), "</strong><br>\n                    ").concat(_('Activated:'), " <strong style=\"color: ").concat(activated ? 'darkgreen' : 'darkred', ";\">").concat(activated ? _('Yes') : _('No'), "</strong><br>\n                    ").concat(_(_this.tilesManager.getVariantTooltip(TYPES[i])));
                 }
                 _this.setTooltip("color-points-".concat(i, "-counter-border-").concat(player.id), tooltip);
             };

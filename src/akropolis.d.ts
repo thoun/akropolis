@@ -50,6 +50,7 @@ interface AkropolisGamedatas {
     deck: number; // remaining tiles
     activatedVariants: string[];
     soloPlayer?: AkropolisPlayer;
+    allTiles: boolean;
 }
 
 interface AkropolisGame extends Game {

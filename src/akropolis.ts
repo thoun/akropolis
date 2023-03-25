@@ -84,7 +84,7 @@ class Akropolis implements AkropolisGame {
 
         this.setupNotifications();
         this.setupPreferences();
-        this.addHelp(/*allTiles ? 4 :*/ Math.max(2, Object.keys(gamedatas.players).length));
+        this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
 
         log( "Ending game setup" );
     }
@@ -323,7 +323,7 @@ class Akropolis implements AkropolisGame {
                 if (someVariants) {
                     tooltip += `<br><br>
                     <strong>${_('Variant')}</strong><br>
-                    ${_('Activated:')} <strong style="color: ${activated ? _('darkgreen') : _('darkred')};">${activated ? _('Yes') : _('No')}</strong><br>
+                    ${_('Activated:')} <strong style="color: ${activated ? 'darkgreen' : 'darkred'};">${activated ? _('Yes') : _('No')}</strong><br>
                     ${_(this.tilesManager.getVariantTooltip(TYPES[i]))}`;
                 }
 
