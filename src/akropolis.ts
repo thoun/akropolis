@@ -76,7 +76,7 @@ class Akropolis implements AkropolisGame {
         this.animationManager = new AnimationManager(this);
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
-        this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Object.keys(this.gamedatas.players).length + 1));
+        this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
 
@@ -642,7 +642,7 @@ class Akropolis implements AkropolisGame {
     }
 
     notif_refillDock(notif: Notif<NotifDockRefillArgs>) {
-        this.constructionSite.refill(notif.args.dock, notif.args.deck / (Object.keys(this.gamedatas.players).length + 1));
+        this.constructionSite.refill(notif.args.dock, notif.args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
     }
 
     notif_updateFirstPlayer(notif: Notif<NotifUpdateFirstPlayerArgs>) {

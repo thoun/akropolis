@@ -710,7 +710,7 @@ var Akropolis = /** @class */ (function () {
         this.animationManager = new AnimationManager(this);
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
-        this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Object.keys(this.gamedatas.players).length + 1));
+        this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         document.getElementsByTagName('body')[0].addEventListener('keydown', function (e) { return _this.onKeyPress(e); });
@@ -1160,7 +1160,7 @@ var Akropolis = /** @class */ (function () {
         this.stonesCounters[notif.args.player_id].incValue(+notif.args.n);
     };
     Akropolis.prototype.notif_refillDock = function (notif) {
-        this.constructionSite.refill(notif.args.dock, notif.args.deck / (Object.keys(this.gamedatas.players).length + 1));
+        this.constructionSite.refill(notif.args.dock, notif.args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
     };
     Akropolis.prototype.notif_updateFirstPlayer = function (notif) {
         var firstPlayerToken = document.getElementById('first-player-token');
