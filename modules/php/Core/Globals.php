@@ -17,6 +17,7 @@ class Globals extends \AKR\Helpers\DB_Manager
     'solo' => 'bool',
     'architect' => 'obj',
     'endOfGame' => 'bool',
+    'allTiles' => 'bool',
   ];
 
   protected static $table = 'global_variables';
@@ -140,6 +141,9 @@ class Globals extends \AKR\Helpers\DB_Manager
    */
   public static function setupNewGame($players, $options)
   {
+    self::setAllTiles(
+      count($players) == 4 || ($options[\OPTION_ALL_TILES] == \OPTION_ALL_TILES_ENABLED ?? OPTION_ALL_TILES_DISABLED)
+    );
     self::setLiveScoring($options[\OPTION_LIVE_SCORING] == \OPTION_LIVE_SCORING_ENABLED);
     self::setVariants([
       \BARRACK =>

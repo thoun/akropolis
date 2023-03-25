@@ -39,10 +39,7 @@ class Tiles extends \AKR\Helpers\Pieces
     $tiles = [];
     foreach (self::$tiles as $id => $tile) {
       // Check number of players of tile
-      if (
-        self::$tilesPlayers[$id] > $nPlayers &&
-        ($options[OPTION_ALL_TILES] ?? OPTION_ALL_TILES_DISABLED) == OPTION_ALL_TILES_DISABLED
-      ) {
+      if (self::$tilesPlayers[$id] > $nPlayers && !Globals::isAllTiles()) {
         continue;
       }
 

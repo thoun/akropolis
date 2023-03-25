@@ -48,6 +48,19 @@ class Board
       'districts' => $this->getDistrictSizes(),
       'stars' => $this->getPlazaStars(),
     ];
+
+    // VERY SPECIFIC CASE : AUTOMA CANNOT DOUBLE MARKET MORE THAN 3*PLAZA
+    if ($this->pId == \ARCHITECT_ID && Globals::isVariant(MARKET)) {
+      // How many markets and plaza do we have ?
+      $mult = $this->player->getLvl() == 2 ? 2 : 1;
+      $nMarkets = $scores['districts'][MARKET] / (2 * $mult); // 2 * $mult because we doubled them all...
+      $nPlazas = $scores['stars'][\MARKET_PLAZA] / PLAZAS_MULT[MARKET_PLAZA];
+      // Cap the doubled markets
+      $nDoubledMarkets = min(3 * $nPlazas, $nMarkets);
+      $maxMarkets = $mult * (2 * $nDoubledMarkets + max(0, $nMarkets - $nDoubledMarkets));
+      $scores['districts'][MARKET] = min($scores['districts'][MARKET], $maxMarkets);
+    }
+
     $scores['score'] = $this->computeScore($scores);
     return $scores;
   }

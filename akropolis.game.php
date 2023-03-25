@@ -97,6 +97,7 @@ class Akropolis extends Table
       'deck' => Tiles::countInLocation('deck'),
       'firstPlayerId' => Globals::getFirstPlayer(),
       'activatedVariants' => $activatedVariants,
+      'allTiles' => Globals::isAllTiles(),
       'soloPlayer' => Globals::isSolo() ? Players::getArchitect()->getUiData($pId) : null,
     ];
   }
