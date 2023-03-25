@@ -60,6 +60,16 @@ class TilesManager {
         }
     }
 
+    public getScoreCondition(type: string) {
+        switch (type) {
+            case 'house': return _("You only earn points for Houses that are part of your largest group of adjacent Houses.");
+            case 'market': return _("A Market must not be adjacent to any other Market.");
+            case 'barrack': return _("Barracks must be placed on the edge of your city.");
+            case 'temple': return _("Temples must be completely surrounded.");
+            case 'garden': return _("There are no placement conditions on Gardens.");
+        }
+    }
+
     public getHexTooltip(type: string, plaza: boolean) {
         if (plaza) {
             return `<strong>${_('Plazas')}</strong>
@@ -71,36 +81,29 @@ class TilesManager {
             ${_("Quarries do not score any points at the end of the game, but they allow you to gain Stones. When an Architect covers a Quarry with another tile, they take 1 Stone from the reserve.")}`;
         } else {
             let firstLine = null;
-            let secondLine = null;
-
 
             switch (type) {
                 case 'house':
                     firstLine = _("The citizens of your city like to live together in one large neighborhood.");
-                    secondLine = _("You only earn points for Houses that are part of your largest group of adjacent Houses.");
                     break;
                 case 'market':
                     firstLine = _("Merchants don’t like competition, so want to be kept separate from other markets.");
-                    secondLine = _("A Market must not be adjacent to any other Market.");
                     break;
                 case 'barrack':
                     firstLine = _("Soldiers keep watch over your city’s borders.");
-                    secondLine = _("Barracks must be placed on the edge of your city.");
                     break;
                 case 'temple':
                     firstLine = _("Priests attract followers from the surrounding area.");
-                    secondLine = _("Temples must be completely surrounded.");
                     break;
                 case 'garden':
                     firstLine = _("Parks always enhance your city.");
-                    secondLine = _("There are no placement conditions on Gardens.");
                     break;
             }
 
             return `<strong>${this.getTypeTitle(type)}</strong>
                     <br><br>
                     <i>${firstLine}</i><br>
-                    <strong>${_('Score condition:')}</strong> ${secondLine}
+                    <strong>${_('Score condition:')}</strong> ${this.getScoreCondition(type)}
                     <br><br>
                     ${_("A District constructed on a higher level of your City can earn you more points. The value of a District is defined by its construction height: a District built on the 1st level would be worth 1 point, on the 2nd level 2 points, on the 3rd level 3 points, etc.")}`; 
         }

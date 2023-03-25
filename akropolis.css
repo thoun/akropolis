@@ -413,49 +413,55 @@
   background-size: contain;
   transition: width 0.5s, height 0.5s, border-radius 0.5s;
   background-image: url("img/reminder-card.jpg");
-}
-#quantities-help-button .label {
-  position: absolute;
   color: black;
-  font-size: 12pt;
+}
+#quantities-help-button .quantities-table {
   opacity: 0;
+  position: absolute;
+  width: 20px;
+  top: 7px;
+  bottom: 6px;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  font-size: 12pt;
+  font-weight: bold;
+}
+#quantities-help-button .quantities-table > div {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
-  font-weight: bold;
 }
-#quantities-help-button .label[data-row="0"] {
-  top: 17px;
+#quantities-help-button .quantities-table.plazza {
+  left: 69px;
 }
-#quantities-help-button .label[data-row="1"] {
-  top: 80px;
+#quantities-help-button .quantities-table.district {
+  left: 155px;
 }
-#quantities-help-button .label[data-row="2"] {
-  top: 143px;
+#quantities-help-button .label-table {
+  opacity: 0;
+  position: absolute;
+  width: 120px;
+  top: 7px;
+  bottom: 6px;
+  right: 5px;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  font-size: 8pt;
 }
-#quantities-help-button .label[data-row="3"] {
-  top: 206px;
-}
-#quantities-help-button .label[data-row="4"] {
-  top: 269px;
-}
-#quantities-help-button .label[data-row="5"] {
-  top: 332px;
-}
-#quantities-help-button .label[data-column="0"] {
-  left: 70px;
-}
-#quantities-help-button .label[data-column="1"] {
-  left: 210px;
+#quantities-help-button .label-table > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 #quantities-help-button[data-folded=false] {
   width: 300px;
   height: 324px;
   border-radius: 5px;
 }
-#quantities-help-button[data-folded=false] .label {
+#quantities-help-button[data-folded=false] .quantities-table, #quantities-help-button[data-folded=false] .label-table {
   opacity: 1;
 }
 

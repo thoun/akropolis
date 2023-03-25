@@ -15,9 +15,9 @@ const TYPES = {
 };
 
 const HEX_QUANTITIES = {
-    2: [5,18, 4,12, 4,10, 4,8, 3,6],
-    3: [6,27, 5,16, 5,13, 5,10, 4,7],
-    4: [7,36, 6,20, 6,16, 6,12, 5,8],
+    2: [[5,18], [4,12], [4,10], [4,8], [3,6]],
+    3: [[6,27], [5,16], [5,13], [5,10], [4,7]],
+    4: [[7,36], [6,20], [6,16], [6,12], [5,8]],
 };
 
 class Akropolis implements AkropolisGame {
@@ -318,7 +318,8 @@ class Akropolis implements AkropolisGame {
 
                 let tooltip = `${_('Score for this color (number of valid districts multiplied by matching stars)')}
                 <br><br>
-                <strong>${this.tilesManager.getTypeTitle(TYPES[i])}</strong>`;
+                <strong>${this.tilesManager.getTypeTitle(TYPES[i])}</strong><br>
+                ${this.tilesManager.getScoreCondition(TYPES[i])}`;
 
                 if (someVariants) {
                     tooltip += `<br><br>
@@ -355,7 +356,9 @@ class Akropolis implements AkropolisGame {
     }
 
     private addHelp(playerCount: number) {
-        let labels = HEX_QUANTITIES[playerCount].map((label, index) => `<span class="label" data-row="${Math.floor(index / 2)}"  data-column="${Math.floor(index % 2)}">${label}</span>`).join('');
+        let labels = `<div class="quantities-table plazza">${HEX_QUANTITIES[playerCount].map(quantities => `<div>${quantities[0]}</div>`).join('')}</div>`;
+        labels += `<div class="quantities-table district">${HEX_QUANTITIES[playerCount].map(quantities => `<div>${quantities[1]}</div>`).join('')}</div>`;
+        labels += `<div class="label-table">${[1, 2, 3, 4, 5].map(i => `<div>${this.tilesManager.getScoreCondition(TYPES[i])}</div>`).join('')}</div>`;
         dojo.place(`
             <button id="quantities-help-button" data-folded="true">${labels}</button>
         `, 'left-side');
