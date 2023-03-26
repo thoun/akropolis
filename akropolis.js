@@ -911,8 +911,8 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.addHelp = function (playerCount) {
         var _this = this;
-        var labels = "<div class=\"quantities-table plazza\">".concat(HEX_QUANTITIES[playerCount].map(function (quantities) { return "<div>".concat(quantities[0], "</div>"); }).join(''), "</div>");
-        labels += "<div class=\"quantities-table district\">".concat(HEX_QUANTITIES[playerCount].map(function (quantities) { return "<div>".concat(quantities[1], "</div>"); }).join(''), "</div>");
+        var labels = "<div class=\"quantities-table plazza\">".concat(HEX_QUANTITIES[playerCount].map(function (quantities) { return "<div><span>".concat(quantities[0], "</span></div>"); }).join(''), "</div>");
+        labels += "<div class=\"quantities-table district\">".concat(HEX_QUANTITIES[playerCount].map(function (quantities) { return "<div><span>".concat(quantities[1], "</span></div>"); }).join(''), "</div>");
         labels += "<div class=\"label-table\">".concat([1, 2, 3, 4, 5].map(function (i) { return "<div>".concat(_this.tilesManager.getScoreCondition(TYPES[i]), "</div>"); }).join(''), "</div>");
         dojo.place("\n            <button id=\"quantities-help-button\" data-folded=\"true\">".concat(labels, "</button>\n        "), 'left-side');
         var helpButton = document.getElementById('quantities-help-button');

@@ -356,8 +356,8 @@ class Akropolis implements AkropolisGame {
     }
 
     private addHelp(playerCount: number) {
-        let labels = `<div class="quantities-table plazza">${HEX_QUANTITIES[playerCount].map(quantities => `<div>${quantities[0]}</div>`).join('')}</div>`;
-        labels += `<div class="quantities-table district">${HEX_QUANTITIES[playerCount].map(quantities => `<div>${quantities[1]}</div>`).join('')}</div>`;
+        let labels = `<div class="quantities-table plazza">${HEX_QUANTITIES[playerCount].map(quantities => `<div><span>${quantities[0]}</span></div>`).join('')}</div>`;
+        labels += `<div class="quantities-table district">${HEX_QUANTITIES[playerCount].map(quantities => `<div><span>${quantities[1]}</span></div>`).join('')}</div>`;
         labels += `<div class="label-table">${[1, 2, 3, 4, 5].map(i => `<div>${this.tilesManager.getScoreCondition(TYPES[i])}</div>`).join('')}</div>`;
         dojo.place(`
             <button id="quantities-help-button" data-folded="true">${labels}</button>
