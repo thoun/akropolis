@@ -34,13 +34,13 @@ class PlayerTable {
                 <div class="pattern right"></div>
             </div>
             <div id="player-table-${this.playerId}-frame" class="frame">
-                <button type="button" id="reset-view-${this.playerId}" class="bgabutton bgabutton_gray reset-view-button">${_('Reset view')}</button>
                 <div id="player-table-${this.playerId}-city" class="city">
                     <!--<div class="flag" style="--flag-color: red; top: 50%; left: 50%;"></div>-->
                     <div id="player-table-${this.playerId}-grid" class="grid">
                         <!--<div class="flag" style="--flag-color: blue;"></div>-->
                     </div>
                 </div>
+                <button type="button" id="reset-view-${this.playerId}" class="bgabutton bgabutton_gray reset-view-button">${_('Reset view')}</button>
             </div>
         </div>
         `;
