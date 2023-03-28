@@ -109,6 +109,20 @@ $y0: 300px;
     }
 }
 
+.tile-level-colors {
+    .player-table {
+        .city {
+            .tile {
+                @for $i from 0 through 2 {
+                    &[data-z="#{$i}"]::after {
+                        background-image: url("img/tile-mask#{$i}.png");
+                    }
+                }
+            }
+        }
+    }
+}
+
 .reset-view-button {
     position: absolute;
     top: 0;

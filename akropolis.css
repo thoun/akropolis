@@ -389,6 +389,16 @@
   top: calc(84px * var(--y) / 2);
 }
 
+.tile-level-colors .player-table .city .tile[data-z="0"]::after {
+  background-image: url("img/tile-mask0.png");
+}
+.tile-level-colors .player-table .city .tile[data-z="1"]::after {
+  background-image: url("img/tile-mask1.png");
+}
+.tile-level-colors .player-table .city .tile[data-z="2"]::after {
+  background-image: url("img/tile-mask2.png");
+}
+
 .reset-view-button {
   position: absolute;
   top: 0;

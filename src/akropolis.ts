@@ -203,9 +203,9 @@ class Akropolis implements AkropolisGame {
       
     private onPreferenceChange(prefId: number, prefValue: number) {
         switch (prefId) {
-            /* example case 201: 
-                (document.getElementsByTagName('html')[0] as HTMLHtmlElement).dataset.fillingPattern = (prefValue == 2).toString();
-                break;*/
+            case 201: 
+                (document.getElementsByTagName('html')[0] as HTMLHtmlElement).classList.toggle('tile-level-colors', prefValue == 2);
+                break;
         }
     }
 

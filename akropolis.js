@@ -589,6 +589,7 @@ var PlayerTable = /** @class */ (function () {
         tileDiv.style.setProperty('--y', "".concat(tile.y));
         tileDiv.style.setProperty('--z', "".concat(tile.z));
         tileDiv.style.setProperty('--r', "".concat(tile.r));
+        tileDiv.dataset.z = "".concat(Math.min(2, tile.z));
         tileDiv.dataset.selectedHexIndex = "".concat(selectedHexIndex);
         this.grid.appendChild(tileDiv);
         this.removePreviewTile();
@@ -818,9 +819,9 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.onPreferenceChange = function (prefId, prefValue) {
         switch (prefId) {
-            /* example case 201:
-                (document.getElementsByTagName('html')[0] as HTMLHtmlElement).dataset.fillingPattern = (prefValue == 2).toString();
-                break;*/
+            case 201:
+                document.getElementsByTagName('html')[0].classList.toggle('tile-level-colors', prefValue == 2);
+                break;
         }
     };
     Akropolis.prototype.getOrderedPlayers = function (gamedatas) {

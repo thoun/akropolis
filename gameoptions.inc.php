@@ -226,4 +226,14 @@ $game_options = [
   ],
 ];
 
-$game_preferences = [];
+$game_preferences = [
+  201 => [
+      'name' => totranslate('Different tile border colors based on level'),
+      'needReload' => false,
+      'values' => [
+          1 => [ 'name' => totranslate('Disabled')],
+          2 => [ 'name' => totranslate('Enabled')],
+      ],
+      'default' => 1
+  ],
+];

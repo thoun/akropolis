@@ -79,6 +79,7 @@ class PlayerTable {
         tileDiv.style.setProperty('--y', `${tile.y}`);
         tileDiv.style.setProperty('--z', `${tile.z}`);
         tileDiv.style.setProperty('--r', `${tile.r}`);
+        tileDiv.dataset.z = `${Math.min(2, tile.z)}`;
         tileDiv.dataset.selectedHexIndex = `${selectedHexIndex}`;
         this.grid.appendChild(tileDiv);
         this.removePreviewTile();
