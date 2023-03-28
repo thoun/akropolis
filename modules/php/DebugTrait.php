@@ -62,7 +62,7 @@ trait DebugTrait
     // Change for your game
     // We are setting the current state to match the start of a player's turn if it's already game over
     $sql = ['UPDATE global SET global_value=2 WHERE global_id=1 AND global_value=99'];
-    $sql[] = 'ALTER TABLE `gamelog` ADD `cancel` TINYINT(1) NOT NULL DEFAULT 0;';
+    // $sql[] = 'ALTER TABLE `gamelog` ADD `cancel` TINYINT(1) NOT NULL DEFAULT 0;';
     $map = [];
     foreach ($players as $pId) {
       $map[(int) $pId] = (int) $studioPlayer;
@@ -73,10 +73,7 @@ trait DebugTrait
       $sql[] = "UPDATE stats SET stats_player_id=$studioPlayer WHERE stats_player_id=$pId";
 
       // Add game-specific SQL update the tables for your game
-      $sql[] = "UPDATE meeples SET player_id=$studioPlayer WHERE player_id=$pId";
-      $sql[] = "UPDATE cards SET player_id=$studioPlayer WHERE player_id=$pId";
-      $sql[] = "UPDATE actioncards SET player_id=$studioPlayer WHERE player_id=$pId";
-      $sql[] = "UPDATE buildings SET player_id=$studioPlayer WHERE player_id=$pId";
+      $sql[] = "UPDATE tiles SET player_id=$studioPlayer WHERE player_id=$pId";
       $sql[] = "UPDATE user_preferences SET player_id=$studioPlayer WHERE player_id=$pId";
 
       // This could be improved, it assumes you had sequential studio accounts before loading
@@ -99,7 +96,7 @@ trait DebugTrait
      ******************/
 
     // Turn orders
-    $turnOrders = Globals::getCustomTurnOrders();
+    /*$turnOrders = Globals::getCustomTurnOrders();
     foreach ($turnOrders as $key => &$order) {
       $t = [];
       foreach ($order['order'] as $pId) {
@@ -131,6 +128,6 @@ trait DebugTrait
       foreach ($node['childs'] as &$child) {
         self::loadDebugUpdateEngine($child, $map);
       }
-    }
+    }*/
   }
 }
