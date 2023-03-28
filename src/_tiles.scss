@@ -93,7 +93,7 @@
     .face {
       cursor: pointer;
       pointer-events: all;
-      
+
       &::after {
         content: '↻';
         position: absolute;
@@ -122,8 +122,9 @@
     margin-top: #{$hexThickness * -0.5};
     width: $hexSide;
     height: $hexThickness;
-    background: url('img/texture-side.jpg');
-    transform: translateZ(#{$hexThickness * 0.5}) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(#{$hexHeight / 2 - 0.1px});
+    background-image: url('img/texture-side.jpg');
+    background-size: auto 100%;
+    transform: translateZ(#{$hexThickness * 0.5}) rotateX(-90deg) rotateY(calc(60deg * var(--side))) translateZ(#{$hexHeight / 2 - 0.1px});
     z-index: -100;
   }
 }

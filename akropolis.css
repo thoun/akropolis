@@ -152,8 +152,9 @@
   margin-top: -8px;
   width: 48.5px;
   height: 16px;
-  background: url("img/texture-side.jpg");
-  transform: translateZ(8px) rotateX(90deg) rotateY(calc(60deg * var(--side))) translateZ(41.9px);
+  background-image: url("img/texture-side.jpg");
+  background-size: auto 100%;
+  transform: translateZ(8px) rotateX(-90deg) rotateY(calc(60deg * var(--side))) translateZ(41.9px);
   z-index: -100;
 }
 
