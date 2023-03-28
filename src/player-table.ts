@@ -133,16 +133,16 @@ class PlayerTable {
     
     private createTileHex(x: number, y: number, z: number, types: string) {
         const hex = this.game.tilesManager.createTileHex(x, y, z, types, true);
-        hex.id = `player-${this.playerId}-hex-${x}-${y}-${z}`;
+        //hex.id = `player-${this.playerId}-hex-${x}-${y}-${z}`;
         this.grid.appendChild(hex);
         
-        const { type, plaza } = this.game.tilesManager.hexFromString(types);
-        this.game.setTooltip(hex.id, this.game.tilesManager.getHexTooltip(type, plaza));
+        //const { type, plaza } = this.game.tilesManager.hexFromString(types);
+        //this.game.setTooltip(hex.id, this.game.tilesManager.getHexTooltip(type, plaza));
     }
     
     private createPossibleHex(x: number, y: number, z: number) {
         const hex = this.game.tilesManager.createPossibleHex(x, y, z);
-        hex.id = `player-${this.playerId}-possible-hex-${x}-${y}-${z}`;
+        //hex.id = `player-${this.playerId}-possible-hex-${x}-${y}-${z}`;
         this.grid.appendChild(hex);
         return hex;
     }

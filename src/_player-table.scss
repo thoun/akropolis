@@ -76,6 +76,7 @@ $y0: 300px;
             top: calc(($hexHeight * var(--y) / 2));
             transform: translateZ(calc($hexThickness * var(--z))) rotate(calc(60deg * var(--r)));
             transform-origin: #{$hexSide * 1.5} #{$hexHeight * 0.5};
+            pointer-events: none;
             
             &[data-selected-hex-index="1"] {
                 transform-origin: #{$hexSide * 3} #{$hexHeight};

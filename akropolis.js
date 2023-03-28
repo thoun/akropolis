@@ -638,14 +638,14 @@ var PlayerTable = /** @class */ (function () {
     };
     PlayerTable.prototype.createTileHex = function (x, y, z, types) {
         var hex = this.game.tilesManager.createTileHex(x, y, z, types, true);
-        hex.id = "player-".concat(this.playerId, "-hex-").concat(x, "-").concat(y, "-").concat(z);
+        //hex.id = `player-${this.playerId}-hex-${x}-${y}-${z}`;
         this.grid.appendChild(hex);
-        var _a = this.game.tilesManager.hexFromString(types), type = _a.type, plaza = _a.plaza;
-        this.game.setTooltip(hex.id, this.game.tilesManager.getHexTooltip(type, plaza));
+        //const { type, plaza } = this.game.tilesManager.hexFromString(types);
+        //this.game.setTooltip(hex.id, this.game.tilesManager.getHexTooltip(type, plaza));
     };
     PlayerTable.prototype.createPossibleHex = function (x, y, z) {
         var hex = this.game.tilesManager.createPossibleHex(x, y, z);
-        hex.id = "player-".concat(this.playerId, "-possible-hex-").concat(x, "-").concat(y, "-").concat(z);
+        //hex.id = `player-${this.playerId}-possible-hex-${x}-${y}-${z}`;
         this.grid.appendChild(hex);
         return hex;
     };

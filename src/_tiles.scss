@@ -92,6 +92,8 @@
   &.selected {
     .face {
       cursor: pointer;
+      pointer-events: all;
+      
       &::after {
         content: '↻';
         position: absolute;
