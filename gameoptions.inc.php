@@ -234,6 +234,16 @@ $game_preferences = [
           1 => [ 'name' => totranslate('Disabled')],
           2 => [ 'name' => totranslate('Enabled')],
       ],
-      'default' => 1
+      'default' => 1,
+  ],
+
+  202 => [
+      'name' => totranslate('Allow to replace without cancel'),
+      'needReload' => false,
+      'values' => [
+          1 => [ 'name' => totranslate('Disabled')],
+          2 => [ 'name' => totranslate('Enabled')],
+      ],
+      'default' => 1,
   ],
 ];

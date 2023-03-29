@@ -58,12 +58,14 @@ class PlayerTable {
 
         this.city.style.transform = "rotatex(" + (game as any).control3dxaxis + "deg) translate(" + (game as any).control3dypos + "px," + (game as any).control3dxpos + "px) rotateZ(" + (game as any).control3dzaxis + "deg) scale3d(" + (game as any).control3dscale + "," + (game as any).control3dscale + "," + (game as any).control3dscale + ")";
         this.game.viewManager.draggableElement3d(this.city);
+    }    
+
+    public cleanPossibleHex() {
+        Array.from(this.grid.querySelectorAll('.possible')).forEach((option: HTMLElement) => option.parentElement.remove());
     }
     
     public setPlaceTileOptions(options: PlaceTileOption[], rotation: number) {
-        // clean previous
-        Array.from(this.grid.querySelectorAll('.possible')).forEach((option: HTMLElement) => option.parentElement.remove());
-
+        this.cleanPossibleHex();
         options/*.filter(option => option.r.some(r => r == rotation))*/.forEach(option => {
             const hex = this.createPossibleHex(option.x, option.y, option.z);
             const face = hex.getElementsByClassName('face')[0] as HTMLDivElement;

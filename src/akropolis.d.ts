@@ -64,6 +64,7 @@ interface AkropolisGame extends Game {
     constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement): void;
     possiblePositionClicked(x: number, y: number, z: number): void;
     incRotation(): void;
+    isMoveWithoutCancel(): boolean;
 }
 
 interface PlaceTileOption {
