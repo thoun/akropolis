@@ -67,7 +67,7 @@ class Akropolis implements AkropolisGame {
         </div>`
         : `<div id="controls-reminder">
         <img src="${g_gamethemeurl}img/mouse-right.svg"></img>
-        ${_('Adjust camera with below controls or right-drag and scroll wheel')}
+        ${_('Adjust camera with below controls or right-drag, middle-drag and scroll wheel')}
         </div>`;
         dojo.place(reminderHtml, 'controls3d_wrap', 'first');
 

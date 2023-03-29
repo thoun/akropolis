@@ -324,10 +324,12 @@ var TilesManager = /** @class */ (function () {
 }());
 var ZOOM_MAX = 3;
 var ViewManager = /** @class */ (function () {
-    // private rotating: boolean = false;
     function ViewManager(game) {
         this.game = game;
+        this.isDragging = false;
         this.elements = [];
+        // private rotating: boolean = false;
+        this.moving = false;
         if (!dojo.hasClass("ebd-body", "mode_3d")) {
             dojo.addClass("ebd-body", "mode_3d");
             $("globalaction_3d").innerHTML = "2D"; // controls the upper right button
@@ -361,47 +363,57 @@ var ViewManager = /** @class */ (function () {
     };
     ViewManager.prototype.drag3dMouseDown = function (e) {
         e = e || window.event;
-        if (e.buttons == 2) {
+        if (e.buttons == 2 || e.buttons == 4) {
             dojo.stopEvent(e);
             $("ebd-body").onmousemove = dojo.hitch(this, this.elementDrag3d);
             $("pagesection_gameview").onmouseleave = dojo.hitch(this, this.closeDragElement3d);
             dojo.addClass($("pagesection_gameview"), "grabbinghand");
+            this.moving = true;
         }
     };
     ViewManager.prototype.elementDrag3d = function (e) {
         e = e || window.event;
         dojo.stopEvent(e);
-        if (e.buttons != 2) {
+        if (e.buttons != 2 && e.buttons != 4) {
             $("ebd-body").onmousemove = null;
             dojo.removeClass($("pagesection_gameview"), "grabbinghand");
+            this.moving = false;
         }
-        if (!this.isdragging) {
-            this.isdragging = true;
-            var viewportOffset = e.currentTarget.getBoundingClientRect();
-            var x = void 0;
-            if ((e.screenY - viewportOffset.top) > (3 * window.innerHeight / 4)) {
-                x = e.movementX;
+        if (!this.isDragging) {
+            this.isDragging = true;
+            if (e.buttons == 2) {
+                var viewportOffset = e.currentTarget.getBoundingClientRect();
+                var x = void 0;
+                if ((e.screenY - viewportOffset.top) > (3 * window.innerHeight / 4)) {
+                    x = e.movementX;
+                }
+                else {
+                    x = -1 * e.movementX;
+                }
+                this.change3d(e.movementY / (-10), 0, 0, x / (-10), 0, true, false);
             }
-            else {
-                x = -1 * e.movementX;
+            else if (e.buttons == 4) {
+                this.change3d(0, e.movementY, e.movementX, 0, 0, true, false);
             }
-            /*(this.game as any)*/ this.change3d(e.movementY / (-10), 0, 0, x / (-10), 0, true, false);
-            this.isdragging = false;
+            this.isDragging = false;
         }
     };
     ViewManager.prototype.closeDragElement3d = function (evt) {
         /* stop moving when mouse button is released:*/
-        if (evt.buttons == 2) {
+        if (evt.buttons == 2 || evt.buttons == 4) {
             evt.preventDefault();
             evt.stopImmediatePropagation();
             $("ebd-body").onmousemove = null;
             dojo.removeClass($("pagesection_gameview"), "grabbinghand");
+            this.moving = false;
         }
     };
     ViewManager.prototype.onMouseWheel = function (evt) {
         dojo.stopEvent(evt);
-        var d = Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail))) * 0.1;
-        this.change3d(0, 0, 0, 0, d, true, false);
+        if (!this.moving) {
+            var d = Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail))) * 0.1;
+            this.change3d(0, 0, 0, 0, d, true, false);
+        }
     };
     // override of framework function to apply 3D on each player city instead of the whole view
     ViewManager.prototype.change3d = function (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) {
@@ -708,7 +720,7 @@ var Akropolis = /** @class */ (function () {
         // Setup camera controls reminder
         var reminderHtml = document.getElementsByTagName('body')[0].classList.contains('touch-device') ?
             "<div id=\"controls-reminder\">\n        ".concat(_('You can drag this block'), "\n        </div>")
-            : "<div id=\"controls-reminder\">\n        <img src=\"".concat(g_gamethemeurl, "img/mouse-right.svg\"></img>\n        ").concat(_('Adjust camera with below controls or right-drag and scroll wheel'), "\n        </div>");
+            : "<div id=\"controls-reminder\">\n        <img src=\"".concat(g_gamethemeurl, "img/mouse-right.svg\"></img>\n        ").concat(_('Adjust camera with below controls or right-drag, middle-drag and scroll wheel'), "\n        </div>");
         dojo.place(reminderHtml, 'controls3d_wrap', 'first');
         log('gamedatas', gamedatas);
         this.animationManager = new AnimationManager(this);
