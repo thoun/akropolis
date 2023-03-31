@@ -847,6 +847,9 @@ var Akropolis = /** @class */ (function () {
                     }
                 }
                 break;
+            case 203:
+                document.getElementById("market").classList.toggle('left-to-right', prefValue != 2);
+                break;
         }
     };
     Akropolis.prototype.isMoveWithoutCancel = function () {

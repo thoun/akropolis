@@ -246,4 +246,14 @@ $game_preferences = [
       ],
       'default' => 1,
   ],
+
+  203 => [
+      'name' => totranslate('Reverse construction site order'),
+      'needReload' => false,
+      'values' => [
+          1 => [ 'name' => totranslate('Disabled')],
+          2 => [ 'name' => totranslate('Enabled')],
+      ],
+      'default' => 1,
+  ],
 ];
