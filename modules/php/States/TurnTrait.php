@@ -81,6 +81,12 @@ trait TurnTrait
     $money = $player->board()->addTile($tileId, $pos, $r);
     $tile = Tiles::getSingle($tileId);
     Notifications::placeTile($player, $tile);
+
+    // Register move as player's last move
+    $lastMoves = Globals::getLastMoves();
+    $lastMoves[$player->getId()] = $lastMoves;
+    Globals::setLastMoves($lastMoves);
+
     // Gain money if recovering quarries
     if ($money > 0) {
       $player->incMoney($money);

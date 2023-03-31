@@ -99,6 +99,7 @@ class Akropolis extends Table
       'activatedVariants' => $activatedVariants,
       'allTiles' => Globals::isAllTiles(),
       'soloPlayer' => Globals::isSolo() ? Players::getArchitect()->getUiData($pId) : null,
+      'lastMoves' => Globals::getLastMoves(),
     ];
   }
 

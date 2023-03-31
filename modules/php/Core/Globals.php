@@ -13,6 +13,7 @@ class Globals extends \AKR\Helpers\DB_Manager
   protected static $variables = [
     'variants' => 'obj',
     'liveScoring' => 'bool',
+    'lastMoves' => 'obj',
     'firstPlayer' => 'int',
     'solo' => 'bool',
     'architect' => 'obj',
