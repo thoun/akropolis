@@ -25,7 +25,9 @@ trait EndOfGameTrait
     // IF solo : score of 1 if bigger than architect, otherwise 0
     if (Globals::isSolo()) {
       $architect = Players::getArchitect();
-      $scoreArchitect = $architect->board()->getScores()['score'];
+      $scores = $architect->board()->getScores();
+      Notifications::updateScores($architect, $scores);
+      $scoreArchitect = $scores['score'];
 
       if ($scoreArchitect < $score) {
         $win = true;
