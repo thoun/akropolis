@@ -20,6 +20,8 @@ const HEX_QUANTITIES = {
     4: [[7,36], [6,20], [6,16], [6,12], [5,8]],
 };
 
+const AKROPOLIS_FOLDED_HELP = 'Akropolis-FoldedHelp';
+
 class Akropolis implements AkropolisGame {
     public tilesManager: TilesManager;
     public viewManager: ViewManager;
@@ -375,11 +377,15 @@ class Akropolis implements AkropolisGame {
         let labels = `<div class="quantities-table plazza">${HEX_QUANTITIES[playerCount].map(quantities => `<div><span>${quantities[0]}</span></div>`).join('')}</div>`;
         labels += `<div class="quantities-table district">${HEX_QUANTITIES[playerCount].map(quantities => `<div><span>${quantities[1]}</span></div>`).join('')}</div>`;
         labels += `<div class="label-table">${[1, 2, 3, 4, 5].map(i => `<div>${this.tilesManager.getScoreCondition(TYPES[i])}</div>`).join('')}</div>`;
+        labels += `<div class="fake-close"><div class="fake-close-dash"></div></div>`;
         dojo.place(`
-            <button id="quantities-help-button" data-folded="true">${labels}</button>
+            <button id="quantities-help-button" data-folded="${localStorage.getItem(AKROPOLIS_FOLDED_HELP) ?? 'false'}">${labels}</button>
         `, 'left-side');
         const helpButton = document.getElementById('quantities-help-button');
-        helpButton.addEventListener('click', () => helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true');
+        helpButton.addEventListener('click', () => {
+            helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true';
+            localStorage.setItem(AKROPOLIS_FOLDED_HELP, helpButton.dataset.folded);
+        });
         this.setTooltip('quantities-help-button', _('Plazzas / District quantities'))
     }
     

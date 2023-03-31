@@ -693,6 +693,7 @@ var HEX_QUANTITIES = {
     3: [[6, 27], [5, 16], [5, 13], [5, 10], [4, 7]],
     4: [[7, 36], [6, 20], [6, 16], [6, 12], [5, 8]],
 };
+var AKROPOLIS_FOLDED_HELP = 'Akropolis-FoldedHelp';
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
         this.rotation = 0;
@@ -944,12 +945,17 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.addHelp = function (playerCount) {
         var _this = this;
+        var _a;
         var labels = "<div class=\"quantities-table plazza\">".concat(HEX_QUANTITIES[playerCount].map(function (quantities) { return "<div><span>".concat(quantities[0], "</span></div>"); }).join(''), "</div>");
         labels += "<div class=\"quantities-table district\">".concat(HEX_QUANTITIES[playerCount].map(function (quantities) { return "<div><span>".concat(quantities[1], "</span></div>"); }).join(''), "</div>");
         labels += "<div class=\"label-table\">".concat([1, 2, 3, 4, 5].map(function (i) { return "<div>".concat(_this.tilesManager.getScoreCondition(TYPES[i]), "</div>"); }).join(''), "</div>");
-        dojo.place("\n            <button id=\"quantities-help-button\" data-folded=\"true\">".concat(labels, "</button>\n        "), 'left-side');
+        labels += "<div class=\"fake-close\"><div class=\"fake-close-dash\"></div></div>";
+        dojo.place("\n            <button id=\"quantities-help-button\" data-folded=\"".concat((_a = localStorage.getItem(AKROPOLIS_FOLDED_HELP)) !== null && _a !== void 0 ? _a : 'false', "\">").concat(labels, "</button>\n        "), 'left-side');
         var helpButton = document.getElementById('quantities-help-button');
-        helpButton.addEventListener('click', function () { return helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true'; });
+        helpButton.addEventListener('click', function () {
+            helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true';
+            localStorage.setItem(AKROPOLIS_FOLDED_HELP, helpButton.dataset.folded);
+        });
         this.setTooltip('quantities-help-button', _('Plazzas / District quantities'));
     };
     Akropolis.prototype.onKeyPress = function (event) {

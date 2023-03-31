@@ -43,11 +43,11 @@
         }
 
         &.plazza {
-            left: 15px;
+            right: 231px;
         }
 
         &.district {
-            left: 72px;
+            right: 172px;
         }
     }
 
@@ -70,6 +70,26 @@
             overflow: hidden;
         }
     }
+
+    .fake-close {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: white;
+
+        .fake-close-dash {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            left: 5px;
+            height: 3px;
+            background: black;
+        }
+    }
     
     &[data-folded="false"] {
         width: 300px;
@@ -77,6 +97,10 @@
         border-radius: 5px;
         
         .quantities-table, .label-table {
+            opacity: 1;
+        }
+
+        .fake-close {
             opacity: 1;
         }
     }
