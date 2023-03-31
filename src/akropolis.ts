@@ -208,23 +208,10 @@ class Akropolis implements AkropolisGame {
             case 201: 
                 (document.getElementsByTagName('html')[0] as HTMLHtmlElement).classList.toggle('tile-level-colors', prefValue == 2);
                 break;
-            case 202:
-                if (this.selectedPosition) {
-                    if (prefValue == 1) {
-                        this.getCurrentPlayerTable()?.cleanPossibleHex();
-                    } else if (prefValue == 2 && (this as any).isCurrentPlayerActive()) {
-                        this.getCurrentPlayerTable()?.setPlaceTileOptions(this.gamedatas.gamestate.args.options[this.selectedTileHexIndex], this.rotation)
-                    }
-                }
-                break;
             case 203: 
                 document.getElementById(`market`).classList.toggle('left-to-right', prefValue != 2);
                 break;
         }
-    }
-
-    public isMoveWithoutCancel(): boolean {
-        return (Number((this as any).prefs[202]?.value) === 2);
     }
 
     private getOrderedPlayers(gamedatas: AkropolisGamedatas) {
@@ -538,9 +525,6 @@ class Akropolis implements AkropolisGame {
             return;
         }
 
-        if (!this.isMoveWithoutCancel()) {
-            this.getCurrentPlayerTable().setPlaceTileOptions([], this.rotation);
-        }
         this.selectedPosition = {x, y, z};
         const option = this.getSelectedPositionOption();
         if (!option.r.includes(this.rotation)) {

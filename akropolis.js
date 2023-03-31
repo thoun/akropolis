@@ -833,29 +833,14 @@ var Akropolis = /** @class */ (function () {
         dojo.forEach(dojo.query("#ingame_menu_content .preference_control"), function (el) { return onchange({ target: el }); });
     };
     Akropolis.prototype.onPreferenceChange = function (prefId, prefValue) {
-        var _a, _b;
         switch (prefId) {
             case 201:
                 document.getElementsByTagName('html')[0].classList.toggle('tile-level-colors', prefValue == 2);
-                break;
-            case 202:
-                if (this.selectedPosition) {
-                    if (prefValue == 1) {
-                        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.cleanPossibleHex();
-                    }
-                    else if (prefValue == 2 && this.isCurrentPlayerActive()) {
-                        (_b = this.getCurrentPlayerTable()) === null || _b === void 0 ? void 0 : _b.setPlaceTileOptions(this.gamedatas.gamestate.args.options[this.selectedTileHexIndex], this.rotation);
-                    }
-                }
                 break;
             case 203:
                 document.getElementById("market").classList.toggle('left-to-right', prefValue != 2);
                 break;
         }
-    };
-    Akropolis.prototype.isMoveWithoutCancel = function () {
-        var _a;
-        return (Number((_a = this.prefs[202]) === null || _a === void 0 ? void 0 : _a.value) === 2);
     };
     Akropolis.prototype.getOrderedPlayers = function (gamedatas) {
         var _this = this;
@@ -1092,9 +1077,6 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.possiblePositionClicked = function (x, y, z) {
         if (!this.selectedTile) {
             return;
-        }
-        if (!this.isMoveWithoutCancel()) {
-            this.getCurrentPlayerTable().setPlaceTileOptions([], this.rotation);
         }
         this.selectedPosition = { x: x, y: y, z: z };
         var option = this.getSelectedPositionOption();

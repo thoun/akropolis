@@ -237,7 +237,7 @@ $game_preferences = [
       'default' => 1,
   ],
 
-  202 => [
+  /* old preference, do not reuse 202. 202 => [
       'name' => totranslate('Allow to replace without cancel'),
       'needReload' => false,
       'values' => [
@@ -245,7 +245,7 @@ $game_preferences = [
           2 => [ 'name' => totranslate('Enabled')],
       ],
       'default' => 1,
-  ],
+  ],*/
 
   203 => [
       'name' => totranslate('Reverse construction site order'),
