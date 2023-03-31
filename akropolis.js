@@ -753,6 +753,7 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.onEnteringPlaceTile = function (args) {
         if (this.isCurrentPlayerActive()) {
+            this.viewManager.resetView();
             this.selectedPosition = null;
             this.selectedTile = null;
             this.selectedTileHexIndex = null;
