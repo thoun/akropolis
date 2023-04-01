@@ -37,6 +37,16 @@
         }
       }
     }
+
+    &.stone {
+      position: relative;
+
+      .animated {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    }
   }
 
   .first-player-token-wrapper {

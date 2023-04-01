@@ -877,7 +877,7 @@ var Akropolis = /** @class */ (function () {
         (soloPlayer ? __spreadArray(__spreadArray([], players, true), [gamedatas.soloPlayer], false) : players).forEach(function (player) {
             var playerId = Number(player.id);
             // Stones counter
-            dojo.place("<div class=\"counters\">\n                <div id=\"stones-counter-wrapper-".concat(player.id, "\" class=\"stones-counter\">\n                    <div class=\"stone score-icon\"></div> \n                    <span id=\"stones-counter-").concat(player.id, "\"></span>\n                </div>\n                <div id=\"first-player-token-wrapper-").concat(player.id, "\" class=\"first-player-token-wrapper\"></div>\n            </div>"), "player_board_".concat(player.id));
+            dojo.place("<div class=\"counters\">\n                <div id=\"stones-counter-wrapper-".concat(player.id, "\" class=\"stones-counter\">\n                    <div id=\"stones-icon-").concat(player.id, "\" class=\"stone score-icon\"></div> \n                    <span id=\"stones-counter-").concat(player.id, "\"></span>\n                </div>\n                <div id=\"first-player-token-wrapper-").concat(player.id, "\" class=\"first-player-token-wrapper\"></div>\n            </div>"), "player_board_".concat(player.id));
             if (gamedatas.firstPlayerId == playerId) {
                 dojo.place("<div id=\"first-player-token\" class=\"first-player-token\"></div>", "first-player-token-wrapper-".concat(player.id));
             }
@@ -1206,7 +1206,32 @@ var Akropolis = /** @class */ (function () {
         this.stonesCounters[notif.args.player_id].incValue(-notif.args.cost);
     };
     Akropolis.prototype.notif_gainStones = function (notif) {
-        this.stonesCounters[notif.args.player_id].incValue(+notif.args.n);
+        var playerId = notif.args.player_id;
+        var n = +notif.args.n;
+        this.stonesCounters[playerId].incValue(n);
+        if (playerId == 0) {
+            var origin_1 = document.getElementById("stones-icon-".concat(this.gamedatas.playerorder[0]));
+            var animated_1 = document.createElement('div');
+            animated_1.classList.add('stone', 'score-icon', 'animated');
+            document.getElementById("stones-icon-".concat(playerId)).appendChild(animated_1);
+            this.animationManager.slideFromElement(animated_1, origin_1).then(function () { return animated_1.remove(); });
+        }
+        else {
+            var lastTile = document.getElementById("player-table-".concat(playerId, "-grid")).getElementsByClassName('last-move')[0];
+            if (lastTile) {
+                var _loop_3 = function (i) {
+                    var origin_2 = lastTile.getElementsByClassName('hex')[i];
+                    var animated = document.createElement('div');
+                    animated.classList.add('stone', 'score-icon', 'animated');
+                    document.getElementById("stones-icon-".concat(playerId)).appendChild(animated);
+                    this_2.animationManager.slideFromElement(animated, origin_2).then(function () { return animated.remove(); });
+                };
+                var this_2 = this;
+                for (var i = 0; i < n; i++) {
+                    _loop_3(i);
+                }
+            }
+        }
     };
     Akropolis.prototype.notif_refillDock = function (notif) {
         this.constructionSite.refill(notif.args.dock, notif.args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));

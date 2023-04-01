@@ -312,6 +312,14 @@
 .player-board .score-icon[data-type="5"].star {
   background-position-x: 100%;
 }
+.player-board .score-icon.stone {
+  position: relative;
+}
+.player-board .score-icon.stone .animated {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
 .player-board .first-player-token-wrapper {
   position: relative;
 }

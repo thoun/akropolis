@@ -259,7 +259,7 @@ class Akropolis implements AkropolisGame {
             // Stones counter
             dojo.place(`<div class="counters">
                 <div id="stones-counter-wrapper-${player.id}" class="stones-counter">
-                    <div class="stone score-icon"></div> 
+                    <div id="stones-icon-${player.id}" class="stone score-icon"></div> 
                     <span id="stones-counter-${player.id}"></span>
                 </div>
                 <div id="first-player-token-wrapper-${player.id}" class="first-player-token-wrapper"></div>
@@ -656,7 +656,28 @@ class Akropolis implements AkropolisGame {
     }
 
     notif_gainStones(notif: Notif<NotifGainStonesArgs>) {
-        this.stonesCounters[notif.args.player_id].incValue(+notif.args.n);
+        const playerId = notif.args.player_id;
+        const n = +notif.args.n;
+        this.stonesCounters[playerId].incValue(n);
+
+        if (playerId == 0) {
+            const origin = document.getElementById(`stones-icon-${this.gamedatas.playerorder[0]}`);
+            const animated = document.createElement('div');
+            animated.classList.add('stone', 'score-icon', 'animated');
+            document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
+            this.animationManager.slideFromElement(animated, origin).then(() => animated.remove());
+        } else {
+            const lastTile = document.getElementById(`player-table-${playerId}-grid`).getElementsByClassName('last-move')[0];
+            if (lastTile) {
+                for (let i = 0; i < n; i++) {
+                    const origin = lastTile.getElementsByClassName('hex')[i] as HTMLElement;
+                    const animated = document.createElement('div');
+                    animated.classList.add('stone', 'score-icon', 'animated');
+                    document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
+                    this.animationManager.slideFromElement(animated, origin).then(() => animated.remove());
+                }
+            }
+        }
     }
 
     notif_refillDock(notif: Notif<NotifDockRefillArgs>) {
