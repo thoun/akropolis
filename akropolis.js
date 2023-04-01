@@ -536,7 +536,7 @@ var ConstructionSite = /** @class */ (function () {
             var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
             hexDiv.addEventListener('click', function () {
                 if (_this.selectionActivated) {
-                    _this.game.constructionSiteHexClicked(tile, index, hexDiv);
+                    _this.game.constructionSiteHexClicked(tile, index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
                 }
             });
         });
@@ -546,6 +546,9 @@ var ConstructionSite = /** @class */ (function () {
     ConstructionSite.prototype.orderTiles = function (tiles) {
         tiles.sort(function (a, b) { return a.state - b.state; });
         return tiles;
+    };
+    ConstructionSite.prototype.setRotation = function (rotation, tile) {
+        document.getElementById("market-tile-".concat(tile.id)).getElementsByClassName('tile')[0].style.setProperty('--r', "".concat(rotation));
     };
     return ConstructionSite;
 }());
@@ -789,6 +792,7 @@ var Akropolis = /** @class */ (function () {
                     this.addActionButton("placeTile_button", _('Confirm'), function () { return _this.placeTile(); });
                     this.addActionButton("cancelPlaceTile_button", _('Cancel'), function () { return _this.cancelPlaceTile(); }, null, null, 'gray');
                     ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { return document.getElementById(id).classList.add('disabled'); });
+                    this.updateRotationButtonState();
                     break;
             }
         }
@@ -1038,7 +1042,7 @@ var Akropolis = /** @class */ (function () {
         ;
         this.setPlayerScore(playerId, scores.score);
     };
-    Akropolis.prototype.constructionSiteHexClicked = function (tile, hexIndex, hex) {
+    Akropolis.prototype.constructionSiteHexClicked = function (tile, hexIndex, hex, rotation) {
         if (hex.classList.contains('selected')) {
             this.incRotation();
             return;
@@ -1046,6 +1050,7 @@ var Akropolis = /** @class */ (function () {
         this.selectedTile = tile;
         this.selectedTileHexIndex = hexIndex;
         this.constructionSite.setSelectedHex(tile.id, hex);
+        this.setRotation(rotation);
         if (this.selectedPosition) {
             var option = this.getSelectedPositionOption();
             if (!option.r.includes(this.rotation)) {
@@ -1053,8 +1058,8 @@ var Akropolis = /** @class */ (function () {
             }
             var tileCoordinates = TILE_COORDINATES[hexIndex];
             this.getCurrentPlayerTable().placeTile(__assign(__assign({}, this.selectedTile), { x: this.selectedPosition.x - tileCoordinates[0], y: this.selectedPosition.y - tileCoordinates[1], z: this.selectedPosition.z, r: this.rotation }), true, this.selectedTileHexIndex);
-            this.updateRotationButtonState();
         }
+        this.updateRotationButtonState();
     };
     Akropolis.prototype.findClosestRotation = function (rotations) {
         var _this = this;
@@ -1117,7 +1122,9 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.setRotation = function (rotation) {
         this.rotation = rotation;
-        document.getElementById('market').style.setProperty('--r', "".concat(rotation));
+        if (this.selectedTile) {
+            this.constructionSite.setRotation(rotation, this.selectedTile);
+        }
         if (!this.selectedPosition) {
             this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
         }
@@ -1131,7 +1138,8 @@ var Akropolis = /** @class */ (function () {
         this.updateRotationButtonState();
     };
     Akropolis.prototype.updateRotationButtonState = function () {
-        var cannotRotate = this.selectedPosition && this.getSelectedPositionOption().r.length <= 1;
+        var _a;
+        var cannotRotate = this.selectedTile ? (this.selectedPosition && ((_a = this.getSelectedPositionOption()) === null || _a === void 0 ? void 0 : _a.r.length) <= 1) : true;
         ["decRotation_button", "incRotation_button"].forEach(function (id) { return document.getElementById(id).classList.toggle('disabled', cannotRotate); });
     };
     Akropolis.prototype.placeTile = function () {

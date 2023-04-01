@@ -61,7 +61,7 @@ interface AkropolisGame extends Game {
     getPlayerId(): number;
 
     setTooltip(id: string, html: string): void;  
-    constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement): void;
+    constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement, rotation: number): void;
     possiblePositionClicked(x: number, y: number, z: number): void;
     incRotation(): void;
 }

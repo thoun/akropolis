@@ -92,7 +92,7 @@ class ConstructionSite {
             const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
             hexDiv.addEventListener('click', () => {
                 if (this.selectionActivated) {
-                    this.game.constructionSiteHexClicked(tile, index, hexDiv);
+                    this.game.constructionSiteHexClicked(tile, index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
                 }
             });
         });
@@ -103,5 +103,9 @@ class ConstructionSite {
     private orderTiles(tiles: Tile[]) {
         tiles.sort((a, b) => a.state - b.state);
         return tiles;
+    }
+    
+    public setRotation(rotation: number, tile: Tile) {        
+        (document.getElementById(`market-tile-${tile.id}`).getElementsByClassName('tile')[0] as HTMLDivElement).style.setProperty('--r', `${rotation}`);
     }
 }

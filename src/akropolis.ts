@@ -147,6 +147,7 @@ class Akropolis implements AkropolisGame {
                     (this as any).addActionButton(`placeTile_button`, _('Confirm'), () => this.placeTile());
                     (this as any).addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.cancelPlaceTile(), null, null, 'gray');
                     [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
+                    this.updateRotationButtonState();
                     break;
             }
         }
@@ -472,7 +473,7 @@ class Akropolis implements AkropolisGame {
         this.setPlayerScore(playerId, scores.score);
     }
     
-    public constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement): void {
+    public constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement, rotation: number): void {
         if (hex.classList.contains('selected')) {
             this.incRotation();
             return;
@@ -481,6 +482,7 @@ class Akropolis implements AkropolisGame {
         this.selectedTile = tile;
         this.selectedTileHexIndex = hexIndex;
         this.constructionSite.setSelectedHex(tile.id, hex);
+        this.setRotation(rotation);
 
         if (this.selectedPosition) {
             const option = this.getSelectedPositionOption();
@@ -496,8 +498,8 @@ class Akropolis implements AkropolisGame {
                 z: this.selectedPosition.z,
                 r: this.rotation,
             }, true, this.selectedTileHexIndex);
-            this.updateRotationButtonState();
         }
+        this.updateRotationButtonState();
     }
 
     private findClosestRotation(rotations: number[]) {
@@ -567,9 +569,11 @@ class Akropolis implements AkropolisGame {
         }
     }
 
-    private setRotation(rotation: number): void {
+    public setRotation(rotation: number): void {
         this.rotation = rotation;
-        document.getElementById('market').style.setProperty('--r', `${rotation}`);
+        if (this.selectedTile) {
+            this.constructionSite.setRotation(rotation, this.selectedTile);
+        }
         if (!this.selectedPosition) {
             this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
         }
@@ -585,7 +589,7 @@ class Akropolis implements AkropolisGame {
     }
 
     private updateRotationButtonState() {
-        const cannotRotate = this.selectedPosition && this.getSelectedPositionOption().r.length <= 1;
+        const cannotRotate = this.selectedTile ? (this.selectedPosition && this.getSelectedPositionOption()?.r.length <= 1) : true;
         [`decRotation_button`, `incRotation_button`].forEach(id => document.getElementById(id).classList.toggle('disabled', cannotRotate));
     }
 
