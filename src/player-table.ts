@@ -22,7 +22,7 @@ class PlayerTable {
     private minY = -2;
     private maxY = 1;
 
-    constructor(private game: AkropolisGame, player: AkropolisPlayer) {
+    constructor(private game: AkropolisGame, player: AkropolisPlayer, lastMove: Tile | undefined) {
         this.playerId = Number(player.id); 
 
         let html = `
@@ -54,7 +54,7 @@ class PlayerTable {
         this.grid = document.getElementById(`player-table-${this.playerId}-grid`) as HTMLDivElement;
         document.getElementById(`reset-view-${this.playerId}`).addEventListener('click', () => this.game.viewManager.resetView());
 
-        this.createGrid(player.board);
+        this.createGrid(player.board, lastMove);
 
         this.city.style.transform = "rotatex(" + (game as any).control3dxaxis + "deg) translate(" + (game as any).control3dypos + "px," + (game as any).control3dxpos + "px) rotateZ(" + (game as any).control3dzaxis + "deg) scale3d(" + (game as any).control3dscale + "," + (game as any).control3dscale + "," + (game as any).control3dscale + ")";
         this.game.viewManager.draggableElement3d(this.city);
@@ -75,7 +75,7 @@ class PlayerTable {
         });
     }
 
-    public placeTile(tile: Tile, preview: boolean = false, selectedHexIndex: number = null) {
+    public placeTile(tile: Tile, lastMove: boolean, preview: boolean = false, selectedHexIndex: number = null) {
         const tileDiv = this.game.tilesManager.createTile(tile, true, preview ? ['preview'] : []);
         tileDiv.style.setProperty('--x', `${tile.x}`);
         tileDiv.style.setProperty('--y', `${tile.y}`);
@@ -111,6 +111,11 @@ class PlayerTable {
             this.grid.style.setProperty('--x-shift', ''+middleX);
             this.grid.style.setProperty('--y-shift', ''+middleY);
         }
+
+        if (lastMove) {
+            Array.from(this.grid.getElementsByClassName('last-move')).forEach(elem => elem.classList.remove('last-move'));
+            tileDiv.classList.add('last-move');
+        }
     }
 
     public rotatePreviewTile(r: number) {
@@ -129,9 +134,9 @@ class PlayerTable {
         this.createTileHex(-1, 1, 0, 'quarry');
     }
 
-    private createGrid(board: PlayerBoard) {
+    private createGrid(board: PlayerBoard, lastMove: Tile | undefined) {
         this.createStartTile();
-        board.tiles.forEach(tile => this.placeTile(tile));
+        board.tiles.forEach(tile => this.placeTile(tile, tile.id == lastMove?.id));
     }
     
     private createTileHex(x: number, y: number, z: number, types: string) {

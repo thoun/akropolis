@@ -51,6 +51,7 @@ interface AkropolisGamedatas {
     activatedVariants: string[];
     soloPlayer?: AkropolisPlayer;
     allTiles: boolean;
+    lastMoves: { [playerId: number]: Tile };
 }
 
 interface AkropolisGame extends Game {

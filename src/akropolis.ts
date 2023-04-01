@@ -352,13 +352,13 @@ class Akropolis implements AkropolisGame {
         );
 
         if (gamedatas.soloPlayer) {
-            const table = new PlayerTable(this, gamedatas.soloPlayer);
+            const table = new PlayerTable(this, gamedatas.soloPlayer, gamedatas.lastMoves[0]);
             this.playersTables.push(table);
         }
     }
 
     private createPlayerTable(gamedatas: AkropolisGamedatas, playerId: number) {
-        const table = new PlayerTable(this, gamedatas.players[playerId]);
+        const table = new PlayerTable(this, gamedatas.players[playerId], gamedatas.lastMoves[playerId]);
         this.playersTables.push(table);
     }
 
@@ -497,7 +497,7 @@ class Akropolis implements AkropolisGame {
                 y: this.selectedPosition.y - tileCoordinates[1],
                 z: this.selectedPosition.z,
                 r: this.rotation,
-            }, true, this.selectedTileHexIndex);
+            }, true, true, this.selectedTileHexIndex);
         }
         this.updateRotationButtonState();
     }
@@ -540,7 +540,7 @@ class Akropolis implements AkropolisGame {
             y: this.selectedPosition.y - tileCoordinates[1],
             z: this.selectedPosition.z,
             r: this.rotation,
-        }, true, this.selectedTileHexIndex);
+        }, true, true, this.selectedTileHexIndex);
         [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.remove('disabled'));
         this.updateRotationButtonState();
     }
@@ -647,7 +647,7 @@ class Akropolis implements AkropolisGame {
     }
 
     notif_placedTile(notif: Notif<NotifPlacedTileArgs>) {
-        this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile);
+        this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile, true);
         this.constructionSite.removeTile(notif.args.tile);
     }
 

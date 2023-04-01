@@ -84,7 +84,7 @@ trait TurnTrait
 
     // Register move as player's last move
     $lastMoves = Globals::getLastMoves();
-    $lastMoves[$player->getId()] = $lastMoves;
+    $lastMoves[$player->getId()] = $tile;
     Globals::setLastMoves($lastMoves);
 
     // Gain money if recovering quarries

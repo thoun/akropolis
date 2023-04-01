@@ -90,6 +90,10 @@ $y0: 300px;
                 left: calc($hexSide * (0.5 + var(--x) * 1.5));
                 top: calc($hexHeight * var(--y) / 2);
             }
+
+            &.last-move::after {
+                background-image: url("img/tile-mask-last.png") !important;
+            }
         }
     }
 }

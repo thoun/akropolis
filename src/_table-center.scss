@@ -31,8 +31,6 @@
     }
 
     .tile-with-cost {
-        outline: 2px solid blue;
-
         font-weight: bold;
         width: #{$hexSide * 4};
         display: flex;

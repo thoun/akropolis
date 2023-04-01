@@ -202,7 +202,6 @@
   font-weight: bold;
 }
 #market .tile-with-cost {
-  outline: 2px solid blue;
   font-weight: bold;
   width: 194px;
   display: flex;
@@ -397,6 +396,9 @@
   --z: 0;
   left: calc(48.5px * (0.5 + var(--x) * 1.5));
   top: calc(84px * var(--y) / 2);
+}
+.player-table .city .tile.last-move::after {
+  background-image: url("img/tile-mask-last.png") !important;
 }
 
 .tile-level-colors .player-table .city .tile[data-z="0"]::after {
