@@ -57,6 +57,20 @@
 .tile.preview .face, .tile.preview .side {
   animation: preview-tile-animation 1s alternate infinite ease-in-out;
 }
+.tile::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("img/tile-mask0.png");
+  background-size: 88% 87%;
+  background-position: 99% 0%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  transform: translateZ(16px);
+}
 
 @keyframes preview-tile-animation {
   100% {
@@ -188,6 +202,7 @@
   font-weight: bold;
 }
 #market .tile-with-cost {
+  outline: 2px solid blue;
   font-weight: bold;
   width: 194px;
   display: flex;
@@ -211,8 +226,16 @@
   box-shadow: 0 0 10px 8px #01C0FF;
 }
 #market .tile-with-cost .tile {
+  --shift-left: 0px;
+  --shift-top: 0px;
   position: relative;
-  transform: rotate(calc(60deg * var(--r)));
+  transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
+}
+#market .tile-with-cost .tile::after {
+  top: 16px;
+  bottom: -16px;
+  left: -12px;
+  right: 12px;
 }
 #market .tile-with-cost .cost {
   display: flex;
@@ -228,7 +251,7 @@
 }
 #market .hex {
   position: absolute;
-  left: calc(48.5px * (0.5 + var(--x) * 1.5));
+  left: calc(48.5px * (0.5 + var(--x) * 1.5) - 12px);
   top: calc(84px * var(--y) / 2 + 16px);
 }
 
@@ -369,20 +392,6 @@
 }
 .player-table .city .tile[data-selected-hex-index="2"] {
   transform-origin: 72.75px 126px;
-}
-.player-table .city .tile::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url("img/tile-mask0.png");
-  background-size: 88% 87%;
-  background-position: 99% 0%;
-  background-repeat: no-repeat;
-  pointer-events: none;
-  transform: translateZ(16px);
 }
 .player-table .city .tile .hex {
   --z: 0;

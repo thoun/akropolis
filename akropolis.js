@@ -548,7 +548,12 @@ var ConstructionSite = /** @class */ (function () {
         return tiles;
     };
     ConstructionSite.prototype.setRotation = function (rotation, tile) {
-        document.getElementById("market-tile-".concat(tile.id)).getElementsByClassName('tile')[0].style.setProperty('--r', "".concat(rotation));
+        var tileDiv = document.getElementById("market-tile-".concat(tile.id)).getElementsByClassName('tile')[0];
+        var SHIFT_LEFT = [0, 20, -16, 0, -20, 16];
+        var SHIFT_TOP = [0, 12, 16, 8, -4, -8];
+        tileDiv.style.setProperty('--r', "".concat(rotation));
+        tileDiv.style.setProperty('--shift-left', "".concat(SHIFT_LEFT[(rotation + 600) % 6], "px"));
+        tileDiv.style.setProperty('--shift-top', "".concat(SHIFT_TOP[(rotation + 600) % 6], "px"));
     };
     return ConstructionSite;
 }());

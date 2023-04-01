@@ -8,6 +8,21 @@
       animation: preview-tile-animation 1s alternate infinite ease-in-out;
     }
   }
+
+  &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("img/tile-mask0.png");
+      background-size: 88% 87%;
+      background-position: 99% 0%;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      transform: translateZ($hexThickness);
+  }
 }
 
 @keyframes preview-tile-animation {

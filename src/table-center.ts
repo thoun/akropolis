@@ -106,6 +106,13 @@ class ConstructionSite {
     }
     
     public setRotation(rotation: number, tile: Tile) {        
-        (document.getElementById(`market-tile-${tile.id}`).getElementsByClassName('tile')[0] as HTMLDivElement).style.setProperty('--r', `${rotation}`);
+        const tileDiv = document.getElementById(`market-tile-${tile.id}`).getElementsByClassName('tile')[0] as HTMLDivElement;
+
+        const SHIFT_LEFT = [0, 20, -16, 0, -20, 16];
+        const SHIFT_TOP = [0, 12, 16, 8, -4, -8];
+
+        tileDiv.style.setProperty('--r', `${rotation}`);
+        tileDiv.style.setProperty('--shift-left', `${SHIFT_LEFT[(rotation + 600) % 6]}px`);
+        tileDiv.style.setProperty('--shift-top', `${SHIFT_TOP[(rotation + 600) % 6]}px`);
     }
 }

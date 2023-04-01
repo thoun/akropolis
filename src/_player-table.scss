@@ -85,21 +85,6 @@ $y0: 300px;
                 transform-origin: #{$hexSide * 1.5} #{$hexHeight * 1.5};
             }
 
-            &::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-image: url("img/tile-mask0.png");
-                background-size: 88% 87%;
-                background-position: 99% 0%;
-                background-repeat: no-repeat;
-                pointer-events: none;
-                transform: translateZ($hexThickness);
-            }
-
             .hex {
                 --z: 0;
                 left: calc($hexSide * (0.5 + var(--x) * 1.5));
