@@ -18,7 +18,7 @@ $gameinfos = [
   'designer' => 'Jules Messaud',
 
   // Game artist (or game artists, separated by commas)
-  'artist' => 'Pauline Detraz',
+  'artist' => 'Pauline Détraz',
 
   // Year of FIRST publication of this game. Can be negative.
   'year' => 2022,
@@ -47,7 +47,7 @@ $gameinfos = [
   // 'not_recommend_player_number' => array( 2, 3 ),      // <= example: this is not recommended to play this game with 2 or 3 players
 
   // Estimated game duration, in minutes (used only for the launch, afterward the real duration is computed)
-  'estimated_duration' => 30,
+  'estimated_duration' => 25,
 
   // Time in second add to a player when "giveExtraTime" is called (speed profile = fast)
   'fast_additional_time' => 30,
