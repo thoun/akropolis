@@ -54,9 +54,6 @@
   width: 194px;
   height: 194px;
 }
-.tile.preview .face, .tile.preview .side {
-  animation: preview-tile-animation 1s alternate infinite ease-in-out;
-}
 .tile::after {
   content: "";
   position: absolute;
@@ -70,13 +67,9 @@
   background-repeat: no-repeat;
   pointer-events: none;
   transform: translateZ(16px);
+  backface-visibility: hidden;
 }
 
-@keyframes preview-tile-animation {
-  100% {
-    opacity: 0.7;
-  }
-}
 .hex {
   position: absolute;
   width: 97px;
@@ -91,6 +84,7 @@
   text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
   text-align: center;
   line-height: 30px;
+  backface-visibility: hidden;
 }
 .hex .face.possible {
   background-image: url("img/hex-possible.png");
@@ -170,6 +164,7 @@
   background-size: auto 100%;
   transform: translateZ(8px) rotateX(-90deg) rotateY(calc(60deg * var(--side))) translateZ(41.9px);
   z-index: -100;
+  backface-visibility: hidden;
 }
 
 #market {
@@ -431,6 +426,24 @@
   display: unset;
 }
 
+.tile.preview .face, .tile.preview .side {
+  opacity: 0.75;
+}
+
+.animated-opacity .tile.preview .face, .animated-opacity .tile.preview .side {
+  opacity: unset;
+  will-change: opacity;
+  animation: preview-tile-animation 1.5s alternate infinite ease-in-out;
+}
+
+@keyframes preview-tile-animation {
+  0% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}
 #quantities-help-button {
   position: fixed;
   bottom: 12px;
@@ -552,6 +565,7 @@
 #full-table {
   width: 100%;
   pointer-events: visible;
+  user-select: none;
 }
 
 #tooltip3d {

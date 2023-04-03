@@ -854,6 +854,9 @@ var Akropolis = /** @class */ (function () {
             case 203:
                 document.getElementById("market").classList.toggle('left-to-right', prefValue != 2);
                 break;
+            case 204:
+                document.getElementsByTagName('html')[0].classList.toggle('animated-opacity', prefValue == 2);
+                break;
         }
     };
     Akropolis.prototype.getOrderedPlayers = function (gamedatas) {

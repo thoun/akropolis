@@ -123,3 +123,29 @@ $y0: 300px;
 .view-changed .reset-view-button {
     display: unset;
 }
+
+.tile.preview {
+    .face, .side {      
+        opacity: 0.75;
+    }
+}
+
+
+.animated-opacity {
+    .tile.preview {
+        .face, .side {
+            opacity: unset;      
+            will-change: opacity;
+            animation: preview-tile-animation 1.5s alternate infinite ease-in-out;
+        }
+    }
+}
+
+@keyframes preview-tile-animation {
+  0% { 
+    opacity: 0.85;
+  }
+  100% { 
+    opacity: 0.35;
+  }
+}

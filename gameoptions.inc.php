@@ -256,4 +256,14 @@ $game_preferences = [
       ],
       'default' => 1,
   ],
+
+  204 => [
+      'name' => totranslate('Transparency animation on preview tile'),
+      'needReload' => false,
+      'values' => [
+          1 => [ 'name' => totranslate('Disabled')],
+          2 => [ 'name' => totranslate('Enabled')],
+      ],
+      'default' => 2,
+  ],
 ];

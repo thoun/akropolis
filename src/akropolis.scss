@@ -87,7 +87,8 @@ $hexThickness: 16px;
 
 #full-table {
   width: 100%;
-  pointer-events: visible
+  pointer-events: visible;
+  user-select: none;
 }
 
 #tooltip3d {
