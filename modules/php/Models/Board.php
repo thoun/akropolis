@@ -444,6 +444,7 @@ class Board
     }
 
     // SCORE BIGGEST HOUSE
+    $maxNTiles = 0;
     foreach ($components as $component) {
       if ($component['type'] != HOUSE) {
         continue;
@@ -454,7 +455,11 @@ class Board
         $size *= 2;
       }
 
-      $districts[HOUSE] = max($districts[HOUSE], $size);
+      $nTiles = count($component['cells']);
+      if ($nTiles >= $maxNTiles) {
+        $districts[HOUSE] = max($districts[HOUSE], $size);
+        $maxNTiles = max($maxNTiles, $nTiles);
+      }
     }
 
     // HANDLE VARIANTS FOR ARCHITECT
