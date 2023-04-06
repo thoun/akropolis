@@ -43,7 +43,7 @@ class ConstructionSite {
     public setSelectedHex(tileId: number, hex: HTMLDivElement) {
         Array.from(this.market.querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
         document.getElementById(`market-tile-${tileId}`)?.classList.add('selected');
-        hex?.classList.add('selected');
+        // todo temp hex?.classList.add('selected');
     }
 
     public setDisabledTiles(playerMoney: number | null) {

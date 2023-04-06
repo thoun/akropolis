@@ -5,6 +5,10 @@ const TILE_COORDINATES = [
 ];
 
 class TilesManager {
+    public static hexSide = 48.5;
+    public static hexHeight = 84; // sqrt(3) * size
+    public static hexThickness = 16;
+
     constructor(public game: AkropolisGame) {}
 
     public hexFromString(types: string) {
@@ -17,14 +21,14 @@ class TilesManager {
     public createTileHex(x: number, y: number, z: number, types: string, withSides: boolean = true): HTMLDivElement {
         const hex = this.createHex(x, y, z);
 
-        if (withSides) {
+        /*if (withSides) {
             for (let i = 0; i < 6; i++) {
                 const side = document.createElement('div');
                 side.classList.add('side');
                 side.style.setProperty('--side', `${i}`);
                 hex.appendChild(side);
             }
-        }
+        }*/
 
         const face = hex.getElementsByClassName('face')[0] as HTMLDivElement;
         const { type, plaza } = this.hexFromString(types);

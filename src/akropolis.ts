@@ -88,7 +88,7 @@ class Akropolis implements AkropolisGame {
 
         this.setupNotifications();
         this.setupPreferences();
-        this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
+        //this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
 
         window.addEventListener('resize', () => this.viewManager.fitCitiesToView());
 
@@ -362,8 +362,8 @@ class Akropolis implements AkropolisGame {
         );
 
         if (gamedatas.soloPlayer) {
-            const table = new PlayerTable(this, gamedatas.soloPlayer, gamedatas.lastMoves[0]);
-            this.playersTables.push(table);
+            //const table = new PlayerTable(this, gamedatas.soloPlayer, gamedatas.lastMoves[0]);
+            //this.playersTables.push(table);
         }
     }
 

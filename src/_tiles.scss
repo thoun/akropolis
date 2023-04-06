@@ -3,7 +3,7 @@
   width: #{$hexSide * 4};
   height: #{$hexSide * 4};
 
-  &::after {
+  /*&::after {
       content: '';
       position: absolute;
       top: 0;
@@ -16,33 +16,36 @@
       background-repeat: no-repeat;
       pointer-events: none;
       transform: translateZ($hexThickness);
-      backface-visibility: hidden;
-  }
+      //backface-visibility: hidden;
+  }*/
 }
 
 .hex {
   position: absolute;
   width: #{$hexSide * 2};
   height: $hexHeight;
-  transform: translateZ(calc($hexThickness * var(--z)));
+  //transform: translateZ(calc($hexThickness * var(--z) * 2));
 
   .face {
     width: 100%;
     height: 100%;
-    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    backface-visibility: hidden;
+    //clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    //backface-visibility: hidden;
 
     &.possible {
-      background-image: url("img/hex-possible.png");
+      background-color: aqua;
+      //background-image: url("img/hex-possible.png");
       background-size: auto 100%;
-      transform: translateZ(1px) scale(0.8);
+      //transform: translateZ(1px) scale(0.8);
+      z-index: 2;
       cursor: pointer;
     }
 
     &[data-type] {
-      background-image: url("img/sprite.png");
+      background-color: lightsalmon;
+      //background-image: url("img/sprite.png");
       background-size: auto 350%;
-      transform: translateZ(calc($hexThickness * (var(--z) + 1)));
+      //transform: translateZ(calc($hexThickness * (var(--z) + 1) * 2));
     }
 
     &[data-type="quarry"] {
@@ -90,14 +93,16 @@
       cursor: pointer;
       pointer-events: all;
 
-      &::after {
-        content: '↻';
+      /*&::after {
+        //content: '↻';
+        content: '';
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background-image: url("img/hex-possible.png");
+        background-color: orange;
+        //background-image: url("img/hex-possible.png");
         background-size: auto 100%;
         text-align: center;
         line-height: 84px;
@@ -106,7 +111,7 @@
         color: #fff;
         user-select: none;
         text-shadow: 1px 1px 5px #000;
-      }
+      }*/
     }
   }
 
@@ -118,10 +123,11 @@
     margin-top: #{$hexThickness * -0.5};
     width: $hexSide;
     height: $hexThickness;
-    background-image: url('img/texture-side.jpg');
+    background-color: lightgrey;
+    //background-image: url('img/texture-side.jpg');
     background-size: auto 100%;
-    transform: translateZ(#{$hexThickness * 0.5}) rotateX(-90deg) rotateY(calc(60deg * var(--side))) translateZ(#{$hexHeight / 2 - 0.1px});
-    z-index: -100;
-    backface-visibility: hidden;
+    //transform: translateZ(#{$hexThickness * 0.5}) rotateX(-90deg) rotateY(calc(60deg * var(--side))) translateZ(#{$hexHeight / 2 - 0.1px});
+    //z-index: -100;
+    //backface-visibility: hidden;
   }
 }

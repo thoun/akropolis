@@ -40,7 +40,7 @@ class PlayerTable {
                         <!--<div class="flag" style="--flag-color: blue;"></div>-->
                     </div>
                 </div>
-                <button type="button" id="reset-view-${this.playerId}" class="bgabutton bgabutton_gray reset-view-button">${_('Reset view')}</button>
+                <!--<button type="button" id="reset-view-${this.playerId}" class="bgabutton bgabutton_gray reset-view-button">${_('Reset view')}</button>-->
             </div>
         </div>
         `;
@@ -52,12 +52,10 @@ class PlayerTable {
         }
         this.city = document.getElementById(`player-table-${this.playerId}-city`) as HTMLDivElement;
         this.grid = document.getElementById(`player-table-${this.playerId}-grid`) as HTMLDivElement;
-        document.getElementById(`reset-view-${this.playerId}`).addEventListener('click', () => this.game.viewManager.resetView());
+        //document.getElementById(`reset-view-${this.playerId}`).addEventListener('click', () => this.game.viewManager.resetView());
 
         this.createGrid(player.board, lastMove);
-
-        this.city.style.transform = "rotatex(" + (game as any).control3dxaxis + "deg) translate(" + (game as any).control3dypos + "px," + (game as any).control3dxpos + "px) rotateZ(" + (game as any).control3dzaxis + "deg) scale3d(" + (game as any).control3dscale + "," + (game as any).control3dscale + "," + (game as any).control3dscale + ")";
-        this.game.viewManager.draggableElement3d(this.city);
+        this.game.viewManager.enable3D(this.city);
     }    
 
     public cleanPossibleHex() {
@@ -77,14 +75,24 @@ class PlayerTable {
 
     public placeTile(tile: Tile, lastMove: boolean, preview: boolean = false, selectedHexIndex: number = null) {
         const tileDiv = this.game.tilesManager.createTile(tile, true, preview ? ['preview'] : []);
-        tileDiv.style.setProperty('--x', `${tile.x}`);
-        tileDiv.style.setProperty('--y', `${tile.y}`);
+        //tileDiv.style.setProperty('--x', `${tile.x}`);
+        //tileDiv.style.setProperty('--y', `${tile.y}`);
+
+        tileDiv.style.left = `${Math.round(TilesManager.hexSide * -1.5 + (TilesManager.hexSide * tile.x * 1.5 * 2))}px`;
+        tileDiv.style.top = `${Math.round(TilesManager.hexHeight * tile.y * 2 / 2)}px`;
+
         tileDiv.style.setProperty('--z', `${tile.z}`);
         tileDiv.style.setProperty('--r', `${tile.r}`);
         tileDiv.dataset.z = `${Math.min(2, tile.z)}`;
         tileDiv.dataset.selectedHexIndex = `${selectedHexIndex}`;
         this.grid.appendChild(tileDiv);
         this.removePreviewTile();
+
+        tile.hexes.forEach((hex, index) => {
+            const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
+            hexDiv.style.left = `${Math.round(TilesManager.hexSide * (0.5 + TILE_COORDINATES[index][0] * 1.5 * 2))}px`;
+            hexDiv.style.top = `${Math.round(TilesManager.hexHeight * TILE_COORDINATES[index][1] * 2 / 2)}px`;
+        });
 
         if (preview) {
             tile.hexes.forEach((hex, index) => {
@@ -93,14 +101,14 @@ class PlayerTable {
                     hexDiv.classList.add('selected');
                     hexDiv.addEventListener('click', () => this.game.incRotation());
                 } 
-                hexDiv.id = `player-${this.playerId}-tile-${tile.id}-hex-${index}`;
+                /*hexDiv.id = `player-${this.playerId}-tile-${tile.id}-hex-${index}`;
                 const { type, plaza } = this.game.tilesManager.hexFromString(hex);
-                this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));
+                this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));*/
             });
 
             this.previewTile = tileDiv;
         } else {
-            this.minX = Math.min(this.minX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].minX);
+            /*this.minX = Math.min(this.minX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].minX);
             this.minY = Math.min(this.minY, tile.y + TILE_SHIFT_BY_ROTATION[tile.r].minY);
             this.maxX = Math.max(this.maxX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].maxX);
             this.maxY = Math.max(this.maxY, tile.y + TILE_SHIFT_BY_ROTATION[tile.r].maxY);
@@ -109,7 +117,7 @@ class PlayerTable {
             const middleY = (this.maxY + this.minY) / 2;
 
             this.grid.style.setProperty('--x-shift', ''+middleX);
-            this.grid.style.setProperty('--y-shift', ''+middleY);
+            this.grid.style.setProperty('--y-shift', ''+middleY);*/
         }
 
         if (lastMove) {
@@ -142,6 +150,10 @@ class PlayerTable {
     private createTileHex(x: number, y: number, z: number, types: string) {
         const hex = this.game.tilesManager.createTileHex(x, y, z, types, true);
         //hex.id = `player-${this.playerId}-hex-${x}-${y}-${z}`;
+        
+        hex.style.left = `${Math.round(TilesManager.hexSide * -1 + (TilesManager.hexSide * x * 2 * 1.5))}px`;
+        hex.style.top = `${Math.round((TilesManager.hexHeight * y * 2 / 2))}px`;
+        
         this.grid.appendChild(hex);
         
         //const { type, plaza } = this.game.tilesManager.hexFromString(types);
@@ -151,6 +163,10 @@ class PlayerTable {
     private createPossibleHex(x: number, y: number, z: number) {
         const hex = this.game.tilesManager.createPossibleHex(x, y, z);
         //hex.id = `player-${this.playerId}-possible-hex-${x}-${y}-${z}`;
+        
+        hex.style.left = `${Math.round(TilesManager.hexSide * -1 + (TilesManager.hexSide * x * 2 * 1.5))}px`;
+        hex.style.top = `${Math.round((TilesManager.hexHeight * y * 2 / 2))}px`;
+
         this.grid.appendChild(hex);
         return hex;
     }

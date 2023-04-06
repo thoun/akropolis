@@ -53,45 +53,41 @@
   position: absolute;
   width: 194px;
   height: 194px;
-}
-.tile::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url("img/tile-mask0.png");
-  background-size: 88% 87%;
-  background-position: 99% 0%;
-  background-repeat: no-repeat;
-  pointer-events: none;
-  transform: translateZ(16px);
-  backface-visibility: hidden;
+  /*&::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("img/tile-mask0.png");
+      background-size: 88% 87%;
+      background-position: 99% 0%;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      transform: translateZ($hexThickness);
+      //backface-visibility: hidden;
+  }*/
 }
 
 .hex {
   position: absolute;
   width: 97px;
   height: 84px;
-  transform: translateZ(calc(16px * var(--z)));
 }
 .hex .face {
   width: 100%;
   height: 100%;
-  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-  backface-visibility: hidden;
 }
 .hex .face.possible {
-  background-image: url("img/hex-possible.png");
+  background-color: aqua;
   background-size: auto 100%;
-  transform: translateZ(1px) scale(0.8);
+  z-index: 2;
   cursor: pointer;
 }
 .hex .face[data-type] {
-  background-image: url("img/sprite.png");
+  background-color: lightsalmon;
   background-size: auto 350%;
-  transform: translateZ(calc(16px * (var(--z) + 1)));
 }
 .hex .face[data-type=quarry] {
   background-position: 66% 80%;
@@ -129,23 +125,25 @@
 .hex.selected .face {
   cursor: pointer;
   pointer-events: all;
-}
-.hex.selected .face::after {
-  content: "↻";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url("img/hex-possible.png");
-  background-size: auto 100%;
-  text-align: center;
-  line-height: 84px;
-  font-size: 80px;
-  font-weight: bold;
-  color: #fff;
-  user-select: none;
-  text-shadow: 1px 1px 5px #000;
+  /*&::after {
+    //content: '↻';
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: orange;
+    //background-image: url("img/hex-possible.png");
+    background-size: auto 100%;
+    text-align: center;
+    line-height: 84px;
+    font-size: 80px;
+    font-weight: bold;
+    color: #fff;
+    user-select: none;
+    text-shadow: 1px 1px 5px #000;
+  }*/
 }
 .hex .side {
   top: 50%;
@@ -155,11 +153,8 @@
   margin-top: -8px;
   width: 48.5px;
   height: 16px;
-  background-image: url("img/texture-side.jpg");
+  background-color: lightgrey;
   background-size: auto 100%;
-  transform: translateZ(8px) rotateX(-90deg) rotateY(calc(60deg * var(--side))) translateZ(41.9px);
-  z-index: -100;
-  backface-visibility: hidden;
 }
 
 #market {
@@ -204,7 +199,6 @@
   background: rgba(255, 128, 128, 0.4);
 }
 #market .tile-with-cost.disabled .tile {
-  opacity: 0.8;
   pointer-events: none;
 }
 #market .tile-with-cost.disabled .cost {
@@ -218,12 +212,12 @@
   --shift-top: 0px;
   position: relative;
   transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
-}
-#market .tile-with-cost .tile::after {
-  top: 16px;
-  bottom: -16px;
-  left: -12px;
-  right: 12px;
+  /*&::after {
+      top: 16px;
+      bottom: -16px;
+      left: -12px;
+      right: 12px;
+  }*/
 }
 #market .tile-with-cost .cost {
   display: flex;
@@ -322,6 +316,7 @@
 
 .player-table {
   margin: 5px;
+  background: lightgoldenrodyellow;
 }
 .player-table .name-wrapper {
   background: rgba(225, 123, 35, 0.5333333333);
@@ -357,8 +352,6 @@
   overflow: hidden;
 }
 .player-table .city {
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
   transform-origin: 50% 50%;
   position: relative;
   width: 100%;
@@ -368,20 +361,15 @@
   --x-shift: 0;
   --y-shift: 0;
   position: absolute;
-  left: calc(50% - 48.5px * var(--x-shift) * 1.5);
-  top: calc(50% - 84px * var(--y-shift) / 2);
-  transition: top 1s, left 1s;
-}
-.player-table .city .hex {
-  left: calc(-48.5px + 48.5px * var(--x) * 1.5);
-  top: calc(84px * var(--y) / 2);
+  left: 50%;
+  top: 50%;
 }
 .player-table .city .tile {
-  left: calc(-72.75px + 48.5px * var(--x) * 1.5);
-  top: calc(84px * var(--y) / 2);
-  transform: translateZ(calc(16px * var(--z))) rotate(calc(60deg * var(--r)));
   transform-origin: 72.75px 42px;
   pointer-events: none;
+  /*&.last-move::after {
+      background-image: url("img/tile-mask-last.png") !important;
+  }*/
 }
 .player-table .city .tile[data-selected-hex-index="1"] {
   transform-origin: 145.5px 84px;
@@ -391,21 +379,18 @@
 }
 .player-table .city .tile .hex {
   --z: 0;
-  left: calc(48.5px * (0.5 + var(--x) * 1.5));
-  top: calc(84px * var(--y) / 2);
-}
-.player-table .city .tile.last-move::after {
-  background-image: url("img/tile-mask-last.png") !important;
 }
 
-.tile-level-colors .player-table .city .tile[data-z="0"]::after {
-  background-image: url("img/tile-mask0.png");
-}
-.tile-level-colors .player-table .city .tile[data-z="1"]::after {
-  background-image: url("img/tile-mask1.png");
-}
-.tile-level-colors .player-table .city .tile[data-z="2"]::after {
-  background-image: url("img/tile-mask2.png");
+.tile-level-colors .player-table .city .tile {
+  /*&[data-z="0"]::after {
+      background-image: url("img/tile-mask0.png");
+  }*/
+  /*&[data-z="1"]::after {
+      background-image: url("img/tile-mask1.png");
+  }*/
+  /*&[data-z="2"]::after {
+      background-image: url("img/tile-mask2.png");
+  }*/
 }
 
 .reset-view-button {
@@ -420,24 +405,7 @@
   display: unset;
 }
 
-.tile.preview .face, .tile.preview .side {
-  opacity: 0.75;
-}
-
-.animated-opacity .tile.preview .face, .animated-opacity .tile.preview .side {
-  opacity: unset;
-  will-change: opacity;
-  animation: preview-tile-animation 1.5s alternate infinite ease-in-out;
-}
-
-@keyframes preview-tile-animation {
-  0% {
-    opacity: 0.85;
-  }
-  100% {
-    opacity: 0.35;
-  }
-}
+@keyframes preview-tile-animation {}
 #quantities-help-button {
   position: fixed;
   bottom: 12px;
@@ -585,10 +553,6 @@ html, .mode_3d {
   background: url("img/background.jpg");
   background-size: 100% auto;
   background-repeat: repeat;
-}
-
-#game_play_area {
-  will-change: transform;
 }
 
 .mode_3d #game_play_area_background {

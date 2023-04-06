@@ -3,6 +3,7 @@ $y0: 300px;
 
 .player-table {
     margin: 5px;
+    background: lightgoldenrodyellow;
 
     .name-wrapper {
         background: #e17b2388;
@@ -42,11 +43,12 @@ $y0: 300px;
         position: relative;
         height: #{$y0 * 2};
         overflow: hidden;
+        //overflow: unset;
     }
 
     .city {
-        transform-style: preserve-3d;
-        -webkit-transform-style: preserve-3d;
+        //transform-style: preserve-3d;
+        //-webkit-transform-style: preserve-3d;
         transform-origin: 50% 50%;
         position: relative;
 
@@ -55,9 +57,9 @@ $y0: 300px;
             --y-shift: 0;
 
             position: absolute;
-            left: calc(50% - ($hexSide * var(--x-shift) * 1.5));
-            top: calc(50% - ($hexHeight * var(--y-shift) / 2));
-            transition: top 1s, left 1s;
+            left: 50%; //calc(50% - ($hexSide * var(--x-shift) * 1.5));
+            top: 50%; //calc(50% - ($hexHeight * var(--y-shift) / 2));
+            // transition: top 1s, left 1s;
         }
 
         width: 100%;
@@ -67,14 +69,14 @@ $y0: 300px;
         // border: 1px solid gray;
 
         .hex {
-            left: calc($hexSide * -1 + ($hexSide * var(--x) * 1.5));
-            top: calc(($hexHeight * var(--y) / 2));
+            //left: calc($hexSide * -1 + ($hexSide * var(--x) * 2 * 1.5));
+            //top: calc(($hexHeight * var(--y) * 2 / 2));
         }
 
         .tile {
-            left: calc($hexSide * -1.5 + ($hexSide * var(--x) * 1.5));
-            top: calc(($hexHeight * var(--y) / 2));
-            transform: translateZ(calc($hexThickness * var(--z))) rotate(calc(60deg * var(--r)));
+            //left: calc($hexSide * -1.5 + ($hexSide * var(--x) * 1.5));
+            //top: calc(($hexHeight * var(--y) / 2));
+            //transform: translateZ(calc($hexThickness * var(--z))) rotate(calc(60deg * var(--r)));
             transform-origin: #{$hexSide * 1.5} #{$hexHeight * 0.5};
             pointer-events: none;
             
@@ -87,13 +89,13 @@ $y0: 300px;
 
             .hex {
                 --z: 0;
-                left: calc($hexSide * (0.5 + var(--x) * 1.5));
-                top: calc($hexHeight * var(--y) / 2);
+                //left: calc($hexSide * (0.5 + var(--x) * 1.5 * 2));
+                //top: calc($hexHeight * var(--y) * 2 / 2);
             }
 
-            &.last-move::after {
+            /*&.last-move::after {
                 background-image: url("img/tile-mask-last.png") !important;
-            }
+            }*/
         }
     }
 }
@@ -103,9 +105,9 @@ $y0: 300px;
         .city {
             .tile {
                 @for $i from 0 through 2 {
-                    &[data-z="#{$i}"]::after {
+                    /*&[data-z="#{$i}"]::after {
                         background-image: url("img/tile-mask#{$i}.png");
-                    }
+                    }*/
                 }
             }
         }
@@ -126,7 +128,7 @@ $y0: 300px;
 
 .tile.preview {
     .face, .side {      
-        opacity: 0.75;
+        //opacity: 0.75;
     }
 }
 
@@ -134,18 +136,18 @@ $y0: 300px;
 .animated-opacity {
     .tile.preview {
         .face, .side {
-            opacity: unset;      
-            will-change: opacity;
-            animation: preview-tile-animation 1.5s alternate infinite ease-in-out;
+            //opacity: unset;      
+            //will-change: opacity;
+            //animation: preview-tile-animation 1.5s alternate infinite ease-in-out;
         }
     }
 }
 
 @keyframes preview-tile-animation {
   0% { 
-    opacity: 0.85;
+    //opacity: 0.85;
   }
   100% { 
-    opacity: 0.35;
+    //opacity: 0.35;
   }
 }

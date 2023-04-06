@@ -266,14 +266,14 @@ var TilesManager = /** @class */ (function () {
     TilesManager.prototype.createTileHex = function (x, y, z, types, withSides) {
         if (withSides === void 0) { withSides = true; }
         var hex = this.createHex(x, y, z);
-        if (withSides) {
-            for (var i = 0; i < 6; i++) {
-                var side = document.createElement('div');
+        /*if (withSides) {
+            for (let i = 0; i < 6; i++) {
+                const side = document.createElement('div');
                 side.classList.add('side');
-                side.style.setProperty('--side', "".concat(i));
+                side.style.setProperty('--side', `${i}`);
                 hex.appendChild(side);
             }
-        }
+        }*/
         var face = hex.getElementsByClassName('face')[0];
         var _a = this.hexFromString(types), type = _a.type, plaza = _a.plaza;
         face.dataset.type = type;
@@ -371,6 +371,9 @@ var TilesManager = /** @class */ (function () {
         hex.appendChild(face);
         return hex;
     };
+    TilesManager.hexSide = 48.5;
+    TilesManager.hexHeight = 84; // sqrt(3) * size
+    TilesManager.hexThickness = 16;
     return TilesManager;
 }());
 var ZOOM_MAX = 3;
@@ -426,8 +429,9 @@ var ViewManager = /** @class */ (function () {
         this.game.control3dscale = Math.min(width / expectedWidth, 1);
         this.updateTransformOnElements();
     };
-    ViewManager.prototype.draggableElement3d = function (element) {
+    ViewManager.prototype.enable3D = function (element) {
         var _this = this;
+        element.style.transform = "rotatex(" + this.game.control3dxaxis + "deg) translate(" + this.game.control3dypos + "px," + this.game.control3dxpos + "px) rotateZ(" + this.game.control3dzaxis + "deg) scale3d(" + this.game.control3dscale + "," + this.game.control3dscale + "," + this.game.control3dscale + ")";
         this.elements.push(element);
         element.addEventListener('mousedown', function (e) { return _this.drag3dMouseDown(e); });
         element.addEventListener('mouseup', function (e) { return _this.closeDragElement3d(e); });
@@ -576,7 +580,7 @@ var ConstructionSite = /** @class */ (function () {
         var _a;
         Array.from(this.market.querySelectorAll('.selected')).forEach(function (option) { return option.classList.remove('selected'); });
         (_a = document.getElementById("market-tile-".concat(tileId))) === null || _a === void 0 ? void 0 : _a.classList.add('selected');
-        hex === null || hex === void 0 ? void 0 : hex.classList.add('selected');
+        // todo temp hex?.classList.add('selected');
     };
     ConstructionSite.prototype.setDisabledTiles = function (playerMoney) {
         Array.from(this.market.querySelectorAll('.disabled')).forEach(function (option) { return option.classList.remove('disabled'); });
@@ -653,24 +657,22 @@ var TILE_SHIFT_BY_ROTATION = [
 ];
 var PlayerTable = /** @class */ (function () {
     function PlayerTable(game, player, lastMove) {
-        var _this = this;
         this.game = game;
         this.minX = -1;
         this.maxX = 1;
         this.minY = -2;
         this.maxY = 1;
         this.playerId = Number(player.id);
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div class=\"name-wrapper\" style=\"color: #").concat(player.color, ";\">\n                <div class=\"pattern left\"></div>\n                <span class=\"name\">").concat(this.playerId == 0 ? _(player.name) : player.name, "</span>\n                ").concat(this.playerId == 0 ? "<span class=\"difficulty\">(".concat(this.getSoloDifficulty(player.lvl + 1), ")</span>") : '', "\n                <div class=\"pattern right\"></div>\n            </div>\n            <div id=\"player-table-").concat(this.playerId, "-frame\" class=\"frame\">\n                <div id=\"player-table-").concat(this.playerId, "-city\" class=\"city\">\n                    <!--<div class=\"flag\" style=\"--flag-color: red; top: 50%; left: 50%;\"></div>-->\n                    <div id=\"player-table-").concat(this.playerId, "-grid\" class=\"grid\">\n                        <!--<div class=\"flag\" style=\"--flag-color: blue;\"></div>-->\n                    </div>\n                </div>\n                <button type=\"button\" id=\"reset-view-").concat(this.playerId, "\" class=\"bgabutton bgabutton_gray reset-view-button\">").concat(_('Reset view'), "</button>\n            </div>\n        </div>\n        ");
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div class=\"name-wrapper\" style=\"color: #").concat(player.color, ";\">\n                <div class=\"pattern left\"></div>\n                <span class=\"name\">").concat(this.playerId == 0 ? _(player.name) : player.name, "</span>\n                ").concat(this.playerId == 0 ? "<span class=\"difficulty\">(".concat(this.getSoloDifficulty(player.lvl + 1), ")</span>") : '', "\n                <div class=\"pattern right\"></div>\n            </div>\n            <div id=\"player-table-").concat(this.playerId, "-frame\" class=\"frame\">\n                <div id=\"player-table-").concat(this.playerId, "-city\" class=\"city\">\n                    <!--<div class=\"flag\" style=\"--flag-color: red; top: 50%; left: 50%;\"></div>-->\n                    <div id=\"player-table-").concat(this.playerId, "-grid\" class=\"grid\">\n                        <!--<div class=\"flag\" style=\"--flag-color: blue;\"></div>-->\n                    </div>\n                </div>\n                <!--<button type=\"button\" id=\"reset-view-").concat(this.playerId, "\" class=\"bgabutton bgabutton_gray reset-view-button\">").concat(_('Reset view'), "</button>-->\n            </div>\n        </div>\n        ");
         document.getElementById('tables').insertAdjacentHTML('beforeend', html);
         if (this.playerId == 0) {
             document.getElementById("player-table-".concat(this.playerId, "-frame")).insertAdjacentHTML('beforebegin', "\n            <div class=\"solo-text\">".concat(this.getSoloText(player.lvl + 1), "</div>\n            "));
         }
         this.city = document.getElementById("player-table-".concat(this.playerId, "-city"));
         this.grid = document.getElementById("player-table-".concat(this.playerId, "-grid"));
-        document.getElementById("reset-view-".concat(this.playerId)).addEventListener('click', function () { return _this.game.viewManager.resetView(); });
+        //document.getElementById(`reset-view-${this.playerId}`).addEventListener('click', () => this.game.viewManager.resetView());
         this.createGrid(player.board, lastMove);
-        this.city.style.transform = "rotatex(" + game.control3dxaxis + "deg) translate(" + game.control3dypos + "px," + game.control3dxpos + "px) rotateZ(" + game.control3dzaxis + "deg) scale3d(" + game.control3dscale + "," + game.control3dscale + "," + game.control3dscale + ")";
-        this.game.viewManager.draggableElement3d(this.city);
+        this.game.viewManager.enable3D(this.city);
     }
     PlayerTable.prototype.cleanPossibleHex = function () {
         Array.from(this.grid.querySelectorAll('.possible')).forEach(function (option) { return option.parentElement.remove(); });
@@ -691,14 +693,21 @@ var PlayerTable = /** @class */ (function () {
         if (preview === void 0) { preview = false; }
         if (selectedHexIndex === void 0) { selectedHexIndex = null; }
         var tileDiv = this.game.tilesManager.createTile(tile, true, preview ? ['preview'] : []);
-        tileDiv.style.setProperty('--x', "".concat(tile.x));
-        tileDiv.style.setProperty('--y', "".concat(tile.y));
+        //tileDiv.style.setProperty('--x', `${tile.x}`);
+        //tileDiv.style.setProperty('--y', `${tile.y}`);
+        tileDiv.style.left = "".concat(Math.round(TilesManager.hexSide * -1.5 + (TilesManager.hexSide * tile.x * 1.5 * 2)), "px");
+        tileDiv.style.top = "".concat(Math.round(TilesManager.hexHeight * tile.y * 2 / 2), "px");
         tileDiv.style.setProperty('--z', "".concat(tile.z));
         tileDiv.style.setProperty('--r', "".concat(tile.r));
         tileDiv.dataset.z = "".concat(Math.min(2, tile.z));
         tileDiv.dataset.selectedHexIndex = "".concat(selectedHexIndex);
         this.grid.appendChild(tileDiv);
         this.removePreviewTile();
+        tile.hexes.forEach(function (hex, index) {
+            var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
+            hexDiv.style.left = "".concat(Math.round(TilesManager.hexSide * (0.5 + TILE_COORDINATES[index][0] * 1.5 * 2)), "px");
+            hexDiv.style.top = "".concat(Math.round(TilesManager.hexHeight * TILE_COORDINATES[index][1] * 2 / 2), "px");
+        });
         if (preview) {
             tile.hexes.forEach(function (hex, index) {
                 var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
@@ -706,21 +715,23 @@ var PlayerTable = /** @class */ (function () {
                     hexDiv.classList.add('selected');
                     hexDiv.addEventListener('click', function () { return _this.game.incRotation(); });
                 }
-                hexDiv.id = "player-".concat(_this.playerId, "-tile-").concat(tile.id, "-hex-").concat(index);
-                var _a = _this.game.tilesManager.hexFromString(hex), type = _a.type, plaza = _a.plaza;
-                _this.game.setTooltip(hexDiv.id, _this.game.tilesManager.getHexTooltip(type, plaza));
+                /*hexDiv.id = `player-${this.playerId}-tile-${tile.id}-hex-${index}`;
+                const { type, plaza } = this.game.tilesManager.hexFromString(hex);
+                this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));*/
             });
             this.previewTile = tileDiv;
         }
         else {
-            this.minX = Math.min(this.minX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].minX);
+            /*this.minX = Math.min(this.minX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].minX);
             this.minY = Math.min(this.minY, tile.y + TILE_SHIFT_BY_ROTATION[tile.r].minY);
             this.maxX = Math.max(this.maxX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].maxX);
             this.maxY = Math.max(this.maxY, tile.y + TILE_SHIFT_BY_ROTATION[tile.r].maxY);
-            var middleX = (this.maxX + this.minX) / 2;
-            var middleY = (this.maxY + this.minY) / 2;
-            this.grid.style.setProperty('--x-shift', '' + middleX);
-            this.grid.style.setProperty('--y-shift', '' + middleY);
+
+            const middleX = (this.maxX + this.minX) / 2;
+            const middleY = (this.maxY + this.minY) / 2;
+
+            this.grid.style.setProperty('--x-shift', ''+middleX);
+            this.grid.style.setProperty('--y-shift', ''+middleY);*/
         }
         if (lastMove) {
             Array.from(this.grid.getElementsByClassName('last-move')).forEach(function (elem) { return elem.classList.remove('last-move'); });
@@ -750,6 +761,8 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.createTileHex = function (x, y, z, types) {
         var hex = this.game.tilesManager.createTileHex(x, y, z, types, true);
         //hex.id = `player-${this.playerId}-hex-${x}-${y}-${z}`;
+        hex.style.left = "".concat(Math.round(TilesManager.hexSide * -1 + (TilesManager.hexSide * x * 2 * 1.5)), "px");
+        hex.style.top = "".concat(Math.round((TilesManager.hexHeight * y * 2 / 2)), "px");
         this.grid.appendChild(hex);
         //const { type, plaza } = this.game.tilesManager.hexFromString(types);
         //this.game.setTooltip(hex.id, this.game.tilesManager.getHexTooltip(type, plaza));
@@ -757,6 +770,8 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.createPossibleHex = function (x, y, z) {
         var hex = this.game.tilesManager.createPossibleHex(x, y, z);
         //hex.id = `player-${this.playerId}-possible-hex-${x}-${y}-${z}`;
+        hex.style.left = "".concat(Math.round(TilesManager.hexSide * -1 + (TilesManager.hexSide * x * 2 * 1.5)), "px");
+        hex.style.top = "".concat(Math.round((TilesManager.hexHeight * y * 2 / 2)), "px");
         this.grid.appendChild(hex);
         return hex;
     };
@@ -833,7 +848,7 @@ var Akropolis = /** @class */ (function () {
         document.getElementsByTagName('body')[0].addEventListener('keydown', function (e) { return _this.onKeyPress(e); });
         this.setupNotifications();
         this.setupPreferences();
-        this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
+        //this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
         window.addEventListener('resize', function () { return _this.viewManager.fitCitiesToView(); });
         log("Ending game setup");
     };
@@ -1027,8 +1042,8 @@ var Akropolis = /** @class */ (function () {
             return _this.createPlayerTable(gamedatas, Number(player.id));
         });
         if (gamedatas.soloPlayer) {
-            var table = new PlayerTable(this, gamedatas.soloPlayer, gamedatas.lastMoves[0]);
-            this.playersTables.push(table);
+            //const table = new PlayerTable(this, gamedatas.soloPlayer, gamedatas.lastMoves[0]);
+            //this.playersTables.push(table);
         }
     };
     Akropolis.prototype.createPlayerTable = function (gamedatas, playerId) {

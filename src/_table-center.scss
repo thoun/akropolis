@@ -43,7 +43,7 @@
             background: rgba(255, 128, 128, 0.4);
 
             .tile {
-                opacity: 0.8;
+                //opacity: 0.8;
                 pointer-events: none;
             }
 
@@ -63,12 +63,12 @@
             transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
             // transition: transform 0.5s; // change from 5 to 0 is weird
 
-            &::after {
+            /*&::after {
                 top: 16px;
                 bottom: -16px;
                 left: -12px;
                 right: 12px;
-            }
+            }*/
         }
 
         .cost {

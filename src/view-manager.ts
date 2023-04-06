@@ -59,7 +59,9 @@ class ViewManager {
         this.updateTransformOnElements();
     }
 
-    public draggableElement3d(element: HTMLDivElement) {
+    public enable3D(element: HTMLDivElement) {
+        element.style.transform = "rotatex(" + (this.game as any).control3dxaxis + "deg) translate(" + (this.game as any).control3dypos + "px," + (this.game as any).control3dxpos + "px) rotateZ(" + (this.game as any).control3dzaxis + "deg) scale3d(" + (this.game as any).control3dscale + "," + (this.game as any).control3dscale + "," + (this.game as any).control3dscale + ")";
+
         this.elements.push(element);
         element.addEventListener('mousedown', e => this.drag3dMouseDown(e));
         element.addEventListener('mouseup', e => this.closeDragElement3d(e));
