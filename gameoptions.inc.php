@@ -61,19 +61,19 @@ $game_options = [
     'name' => totranslate('Architect level'),
     'values' => [
       \OPTION_SOLO_LVL_0 => [
-        'name' => totranslate('Easy'),
-        'description' => totranslate('All the Architect\'s districts are considered on the ground level.'),
+        'name' => totranslate('Easy - Hippodamos'),
+        'description' => totranslate('All the Districts of Hippodamos are considered to be at the 1st level.'),
       ],
       \OPTION_SOLO_LVL_1 => [
-        'name' => totranslate('Medium'),
+        'name' => totranslate('Medium - Metagenes'),
         'description' => totranslate(
-          'All the Architect\'s districts are considered on the ground level, and each quarry is worth 2 points.'
+          'All the Districts of Metagenes are considered to be at the 1st level. Metagenes earns 2 additional points for each Quarry he owns.'
         ),
         'nobeginner' => true,
       ],
       \OPTION_SOLO_LVL_2 => [
-        'name' => totranslate('Hard'),
-        'description' => totranslate('All the Architect\'s districts are considered on the first floor.'),
+        'name' => totranslate('Hard - Callicrates'),
+        'description' => totranslate('All Callicrates Districts are considered to be at the 2nd level.'),
         'nobeginner' => true,
       ],
     ],
