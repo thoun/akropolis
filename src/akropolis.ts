@@ -640,7 +640,7 @@ class Akropolis implements AkropolisGame {
         //log( 'notifications subscriptions setup' );
 
         const notifs = [
-            ['placedTile', 1],
+            ['placedTile', 500],
             ['pay', 1],
             ['gainStones', 1],
             ['refillDock', 1],

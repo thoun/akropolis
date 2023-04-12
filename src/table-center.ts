@@ -68,16 +68,16 @@ class ConstructionSite {
     }
 
     public removeTile(tile: Tile) {
-        /*slideToAnimation(
+        slideToAnimation(
             document.getElementById(`market-tile-${tile.id}`).querySelector('.tile'),
             { fromElement: document.getElementById(`player-table-${tile.pId}-city`), scale: 1, }
-        ).then(() => {*/
+        ).then(() => {
             const index = this.tiles.findIndex(t => t.id == tile.id);
             if (index !== -1) {
                 this.tiles.splice(index, 1);
                 this.setTiles(this.tiles);
             }
-        /*});   */     
+        });   
     }
 
     public setSelectable(selectable: boolean) {

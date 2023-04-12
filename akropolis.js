@@ -594,16 +594,14 @@ var ConstructionSite = /** @class */ (function () {
         this.remainingStacksCounter.setValue(remainingStacks);
     };
     ConstructionSite.prototype.removeTile = function (tile) {
-        /*slideToAnimation(
-            document.getElementById(`market-tile-${tile.id}`).querySelector('.tile'),
-            { fromElement: document.getElementById(`player-table-${tile.pId}-city`), scale: 1, }
-        ).then(() => {*/
-        var index = this.tiles.findIndex(function (t) { return t.id == tile.id; });
-        if (index !== -1) {
-            this.tiles.splice(index, 1);
-            this.setTiles(this.tiles);
-        }
-        /*});   */
+        var _this = this;
+        slideToAnimation(document.getElementById("market-tile-".concat(tile.id)).querySelector('.tile'), { fromElement: document.getElementById("player-table-".concat(tile.pId, "-city")), scale: 1, }).then(function () {
+            var index = _this.tiles.findIndex(function (t) { return t.id == tile.id; });
+            if (index !== -1) {
+                _this.tiles.splice(index, 1);
+                _this.setTiles(_this.tiles);
+            }
+        });
     };
     ConstructionSite.prototype.setSelectable = function (selectable) {
         this.selectionActivated = selectable;
@@ -1279,7 +1277,7 @@ var Akropolis = /** @class */ (function () {
         //log( 'notifications subscriptions setup' );
         var _this = this;
         var notifs = [
-            ['placedTile', 1],
+            ['placedTile', 500],
             ['pay', 1],
             ['gainStones', 1],
             ['refillDock', 1],
