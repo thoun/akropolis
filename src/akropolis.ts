@@ -21,6 +21,7 @@ const HEX_QUANTITIES = {
 };
 
 const AKROPOLIS_FOLDED_HELP = 'Akropolis-FoldedHelp';
+const LOCAL_STORAGE_JUMP_KEY = 'Akropolis-jump-to-folded';
 
 class Akropolis implements AkropolisGame {
     public tilesManager: TilesManager;
@@ -81,6 +82,7 @@ class Akropolis implements AkropolisGame {
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
+        this.createPlayerJumps(gamedatas);
 
         document.getElementsByTagName('body')[0].addEventListener('keydown', e => this.onKeyPress(e));
 
@@ -622,6 +624,43 @@ class Akropolis implements AkropolisGame {
         data = data || {};
         data.lock = true;
         (this as any).ajaxcall(`/akropolis/akropolis/${action}.html`, data, this, () => {});
+    }
+
+    // TODO move into bga-jump-to ?
+    private createPlayerJumps(gamedatas: AkropolisGamedatas) {
+        document.getElementById(`game_play_area_wrap`).insertAdjacentHTML('afterend',
+        `
+        <div id="jump-controls">        
+            <div id="jump-toggle" class="jump-link toggle">
+                ⇔
+            </div>
+            <div id="jump-0" class="jump-link">
+                <div class="eye"></div> ${_('Construction Site')}
+            </div>
+        </div>`);
+        document.getElementById(`jump-toggle`).addEventListener('click', () => this.jumpToggle());
+        document.getElementById(`jump-0`).addEventListener('click', () => this.jumpToPlayer(0));
+        
+        const orderedPlayers = this.getOrderedPlayers(gamedatas);
+
+        orderedPlayers.forEach(player => {
+            dojo.place(`<div id="jump-${player.id}" class="jump-link" style="color: #${player.color}; border-color: #${player.color};"><div class="eye" style="background: #${player.color};"></div> ${player.name}</div>`, `jump-controls`);
+            document.getElementById(`jump-${player.id}`).addEventListener('click', () => this.jumpToPlayer(Number(player.id)));	
+        });
+
+        const jumpDiv = document.getElementById(`jump-controls`);
+        jumpDiv.style.marginTop = `-${Math.round(jumpDiv.getBoundingClientRect().height / 2)}px`;
+    }
+    
+    private jumpToggle(): void {
+        const jumpControls = document.getElementById('jump-controls');
+        jumpControls.classList.toggle('folded');
+        localStorage.setItem(LOCAL_STORAGE_JUMP_KEY, jumpControls.classList.contains('folded').toString());
+    }
+    
+    private jumpToPlayer(playerId: number): void {
+        const elementId = playerId === 0 ? `market` : `player-table-${playerId}`;
+        document.getElementById(elementId).scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     }
 
     ///////////////////////////////////////////////////

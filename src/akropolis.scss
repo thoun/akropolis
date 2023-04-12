@@ -124,3 +124,73 @@ html, .mode_3d {
 .mode_3d #game_play_area_background {
   display: none;
 }
+
+
+
+#jump-controls {
+  position: fixed;
+  top: 50vh;
+  z-index: 5;
+  user-select: none;
+
+  &.folded {
+    .jump-link:not(.toggle) {
+      display: none;
+    }
+  }
+
+  .jump-link {
+    position: relative;
+    border-width: 2px;
+    border-style: solid;
+    border-right-width: 0;
+    margin: 10px 0;
+    width: fit-content;
+    cursor: pointer;
+    height: 22px;
+    padding: 2px 5px;
+    background: white;
+    
+    &::before {
+      width: 0;
+      height: 0;
+      border-top: 15px solid transparent;
+      border-bottom: 15px solid transparent;
+      border-left-width: 11px;
+      border-left-style: solid;
+      content: "";
+      position: absolute;
+      right: -11px;
+      top: -2px;
+    }
+    
+    &::after {
+      width: 0;
+      height: 0;
+      border-top: 13px solid transparent;
+      border-bottom: 13px solid transparent;
+      border-left: 9px solid white;
+      content: "";
+      position: absolute;
+      right: -9px;
+      top: 0px;
+    }
+
+    .eye {
+      width: 20px;
+      height: 20px;
+      mask: url('img/eye.svg') no-repeat center / contain;
+      -webkit-mask: url('img/eye.svg') no-repeat center / contain;
+      background: black;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+
+  &#jump-0 {
+    border-color: black;
+  }
+}

@@ -790,6 +790,7 @@ var HEX_QUANTITIES = {
     4: [[7, 36], [6, 20], [6, 16], [6, 12], [5, 8]],
 };
 var AKROPOLIS_FOLDED_HELP = 'Akropolis-FoldedHelp';
+var LOCAL_STORAGE_JUMP_KEY = 'Akropolis-jump-to-folded';
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
         this.rotation = 0;
@@ -828,6 +829,7 @@ var Akropolis = /** @class */ (function () {
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
+        this.createPlayerJumps(gamedatas);
         document.getElementsByTagName('body')[0].addEventListener('keydown', function (e) { return _this.onKeyPress(e); });
         this.setupNotifications();
         this.setupPreferences();
@@ -1261,6 +1263,29 @@ var Akropolis = /** @class */ (function () {
         data = data || {};
         data.lock = true;
         this.ajaxcall("/akropolis/akropolis/".concat(action, ".html"), data, this, function () { });
+    };
+    // TODO move into bga-jump-to ?
+    Akropolis.prototype.createPlayerJumps = function (gamedatas) {
+        var _this = this;
+        document.getElementById("game_play_area_wrap").insertAdjacentHTML('afterend', "\n        <div id=\"jump-controls\">        \n            <div id=\"jump-toggle\" class=\"jump-link toggle\">\n                \u21D4\n            </div>\n            <div id=\"jump-0\" class=\"jump-link\">\n                <div class=\"eye\"></div> ".concat(_('Construction Site'), "\n            </div>\n        </div>"));
+        document.getElementById("jump-toggle").addEventListener('click', function () { return _this.jumpToggle(); });
+        document.getElementById("jump-0").addEventListener('click', function () { return _this.jumpToPlayer(0); });
+        var orderedPlayers = this.getOrderedPlayers(gamedatas);
+        orderedPlayers.forEach(function (player) {
+            dojo.place("<div id=\"jump-".concat(player.id, "\" class=\"jump-link\" style=\"color: #").concat(player.color, "; border-color: #").concat(player.color, ";\"><div class=\"eye\" style=\"background: #").concat(player.color, ";\"></div> ").concat(player.name, "</div>"), "jump-controls");
+            document.getElementById("jump-".concat(player.id)).addEventListener('click', function () { return _this.jumpToPlayer(Number(player.id)); });
+        });
+        var jumpDiv = document.getElementById("jump-controls");
+        jumpDiv.style.marginTop = "-".concat(Math.round(jumpDiv.getBoundingClientRect().height / 2), "px");
+    };
+    Akropolis.prototype.jumpToggle = function () {
+        var jumpControls = document.getElementById('jump-controls');
+        jumpControls.classList.toggle('folded');
+        localStorage.setItem(LOCAL_STORAGE_JUMP_KEY, jumpControls.classList.contains('folded').toString());
+    };
+    Akropolis.prototype.jumpToPlayer = function (playerId) {
+        var elementId = playerId === 0 ? "market" : "player-table-".concat(playerId);
+        document.getElementById(elementId).scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     };
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
