@@ -56,6 +56,61 @@ function slideAnimation(element, settings) {
     });
     return promise;
 }
+/**
+ * Linear slide of the card from origin to destination.
+ *
+ * @param element the element to animate. The element should be attached to the destination element before the animation starts.
+ * @param settings an `AnimationSettings` object
+ * @returns a promise when animation ends
+ */
+function slideToAnimation(element, settings) {
+    var promise = new Promise(function (success) {
+        var _a, _b, _c, _d, _e;
+        // should be checked at the beginning of every animation
+        if (!shouldAnimate(settings)) {
+            success(false);
+            return promise;
+        }
+        var _f = getDeltaCoordinates(element, settings), x = _f.x, y = _f.y;
+        var duration = (_a = settings === null || settings === void 0 ? void 0 : settings.duration) !== null && _a !== void 0 ? _a : 500;
+        var originalZIndex = element.style.zIndex;
+        var originalTransition = element.style.transition;
+        element.style.zIndex = "".concat((_b = settings === null || settings === void 0 ? void 0 : settings.zIndex) !== null && _b !== void 0 ? _b : 10);
+        (_c = settings === null || settings === void 0 ? void 0 : settings.animationStart) === null || _c === void 0 ? void 0 : _c.call(settings, element);
+        var timeoutId = null;
+        var cleanOnTransitionEnd = function () {
+            var _a;
+            element.style.zIndex = originalZIndex;
+            element.style.transition = originalTransition;
+            (_a = settings === null || settings === void 0 ? void 0 : settings.animationEnd) === null || _a === void 0 ? void 0 : _a.call(settings, element);
+            success(true);
+            element.removeEventListener('transitioncancel', cleanOnTransitionEnd);
+            element.removeEventListener('transitionend', cleanOnTransitionEnd);
+            document.removeEventListener('visibilitychange', cleanOnTransitionEnd);
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
+        var cleanOnTransitionCancel = function () {
+            var _a;
+            element.style.transition = "";
+            element.offsetHeight;
+            element.style.transform = (_a = settings === null || settings === void 0 ? void 0 : settings.finalTransform) !== null && _a !== void 0 ? _a : null;
+            element.offsetHeight;
+            cleanOnTransitionEnd();
+        };
+        element.addEventListener('transitioncancel', cleanOnTransitionEnd);
+        element.addEventListener('transitionend', cleanOnTransitionEnd);
+        document.addEventListener('visibilitychange', cleanOnTransitionCancel);
+        element.offsetHeight;
+        element.style.transition = "transform ".concat(duration, "ms linear");
+        element.offsetHeight;
+        element.style.transform = "translate(".concat(-x, "px, ").concat(-y, "px) rotate(").concat((_d = settings === null || settings === void 0 ? void 0 : settings.rotationDelta) !== null && _d !== void 0 ? _d : 0, "deg) scale(").concat((_e = settings.scale) !== null && _e !== void 0 ? _e : 1, ")");
+        // safety in case transitionend and transitioncancel are not called
+        timeoutId = setTimeout(cleanOnTransitionEnd, duration + 100);
+    });
+    return promise;
+}
 function shouldAnimate(settings) {
     var _a;
     return document.visibilityState !== 'hidden' && !((_a = settings === null || settings === void 0 ? void 0 : settings.game) === null || _a === void 0 ? void 0 : _a.instantaneousMode);
@@ -345,8 +400,35 @@ var ViewManager = /** @class */ (function () {
         this.game.control3dmode3d = true; // is the 3d enabled
     };
     ViewManager.prototype.resetView = function () {
-        this.setDefaultView();
         this.change3d(0, 0, 0, 0, 0, true, true);
+        this.fitCitiesToView();
+    };
+    ViewManager.prototype.fitCitiesToView = function () {
+        var maxSpan = 0;
+        this.elements.forEach(function (element) {
+            var tiles = Array.from(element.querySelectorAll('.tile:not(.preview)'));
+            var minX = null;
+            var maxX = null;
+            tiles.forEach(function (tile) {
+                var rect = tile.getBoundingClientRect();
+                if (minX == null || rect.x < minX) {
+                    minX = rect.x;
+                }
+                if (maxX == null || (rect.x + rect.width) > maxX) {
+                    maxX = rect.x + rect.width;
+                }
+            });
+            if ((maxX - minX) > maxSpan) {
+                maxSpan = maxX - minX;
+            }
+        });
+        if (!maxSpan) {
+            return;
+        }
+        var expectedWidth = maxSpan + 50;
+        var width = this.elements[0].clientWidth;
+        this.game.control3dscale = Math.min(width / expectedWidth, 1);
+        this.updateTransformOnElements();
     };
     ViewManager.prototype.draggableElement3d = function (element) {
         var _this = this;
@@ -417,7 +499,6 @@ var ViewManager = /** @class */ (function () {
     };
     // override of framework function to apply 3D on each player city instead of the whole view
     ViewManager.prototype.change3d = function (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) {
-        var _this = this;
         this.game.control3dscale = Math.min(ZOOM_MAX, this.game.control3dscale);
         if (incScale > 0 && this.game.control3dscale >= ZOOM_MAX) {
             incScale = 0;
@@ -454,8 +535,12 @@ var ViewManager = /** @class */ (function () {
                 this.setDefaultView();
             }
             dojo.toggleClass($("pagesection_gameview"), "view-changed", !reset);
-            this.elements.forEach(function (element) { return element.style.transform = "rotatex(" + _this.game.control3dxaxis + "deg) translate(" + _this.game.control3dypos + "px," + _this.game.control3dxpos + "px) rotateZ(" + _this.game.control3dzaxis + "deg) scale3d(" + _this.game.control3dscale + "," + _this.game.control3dscale + "," + _this.game.control3dscale + ")"; });
+            this.updateTransformOnElements();
         }
+    };
+    ViewManager.prototype.updateTransformOnElements = function () {
+        var _this = this;
+        this.elements.forEach(function (element) { return element.style.transform = "rotatex(" + _this.game.control3dxaxis + "deg) translate(" + _this.game.control3dypos + "px," + _this.game.control3dxpos + "px) rotateZ(" + _this.game.control3dzaxis + "deg) scale3d(" + _this.game.control3dscale + "," + _this.game.control3dscale + "," + _this.game.control3dscale + ")"; });
     };
     return ViewManager;
 }());
@@ -513,11 +598,16 @@ var ConstructionSite = /** @class */ (function () {
         this.remainingStacksCounter.setValue(remainingStacks);
     };
     ConstructionSite.prototype.removeTile = function (tile) {
+        /*slideToAnimation(
+            document.getElementById(`market-tile-${tile.id}`).querySelector('.tile'),
+            { fromElement: document.getElementById(`player-table-${tile.pId}-city`), scale: 1, }
+        ).then(() => {*/
         var index = this.tiles.findIndex(function (t) { return t.id == tile.id; });
         if (index !== -1) {
             this.tiles.splice(index, 1);
             this.setTiles(this.tiles);
         }
+        /*});   */
     };
     ConstructionSite.prototype.setSelectable = function (selectable) {
         this.selectionActivated = selectable;
@@ -748,6 +838,7 @@ var Akropolis = /** @class */ (function () {
         this.setupNotifications();
         this.setupPreferences();
         this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
+        window.addEventListener('resize', function () { return _this.viewManager.fitCitiesToView(); });
         log("Ending game setup");
     };
     ///////////////////////////////////////////////////

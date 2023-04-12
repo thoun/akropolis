@@ -25,8 +25,38 @@ class ViewManager {
     }
 
     public resetView() {
-        this.setDefaultView();
         this.change3d(0, 0, 0, 0, 0, true, true);
+        this.fitCitiesToView();
+    }
+
+    public fitCitiesToView() {
+        let maxSpan = 0;
+        this.elements.forEach(element => {
+            const tiles = Array.from(element.querySelectorAll('.tile:not(.preview)')) as HTMLElement[];
+            let minX = null;
+            let maxX = null;
+            tiles.forEach(tile => {
+                const rect = tile.getBoundingClientRect();
+                if (minX == null || rect.x < minX) {
+                    minX = rect.x;
+                }
+                if (maxX == null || (rect.x + rect.width) > maxX) {
+                    maxX = rect.x + rect.width;
+                }
+            });
+            if ((maxX - minX) > maxSpan) {
+                maxSpan = maxX - minX;
+            }
+        });
+
+        if (!maxSpan) {
+            return;
+        }
+
+        const expectedWidth = maxSpan + 50;
+        const width = this.elements[0].clientWidth;
+        (this.game as any).control3dscale = Math.min(width / expectedWidth, 1);
+        this.updateTransformOnElements();
     }
 
     public draggableElement3d(element: HTMLDivElement) {
@@ -139,7 +169,11 @@ class ViewManager {
                 this.setDefaultView();
             }
             dojo.toggleClass($("pagesection_gameview"), "view-changed", !reset);
-            this.elements.forEach(element => element.style.transform = "rotatex(" + (this.game as any).control3dxaxis + "deg) translate(" + (this.game as any).control3dypos + "px," + (this.game as any).control3dxpos + "px) rotateZ(" + (this.game as any).control3dzaxis + "deg) scale3d(" + (this.game as any).control3dscale + "," + (this.game as any).control3dscale + "," + (this.game as any).control3dscale + ")");
+            this.updateTransformOnElements();
         }
-    }  
+    }
+    
+    private updateTransformOnElements() {
+        this.elements.forEach(element => element.style.transform = "rotatex(" + (this.game as any).control3dxaxis + "deg) translate(" + (this.game as any).control3dypos + "px," + (this.game as any).control3dxpos + "px) rotateZ(" + (this.game as any).control3dzaxis + "deg) scale3d(" + (this.game as any).control3dscale + "," + (this.game as any).control3dscale + "," + (this.game as any).control3dscale + ")");
+    }
 }

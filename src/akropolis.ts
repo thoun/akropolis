@@ -88,6 +88,8 @@ class Akropolis implements AkropolisGame {
         this.setupPreferences();
         this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
 
+        window.addEventListener('resize', () => this.viewManager.fitCitiesToView());
+
         log( "Ending game setup" );
     }
 
