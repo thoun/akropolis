@@ -40,11 +40,9 @@ class TilesManager {
     public createTile(tile: Tile, withSides: boolean = true, classes: string[] = []): HTMLDivElement {
         const tileDiv = document.createElement('div');
         tileDiv.classList.add('tile', ...classes);
-        let firstHex = null; // temp
         tile.hexes.forEach((hex, index) => {
             const hexDiv = this.createTileHex(TILE_COORDINATES[index][0], TILE_COORDINATES[index][1], 0, hex, withSides);
             hexDiv.dataset.index = `${index}`;
-            if (index == 0) { firstHex = hexDiv; } // temp
             tileDiv.appendChild(hexDiv);
         });
         return tileDiv;

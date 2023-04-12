@@ -290,13 +290,9 @@ var TilesManager = /** @class */ (function () {
         if (classes === void 0) { classes = []; }
         var tileDiv = document.createElement('div');
         (_a = tileDiv.classList).add.apply(_a, __spreadArray(['tile'], classes, false));
-        var firstHex = null; // temp
         tile.hexes.forEach(function (hex, index) {
             var hexDiv = _this.createTileHex(TILE_COORDINATES[index][0], TILE_COORDINATES[index][1], 0, hex, withSides);
             hexDiv.dataset.index = "".concat(index);
-            if (index == 0) {
-                firstHex = hexDiv;
-            } // temp
             tileDiv.appendChild(hexDiv);
         });
         return tileDiv;

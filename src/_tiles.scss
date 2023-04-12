@@ -30,12 +30,6 @@
     width: 100%;
     height: 100%;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    
-    // temp
-    font-weight: bold;
-    text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
-    text-align: center;
-    line-height: 30px;
     backface-visibility: hidden;
 
     &.possible {
@@ -43,9 +37,6 @@
       background-size: auto 100%;
       transform: translateZ(1px) scale(0.8);
       cursor: pointer;
-
-      // temp
-      line-height: 88px;
     }
 
     &[data-type] {
