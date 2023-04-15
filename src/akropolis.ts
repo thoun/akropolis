@@ -35,7 +35,7 @@ class Akropolis implements AkropolisGame {
     private selectedTileHexIndex: number;
     private rotation: number = 0;
     private playersTables: PlayerTable[] = [];
-    private stonesCounters: Counter[] = [];
+    public stonesCounters: Counter[] = [];
     private hexesCounters: Counter[][] = [];
     private starsCounters: Counter[][] = [];
     private colorPointsCounters: Counter[][] = [];

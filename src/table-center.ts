@@ -89,6 +89,10 @@ class ConstructionSite {
         this.tiles = tiles;
         Array.from(this.market.querySelectorAll('.tile-with-cost')).forEach(option => option.remove());
         this.tiles.forEach((tile, index) => this.addTile(tile, index));
+
+        if ((this.game as any).isCurrentPlayerActive() && this.game.stonesCounters[this.game.getPlayerId()]) {
+            this.setDisabledTiles(this.game.stonesCounters[this.game.getPlayerId()].getValue());
+        }
     }
 
     private createMarketTile(tile: Tile): HTMLDivElement {

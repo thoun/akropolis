@@ -55,6 +55,7 @@ interface AkropolisGamedatas {
 }
 
 interface AkropolisGame extends Game {
+    stonesCounters: Counter[];
     viewManager: ViewManager;
     animationManager: AnimationManager;
     tilesManager: TilesManager;

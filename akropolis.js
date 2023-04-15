@@ -612,6 +612,9 @@ var ConstructionSite = /** @class */ (function () {
         this.tiles = tiles;
         Array.from(this.market.querySelectorAll('.tile-with-cost')).forEach(function (option) { return option.remove(); });
         this.tiles.forEach(function (tile, index) { return _this.addTile(tile, index); });
+        if (this.game.isCurrentPlayerActive() && this.game.stonesCounters[this.game.getPlayerId()]) {
+            this.setDisabledTiles(this.game.stonesCounters[this.game.getPlayerId()].getValue());
+        }
     };
     ConstructionSite.prototype.createMarketTile = function (tile) {
         var _this = this;
