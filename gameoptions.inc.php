@@ -267,7 +267,7 @@ $game_preferences = [
       'default' => 2,
   ],
 
-  205 => [
+  /* old preference, do not reuse 205. 205 => [
       'name' => totranslate('Reset camera between turns'),
       'needReload' => false,
       'values' => [
@@ -275,5 +275,5 @@ $game_preferences = [
           2 => [ 'name' => totranslate('Enabled')],
       ],
       'default' => 2,
-  ],
+  ],*/
 ];

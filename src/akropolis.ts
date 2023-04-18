@@ -113,9 +113,6 @@ class Akropolis implements AkropolisGame {
     
     private onEnteringPlaceTile(args: EnteringPlaceTileArgs) {
         if ((this as any).isCurrentPlayerActive()) {
-            if ((this as any).prefs[205]?.value != 1) {
-                this.viewManager.resetView();
-            }
             this.selectedPosition = null;
             this.selectedTile = null;
             this.selectedTileHexIndex = null;
