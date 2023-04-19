@@ -81,6 +81,13 @@ class Notifications
     ]);
   }
 
+  public static function automataDelay($player, $message)
+  {
+    self::notifyAll('automataDelay', $message, [
+      'player' => $player,
+    ]);
+  }
+
   ///////////////////////////////////////////////////////////////
   //  _   _           _       _            _
   // | | | |_ __   __| | __ _| |_ ___     / \   _ __ __ _ ___

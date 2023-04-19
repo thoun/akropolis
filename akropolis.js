@@ -1315,6 +1315,7 @@ var Akropolis = /** @class */ (function () {
             ['refillDock', 1],
             ['updateFirstPlayer', 1],
             ['updateScores', 1],
+            ['automataDelay', 2000],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, "notif_".concat(notif[0]));
@@ -1377,6 +1378,7 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.notif_updateScores = function (notif) {
         this.updateScores(notif.args.player_id, notif.args.scores);
     };
+    Akropolis.prototype.notif_automataDelay = function () { };
     /* @Override */
     Akropolis.prototype.change3d = function (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) {
         this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);

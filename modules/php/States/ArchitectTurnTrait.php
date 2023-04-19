@@ -39,8 +39,10 @@ trait ArchitectTurnTrait
 
     if ($tilesWithPlaza->empty()) {
       $tileId = $tiles->first()['id'];
+      Notifications::automataDelay($architect, clienttranslate('${player_name} takes the first City tile from the Construction Site'));
     } else {
       $tileId = $tilesWithPlaza->first()['id'];
+      Notifications::automataDelay($architect, clienttranslate('${player_name} takes cheapest City tile with a Plaza'));
     }
 
     $this->actPlaceTileAux($architect, $tileId, 0, $minOption, $minOption['r'][0]);

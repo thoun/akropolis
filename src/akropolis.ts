@@ -682,6 +682,7 @@ class Akropolis implements AkropolisGame {
             ['refillDock', 1],
             ['updateFirstPlayer', 1],
             ['updateScores', 1],
+            ['automataDelay', 2000],
         ];
     
         notifs.forEach((notif) => {
@@ -750,6 +751,8 @@ class Akropolis implements AkropolisGame {
     notif_updateScores(notif: Notif<NotifUpdateScoresArgs>) {
         this.updateScores(notif.args.player_id, notif.args.scores);
     }
+
+    notif_automataDelay() {}
 
     /* @Override */
     public change3d(incXAxis: number, xpos: number, ypos: number, xAxis: number, incScale: number, is3Dactive: boolean, reset: boolean) {
