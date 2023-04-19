@@ -593,15 +593,17 @@ var ConstructionSite = /** @class */ (function () {
         });
         this.remainingStacksCounter.setValue(remainingStacks);
     };
+    ConstructionSite.prototype.animateTileTo = function (tile, to) {
+        var marketTileDiv = document.getElementById("market-tile-".concat(tile.id)).querySelector('.tile');
+        var finalTransform = "rotate(".concat(60 * Number(marketTileDiv.style.getPropertyValue('--r')), "deg)");
+        return slideToAnimation(marketTileDiv, { fromElement: to, scale: 1, finalTransform: finalTransform });
+    };
     ConstructionSite.prototype.removeTile = function (tile) {
-        var _this = this;
-        slideToAnimation(document.getElementById("market-tile-".concat(tile.id)).querySelector('.tile'), { fromElement: document.getElementById("player-table-".concat(tile.pId, "-city")), scale: 1, }).then(function () {
-            var index = _this.tiles.findIndex(function (t) { return t.id == tile.id; });
-            if (index !== -1) {
-                _this.tiles.splice(index, 1);
-                _this.setTiles(_this.tiles);
-            }
-        });
+        var index = this.tiles.findIndex(function (t) { return t.id == tile.id; });
+        if (index !== -1) {
+            this.tiles.splice(index, 1);
+            this.setTiles(this.tiles);
+        }
     };
     ConstructionSite.prototype.setSelectable = function (selectable) {
         this.selectionActivated = selectable;
@@ -689,11 +691,10 @@ var PlayerTable = /** @class */ (function () {
             });
         });
     };
-    PlayerTable.prototype.placeTile = function (tile, lastMove, preview, selectedHexIndex) {
+    PlayerTable.prototype.placeTile = function (tile, lastMove, type, selectedHexIndex) {
         var _this = this;
-        if (preview === void 0) { preview = false; }
         if (selectedHexIndex === void 0) { selectedHexIndex = null; }
-        var tileDiv = this.game.tilesManager.createTile(tile, true, preview ? ['preview'] : []);
+        var tileDiv = this.game.tilesManager.createTile(tile, true, [type]);
         tileDiv.style.setProperty('--x', "".concat(tile.x));
         tileDiv.style.setProperty('--y', "".concat(tile.y));
         tileDiv.style.setProperty('--z', "".concat(tile.z));
@@ -702,20 +703,21 @@ var PlayerTable = /** @class */ (function () {
         tileDiv.dataset.selectedHexIndex = "".concat(selectedHexIndex);
         this.grid.appendChild(tileDiv);
         this.removePreviewTile();
-        if (preview) {
+        if (type === 'preview') {
             tile.hexes.forEach(function (hex, index) {
                 var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
                 if (index == selectedHexIndex) {
                     hexDiv.classList.add('selected');
                     hexDiv.addEventListener('click', function () { return _this.game.incRotation(); });
                 }
-                hexDiv.id = "player-".concat(_this.playerId, "-tile-").concat(tile.id, "-hex-").concat(index);
-                var _a = _this.game.tilesManager.hexFromString(hex), type = _a.type, plaza = _a.plaza;
-                _this.game.setTooltip(hexDiv.id, _this.game.tilesManager.getHexTooltip(type, plaza));
             });
             this.previewTile = tileDiv;
         }
         else {
+            this.removeInvisibleTile();
+            if (type === 'invisible') {
+                this.invisibleTile = tileDiv;
+            }
             this.minX = Math.min(this.minX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].minX);
             this.minY = Math.min(this.minY, tile.y + TILE_SHIFT_BY_ROTATION[tile.r].minY);
             this.maxX = Math.max(this.maxX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].maxX);
@@ -729,12 +731,18 @@ var PlayerTable = /** @class */ (function () {
             Array.from(this.grid.getElementsByClassName('last-move')).forEach(function (elem) { return elem.classList.remove('last-move'); });
             tileDiv.classList.add('last-move');
         }
+        return tileDiv;
     };
     PlayerTable.prototype.rotatePreviewTile = function (r) {
         var _a;
         (_a = this.previewTile) === null || _a === void 0 ? void 0 : _a.style.setProperty('--r', "".concat(r));
     };
     PlayerTable.prototype.removePreviewTile = function () {
+        var _a;
+        (_a = this.previewTile) === null || _a === void 0 ? void 0 : _a.remove();
+        this.previewTile = null;
+    };
+    PlayerTable.prototype.removeInvisibleTile = function () {
         var _a;
         (_a = this.previewTile) === null || _a === void 0 ? void 0 : _a.remove();
         this.previewTile = null;
@@ -748,7 +756,7 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.createGrid = function (board, lastMove) {
         var _this = this;
         this.createStartTile();
-        board.tiles.forEach(function (tile) { return _this.placeTile(tile, tile.id == (lastMove === null || lastMove === void 0 ? void 0 : lastMove.id)); });
+        board.tiles.forEach(function (tile) { return _this.placeTile(tile, tile.id == (lastMove === null || lastMove === void 0 ? void 0 : lastMove.id), 'final'); });
     };
     PlayerTable.prototype.createTileHex = function (x, y, z, types) {
         var hex = this.game.tilesManager.createTileHex(x, y, z, types, true);
@@ -1158,7 +1166,7 @@ var Akropolis = /** @class */ (function () {
                 this.setRotation(this.findClosestRotation(option.r));
             }
             var tileCoordinates = TILE_COORDINATES[hexIndex];
-            this.getCurrentPlayerTable().placeTile(__assign(__assign({}, this.selectedTile), { x: this.selectedPosition.x - tileCoordinates[0], y: this.selectedPosition.y - tileCoordinates[1], z: this.selectedPosition.z, r: this.rotation }), true, true, this.selectedTileHexIndex);
+            this.getCurrentPlayerTable().placeTile(__assign(__assign({}, this.selectedTile), { x: this.selectedPosition.x - tileCoordinates[0], y: this.selectedPosition.y - tileCoordinates[1], z: this.selectedPosition.z, r: this.rotation }), true, 'preview', this.selectedTileHexIndex);
         }
         this.updateRotationButtonState();
     };
@@ -1191,7 +1199,7 @@ var Akropolis = /** @class */ (function () {
             this.setRotation(this.findClosestRotation(option.r));
         }
         var tileCoordinates = TILE_COORDINATES[this.selectedTileHexIndex];
-        this.getCurrentPlayerTable().placeTile(__assign(__assign({}, this.selectedTile), { x: this.selectedPosition.x - tileCoordinates[0], y: this.selectedPosition.y - tileCoordinates[1], z: this.selectedPosition.z, r: this.rotation }), true, true, this.selectedTileHexIndex);
+        this.getCurrentPlayerTable().placeTile(__assign(__assign({}, this.selectedTile), { x: this.selectedPosition.x - tileCoordinates[0], y: this.selectedPosition.y - tileCoordinates[1], z: this.selectedPosition.z, r: this.rotation }), true, 'preview', this.selectedTileHexIndex);
         ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { return document.getElementById(id).classList.remove('disabled'); });
         this.updateRotationButtonState();
     };
@@ -1314,8 +1322,15 @@ var Akropolis = /** @class */ (function () {
         });
     };
     Akropolis.prototype.notif_placedTile = function (notif) {
-        this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile, true);
-        this.constructionSite.removeTile(notif.args.tile);
+        var _this = this;
+        var playerTable = this.getPlayerTable(notif.args.tile.pId);
+        var tile = notif.args.tile;
+        playerTable.removePreviewTile();
+        var invisibleTile = playerTable.placeTile(tile, false, 'invisible');
+        this.constructionSite.animateTileTo(tile, invisibleTile).then(function () {
+            playerTable.placeTile(tile, true, 'final');
+            _this.constructionSite.removeTile(tile);
+        });
     };
     Akropolis.prototype.notif_pay = function (notif) {
         this.stonesCounters[notif.args.player_id].incValue(-notif.args.cost);

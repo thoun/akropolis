@@ -69,6 +69,9 @@
   transform: translateZ(16px);
   backface-visibility: hidden;
 }
+.tile.invisible {
+  visibility: hidden;
+}
 
 .hex {
   position: absolute;

@@ -16,6 +16,7 @@ class PlayerTable {
     private city: HTMLDivElement;
     private grid: HTMLDivElement;
     private previewTile: HTMLDivElement | null;
+    private invisibleTile: HTMLDivElement | null;
 
     private minX = -1;
     private maxX = 1;
@@ -75,8 +76,8 @@ class PlayerTable {
         });
     }
 
-    public placeTile(tile: Tile, lastMove: boolean, preview: boolean = false, selectedHexIndex: number = null) {
-        const tileDiv = this.game.tilesManager.createTile(tile, true, preview ? ['preview'] : []);
+    public placeTile(tile: Tile, lastMove: boolean, type: 'final' | 'preview' | 'invisible', selectedHexIndex: number = null): HTMLDivElement {
+        const tileDiv = this.game.tilesManager.createTile(tile, true, [type]);
         tileDiv.style.setProperty('--x', `${tile.x}`);
         tileDiv.style.setProperty('--y', `${tile.y}`);
         tileDiv.style.setProperty('--z', `${tile.z}`);
@@ -86,20 +87,22 @@ class PlayerTable {
         this.grid.appendChild(tileDiv);
         this.removePreviewTile();
 
-        if (preview) {
+        if (type === 'preview') {
             tile.hexes.forEach((hex, index) => {
                 const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`);
                 if (index == selectedHexIndex) {
                     hexDiv.classList.add('selected');
                     hexDiv.addEventListener('click', () => this.game.incRotation());
-                } 
-                hexDiv.id = `player-${this.playerId}-tile-${tile.id}-hex-${index}`;
-                const { type, plaza } = this.game.tilesManager.hexFromString(hex);
-                this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));
+                }
             });
 
             this.previewTile = tileDiv;
         } else {
+            this.removeInvisibleTile();
+            if (type === 'invisible') {
+                this.invisibleTile = tileDiv;
+            }
+
             this.minX = Math.min(this.minX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].minX);
             this.minY = Math.min(this.minY, tile.y + TILE_SHIFT_BY_ROTATION[tile.r].minY);
             this.maxX = Math.max(this.maxX, tile.x + TILE_SHIFT_BY_ROTATION[tile.r].maxX);
@@ -116,6 +119,8 @@ class PlayerTable {
             Array.from(this.grid.getElementsByClassName('last-move')).forEach(elem => elem.classList.remove('last-move'));
             tileDiv.classList.add('last-move');
         }
+
+        return tileDiv;
     }
 
     public rotatePreviewTile(r: number) {
@@ -123,6 +128,11 @@ class PlayerTable {
     }
     
     public removePreviewTile() {
+        this.previewTile?.remove();
+        this.previewTile = null;
+    }
+    
+    private removeInvisibleTile() {
         this.previewTile?.remove();
         this.previewTile = null;
     }
@@ -136,7 +146,7 @@ class PlayerTable {
 
     private createGrid(board: PlayerBoard, lastMove: Tile | undefined) {
         this.createStartTile();
-        board.tiles.forEach(tile => this.placeTile(tile, tile.id == lastMove?.id));
+        board.tiles.forEach(tile => this.placeTile(tile, tile.id == lastMove?.id, 'final'));
     }
     
     private createTileHex(x: number, y: number, z: number, types: string) {

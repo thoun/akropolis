@@ -504,7 +504,7 @@ class Akropolis implements AkropolisGame {
                 y: this.selectedPosition.y - tileCoordinates[1],
                 z: this.selectedPosition.z,
                 r: this.rotation,
-            }, true, true, this.selectedTileHexIndex);
+            }, true, 'preview', this.selectedTileHexIndex);
         }
         this.updateRotationButtonState();
     }
@@ -547,7 +547,7 @@ class Akropolis implements AkropolisGame {
             y: this.selectedPosition.y - tileCoordinates[1],
             z: this.selectedPosition.z,
             r: this.rotation,
-        }, true, true, this.selectedTileHexIndex);
+        }, true, 'preview', this.selectedTileHexIndex);
         [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.remove('disabled'));
         this.updateRotationButtonState();
     }
@@ -691,8 +691,14 @@ class Akropolis implements AkropolisGame {
     }
 
     notif_placedTile(notif: Notif<NotifPlacedTileArgs>) {
-        this.getPlayerTable(notif.args.tile.pId).placeTile(notif.args.tile, true);
-        this.constructionSite.removeTile(notif.args.tile);
+        const playerTable = this.getPlayerTable(notif.args.tile.pId);
+        const tile = notif.args.tile;
+        playerTable.removePreviewTile();
+        const invisibleTile = playerTable.placeTile(tile, false, 'invisible');
+        this.constructionSite.animateTileTo(tile, invisibleTile).then(() => {
+            playerTable.placeTile(tile, true, 'final');
+            this.constructionSite.removeTile(tile);
+        });
     }
 
     notif_pay(notif: Notif<NotifPayArgs>) {

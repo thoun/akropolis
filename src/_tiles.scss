@@ -18,6 +18,10 @@
       transform: translateZ($hexThickness);
       backface-visibility: hidden;
   }
+
+  &.invisible {
+    visibility: hidden;
+  }
 }
 
 .hex {

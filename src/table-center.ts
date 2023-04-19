@@ -67,17 +67,21 @@ class ConstructionSite {
         this.remainingStacksCounter.setValue(remainingStacks);
     }
 
+    public animateTileTo(tile: Tile, to: HTMLDivElement): Promise<any> {
+        const marketTileDiv = document.getElementById(`market-tile-${tile.id}`).querySelector('.tile') as HTMLElement;
+        const finalTransform = `rotate(${60 * Number(marketTileDiv.style.getPropertyValue('--r'))}deg)`;
+        return slideToAnimation(
+            marketTileDiv,
+            { fromElement: to, scale: 1, finalTransform }
+        );
+    }
+
     public removeTile(tile: Tile) {
-        slideToAnimation(
-            document.getElementById(`market-tile-${tile.id}`).querySelector('.tile'),
-            { fromElement: document.getElementById(`player-table-${tile.pId}-city`), scale: 1, }
-        ).then(() => {
-            const index = this.tiles.findIndex(t => t.id == tile.id);
-            if (index !== -1) {
-                this.tiles.splice(index, 1);
-                this.setTiles(this.tiles);
-            }
-        });   
+        const index = this.tiles.findIndex(t => t.id == tile.id);
+        if (index !== -1) {
+            this.tiles.splice(index, 1);
+            this.setTiles(this.tiles);
+        }
     }
 
     public setSelectable(selectable: boolean) {
