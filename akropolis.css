@@ -407,6 +407,9 @@
 .tile-level-colors .player-table .city .tile[data-z="2"]::after {
   background-image: url("img/tile-mask2.png");
 }
+.tile-level-colors .player-table .city .tile[data-z="3"]::after {
+  background-image: url("img/tile-mask3.png");
+}
 
 .reset-view-button {
   position: absolute;

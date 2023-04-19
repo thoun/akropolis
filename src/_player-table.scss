@@ -102,7 +102,7 @@ $y0: 300px;
     .player-table {
         .city {
             .tile {
-                @for $i from 0 through 2 {
+                @for $i from 0 through 3 {
                     &[data-z="#{$i}"]::after {
                         background-image: url("img/tile-mask#{$i}.png");
                     }
