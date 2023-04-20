@@ -1274,10 +1274,13 @@ var Akropolis = /** @class */ (function () {
     // TODO move into bga-jump-to ?
     Akropolis.prototype.createPlayerJumps = function (gamedatas) {
         var _this = this;
-        document.getElementById("game_play_area_wrap").insertAdjacentHTML('afterend', "\n        <div id=\"jump-controls\">        \n            <div id=\"jump-toggle\" class=\"jump-link toggle\">\n                \u21D4\n            </div>\n            <div id=\"jump-0\" class=\"jump-link\">\n                <div class=\"eye\"></div> ".concat(_('Construction Site'), "\n            </div>\n        </div>"));
+        document.getElementById("game_play_area_wrap").insertAdjacentHTML('afterend', "\n        <div id=\"jump-controls\">        \n            <div id=\"jump-toggle\" class=\"jump-link toggle\">\n                \u21D4\n            </div>\n            <div id=\"jump--1\" class=\"jump-link\">\n                <div class=\"eye\"></div> ".concat(_('Construction Site'), "\n            </div>\n        </div>"));
         document.getElementById("jump-toggle").addEventListener('click', function () { return _this.jumpToggle(); });
-        document.getElementById("jump-0").addEventListener('click', function () { return _this.jumpToPlayer(0); });
+        document.getElementById("jump--1").addEventListener('click', function () { return _this.jumpToPlayer(-1); });
         var orderedPlayers = this.getOrderedPlayers(gamedatas);
+        if (gamedatas.soloPlayer) {
+            orderedPlayers.push(gamedatas.soloPlayer);
+        }
         orderedPlayers.forEach(function (player) {
             dojo.place("<div id=\"jump-".concat(player.id, "\" class=\"jump-link\" style=\"color: #").concat(player.color, "; border-color: #").concat(player.color, ";\"><div class=\"eye\" style=\"background: #").concat(player.color, ";\"></div> ").concat(player.name, "</div>"), "jump-controls");
             document.getElementById("jump-".concat(player.id)).addEventListener('click', function () { return _this.jumpToPlayer(Number(player.id)); });
@@ -1291,7 +1294,7 @@ var Akropolis = /** @class */ (function () {
         localStorage.setItem(LOCAL_STORAGE_JUMP_KEY, jumpControls.classList.contains('folded').toString());
     };
     Akropolis.prototype.jumpToPlayer = function (playerId) {
-        var elementId = playerId === 0 ? "market" : "player-table-".concat(playerId);
+        var elementId = playerId === -1 ? "market" : "player-table-".concat(playerId);
         document.getElementById(elementId).scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     };
     ///////////////////////////////////////////////////

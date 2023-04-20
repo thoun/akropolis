@@ -631,14 +631,17 @@ class Akropolis implements AkropolisGame {
             <div id="jump-toggle" class="jump-link toggle">
                 ⇔
             </div>
-            <div id="jump-0" class="jump-link">
+            <div id="jump--1" class="jump-link">
                 <div class="eye"></div> ${_('Construction Site')}
             </div>
         </div>`);
         document.getElementById(`jump-toggle`).addEventListener('click', () => this.jumpToggle());
-        document.getElementById(`jump-0`).addEventListener('click', () => this.jumpToPlayer(0));
+        document.getElementById(`jump--1`).addEventListener('click', () => this.jumpToPlayer(-1));
         
         const orderedPlayers = this.getOrderedPlayers(gamedatas);
+        if (gamedatas.soloPlayer) {
+            orderedPlayers.push(gamedatas.soloPlayer);
+        }
 
         orderedPlayers.forEach(player => {
             dojo.place(`<div id="jump-${player.id}" class="jump-link" style="color: #${player.color}; border-color: #${player.color};"><div class="eye" style="background: #${player.color};"></div> ${player.name}</div>`, `jump-controls`);
@@ -656,7 +659,7 @@ class Akropolis implements AkropolisGame {
     }
     
     private jumpToPlayer(playerId: number): void {
-        const elementId = playerId === 0 ? `market` : `player-table-${playerId}`;
+        const elementId = playerId === -1 ? `market` : `player-table-${playerId}`;
         document.getElementById(elementId).scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     }
 
