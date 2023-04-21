@@ -6,6 +6,7 @@ use AKR\Helpers\UserException;
 use AKR\Helpers\Utils;
 use AKR\Helpers\Collection;
 use AKR\Core\Globals;
+use AKR\Core\Stats;
 
 /*
  * Board: all utility functions concerning a Zoo Map
@@ -122,12 +123,43 @@ class Board
     $this->tiles[$tileId] = $tile;
     $this->addTileAux($tile);
 
+    // STATS
+    if ($this->pId != \ARCHITECT_ID) {
+      $map = [
+        \BARRACK_PLAZA => BARRACK,
+        \MARKET_PLAZA => MARKET,
+        \TEMPLE_PLAZA => TEMPLE,
+        \HOUSE_PLAZA => HOUSE,
+        \GARDEN_PLAZA => GARDEN,
+      ];
+      $statMap = [
+        BARRACK => 'Barracks',
+        MARKET => 'Markets',
+        TEMPLE => 'Temples',
+        HOUSE => 'Houses',
+        GARDEN => 'Gardens',
+      ];
+
+      foreach ($tile['hexes'] as $type) {
+        if (in_array($type, DISTRICTS)) {
+          $statName = 'inc' . $statMap[$type] . 'DistrictTiles';
+          Stats::$statName($this->player, 1);
+        } elseif (in_array($type, PLAZAS)) {
+          $statName = 'inc' . $statMap[$map[$type]] . 'PlazaTiles';
+          Stats::$statName($this->player, 1);
+        }
+      }
+    }
+
     $bonus = 0;
     foreach ($this->getCoveredHexes($pos, $rotation) as $cell) {
       $cell['z']--;
       if ($cell['z'] >= 0 && $this->getTypeAtPos($cell) == QUARRY) {
         $bonus++;
       }
+    }
+    if ($bonus > 0 && $this->pId != \ARCHITECT_ID) {
+      Stats::incMoneyEarned($this->player, $bonus);
     }
 
     return $bonus;
@@ -309,13 +341,45 @@ class Board
       GARDEN => \GARDEN_PLAZA,
       QUARRY => QUARRY,
     ];
+    $statMap = [
+      BARRACK => 'Barracks',
+      MARKET => 'Markets',
+      TEMPLE => 'Temples',
+      HOUSE => 'Houses',
+      GARDEN => 'Gardens',
+    ];
 
     $score = 0;
     foreach ($scores['districts'] as $type => $size) {
-      $score += $size * $scores['stars'][$map[$type]];
+      $multiplier = $scores['stars'][$map[$type]];
+      $partialScore = $size * $multiplier;
+      $score += $partialScore;
+
+      if ($this->pId != \ARCHITECT_ID) {
+        // Set value stat
+        $statName = 'set' . $statMap[$type] . 'DistrictValue';
+        Stats::$statName($this->player, $size);
+
+        // Set multiplier stat
+        $statName = 'set' . $statMap[$type] . 'PlazaMultiplier';
+        Stats::$statName($this->player, $multiplier);
+
+        // Set visible plaza stat
+        $statName = 'set' . $statMap[$type] . 'PlazaVisibleTiles';
+        Stats::$statName($this->player, $multiplier / PLAZAS_MULT[$map[$type]]);
+
+        // Set score stat
+        $statName = 'set' . $statMap[$type] . 'Score';
+        Stats::$statName($this->player, $partialScore);
+      }
     }
 
-    $score += $this->player->getMoney();
+    $money = $this->player->getMoney();
+    $score += $money;
+    if ($this->pId != \ARCHITECT_ID) {
+      Stats::setMoneyLeft($this->player, $money);
+      Stats::setScore($this->player, $score);
+    }
 
     return $score;
   }
@@ -354,6 +418,8 @@ class Board
       $districts[$district] = 0;
     }
 
+    $visibleTiles = [];
+
     list($cells, $components, $marks) = $this->computeComponents();
     foreach ($cells as $cell) {
       $type = $this->getTypeAtPos($cell);
@@ -366,6 +432,10 @@ class Board
           $districts[QUARRY] = ($districts[QUARRY] ?? 0) + 1;
         }
         continue;
+      }
+
+      if (in_array($type, \DISTRICTS)) {
+        $visibleTiles[$type] = ($visibleTiles[$type] ?? 0) + 1;
       }
 
       $h = $cell['z'] + 1;
@@ -479,6 +549,20 @@ class Board
         }
 
         $districts[$type] *= 2;
+      }
+    }
+    // HANDLE STATS FOR REAL PLAYERS
+    else {
+      $statMap = [
+        BARRACK => 'Barracks',
+        MARKET => 'Markets',
+        TEMPLE => 'Temples',
+        HOUSE => 'Houses',
+        GARDEN => 'Gardens',
+      ];
+      foreach ($statMap as $type => $stat) {
+        $statName = 'set' . $stat . 'DistrictVisibleTiles';
+        Stats::$statName($this->player, $visibleTiles[$type] ?? 0);
       }
     }
 

@@ -65,11 +65,8 @@ class Stats extends \AKR\Helpers\DB_Manager
       if (!in_array($stat['id'] . ',player', $existingStats)) {
         foreach ($playerIds as $i => $pId) {
           $value = $default[$stat['type']];
-          if ($stat['id'] == STAT_POSITION) {
+          if ($stat['id'] == STAT_STARTING_POSITION) {
             $value = $i + 1;
-          }
-          if ($stat['id'] == STAT_FIRST_PLAYER && $i == 0) {
-            $value = 1;
           }
 
           $values[] = [

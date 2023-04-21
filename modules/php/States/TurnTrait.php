@@ -2,6 +2,7 @@
 namespace AKR\States;
 use AKR\Core\Globals;
 use AKR\Core\Notifications;
+use AKR\Core\Stats;
 use AKR\Managers\Players;
 use AKR\Managers\Tiles;
 use AKR\Helpers\Utils;
@@ -69,6 +70,10 @@ trait TurnTrait
     // Pay money if needed
     if ($cost > 0) {
       $player->incMoney(-$cost);
+      if ($player->getId() != \ARCHITECT_ID) {
+        Stats::incMoneyUsed($player, $cost);
+      }
+
       Notifications::payForTile($player, $cost);
       if (Globals::isSolo() && $player->getId() != ARCHITECT_ID) {
         $architect = Players::getArchitect();
