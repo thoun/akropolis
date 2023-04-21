@@ -699,7 +699,7 @@ var PlayerTable = /** @class */ (function () {
         tileDiv.style.setProperty('--y', "".concat(tile.y));
         tileDiv.style.setProperty('--z', "".concat(tile.z));
         tileDiv.style.setProperty('--r', "".concat(tile.r));
-        tileDiv.dataset.z = "".concat(Math.min(2, tile.z));
+        tileDiv.dataset.z = "".concat(tile.z % 4);
         tileDiv.dataset.selectedHexIndex = "".concat(selectedHexIndex);
         this.grid.appendChild(tileDiv);
         this.removePreviewTile();
