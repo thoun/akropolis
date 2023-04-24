@@ -46,36 +46,44 @@
 
 /********* You can start writing your CSS below this line: **********/
 
-$selectionColor: #01C0FF;
+$selectionColor: #01c0ff;
 
 $hexSide: 48.5px;
 $hexHeight: 84px; // sqrt(3) * size
 $hexThickness: 16px;
 
 @font-face {
-  font-family: 'xtraregular'; // Dalek Pinpoint is only free for personal use, so we use a similar one
-  src: url('img/xtra-webfont.woff2') format('woff2'),
-       url('img/xtra-webfont.woff') format('woff');
+  font-family: "xtraregular"; // Dalek Pinpoint is only free for personal use, so we use a similar one
+  src: url("img/xtra-webfont.woff2") format("woff2"), url("img/xtra-webfont.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
-@import 'tiles';
-@import 'table-center';
-@import 'playerboards';
-@import 'player-table';
-@import 'help';
+@import "tiles";
+@import "table-center";
+@import "playerboards";
+@import "player-table";
+@import "help";
+
+/* Firefox does not like nested 3D perspective somehow ?? */
+.mode_3d #game_play_area_wrap {
+  perspective: inherit;
+  transform-origin: initial;
+  perspective-origin: initial;
+  transform-style: initial;
+}
 
 /* make space between buttons on touch devices */
 @media (hover: none) {
-  #page-title .action-button.bgabutton, #page-title .bgabutton {
+  #page-title .action-button.bgabutton,
+  #page-title .bgabutton {
     margin-bottom: 8px;
     margin-top: 8px;
   }
 }
 
 .score-icon {
-  background: url('img/score-icons.png');
+  background: url("img/score-icons.png");
   background-size: 200% auto;
   vertical-align: middle;
   background-repeat: no-repeat;
@@ -111,8 +119,9 @@ $hexThickness: 16px;
   }
 }
 
-html, .mode_3d {
-  background: url('img/background.jpg');
+html,
+.mode_3d {
+  background: url("img/background.jpg");
   background-size: 100% auto;
   background-repeat: repeat;
 }
@@ -124,8 +133,6 @@ html, .mode_3d {
 .mode_3d #game_play_area_background {
   display: none;
 }
-
-
 
 #jump-controls {
   position: fixed;
@@ -150,7 +157,7 @@ html, .mode_3d {
     height: 22px;
     padding: 2px 5px;
     background: white;
-    
+
     &::before {
       width: 0;
       height: 0;
@@ -163,7 +170,7 @@ html, .mode_3d {
       right: -11px;
       top: -2px;
     }
-    
+
     &::after {
       width: 0;
       height: 0;
@@ -179,8 +186,8 @@ html, .mode_3d {
     .eye {
       width: 20px;
       height: 20px;
-      mask: url('img/eye.svg') no-repeat center / contain;
-      -webkit-mask: url('img/eye.svg') no-repeat center / contain;
+      mask: url("img/eye.svg") no-repeat center / contain;
+      -webkit-mask: url("img/eye.svg") no-repeat center / contain;
       background: black;
       background-size: 100% 100%;
       background-repeat: no-repeat;
