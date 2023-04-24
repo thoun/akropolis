@@ -214,7 +214,7 @@
   color: red;
 }
 #market .tile-with-cost.selected {
-  box-shadow: 0 0 10px 8px #01C0FF;
+  box-shadow: 0 0 10px 8px #01c0ff;
 }
 #market .tile-with-cost .tile {
   --shift-left: 0px;
@@ -545,9 +545,18 @@
     bottom: 5px;
   }
 }
+/* Firefox does not like nested 3D perspective somehow ?? */
+.mode_3d #game_play_area_wrap {
+  perspective: inherit;
+  transform-origin: initial;
+  perspective-origin: initial;
+  transform-style: initial;
+}
+
 /* make space between buttons on touch devices */
 @media (hover: none) {
-  #page-title .action-button.bgabutton, #page-title .bgabutton {
+  #page-title .action-button.bgabutton,
+  #page-title .bgabutton {
     margin-bottom: 8px;
     margin-top: 8px;
   }
@@ -587,7 +596,8 @@
   height: 30px;
 }
 
-html, .mode_3d {
+html,
+.mode_3d {
   background: url("img/background.jpg");
   background-size: 100% auto;
   background-repeat: repeat;
