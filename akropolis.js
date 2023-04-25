@@ -576,7 +576,9 @@ var ConstructionSite = /** @class */ (function () {
         var _a;
         Array.from(this.market.querySelectorAll('.selected')).forEach(function (option) { return option.classList.remove('selected'); });
         (_a = document.getElementById("market-tile-".concat(tileId))) === null || _a === void 0 ? void 0 : _a.classList.add('selected');
-        hex === null || hex === void 0 ? void 0 : hex.classList.add('selected');
+        if (!this.game.usePivotRotation()) {
+            hex === null || hex === void 0 ? void 0 : hex.classList.add('selected');
+        }
     };
     ConstructionSite.prototype.setDisabledTiles = function (playerMoney) {
         Array.from(this.market.querySelectorAll('.disabled')).forEach(function (option) { return option.classList.remove('disabled'); });
@@ -625,7 +627,7 @@ var ConstructionSite = /** @class */ (function () {
             var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
             hexDiv.addEventListener('click', function () {
                 if (_this.selectionActivated) {
-                    _this.game.constructionSiteHexClicked(tile, index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
+                    _this.game.constructionSiteHexClicked(tile, _this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
                 }
             });
         });
@@ -683,12 +685,23 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.setPlaceTileOptions = function (options, rotation) {
         var _this = this;
         this.cleanPossibleHex();
+        var pivot = this.game.usePivotRotation();
         options /*.filter(option => option.r.some(r => r == rotation))*/.forEach(function (option) {
-            var hex = _this.createPossibleHex(option.x, option.y, option.z);
-            var face = hex.getElementsByClassName('face')[0];
-            face.addEventListener('click', function () {
-                _this.game.possiblePositionClicked(option.x, option.y, option.z);
-            });
+            if (pivot) {
+                if (option.r.includes(0)) {
+                    var pivot_1 = _this.createPossiblePivot(option.x, option.y, option.z);
+                    pivot_1.addEventListener('click', function () {
+                        _this.game.possiblePositionClicked(option.x, option.y, option.z);
+                    });
+                }
+            }
+            else {
+                var hex = _this.createPossibleHex(option.x, option.y, option.z);
+                var face = hex.getElementsByClassName('face')[0];
+                face.addEventListener('click', function () {
+                    _this.game.possiblePositionClicked(option.x, option.y, option.z);
+                });
+            }
         });
     };
     PlayerTable.prototype.placeTile = function (tile, lastMove, type, selectedHexIndex) {
@@ -706,7 +719,7 @@ var PlayerTable = /** @class */ (function () {
         if (type === 'preview') {
             tile.hexes.forEach(function (hex, index) {
                 var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
-                if (index == selectedHexIndex) {
+                if (index == selectedHexIndex && !_this.game.usePivotRotation()) {
                     hexDiv.classList.add('selected');
                     hexDiv.addEventListener('click', function () { return _this.game.incRotation(); });
                 }
@@ -771,6 +784,15 @@ var PlayerTable = /** @class */ (function () {
         this.grid.appendChild(hex);
         return hex;
     };
+    PlayerTable.prototype.createPossiblePivot = function (x, y, z) {
+        var pivot = document.createElement('div');
+        pivot.style.setProperty('--x', "".concat(x));
+        pivot.style.setProperty('--y', "".concat(y));
+        pivot.style.setProperty('--z', "".concat(z));
+        pivot.classList.add('pivot');
+        this.grid.appendChild(pivot);
+        return pivot;
+    };
     PlayerTable.prototype.getSoloDifficulty = function (level) {
         switch (level) {
             case 1: return _('Easy level');
@@ -800,6 +822,22 @@ var HEX_QUANTITIES = {
     3: [[6, 27], [5, 16], [5, 13], [5, 10], [4, 7]],
     4: [[7, 36], [6, 20], [6, 16], [6, 12], [5, 8]],
 };
+var PIVOT_ROTATIONS = [
+    [+1, +1],
+    [0, +2],
+    [-1, +1],
+    [-1, -1],
+    [0, -2],
+    [+1, -1],
+];
+var PIVOT_ROTATIONS_REVERSE = [
+    [0, +2],
+    [-1, +1],
+    [-1, -1],
+    [0, -2],
+    [+1, -1],
+    [+1, +1],
+];
 var AKROPOLIS_FOLDED_HELP = 'Akropolis-FoldedHelp';
 var LOCAL_STORAGE_JUMP_KEY = 'Akropolis-jump-to-folded';
 var Akropolis = /** @class */ (function () {
@@ -810,6 +848,7 @@ var Akropolis = /** @class */ (function () {
         this.hexesCounters = [];
         this.starsCounters = [];
         this.colorPointsCounters = [];
+        this.pivotRotation = false;
         this.TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
     }
     /*
@@ -827,6 +866,7 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.setup = function (gamedatas) {
         var _this = this;
         log("Starting game setup");
+        this.pivotRotation = window.location.href.indexOf('pivot') !== -1;
         this.gamedatas = gamedatas;
         // Setup camera controls reminder
         var reminderHtml = document.getElementsByTagName('body')[0].classList.contains('touch-device') ?
@@ -893,8 +933,14 @@ var Akropolis = /** @class */ (function () {
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'placeTile':
-                    this.addActionButton("decRotation_button", "\u2939", function () { return _this.decRotation(); });
-                    this.addActionButton("incRotation_button", "\u2938", function () { return _this.incRotation(); });
+                    if (this.usePivotRotation()) {
+                        this.addActionButton("decRotationPivot_button", "\u2B6F", function () { return _this.decRotationPivot(); });
+                        this.addActionButton("incRotationPivot_button", "\u2B6E", function () { return _this.incRotationPivot(); });
+                    }
+                    else {
+                        this.addActionButton("decRotation_button", "\u2939", function () { return _this.decRotation(); });
+                        this.addActionButton("incRotation_button", "\u2938", function () { return _this.incRotation(); });
+                    }
                     this.addActionButton("placeTile_button", _('Confirm'), function () { return _this.placeTile(); });
                     this.addActionButton("cancelPlaceTile_button", _('Cancel'), function () { return _this.cancelPlaceTile(); }, null, null, 'gray');
                     ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { return document.getElementById(id).classList.add('disabled'); });
@@ -955,6 +1001,17 @@ var Akropolis = /** @class */ (function () {
                 document.getElementsByTagName('html')[0].classList.toggle('animated-opacity', prefValue == 2);
                 break;
         }
+    };
+    Akropolis.prototype.usePivotRotation = function () {
+        /*const playersIds = Object.keys(this.gamedatas.players).map(val => +val);
+        return (playersIds.length == 1 && [
+            2343492, // thoun studio
+            86175279, // thoun BGA
+            2322020, // tisaac studio
+            83846198, // tisaac BGA
+            84834479, // jules
+        ].includes(playersIds[0]));*/
+        return this.pivotRotation;
     };
     Akropolis.prototype.getOrderedPlayers = function (gamedatas) {
         var _this = this;
@@ -1061,7 +1118,8 @@ var Akropolis = /** @class */ (function () {
         if (['TEXTAREA', 'INPUT'].includes(event.target.nodeName) || !this.isCurrentPlayerActive()) {
             return;
         }
-        var canRotate = !(this.selectedPosition && this.getSelectedPositionOption().r.length <= 1);
+        var pivot = this.usePivotRotation();
+        var canRotate = pivot ? true : !(this.selectedPosition && this.getSelectedPositionOption().r.length <= 1);
         var canConfirmCancel = this.selectedPosition;
         switch (event.key) { // event.keyCode
             case ' ': // 32
@@ -1072,7 +1130,7 @@ var Akropolis = /** @class */ (function () {
             case 'ArrowRight': // 39
             case 'ArrowDown': // 40
                 if (canRotate) {
-                    this.incRotation();
+                    pivot ? this.incRotationPivot() : this.incRotation();
                 }
                 event.stopImmediatePropagation();
                 event.preventDefault();
@@ -1081,7 +1139,7 @@ var Akropolis = /** @class */ (function () {
             case 'ArrowUp': // 38
             case 'ArrowLeft': // 37
                 if (canRotate) {
-                    this.decRotation();
+                    pivot ? this.decRotationPivot() : this.decRotation();
                 }
                 event.stopImmediatePropagation();
                 event.preventDefault();
@@ -1156,6 +1214,10 @@ var Akropolis = /** @class */ (function () {
             this.incRotation();
             return;
         }
+        var pivot = this.usePivotRotation();
+        if (pivot && tile == this.selectedTile) {
+            return;
+        }
         this.selectedTile = tile;
         this.selectedTileHexIndex = hexIndex;
         this.constructionSite.setSelectedHex(tile.id, hex);
@@ -1193,9 +1255,19 @@ var Akropolis = /** @class */ (function () {
         if (!this.selectedTile) {
             return;
         }
+        console.log('possiblePositionClicked');
+        var pivot = this.usePivotRotation();
+        if (pivot && this.selectedPosition != null) {
+            console.log(x, y, z, this.rotation, this.selectedPosition);
+            if (this.selectedPosition.x == x && this.selectedPosition.y == y && this.selectedPosition.z == z) {
+                this.incRotationPivot();
+                console.log('possiblePositionClicked pivot, return');
+                return;
+            }
+        }
         this.selectedPosition = { x: x, y: y, z: z };
         var option = this.getSelectedPositionOption();
-        if (!option.r.includes(this.rotation)) {
+        if (!option.r.includes(this.rotation) && !pivot) {
             this.setRotation(this.findClosestRotation(option.r));
         }
         var tileCoordinates = TILE_COORDINATES[this.selectedTileHexIndex];
@@ -1230,6 +1302,10 @@ var Akropolis = /** @class */ (function () {
         }
     };
     Akropolis.prototype.setRotation = function (rotation) {
+        while (rotation < 0) {
+            rotation += 6;
+        }
+        rotation %= 6;
         this.rotation = rotation;
         if (this.selectedTile) {
             this.constructionSite.setRotation(rotation, this.selectedTile);
@@ -1238,6 +1314,21 @@ var Akropolis = /** @class */ (function () {
             this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
         }
         this.getCurrentPlayerTable().rotatePreviewTile(this.rotation);
+    };
+    Akropolis.prototype.decRotationPivot = function () {
+        this.changeRotationPivot(-1);
+    };
+    Akropolis.prototype.incRotationPivot = function () {
+        this.changeRotationPivot(+1);
+    };
+    Akropolis.prototype.changeRotationPivot = function (direction) {
+        var rotation = this.rotation;
+        while (rotation < 0) {
+            rotation += 6;
+        }
+        var pivotRotation = (direction == -1 ? PIVOT_ROTATIONS_REVERSE : PIVOT_ROTATIONS)[(rotation + (this.selectedTileHexIndex * 2)) % 6];
+        this.possiblePositionClicked(this.selectedPosition.x + pivotRotation[0], this.selectedPosition.y + pivotRotation[1], this.selectedPosition.z);
+        this.setRotation(rotation + direction * 2);
     };
     Akropolis.prototype.cancelPlaceTile = function () {
         ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { return document.getElementById(id).classList.add('disabled'); });
@@ -1249,7 +1340,7 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.updateRotationButtonState = function () {
         var _a;
         var cannotRotate = this.selectedTile ? (this.selectedPosition && ((_a = this.getSelectedPositionOption()) === null || _a === void 0 ? void 0 : _a.r.length) <= 1) : true;
-        ["decRotation_button", "incRotation_button"].forEach(function (id) { return document.getElementById(id).classList.toggle('disabled', cannotRotate); });
+        ["decRotation_button", "incRotation_button"].forEach(function (id) { var _a; return (_a = document.getElementById(id)) === null || _a === void 0 ? void 0 : _a.classList.toggle('disabled', cannotRotate); });
     };
     Akropolis.prototype.placeTile = function () {
         var _a;

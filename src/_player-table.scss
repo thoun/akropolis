@@ -95,6 +95,23 @@ $y0: 300px;
                 background-image: url("img/tile-mask-last.png") !important;
             }
         }
+
+        .pivot {
+            cursor: pointer;
+            position: absolute;
+            left: calc($hexSide  / 2 + ($hexSide * var(--x) * 1.5) - 15px);
+            top: calc(($hexHeight * (var(--y) + 2) / 2) - 15px);
+            transform: translateZ(calc($hexThickness * (var(--z) + 1)));
+            
+            border-radius: 50%;
+            background: #52d3fd;
+            width: 30px;
+            height: 30px;
+
+            &:hover {
+                background: #00bfff;
+            }
+        }
     }
 }
 
