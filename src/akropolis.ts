@@ -20,6 +20,24 @@ const HEX_QUANTITIES = {
     4: [[7,36], [6,20], [6,16], [6,12], [5,8]],
 };
 
+const PIVOT_ROTATIONS = [
+    [+1, +1],
+    [0, +2],
+    [-1, +1],
+    [-1, -1],
+    [0, -2],
+    [+1, -1],
+];
+
+const PIVOT_ROTATIONS_REVERSE = [
+    [0, +2],
+    [-1, +1],
+    [-1, -1],
+    [0, -2],
+    [+1, -1],
+    [+1, +1],
+];
+
 const AKROPOLIS_FOLDED_HELP = 'Akropolis-FoldedHelp';
 const LOCAL_STORAGE_JUMP_KEY = 'Akropolis-jump-to-folded';
 
@@ -147,6 +165,17 @@ class Akropolis implements AkropolisGame {
                  case 'placeTile':
                     (this as any).addActionButton(`decRotation_button`, `⤹`, () => this.decRotation());
                     (this as any).addActionButton(`incRotation_button`, `⤸`, () => this.incRotation());
+                    const playersIds = Object.keys(this.gamedatas.players).map(val => +val);
+                    if (playersIds.length == 1 && [
+                        2343492, // thoun studio
+                        86175279, // thoun BGA
+                        2322020, // tisaac studio
+                        83846198, // tisaac BGA
+                        84834479, // jules
+                    ].includes(playersIds[0])) {
+                        (this as any).addActionButton(`decRotationPivot_button`, `⭯`, () => this.decRotationPivot());
+                        (this as any).addActionButton(`incRotationPivot_button`, `⭮`, () => this.incRotationPivot());
+                    }
                     (this as any).addActionButton(`placeTile_button`, _('Confirm'), () => this.placeTile());
                     (this as any).addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.cancelPlaceTile(), null, null, 'gray');
                     [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
@@ -577,6 +606,8 @@ class Akropolis implements AkropolisGame {
     }
 
     public setRotation(rotation: number): void {
+        while (rotation < 0) { rotation += 6; }
+        rotation %= 6;
         this.rotation = rotation;
         if (this.selectedTile) {
             this.constructionSite.setRotation(rotation, this.selectedTile);
@@ -585,6 +616,22 @@ class Akropolis implements AkropolisGame {
             this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
         }
         this.getCurrentPlayerTable().rotatePreviewTile(this.rotation);
+    }
+
+    public decRotationPivot(): void {
+        this.changeRotationPivot(-1);
+    }
+
+    public incRotationPivot(): void {
+        this.changeRotationPivot(+1);
+    }
+
+    public changeRotationPivot(direction: number): void {
+        let rotation = this.rotation;
+        while (rotation < 0) { rotation += 6; }
+        const pivotRotation = (direction == -1 ? PIVOT_ROTATIONS_REVERSE : PIVOT_ROTATIONS)[(rotation + (this.selectedTileHexIndex * 2)) % 6];
+        this.possiblePositionClicked(this.selectedPosition.x + pivotRotation[0], this.selectedPosition.y + pivotRotation[1], this.selectedPosition.z);
+        this.setRotation(rotation + direction * 2);
     }
 
     public cancelPlaceTile() {
