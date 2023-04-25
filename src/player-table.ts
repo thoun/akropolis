@@ -67,12 +67,23 @@ class PlayerTable {
     
     public setPlaceTileOptions(options: PlaceTileOption[], rotation: number) {
         this.cleanPossibleHex();
+        const pivot = this.game.usePivotRotation();
+
         options/*.filter(option => option.r.some(r => r == rotation))*/.forEach(option => {
-            const hex = this.createPossibleHex(option.x, option.y, option.z);
-            const face = hex.getElementsByClassName('face')[0] as HTMLDivElement;
-            face.addEventListener('click', () => {
-                this.game.possiblePositionClicked(option.x, option.y, option.z);
-            });
+            if (pivot) {
+                if (option.r.includes(0)) {
+                    const pivot = this.createPossiblePivot(option.x, option.y, option.z);
+                    pivot.addEventListener('click', () => {
+                        this.game.possiblePositionClicked(option.x, option.y, option.z);
+                    });
+                }
+            } else {
+                const hex = this.createPossibleHex(option.x, option.y, option.z);
+                const face = hex.getElementsByClassName('face')[0] as HTMLDivElement;
+                face.addEventListener('click', () => {
+                    this.game.possiblePositionClicked(option.x, option.y, option.z);
+                });
+            }
         });
     }
 
@@ -90,7 +101,7 @@ class PlayerTable {
         if (type === 'preview') {
             tile.hexes.forEach((hex, index) => {
                 const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`);
-                if (index == selectedHexIndex) {
+                if (index == selectedHexIndex && !this.game.usePivotRotation()) {
                     hexDiv.classList.add('selected');
                     hexDiv.addEventListener('click', () => this.game.incRotation());
                 }
@@ -163,6 +174,16 @@ class PlayerTable {
         //hex.id = `player-${this.playerId}-possible-hex-${x}-${y}-${z}`;
         this.grid.appendChild(hex);
         return hex;
+    }
+
+    private createPossiblePivot(x: number, y: number, z: number) {
+        const pivot = document.createElement('div');
+        pivot.style.setProperty('--x', `${x}`);
+        pivot.style.setProperty('--y', `${y}`);
+        pivot.style.setProperty('--z', `${z}`);
+        pivot.classList.add('pivot');
+        this.grid.appendChild(pivot);
+        return pivot;
     }
 
     private getSoloDifficulty(level: number) {

@@ -43,7 +43,9 @@ class ConstructionSite {
     public setSelectedHex(tileId: number, hex: HTMLDivElement) {
         Array.from(this.market.querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
         document.getElementById(`market-tile-${tileId}`)?.classList.add('selected');
-        hex?.classList.add('selected');
+        if (!this.game.usePivotRotation()) {
+            hex?.classList.add('selected');
+        }
     }
 
     public setDisabledTiles(playerMoney: number | null) {
@@ -105,7 +107,7 @@ class ConstructionSite {
             const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
             hexDiv.addEventListener('click', () => {
                 if (this.selectionActivated) {
-                    this.game.constructionSiteHexClicked(tile, index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
+                    this.game.constructionSiteHexClicked(tile, this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
                 }
             });
         });

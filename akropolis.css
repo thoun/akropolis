@@ -400,6 +400,20 @@
 .player-table .city .tile.last-move::after {
   background-image: url("img/tile-mask-last.png") !important;
 }
+.player-table .city .pivot {
+  cursor: pointer;
+  position: absolute;
+  left: calc(24.25px + 48.5px * var(--x) * 1.5 - 15px);
+  top: calc(84px * (var(--y) + 2) / 2 - 15px);
+  transform: translateZ(calc(16px * (var(--z) + 1)));
+  border-radius: 50%;
+  background: #52d3fd;
+  width: 30px;
+  height: 30px;
+}
+.player-table .city .pivot:hover {
+  background: #00bfff;
+}
 
 .tile-level-colors .player-table .city .tile[data-z="0"]::after {
   background-image: url("img/tile-mask0.png");
@@ -557,8 +571,7 @@
 @media (hover: none) {
   #page-title .action-button.bgabutton,
   #page-title .bgabutton {
-    margin-bottom: 8px;
-    margin-top: 8px;
+    margin: 12px;
   }
 }
 .score-icon {

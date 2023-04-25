@@ -61,6 +61,7 @@ interface AkropolisGame extends Game {
     tilesManager: TilesManager;
 
     getPlayerId(): number;
+    usePivotRotation(): boolean;
 
     setTooltip(id: string, html: string): void;  
     constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement, rotation: number): void;
