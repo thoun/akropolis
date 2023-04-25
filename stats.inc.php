@@ -133,105 +133,105 @@ $stats_type = [
       'type' => 'int',
     ],
 
-    'housesDistrictTiles' => [
-      'id' => STAT_HOUSES_DISTRICT_TILES,
-      'name' => totranslate('Played houses hexes'),
-      'type' => 'int',
-    ],
-    'housesDistrictVisibleTiles' => [
-      'id' => STAT_HOUSES_DISTRICT_VISIBLE_TILES,
-      'name' => totranslate('Played houses hexes visible at the end'),
-      'type' => 'int',
-    ],
-    'housesPlazaTiles' => [
-      'id' => STAT_HOUSES_PLAZA_TILES,
-      'name' => totranslate('Played houses plazas'),
-      'type' => 'int',
-    ],
-    'housesPlazaVisibleTiles' => [
-      'id' => STAT_HOUSES_PLAZA_VISIBLE_TILES,
-      'name' => totranslate('Played houses plazas visible at the end'),
-      'type' => 'int',
-    ],
-    'marketsDistrictTiles' => [
-      'id' => STAT_MARKETS_DISTRICT_TILES,
-      'name' => totranslate('Played markets hexes'),
-      'type' => 'int',
-    ],
-    'marketsDistrictVisibleTiles' => [
-      'id' => STAT_MARKETS_DISTRICT_VISIBLE_TILES,
-      'name' => totranslate('Played markets hexes visible at the end'),
-      'type' => 'int',
-    ],
-    'marketsPlazaTiles' => [
-      'id' => STAT_MARKETS_PLAZA_TILES,
-      'name' => totranslate('Played markets plazas'),
-      'type' => 'int',
-    ],
-    'marketsPlazaVisibleTiles' => [
-      'id' => STAT_MARKETS_PLAZA_VISIBLE_TILES,
-      'name' => totranslate('Played markets plazas visible at the end'),
-      'type' => 'int',
-    ],
-    'barracksDistrictTiles' => [
-      'id' => STAT_BARRACKS_DISTRICT_TILES,
-      'name' => totranslate('Played barracks hexes'),
-      'type' => 'int',
-    ],
-    'barracksDistrictVisibleTiles' => [
-      'id' => STAT_BARRACKS_DISTRICT_VISIBLE_TILES,
-      'name' => totranslate('Played barracks hexes visible at the end'),
-      'type' => 'int',
-    ],
-    'barracksPlazaTiles' => [
-      'id' => STAT_BARRACKS_PLAZA_TILES,
-      'name' => totranslate('Played barracks plazas'),
-      'type' => 'int',
-    ],
-    'barracksPlazaVisibleTiles' => [
-      'id' => STAT_BARRACKS_PLAZA_VISIBLE_TILES,
-      'name' => totranslate('Played barracks plazas visible at the end'),
-      'type' => 'int',
-    ],
-    'templesDistrictTiles' => [
-      'id' => STAT_TEMPLES_DISTRICT_TILES,
-      'name' => totranslate('Played temples hexes'),
-      'type' => 'int',
-    ],
-    'templesDistrictVisibleTiles' => [
-      'id' => STAT_TEMPLES_DISTRICT_VISIBLE_TILES,
-      'name' => totranslate('Played temples hexes visible at the end'),
-      'type' => 'int',
-    ],
-    'templesPlazaTiles' => [
-      'id' => STAT_TEMPLES_PLAZA_TILES,
-      'name' => totranslate('Played temples plazas'),
-      'type' => 'int',
-    ],
-    'templesPlazaVisibleTiles' => [
-      'id' => STAT_TEMPLES_PLAZA_VISIBLE_TILES,
-      'name' => totranslate('Played temples plazas visible at the end'),
-      'type' => 'int',
-    ],
-    'gardensDistrictTiles' => [
-      'id' => STAT_GARDENS_DISTRICT_TILES,
-      'name' => totranslate('Played gardens hexes'),
-      'type' => 'int',
-    ],
-    'gardensDistrictVisibleTiles' => [
-      'id' => STAT_GARDENS_DISTRICT_VISIBLE_TILES,
-      'name' => totranslate('Played gardens hexes visible at the end'),
-      'type' => 'int',
-    ],
-    'gardensPlazaTiles' => [
-      'id' => STAT_GARDENS_PLAZA_TILES,
-      'name' => totranslate('Played gardens plazas'),
-      'type' => 'int',
-    ],
-    'gardensPlazaVisibleTiles' => [
-      'id' => STAT_GARDENS_PLAZA_VISIBLE_TILES,
-      'name' => totranslate('Played gardens plazas visible at the end'),
-      'type' => 'int',
-    ],
+    // 'housesDistrictTiles' => [
+    //   'id' => STAT_HOUSES_DISTRICT_TILES,
+    //   'name' => totranslate('Played houses hexes'),
+    //   'type' => 'int',
+    // ],
+    // 'housesDistrictVisibleTiles' => [
+    //   'id' => STAT_HOUSES_DISTRICT_VISIBLE_TILES,
+    //   'name' => totranslate('Played houses hexes visible at the end'),
+    //   'type' => 'int',
+    // ],
+    // 'housesPlazaTiles' => [
+    //   'id' => STAT_HOUSES_PLAZA_TILES,
+    //   'name' => totranslate('Played houses plazas'),
+    //   'type' => 'int',
+    // ],
+    // 'housesPlazaVisibleTiles' => [
+    //   'id' => STAT_HOUSES_PLAZA_VISIBLE_TILES,
+    //   'name' => totranslate('Played houses plazas visible at the end'),
+    //   'type' => 'int',
+    // ],
+    // 'marketsDistrictTiles' => [
+    //   'id' => STAT_MARKETS_DISTRICT_TILES,
+    //   'name' => totranslate('Played markets hexes'),
+    //   'type' => 'int',
+    // ],
+    // 'marketsDistrictVisibleTiles' => [
+    //   'id' => STAT_MARKETS_DISTRICT_VISIBLE_TILES,
+    //   'name' => totranslate('Played markets hexes visible at the end'),
+    //   'type' => 'int',
+    // ],
+    // 'marketsPlazaTiles' => [
+    //   'id' => STAT_MARKETS_PLAZA_TILES,
+    //   'name' => totranslate('Played markets plazas'),
+    //   'type' => 'int',
+    // ],
+    // 'marketsPlazaVisibleTiles' => [
+    //   'id' => STAT_MARKETS_PLAZA_VISIBLE_TILES,
+    //   'name' => totranslate('Played markets plazas visible at the end'),
+    //   'type' => 'int',
+    // ],
+    // 'barracksDistrictTiles' => [
+    //   'id' => STAT_BARRACKS_DISTRICT_TILES,
+    //   'name' => totranslate('Played barracks hexes'),
+    //   'type' => 'int',
+    // ],
+    // 'barracksDistrictVisibleTiles' => [
+    //   'id' => STAT_BARRACKS_DISTRICT_VISIBLE_TILES,
+    //   'name' => totranslate('Played barracks hexes visible at the end'),
+    //   'type' => 'int',
+    // ],
+    // 'barracksPlazaTiles' => [
+    //   'id' => STAT_BARRACKS_PLAZA_TILES,
+    //   'name' => totranslate('Played barracks plazas'),
+    //   'type' => 'int',
+    // ],
+    // 'barracksPlazaVisibleTiles' => [
+    //   'id' => STAT_BARRACKS_PLAZA_VISIBLE_TILES,
+    //   'name' => totranslate('Played barracks plazas visible at the end'),
+    //   'type' => 'int',
+    // ],
+    // 'templesDistrictTiles' => [
+    //   'id' => STAT_TEMPLES_DISTRICT_TILES,
+    //   'name' => totranslate('Played temples hexes'),
+    //   'type' => 'int',
+    // ],
+    // 'templesDistrictVisibleTiles' => [
+    //   'id' => STAT_TEMPLES_DISTRICT_VISIBLE_TILES,
+    //   'name' => totranslate('Played temples hexes visible at the end'),
+    //   'type' => 'int',
+    // ],
+    // 'templesPlazaTiles' => [
+    //   'id' => STAT_TEMPLES_PLAZA_TILES,
+    //   'name' => totranslate('Played temples plazas'),
+    //   'type' => 'int',
+    // ],
+    // 'templesPlazaVisibleTiles' => [
+    //   'id' => STAT_TEMPLES_PLAZA_VISIBLE_TILES,
+    //   'name' => totranslate('Played temples plazas visible at the end'),
+    //   'type' => 'int',
+    // ],
+    // 'gardensDistrictTiles' => [
+    //   'id' => STAT_GARDENS_DISTRICT_TILES,
+    //   'name' => totranslate('Played gardens hexes'),
+    //   'type' => 'int',
+    // ],
+    // 'gardensDistrictVisibleTiles' => [
+    //   'id' => STAT_GARDENS_DISTRICT_VISIBLE_TILES,
+    //   'name' => totranslate('Played gardens hexes visible at the end'),
+    //   'type' => 'int',
+    // ],
+    // 'gardensPlazaTiles' => [
+    //   'id' => STAT_GARDENS_PLAZA_TILES,
+    //   'name' => totranslate('Played gardens plazas'),
+    //   'type' => 'int',
+    // ],
+    // 'gardensPlazaVisibleTiles' => [
+    //   'id' => STAT_GARDENS_PLAZA_VISIBLE_TILES,
+    //   'name' => totranslate('Played gardens plazas visible at the end'),
+    //   'type' => 'int',
+    // ],
   ],
 ];

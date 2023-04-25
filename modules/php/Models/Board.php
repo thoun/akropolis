@@ -124,32 +124,32 @@ class Board
     $this->addTileAux($tile);
 
     // STATS
-    if ($this->pId != \ARCHITECT_ID) {
-      $map = [
-        \BARRACK_PLAZA => BARRACK,
-        \MARKET_PLAZA => MARKET,
-        \TEMPLE_PLAZA => TEMPLE,
-        \HOUSE_PLAZA => HOUSE,
-        \GARDEN_PLAZA => GARDEN,
-      ];
-      $statMap = [
-        BARRACK => 'Barracks',
-        MARKET => 'Markets',
-        TEMPLE => 'Temples',
-        HOUSE => 'Houses',
-        GARDEN => 'Gardens',
-      ];
+    // if ($this->pId != \ARCHITECT_ID) {
+    //   $map = [
+    //     \BARRACK_PLAZA => BARRACK,
+    //     \MARKET_PLAZA => MARKET,
+    //     \TEMPLE_PLAZA => TEMPLE,
+    //     \HOUSE_PLAZA => HOUSE,
+    //     \GARDEN_PLAZA => GARDEN,
+    //   ];
+    //   $statMap = [
+    //     BARRACK => 'Barracks',
+    //     MARKET => 'Markets',
+    //     TEMPLE => 'Temples',
+    //     HOUSE => 'Houses',
+    //     GARDEN => 'Gardens',
+    //   ];
 
-      foreach ($tile['hexes'] as $type) {
-        if (in_array($type, DISTRICTS)) {
-          $statName = 'inc' . $statMap[$type] . 'DistrictTiles';
-          Stats::$statName($this->player, 1);
-        } elseif (in_array($type, PLAZAS)) {
-          $statName = 'inc' . $statMap[$map[$type]] . 'PlazaTiles';
-          Stats::$statName($this->player, 1);
-        }
-      }
-    }
+    //   foreach ($tile['hexes'] as $type) {
+    //     if (in_array($type, DISTRICTS)) {
+    //       $statName = 'inc' . $statMap[$type] . 'DistrictTiles';
+    //       Stats::$statName($this->player, 1);
+    //     } elseif (in_array($type, PLAZAS)) {
+    //       $statName = 'inc' . $statMap[$map[$type]] . 'PlazaTiles';
+    //       Stats::$statName($this->player, 1);
+    //     }
+    //   }
+    // }
 
     $bonus = 0;
     foreach ($this->getCoveredHexes($pos, $rotation) as $cell) {
@@ -365,8 +365,8 @@ class Board
         Stats::$statName($this->player, $multiplier);
 
         // Set visible plaza stat
-        $statName = 'set' . $statMap[$type] . 'PlazaVisibleTiles';
-        Stats::$statName($this->player, $multiplier / PLAZAS_MULT[$map[$type]]);
+        // $statName = 'set' . $statMap[$type] . 'PlazaVisibleTiles';
+        // Stats::$statName($this->player, $multiplier / PLAZAS_MULT[$map[$type]]);
 
         // Set score stat
         $statName = 'set' . $statMap[$type] . 'Score';
@@ -552,19 +552,19 @@ class Board
       }
     }
     // HANDLE STATS FOR REAL PLAYERS
-    else {
-      $statMap = [
-        BARRACK => 'Barracks',
-        MARKET => 'Markets',
-        TEMPLE => 'Temples',
-        HOUSE => 'Houses',
-        GARDEN => 'Gardens',
-      ];
-      foreach ($statMap as $type => $stat) {
-        $statName = 'set' . $stat . 'DistrictVisibleTiles';
-        Stats::$statName($this->player, $visibleTiles[$type] ?? 0);
-      }
-    }
+    // else {
+    //   $statMap = [
+    //     BARRACK => 'Barracks',
+    //     MARKET => 'Markets',
+    //     TEMPLE => 'Temples',
+    //     HOUSE => 'Houses',
+    //     GARDEN => 'Gardens',
+    //   ];
+    //   foreach ($statMap as $type => $stat) {
+    //     $statName = 'set' . $stat . 'DistrictVisibleTiles';
+    //     Stats::$statName($this->player, $visibleTiles[$type] ?? 0);
+    //   }
+    // }
 
     return $districts;
   }
