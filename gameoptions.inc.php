@@ -202,16 +202,16 @@ $game_options = [
     ],
   ],
   \OPTION_VARIANT_TEMPLE => [
-    'name' => totranslate('Variant for gardens'),
+    'name' => totranslate('Variant for temples'),
     'values' => [
       \OPTION_VARIANT_DISABLED => [
         'name' => totranslate('Disabled'),
-        'description' => totranslate('Only the base rule for gardens'),
+        'description' => totranslate('Only the base rule for temples'),
       ],
       \OPTION_VARIANT_ENABLED => [
         'name' => totranslate('Enabled'),
-        'tmdisplay' => totranslate('[Gardens variant]'),
-        'description' => totranslate('Variant rules for gardens'),
+        'tmdisplay' => totranslate('[Temples variant]'),
+        'description' => totranslate('Variant rules for temples'),
         'nobeginner' => true,
       ],
     ],
@@ -228,13 +228,13 @@ $game_options = [
 
 $game_preferences = [
   201 => [
-      'name' => totranslate('Different tile border colors based on level'),
-      'needReload' => false,
-      'values' => [
-          1 => [ 'name' => totranslate('Disabled')],
-          2 => [ 'name' => totranslate('Enabled')],
-      ],
-      'default' => 1,
+    'name' => totranslate('Different tile border colors based on level'),
+    'needReload' => false,
+    'values' => [
+      1 => ['name' => totranslate('Disabled')],
+      2 => ['name' => totranslate('Enabled')],
+    ],
+    'default' => 1,
   ],
 
   /* old preference, do not reuse 202. 202 => [
@@ -248,23 +248,23 @@ $game_preferences = [
   ],*/
 
   203 => [
-      'name' => totranslate('Reverse construction site order'),
-      'needReload' => false,
-      'values' => [
-          1 => [ 'name' => totranslate('Disabled')],
-          2 => [ 'name' => totranslate('Enabled')],
-      ],
-      'default' => 1,
+    'name' => totranslate('Reverse construction site order'),
+    'needReload' => false,
+    'values' => [
+      1 => ['name' => totranslate('Disabled')],
+      2 => ['name' => totranslate('Enabled')],
+    ],
+    'default' => 1,
   ],
 
   204 => [
-      'name' => totranslate('Transparency animation on preview tile'),
-      'needReload' => false,
-      'values' => [
-          1 => [ 'name' => totranslate('Disabled')],
-          2 => [ 'name' => totranslate('Enabled')],
-      ],
-      'default' => 2,
+    'name' => totranslate('Transparency animation on preview tile'),
+    'needReload' => false,
+    'values' => [
+      1 => ['name' => totranslate('Disabled')],
+      2 => ['name' => totranslate('Enabled')],
+    ],
+    'default' => 2,
   ],
 
   /* old preference, do not reuse 205. 205 => [
