@@ -580,7 +580,6 @@ class Akropolis implements AkropolisGame {
             return;
         }
 
-        console.log('possiblePositionClicked');
         const pivot = this.usePivotRotation();
         if (pivot && this.selectedPosition != null) {
             console.log(x, y, z, this.rotation, this.selectedPosition);
