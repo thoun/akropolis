@@ -245,6 +245,9 @@ class Akropolis implements AkropolisGame {
             case 204: 
                 (document.getElementsByTagName('html')[0] as HTMLHtmlElement).classList.toggle('animated-opacity', prefValue == 2);
                 break;
+            case 206: 
+                (document.getElementsByTagName('html')[0] as HTMLHtmlElement).dataset.background = prefValue == 2 ? 'dark' : (prefValue == 1 ? 'light' : 'auto');
+                break;
                 
         }
     }

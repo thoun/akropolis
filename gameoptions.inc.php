@@ -276,4 +276,15 @@ $game_preferences = [
       ],
       'default' => 2,
   ],*/
+
+  206 => [
+    'name' => totranslate('Background'),
+    'needReload' => false,
+    'values' => [
+      0 => ['name' => totranslate('Automatic')],
+      1 => ['name' => totranslate('Light')],
+      2 => ['name' => totranslate('Dark')],
+    ],
+    'default' => 0,
+  ],
 ];

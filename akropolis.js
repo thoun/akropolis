@@ -1009,6 +1009,9 @@ var Akropolis = /** @class */ (function () {
             case 204:
                 document.getElementsByTagName('html')[0].classList.toggle('animated-opacity', prefValue == 2);
                 break;
+            case 206:
+                document.getElementsByTagName('html')[0].dataset.background = prefValue == 2 ? 'dark' : (prefValue == 1 ? 'light' : 'auto');
+                break;
         }
     };
     Akropolis.prototype.usePivotRotation = function () {
