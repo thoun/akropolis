@@ -14,15 +14,6 @@ $gameinfos = [
   // Name of the game in English (will serve as the basis for translation)
   'game_name' => 'Akropolis',
 
-  // Game designer (or game designers, separated by commas)
-  'designer' => 'Jules Messaud',
-
-  // Game artist (or game artists, separated by commas)
-  'artist' => 'Pauline Détraz',
-
-  // Year of FIRST publication of this game. Can be negative.
-  'year' => 2022,
-
   // Game publisher (use empty string if there is no publisher)
   'publisher' => 'Gigamic',
 
@@ -82,18 +73,6 @@ $gameinfos = [
   // NB: the default will be the first language in this list spoken by the player, so you should list them by popularity/preference.
   'language_dependency' => false,
 
-  // Complexity of the game, from 0 (extremely simple) to 5 (extremely complex)
-  'complexity' => 2,
-
-  // Luck of the game, from 0 (absolutely no luck in this game) to 5 (totally luck driven)
-  'luck' => 2,
-
-  // Strategy of the game, from 0 (no strategy can be setup) to 5 (totally based on strategy)
-  'strategy' => 4,
-
-  // Diplomacy of the game, from 0 (no interaction in this game) to 5 (totally based on interaction and discussion between players)
-  'diplomacy' => 3,
-
   // Colors attributed to players
   'player_colors' => [
     'ff0000',
@@ -134,16 +113,6 @@ $gameinfos = [
   ],
 
   'enable_3d' => false,
-
-  // Game presentation
-  // Short game presentation text that will appear on the game description page, structured as an array of paragraphs.
-  // Each paragraph must be wrapped with totranslate() for translation and should not contain html (plain text without formatting).
-  // A good length for this text is between 100 and 150 words (about 6 to 9 lines on a standard display)
-  'presentation' => [
-    totranslate(
-      'The most talented architects in ancient Greece stand ready to achieve this goal. Build housing, temples, markets, gardens and barracks, so you can grow your city and ensure it triumphs over the others. Raise its prestige with harmonious planning that conforms to specific rules, and enhance it by building plazas.'
-    ),
-  ],
 
   //////// BGA SANDBOX ONLY PARAMETERS (DO NOT MODIFY)
 
