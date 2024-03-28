@@ -18,7 +18,7 @@ class Players extends \AKR\Helpers\DB_Manager
     return new \AKR\Models\Player($row);
   }
 
-  public function setupNewGame($players, $options)
+  public static function setupNewGame($players, $options)
   {
     // Create players
     $gameInfos = Game::get()->getGameinfos();
@@ -47,17 +47,17 @@ class Players extends \AKR\Helpers\DB_Manager
     Game::get()->reloadPlayersBasicInfos();
   }
 
-  public function getActiveId()
+  public static function getActiveId()
   {
     return (int) Game::get()->getActivePlayerId();
   }
 
-  public function getCurrentId()
+  public static function getCurrentId()
   {
     return (int) Game::get()->getCurrentPId();
   }
 
-  public function getAll()
+  public static function getAll()
   {
     return self::DB()->get(false);
   }
@@ -65,7 +65,7 @@ class Players extends \AKR\Helpers\DB_Manager
   /*
    * get : returns the Player object for the given player ID
    */
-  public function get($pId = null)
+  public static function get($pId = null)
   {
     $pId = $pId ?: self::getActiveId();
     return self::DB()
@@ -73,17 +73,17 @@ class Players extends \AKR\Helpers\DB_Manager
       ->getSingle();
   }
 
-  public function getActive()
+  public static function getActive()
   {
     return self::get();
   }
 
-  public function getCurrent()
+  public static function getCurrent()
   {
     return self::get(self::getCurrentId());
   }
 
-  public function getNextId($player)
+  public static function getNextId($player)
   {
     $pId = is_int($player) ? $player : $player->getId();
     $table = Game::get()->getNextPlayerTable();
@@ -93,7 +93,7 @@ class Players extends \AKR\Helpers\DB_Manager
   /*
    * Return the number of players
    */
-  public function count()
+  public static function count()
   {
     return self::DB()->count();
   }
@@ -101,7 +101,7 @@ class Players extends \AKR\Helpers\DB_Manager
   /*
    * getUiData : get all ui data of all players
    */
-  public function getUiData($pId)
+  public static function getUiData($pId)
   {
     return self::getAll()
       ->map(function ($player) use ($pId) {
@@ -110,7 +110,7 @@ class Players extends \AKR\Helpers\DB_Manager
       ->toAssoc();
   }
 
-  public function getArchitect()
+  public static function getArchitect()
   {
     return Globals::isSolo() ? new \AKR\Models\Architect(null) : null;
   }

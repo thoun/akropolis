@@ -27,12 +27,12 @@ class Tiles extends \AKR\Helpers\Pieces
     ];
   }
 
-  public function getUiData()
+  public static function getUiData()
   {
     return self::getInLocation('dock')->toArray();
   }
 
-  public function setupNewGame($players, $options)
+  public static function setupNewGame($players, $options)
   {
     $nPlayers = max(2, count($players));
 
@@ -85,7 +85,7 @@ class Tiles extends \AKR\Helpers\Pieces
       ->get();
   }
 
-  public function add($tileId, $pId, $pos, $rotation)
+  public static function add($tileId, $pId, $pos, $rotation)
   {
     self::DB()->update(
       [
