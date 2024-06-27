@@ -23,6 +23,7 @@ const OFFSET_X = SIZE / 2;
 let imagesConfiguration = JSON.parse(localStorage.getItem('imagesConfigurationAkropolis')) ?? {"barrack-district":{"x":2,"y":1},"barrack-plaza":{"x":2,"y":1},"garden-district":{"x":2,"y":1},"garden-plaza":{"x":2,"y":1},"house-district":{"x":2,"y":1},"house-plaza":{"x":2,"y":1},"market-district":{"x":2,"y":1},"market-plaza":{"x":2,"y":1},"temple-district":{"x":2,"y":1},"temple-plaza":{"x":2,"y":1},"quarry":{"x":2,"y":1}};;
 
 let images = [
+
   'barrack-district',
   'barrack-plaza',
 	'garden-district',
@@ -34,6 +35,17 @@ let images = [
 	'temple-district',
 	'temple-plaza',
 	'quarry',
+
+	'barrack-garden-district',
+	'barrack-temple-district',
+	'house-barrack-district',
+	'house-garden-district',
+	'house-market-district',
+	'house-temple-district',
+	'market-barrack-district',
+	'market-garden-district',
+	'market-temple-district',
+//	'back',
 ];
 
 // For each image, starting at the corner, give the list of hex that should be kept
@@ -49,6 +61,17 @@ let imagesHex = {
   'temple-district': ['1_1'],
   'temple-plaza' : ['1_1'],
   'quarry' : ['1_1'],
+
+	'barrack-garden-district': ['1_1'],
+	'barrack-temple-district': ['1_1'],
+	'house-barrack-district': ['1_1'],
+	'house-garden-district': ['1_1'],
+	'house-market-district': ['1_1'],
+	'house-temple-district': ['1_1'],
+	'market-barrack-district': ['1_1'],
+	'market-garden-district': ['1_1'],
+	'market-temple-district': ['1_1'],
+	'back': ['1_1'],
 };
 
 ////////////////////////
