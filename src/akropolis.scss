@@ -118,15 +118,28 @@ $hexThickness: 16px;
   }
 }
 
-html,
-.mode_3d {
+html {
   background: url("img/background.jpg");
   background-size: 100% auto;
   background-repeat: repeat;
 }
 
+html[data-background="dark"] {
+  background: url("img/background-dark.jpg");
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-background="auto"] {
+    background: url("img/background-dark.jpg");
+  }
+}
+
 #game_play_area {
   will-change: transform;
+}
+
+.mode_3d {
+  background: unset;
 }
 
 .mode_3d #game_play_area_background {

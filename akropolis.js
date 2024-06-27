@@ -707,6 +707,15 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.placeTile = function (tile, lastMove, type, selectedHexIndex) {
         var _this = this;
         if (selectedHexIndex === void 0) { selectedHexIndex = null; }
+        if (this.playerId == 0) {
+            var placedTiles = this.city.querySelectorAll('.tile:not(.invisible)').length;
+            var x = placedTiles % 5;
+            var y = Math.floor(placedTiles / 5);
+            tile.x = x * 2.5 - 5;
+            tile.y = 3.5 + y * 4.5;
+            tile.z = 0;
+            tile.r = 0;
+        }
         var tileDiv = this.game.tilesManager.createTile(tile, true, [type]);
         tileDiv.style.setProperty('--x', "".concat(tile.x));
         tileDiv.style.setProperty('--y', "".concat(tile.y));
@@ -1000,6 +1009,9 @@ var Akropolis = /** @class */ (function () {
             case 204:
                 document.getElementsByTagName('html')[0].classList.toggle('animated-opacity', prefValue == 2);
                 break;
+            case 206:
+                document.getElementsByTagName('html')[0].dataset.background = prefValue == 2 ? 'dark' : (prefValue == 1 ? 'light' : 'auto');
+                break;
         }
     };
     Akropolis.prototype.usePivotRotation = function () {
@@ -1255,7 +1267,6 @@ var Akropolis = /** @class */ (function () {
         if (!this.selectedTile) {
             return;
         }
-        console.log('possiblePositionClicked');
         var pivot = this.usePivotRotation();
         if (pivot && this.selectedPosition != null) {
             console.log(x, y, z, this.rotation, this.selectedPosition);

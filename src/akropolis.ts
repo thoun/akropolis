@@ -245,6 +245,9 @@ class Akropolis implements AkropolisGame {
             case 204: 
                 (document.getElementsByTagName('html')[0] as HTMLHtmlElement).classList.toggle('animated-opacity', prefValue == 2);
                 break;
+            case 206: 
+                (document.getElementsByTagName('html')[0] as HTMLHtmlElement).dataset.background = prefValue == 2 ? 'dark' : (prefValue == 1 ? 'light' : 'auto');
+                break;
                 
         }
     }
@@ -580,7 +583,6 @@ class Akropolis implements AkropolisGame {
             return;
         }
 
-        console.log('possiblePositionClicked');
         const pivot = this.usePivotRotation();
         if (pivot && this.selectedPosition != null) {
             console.log(x, y, z, this.rotation, this.selectedPosition);

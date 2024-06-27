@@ -88,6 +88,17 @@ class PlayerTable {
     }
 
     public placeTile(tile: Tile, lastMove: boolean, type: 'final' | 'preview' | 'invisible', selectedHexIndex: number = null): HTMLDivElement {
+        if (this.playerId == 0) {
+            const placedTiles = this.city.querySelectorAll('.tile:not(.invisible)').length;
+            const x = placedTiles % 5;
+            const y = Math.floor(placedTiles / 5);
+
+            tile.x = x * 2.5 - 5;
+            tile.y = 3.5 + y * 4.5;
+            tile.z = 0;
+            tile.r = 0;
+        }
+
         const tileDiv = this.game.tilesManager.createTile(tile, true, [type]);
         tileDiv.style.setProperty('--x', `${tile.x}`);
         tileDiv.style.setProperty('--y', `${tile.y}`);
