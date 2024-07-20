@@ -224,6 +224,23 @@ $game_options = [
       ],
     ],
   ],
+
+  \OPTION_EXP_ATHENA => [
+    'name' => totranslate('Athena expansion'),
+    'values' => [
+      \OPTION_ATHENA_DISABLED => [
+        'name' => totranslate('Disabled'),
+        'description' => totranslate('Only the base game'),
+      ],
+      \OPTION_ATHENA_ENABLED => [
+        'name' => totranslate('Enabled'),
+        'tmdisplay' => totranslate('[Athena]'),
+        'description' => totranslate('Include Athena expansion'),
+        'nobeginner' => true,
+      ],
+    ],
+    'default' => OPTION_ATHENA_DISABLED,
+  ],
 ];
 
 $game_preferences = [

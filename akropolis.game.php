@@ -1,4 +1,5 @@
 <?php
+
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
@@ -35,6 +36,7 @@ require_once APP_GAMEMODULE_PATH . 'module/table/table.game.php';
 use AKR\Core\Globals;
 use AKR\Core\Stats;
 use AKR\Core\Preferences;
+use AKR\Managers\ConstructionCards;
 use AKR\Managers\Players;
 use AKR\Managers\Tiles;
 
@@ -71,7 +73,7 @@ class Akropolis extends Table
   {
     Globals::setupNewGame($players, $options);
     Players::setupNewGame($players, $options);
-    // Preferences::setupNewGame($players, $this->player_preferences);
+    ConstructionCards::setupNewGame($players, $options);
     Tiles::setupNewGame($players, $options);
     $this->activeNextPlayer();
   }
@@ -100,6 +102,10 @@ class Akropolis extends Table
       'allTiles' => Globals::isAllTiles(),
       'soloPlayer' => Globals::isSolo() ? Players::getArchitect()->getUiData($pId) : null,
       'lastMoves' => Globals::getLastMoves(),
+
+      // Athena
+      'isAthena' => Globals::isAthena(),
+      'cards' => ConstructionCards::getUiData(),
     ];
   }
 

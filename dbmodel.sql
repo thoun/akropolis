@@ -21,6 +21,14 @@ CREATE TABLE IF NOT EXISTS `tiles` (
   PRIMARY KEY (`tile_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `construction-cards` (
+  `card_id` varchar(32) NOT NULL,
+  `card_location` varchar(32) NOT NULL,
+  `card_state` int(10) DEFAULT 0,
+  PRIMARY KEY (`card_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 -- Additional player's info
 ALTER TABLE `player` ADD `money` INT(10) NOT NULL DEFAULT 0;
 

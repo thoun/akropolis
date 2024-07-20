@@ -1,5 +1,7 @@
 <?php
+
 namespace AKR\Models;
+
 use AKR\Managers\Tiles;
 use AKR\Managers\Players;
 use AKR\Helpers\UserException;
@@ -11,6 +13,7 @@ use AKR\Core\Stats;
 /*
  * Board: all utility functions concerning a Zoo Map
  */
+
 const DIRECTIONS = [
   ['x' => -1, 'y' => -1],
   ['x' => 0, 'y' => -2],
@@ -76,7 +79,7 @@ class Board
    */
   protected $grid = [];
   protected $gridTileIds = [];
-  protected $tiles = [];
+  protected $tiles = null;
   protected function fetchDatas()
   {
     if ($this->player == null) {

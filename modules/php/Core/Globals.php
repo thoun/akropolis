@@ -1,4 +1,5 @@
 <?php
+
 namespace AKR\Core;
 
 use AKR\Core\Game;
@@ -7,6 +8,7 @@ use AKR\Helpers\Utils;
 /*
  * Globals
  */
+
 class Globals extends \AKR\Helpers\DB_Manager
 {
   protected static $initialized = false;
@@ -19,6 +21,9 @@ class Globals extends \AKR\Helpers\DB_Manager
     'architect' => 'obj',
     'endOfGame' => 'bool',
     'allTiles' => 'bool',
+
+    // Athena expansion
+    'athena' => 'bool',
   ];
 
   protected static $table = 'global_variables';
@@ -39,12 +44,10 @@ class Globals extends \AKR\Helpers\DB_Manager
     $tmp = self::$log;
     self::$log = false;
 
-    foreach (
-      self::DB()
-        ->select(['value', 'name'])
-        ->get(false)
-      as $name => $variable
-    ) {
+    foreach (self::DB()
+      ->select(['value', 'name'])
+      ->get(false)
+      as $name => $variable) {
       if (\array_key_exists($name, self::$variables)) {
         self::$data[$name] = $variable;
       }
@@ -143,20 +146,20 @@ class Globals extends \AKR\Helpers\DB_Manager
   public static function setupNewGame($players, $options)
   {
     self::setAllTiles(
-      count($players) == 4 || ($options[\OPTION_ALL_TILES] == \OPTION_ALL_TILES_ENABLED ?? OPTION_ALL_TILES_DISABLED)
+      count($players) == 4 || (($options[\OPTION_ALL_TILES] ?? OPTION_ALL_TILES_DISABLED) == \OPTION_ALL_TILES_ENABLED)
     );
     self::setLiveScoring($options[\OPTION_LIVE_SCORING] == \OPTION_LIVE_SCORING_ENABLED);
     self::setVariants([
       \BARRACK =>
-        $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_BARRACK] ?? 0) == \OPTION_VARIANT_ENABLED,
+      $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_BARRACK] ?? 0) == \OPTION_VARIANT_ENABLED,
       \GARDEN =>
-        $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_GARDEN] ?? 0) == \OPTION_VARIANT_ENABLED,
+      $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_GARDEN] ?? 0) == \OPTION_VARIANT_ENABLED,
       \HOUSE =>
-        $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_HOUSE] ?? 0) == \OPTION_VARIANT_ENABLED,
+      $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_HOUSE] ?? 0) == \OPTION_VARIANT_ENABLED,
       \MARKET =>
-        $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_MARKET] ?? 0) == \OPTION_VARIANT_ENABLED,
+      $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_MARKET] ?? 0) == \OPTION_VARIANT_ENABLED,
       \TEMPLE =>
-        $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_TEMPLE] ?? 0) == \OPTION_VARIANT_ENABLED,
+      $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_TEMPLE] ?? 0) == \OPTION_VARIANT_ENABLED,
     ]);
 
     self::setSolo(count($players) == 1);
@@ -167,6 +170,8 @@ class Globals extends \AKR\Helpers\DB_Manager
         'score' => 0,
       ]);
     }
+
+    self::setAthena(($options[\OPTION_EXP_ATHENA] ?? OPTION_ATHENA_DISABLED) == OPTION_ATHENA_ENABLED);
   }
 
   public static function isVariant($type)
