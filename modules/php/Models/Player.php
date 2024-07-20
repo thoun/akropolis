@@ -1,5 +1,7 @@
 <?php
+
 namespace AKR\Models;
+
 use AKR\Core\Stats;
 use AKR\Core\Notifications;
 use AKR\Core\Preferences;
@@ -55,7 +57,7 @@ class Player extends \AKR\Helpers\DB_Model
 
   // Cached attribute
   protected $board = null;
-  public function board()
+  public function board(): \AKR\Models\Board
   {
     if ($this->board == null) {
       $this->board = new Board($this);

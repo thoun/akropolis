@@ -1,5 +1,7 @@
 <?php
+
 namespace AKR\States;
+
 use AKR\Core\Globals;
 use AKR\Core\Notifications;
 use AKR\Managers\Players;
@@ -11,7 +13,8 @@ trait ArchitectTurnTrait
   public function stArchitectTurn()
   {
     $architect = Players::getArchitect();
-    $options = $architect->board()->getPlacementOptions(0);
+    $geometry = TILE_GEOMETRIES[3];
+    $options = $architect->board()->getPlacementOptions(0, $geometry);
 
     // Keep only options at ground level
     Utils::filter($options, function ($option) {

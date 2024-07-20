@@ -1,5 +1,7 @@
 <?php
+
 namespace AKR\States;
+
 use AKR\Core\Globals;
 use AKR\Core\Notifications;
 use AKR\Core\Stats;
@@ -13,8 +15,9 @@ trait TurnTrait
   {
     $player = Players::getActive();
     $options = [];
+    $geometry = TILE_GEOMETRIES[3];
     for ($hex = 0; $hex < 3; $hex++) {
-      $options[$hex] = $player->board()->getPlacementOptions($hex);
+      $options[$hex] = $player->board()->getPlacementOptions($hex, $geometry);
     }
 
     $tiles = Tiles::getInLocation('dock')->filter(function ($tile) use ($player) {
@@ -40,7 +43,8 @@ trait TurnTrait
     $tile = Tiles::getSingle($tileId);
     $cost = $tile['state'];
     // Check position : always go back to top left hex on tile
-    $realPos = $player->board()->getCorrespondingPos($pos, $r, $hex);
+    $geometry = $player->board()->getTileGeometry($tile);
+    $realPos = $player->board()->getCorrespondingPos($geometry, $pos, $r, $hex);
     $optionId = Utils::search($args['options'][0], function ($option) use ($realPos) {
       return Utils::compareZones($option, $realPos) == 0;
     });
@@ -54,7 +58,7 @@ trait TurnTrait
     }
 
     $this->actPlaceTileAux($player, $tileId, $hex, $pos, $r);
-    $this->gamestate->nextState('next');
+    $this->goToNextPlayerUnlessCompletableCard();
   }
 
   /**
@@ -65,7 +69,8 @@ trait TurnTrait
     $tile = Tiles::getSingle($tileId);
     $cost = $tile['state'];
     // Check position : always go back to top left hex on tile
-    $pos = $player->board()->getCorrespondingPos($pos, $r, $hex);
+    $geometry = $player->board()->getTileGeometry($tile);
+    $pos = $player->board()->getCorrespondingPos($geometry, $pos, $r, $hex);
 
     // Pay money if needed
     if ($cost > 0) {

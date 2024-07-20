@@ -1,4 +1,5 @@
 <?php
+
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
@@ -45,6 +46,26 @@ class action_akropolis extends APP_GameAction
     $z = (int) self::getArg('z', AT_int, true);
     $r = (int) self::getArg('r', AT_int, true);
     $this->game->actPlaceTile($tileId, $hex, ['x' => $x, 'y' => $y, 'z' => $z], $r);
+    self::ajaxResponse();
+  }
+
+  public function actCompleteCard()
+  {
+    self::setAjaxMode();
+    $cardId = (int) self::getArg('cardId', AT_int, true);
+    $tileId = (int) self::getArg('tileId', AT_int, true);
+    $x = (int) self::getArg('x', AT_int, true);
+    $y = (int) self::getArg('y', AT_int, true);
+    $z = (int) self::getArg('z', AT_int, true);
+    $r = (int) self::getArg('r', AT_int, true);
+    $this->game->actCompleteCard($cardId, $tileId, ['x' => $x, 'y' => $y, 'z' => $z], $r);
+    self::ajaxResponse();
+  }
+
+  public function actSkipCompleteCard()
+  {
+    self::setAjaxMode();
+    $this->game->actSkipCompleteCard();
     self::ajaxResponse();
   }
 }

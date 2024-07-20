@@ -1,4 +1,5 @@
 <?php
+
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
@@ -31,8 +32,19 @@ $machinestates = [
     'type' => 'activeplayer',
     'args' => 'argsPlaceTile',
     'possibleactions' => ['actPlaceTile'],
+    'transitions' => ['completeCard' => ST_COMPLETE_CARD, 'next' => ST_NEXT_PLAYER],
+  ],
+
+  ST_COMPLETE_CARD => [
+    'name' => 'completeCard',
+    'description' => clienttranslate('${actplayer} may complete a fulfilled construction card'),
+    'descriptionmyturn' => clienttranslate('${you} may complete a fulfilled construction card'),
+    'type' => 'activeplayer',
+    'args' => 'argsCompleteCard',
+    'possibleactions' => ['actCompleteCard', 'actSkipCompleteCard'],
     'transitions' => ['next' => ST_NEXT_PLAYER],
   ],
+
 
   ST_NEXT_PLAYER => [
     'name' => 'nextPlayer',

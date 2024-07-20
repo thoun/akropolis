@@ -44,6 +44,7 @@ class Akropolis extends Table
 {
   use AKR\DebugTrait;
   use AKR\States\TurnTrait;
+  use AKR\States\CompleteCardTrait;
   use AKR\States\ArchitectTurnTrait;
   use AKR\States\EndOfGameTrait;
 

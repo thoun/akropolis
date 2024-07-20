@@ -14,6 +14,8 @@ use AKR\Core\Stats;
  * Board: all utility functions concerning a player Board
  */
 
+
+// Each direction also corresponds to 1 triangle of the hex
 const DIRECTIONS = [
   ['x' => -1, 'y' => -1],
   ['x' => 0, 'y' => -2],
@@ -23,7 +25,8 @@ const DIRECTIONS = [
   ['x' => -1, 'y' => 1],
 ];
 
-class Board
+
+class TriangulatedBoard
 {
   // CONSTRUCT
   protected $player = null;

@@ -32,7 +32,8 @@ class Tiles extends \AKR\Helpers\Pieces
   public static function getUiData()
   {
     return self::getInLocation('dock')
-      ->merge(self::getInLocation('athena-%'))
+      // UNCOMMENT TO DISPLAY SINGLE TILES
+      // ->merge(self::getInLocation('athena-%'))
       ->toArray();
   }
 

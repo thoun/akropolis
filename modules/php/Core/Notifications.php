@@ -1,5 +1,7 @@
 <?php
+
 namespace AKR\Core;
+
 use AKR\Managers\Players;
 use AKR\Helpers\Utils;
 use AKR\Helpers\Collection;
@@ -88,6 +90,16 @@ class Notifications
     ]);
   }
 
+  public static function completeCard($player, $card)
+  {
+    self::notifyAll('completeCard', clienttranslate('${player_name} completes construction card "${card_name}"'), [
+      'player' => $player,
+      'card' => $card,
+      'card_name' => $card->getName(),
+      'i18n' => ['card_name'],
+    ]);
+  }
+
   ///////////////////////////////////////////////////////////////
   //  _   _           _       _            _
   // | | | |_ __   __| | __ _| |_ ___     / \   _ __ __ _ ___
@@ -109,5 +121,3 @@ class Notifications
     }
   }
 }
-
-?>

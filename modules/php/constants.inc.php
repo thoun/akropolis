@@ -50,6 +50,7 @@ const OPTION_CONFIRM_ENABLED = 2;
 const ST_GAME_SETUP = 1;
 const ST_PLACE_TILE = 2;
 const ST_NEXT_PLAYER = 3;
+const ST_COMPLETE_CARD = 4;
 const ST_PRE_END_OF_GAME = 98;
 const ST_END_GAME = 99;
 
@@ -68,8 +69,11 @@ const GARDEN = 'garden-district';
 const GARDEN_PLAZA = 'garden-plaza';
 const QUARRY = 'quarry';
 
-const TILE_GEOMETRY = [[0, 0], [1, 1], [0, 2]];
-
+const TILE_GEOMETRY = [[0, 0], [1, 1], [0, 2]]; // TODO : remove
+const TILE_GEOMETRIES = [
+  1 => [[0, 0]],
+  3 => [[0, 0], [1, 1], [0, 2]],
+];
 const DISTRICTS = [BARRACK, HOUSE, MARKET, TEMPLE, GARDEN];
 const PLAZAS = [BARRACK_PLAZA, HOUSE_PLAZA, MARKET_PLAZA, TEMPLE_PLAZA, GARDEN_PLAZA];
 const PLAZAS_MULT = [BARRACK_PLAZA => 2, HOUSE_PLAZA => 1, MARKET_PLAZA => 2, TEMPLE_PLAZA => 2, GARDEN_PLAZA => 3];
