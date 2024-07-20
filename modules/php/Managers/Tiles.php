@@ -1,5 +1,7 @@
 <?php
+
 namespace AKR\Managers;
+
 use AKR\Core\Globals;
 
 /* Class to manage all the tiles for Akropolis */
@@ -29,7 +31,9 @@ class Tiles extends \AKR\Helpers\Pieces
 
   public static function getUiData()
   {
-    return self::getInLocation('dock')->toArray();
+    return self::getInLocation('dock')
+      ->merge(self::getInLocation('athena-%'))
+      ->toArray();
   }
 
   public static function setupNewGame($players, $options)
@@ -37,9 +41,15 @@ class Tiles extends \AKR\Helpers\Pieces
     $nPlayers = max(2, count($players));
 
     $tiles = [];
+    $singleTiles = [];
     foreach (self::$tiles as $id => $tile) {
+      // Athena single tiles
+      if (count($tile) == 1) {
+        $singleTiles[] = $id;
+        continue;
+      }
       // Check number of players of tile
-      if (self::$tilesPlayers[$id] > $nPlayers && !Globals::isAllTiles()) {
+      if ((self::$tilesPlayers[$id] ?? 2) > $nPlayers && !Globals::isAllTiles()) {
         continue;
       }
 
@@ -55,6 +65,25 @@ class Tiles extends \AKR\Helpers\Pieces
     // Create the tiles
     self::create($tiles, 'deck');
     self::shuffle('deck');
+
+    // Athena
+    if (Globals::isAthena()) {
+      $tiles = [];
+      shuffle($singleTiles);
+      for ($slot = 1; $slot <= 4; $slot++) {
+        for ($i = 0; $i < 4; $i++) {
+          $tiles[] = [
+            'id' => array_shift($singleTiles),
+            'location' => "athena-$slot",
+            'player_id' => null,
+            'x' => 0,
+            'y' => 0,
+            'r' => 0,
+          ];
+        }
+      }
+      self::create($tiles);
+    }
 
     self::refillDock();
   }
@@ -176,6 +205,41 @@ class Tiles extends \AKR\Helpers\Pieces
     [HOUSE, BARRACK, QUARRY],
     #61
     [BARRACK, MARKET, QUARRY],
+
+    # Athena
+    #62
+    [[MARKET, GARDEN]],
+    [[BARRACK, TEMPLE]],
+    [[MARKET, HOUSE]],
+    [[BARRACK, HOUSE]],
+    [[BARRACK, MARKET]],
+    [[GARDEN, TEMPLE]],
+    [[GARDEN, HOUSE]],
+    [[TEMPLE, MARKET]],
+    [[GARDEN, BARRACK]],
+    [[TEMPLE, HOUSE]],
+    #72
+    [HOUSE],
+    [HOUSE],
+    [HOUSE],
+    [GARDEN],
+    [MARKET],
+    [MARKET],
+    [TEMPLE],
+    [TEMPLE],
+    [BARRACK],
+    [BARRACK],
+    #82
+    [HOUSE_PLAZA],
+    [HOUSE_PLAZA],
+    [HOUSE_PLAZA],
+    [GARDEN_PLAZA],
+    [MARKET_PLAZA],
+    [MARKET_PLAZA],
+    [TEMPLE_PLAZA],
+    [TEMPLE_PLAZA],
+    [BARRACK_PLAZA],
+    [BARRACK_PLAZA],
   ];
 
   public static $tilesPlayers = [
@@ -253,5 +317,8 @@ class Tiles extends \AKR\Helpers\Pieces
     2,
     #61
     2,
+
+    # ATHENA
+    # ALWAYS TAKE THEM IF OPTION IS ENABLED
   ];
 }

@@ -25,4 +25,9 @@ class ConstructionCard extends \AKR\Helpers\DB_Model
 
   protected $staticAttributes = [['name', 'str']];
   protected $name;
+
+  public function isSatisfied(\AKR\Models\Player $player)
+  {
+    return false;
+  }
 }

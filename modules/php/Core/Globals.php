@@ -24,6 +24,7 @@ class Globals extends \AKR\Helpers\DB_Manager
 
     // Athena expansion
     'athena' => 'bool',
+    'athenaCardStatuses' => 'obj',
   ];
 
   protected static $table = 'global_variables';
@@ -137,7 +138,7 @@ class Globals extends \AKR\Helpers\DB_Manager
       }
     }
     throw new \feException(print_r(debug_print_backtrace()));
-    return undefined;
+    return null;
   }
 
   /*
@@ -172,6 +173,7 @@ class Globals extends \AKR\Helpers\DB_Manager
     }
 
     self::setAthena(($options[\OPTION_EXP_ATHENA] ?? OPTION_ATHENA_DISABLED) == OPTION_ATHENA_ENABLED);
+    self::setAthenaCardStatuses([]);
   }
 
   public static function isVariant($type)

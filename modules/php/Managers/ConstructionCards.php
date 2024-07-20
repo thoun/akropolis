@@ -28,7 +28,7 @@ class ConstructionCards extends \AKR\Helpers\Pieces
 
   public static function getUiData()
   {
-    return self::getInLocation('board')->toArray();
+    return self::getInLocation('athena-%')->toArray();
   }
 
   public static function setupNewGame($players, $options)
@@ -37,14 +37,16 @@ class ConstructionCards extends \AKR\Helpers\Pieces
 
     $cardIds = Utils::rand(self::$cards, 4);
     $cards = [];
-    foreach ($cardIds as $id) {
+    foreach ($cardIds as $i => $id) {
+      $slot = $i + 1;
       $cards[] = [
         'id' => $id,
+        'location' => "athena-$slot"
       ];
     }
 
     // Create the tiles
-    self::create($cards, 'board');
+    self::create($cards);
   }
 
   static $cards = [

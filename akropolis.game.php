@@ -106,6 +106,7 @@ class Akropolis extends Table
       // Athena
       'isAthena' => Globals::isAthena(),
       'cards' => ConstructionCards::getUiData(),
+      'cardStatuses' => Globals::getAthenaCardStatuses(),
     ];
   }
 
