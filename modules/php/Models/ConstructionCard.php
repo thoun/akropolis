@@ -23,8 +23,9 @@ class ConstructionCard extends \AKR\Helpers\DB_Model
   protected $location;
   protected $state;
 
-  protected $staticAttributes = [['name', 'str']];
+  protected $staticAttributes = [['name', 'str'], ['desc', 'str']];
   protected $name;
+  protected $desc;
 
   public function isSatisfied(\AKR\Models\Player $player)
   {
