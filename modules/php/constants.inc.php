@@ -69,6 +69,8 @@ const GARDEN = 'garden-district';
 const GARDEN_PLAZA = 'garden-plaza';
 const QUARRY = 'quarry';
 
+const FREE = 'free';
+
 const TILE_GEOMETRY = [[0, 0], [1, 1], [0, 2]]; // TODO : remove
 const TILE_GEOMETRIES = [
   1 => [[0, 0]],

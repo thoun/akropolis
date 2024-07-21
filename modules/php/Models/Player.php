@@ -57,10 +57,12 @@ class Player extends \AKR\Helpers\DB_Model
 
   // Cached attribute
   protected $board = null;
-  public function board(): \AKR\Models\Board
+  //  public function board(): \AKR\Models\Board
+  public function board(): \AKR\Models\TriangulatedBoard
   {
     if ($this->board == null) {
-      $this->board = new Board($this);
+      //      $this->board = new Board($this);
+      $this->board = new TriangulatedBoard($this);
     }
     return $this->board;
   }

@@ -133,7 +133,8 @@ class TriangulatedBoard
     $geometry = $this->getTileGeometry($tile);
     foreach ($this->getCoveredHexes($geometry, $pos, $rotation) as $cell) {
       $cell['z']--;
-      if ($cell['z'] >= 0 && $this->getTypeAtPos($cell) == QUARRY) {
+      $types = array_keys($this->getTypesAtPos($cell));
+      if ($cell['z'] >= 0 && in_array(QUARRY, $types)) {
         $bonus++;
       }
     }
@@ -282,19 +283,43 @@ class TriangulatedBoard
    */
   public function isCellBuilt($cell)
   {
-    return !is_null($this->getTypeAtPos($cell));
+    return !is_null($this->getTypesAtPos($cell));
   }
 
   /**
-   * getTypeAtPos: return the type of hex at a given cell
+   * getTypesAtPos: return the type(s) of hex at a given cell
    */
-  public function getTypeAtPos($cell)
+  public function getTypesAtPos($cell, $nullIfEmpty = true)
   {
-    return $this->grid[$cell['x']][$cell['y']][$cell['z']] ?? null;
+    $type = $this->grid[$cell['x']][$cell['y']][$cell['z']] ?? null;
+    if (is_null($type)) {
+      return $nullIfEmpty ? null : [FREE => [0, 1, 2, 3, 4, 5, 6]];
+    }
+
+    $types = [];
+    // Hex with only one type
+    if (!is_array($type)) {
+      $types[$type] = [0, 1, 2, 3, 4, 5, 6];
+    }
+    // Dual tiles
+    else {
+      $tile = $this->tiles[$this->getTileIdAtPos($cell)];
+      $rotation = $tile['r'];
+      // Compute set of triangles for each type on the tile
+      foreach ($type as $i => $t) {
+        $triangles = [];
+        for ($j = 0; $j < 3; $j++) {
+          $triangles[] = (3 * $i + $j + $rotation) % 6;
+        }
+        $types[$t] = $triangles;
+      }
+    }
+
+    return $types;
   }
 
   /**
-   * getTypeAtPos: return the tile id of hex at a given cell
+   * getTileIdAtPos: return the tile id of hex at a given cell
    */
   public function getTileIdAtPos($cell)
   {
@@ -383,9 +408,10 @@ class TriangulatedBoard
     }
 
     foreach ($this->getVisibleBuiltCells() as $cell) {
-      $type = $this->getTypeAtPos($cell);
-      if (in_array($type, PLAZAS)) {
-        $plazas[$type]++;
+      foreach ($this->getTypesAtPos($cell) as $type => $triangles) {
+        if (in_array($type, PLAZAS)) {
+          $plazas[$type]++;
+        }
       }
     }
 
@@ -409,99 +435,97 @@ class TriangulatedBoard
       $districts[$district] = 0;
     }
 
-    $visibleTiles = [];
-
     list($cells, $components, $marks) = $this->computeComponents();
     foreach ($cells as $cell) {
-      $type = $this->getTypeAtPos($cell);
+      foreach ($this->getTypesAtPos($cell) as $type => $triangles) {
 
-      // Handle ARCHITECT scoring here
-      if ($this->pId == ARCHITECT_ID) {
-        if (in_array($type, \DISTRICTS)) {
-          $districts[$type] += $this->player->getLvl() == 2 ? 2 : 1;
-        } elseif ($type == QUARRY && $this->player->getLvl() == 1) {
-          $districts[QUARRY] = ($districts[QUARRY] ?? 0) + 1;
-        }
-        continue;
-      }
-
-      if (in_array($type, \DISTRICTS)) {
-        $visibleTiles[$type] = ($visibleTiles[$type] ?? 0) + 1;
-      }
-
-      $h = $cell['z'] + 1;
-      $double = false;
-      if (!in_array($type, \DISTRICTS) || $type == HOUSE) {
-        continue; // Don't care about plazas and quarries, and house will be treated later
-      }
-      $neighbours = $this->getNeighbours($cell, true);
-      $builtNeighbours = $this->getBuiltNeighbours($cell);
-
-      // Market : dont score market if adjacent to other marker
-      if ($type == MARKET) {
-        $nextToMarket = false;
-        $nextToPlaza = false;
-        foreach ($builtNeighbours as $pos) {
-          $nextToMarket = $nextToMarket || $this->getTypeAtPos($pos) == MARKET;
-          $nextToPlaza = $nextToPlaza || $this->getTypeAtPos($pos) == MARKET_PLAZA;
-        }
-
-        if ($nextToMarket) {
+        // Handle ARCHITECT scoring here
+        if ($this->pId == ARCHITECT_ID) {
+          if (in_array($type, \DISTRICTS)) {
+            $districts[$type] += $this->player->getLvl() == 2 ? 2 : 1;
+          } elseif ($type == QUARRY && $this->player->getLvl() == 1) {
+            $districts[QUARRY] = ($districts[QUARRY] ?? 0) + 1;
+          }
           continue;
         }
-        // MARKET VARIANT : double size if adjacent to PLAZA
-        if (Globals::isVariant(MARKET) && $nextToPlaza) {
-          $double = true;
+
+        $double = false;
+        if (!in_array($type, \DISTRICTS) || $type == HOUSE) {
+          continue; // Don't care about plazas and quarries, and house will be treated later
         }
-      }
-      // Dont score barracks if not on the edge
-      elseif ($type == BARRACK) {
-        // We must count empty cells ourselves to avoid Lake...
-        $emptyCells = 0;
-        foreach ($neighbours as $pos) {
-          $uid = self::getCellId($pos);
-          if (!$this->isCellBuilt($pos) && ($marks[$uid] ?? 0) === 1) {
-            $emptyCells++;
+        $neighbours = $this->getNeighbours($cell, true, $triangles);
+        $builtNeighbours = $this->getBuiltNeighbours($cell, $triangles);
+
+        // Market : dont score market if adjacent to other marker
+        if ($type == MARKET) {
+          $nextToMarket = false;
+          $nextToPlaza = false;
+          foreach ($builtNeighbours as $pos) {
+            foreach ($this->getTypesAtPos($pos) as $type2 => $triangles2) {
+              if ($this->areCellsTrianglesAdjacent($cell, $triangles, $pos, $triangles2)) {
+                $nextToPlaza = $nextToPlaza || $type2 == MARKET_PLAZA;
+                $nextToMarket = $nextToMarket || $type2 == MARKET;
+              }
+            }
+          }
+
+          if ($nextToMarket) {
+            continue;
+          }
+          // MARKET VARIANT : double size if adjacent to PLAZA
+          if (Globals::isVariant(MARKET) && $nextToPlaza) {
+            $double = true;
+          }
+        }
+        // Dont score barracks if not on the edge
+        elseif ($type == BARRACK) {
+          // We must count empty cells ourselves to avoid Lake...
+          $emptyCells = 0;
+          foreach ($neighbours as $pos) {
+            $uid = self::getCellId($pos) . "_" . FREE; // We are looking for empty cells
+            if (!$this->isCellBuilt($pos) && ($marks[$uid] ?? 0) === 1) {
+              $emptyCells++;
+            }
+          }
+
+          if ($emptyCells == 0) {
+            continue;
+          }
+
+          // BARRACK VARIANT : double size if 3 or 4 empty neighbours
+          if (Globals::isVariant(BARRACK) && $emptyCells >= 3) {
+            $double = true;
+          }
+        }
+        // Dont score temple if not fully built around
+        elseif ($type == TEMPLE) {
+          if (count($builtNeighbours) < 6) {
+            continue;
+          }
+
+          // TEMPLE VARIANT : double size if height > 1
+          if ($cell['z'] > 0 && Globals::isVariant(TEMPLE)) {
+            $double = true;
+          }
+        }
+        // GARDEN VARIANT : double size if adjacent to lakes
+        elseif ($type == GARDEN && Globals::isVariant(GARDEN)) {
+          // count Lakes
+          $lakes = 0;
+          foreach ($neighbours as $pos) {
+            $uid = self::getCellId($pos) . "_" . FREE; // We are looking for empty cells
+            if (!$this->isCellBuilt($pos) && ($marks[$uid] ?? 0) !== 1) {
+              $lakes++;
+            }
+          }
+
+          if ($lakes > 0) {
+            $double = true;
           }
         }
 
-        if ($emptyCells == 0) {
-          continue;
-        }
-
-        // BARRACK VARIANT : double size if 3 or 4 empty neighbours
-        if (Globals::isVariant(BARRACK) && $emptyCells >= 3) {
-          $double = true;
-        }
+        $districts[$type] += ($cell['z'] + 1) * ($double ? 2 : 1);
       }
-      // Dont score temple if not fully built around
-      elseif ($type == TEMPLE) {
-        if (count($builtNeighbours) < 6) {
-          continue;
-        }
-
-        // TEMPLE VARIANT : double size if height > 1
-        if ($cell['z'] > 0 && Globals::isVariant(TEMPLE)) {
-          $double = true;
-        }
-      }
-      // GARDEN VARIANT : double size if adjacent to lakes
-      elseif ($type == GARDEN && Globals::isVariant(GARDEN)) {
-        // count Lakes
-        $lakes = 0;
-        foreach ($neighbours as $pos) {
-          $uid = self::getCellId($pos);
-          if (!$this->isCellBuilt($pos) && ($marks[$uid] ?? 0) !== 1) {
-            $lakes++;
-          }
-        }
-
-        if ($lakes > 0) {
-          $double = true;
-        }
-      }
-
-      $districts[$type] += ($cell['z'] + 1) * ($double ? 2 : 1);
     }
 
     // SCORE BIGGEST HOUSE
@@ -542,20 +566,6 @@ class TriangulatedBoard
         $districts[$type] *= 2;
       }
     }
-    // HANDLE STATS FOR REAL PLAYERS
-    // else {
-    //   $statMap = [
-    //     BARRACK => 'Barracks',
-    //     MARKET => 'Markets',
-    //     TEMPLE => 'Temples',
-    //     HOUSE => 'Houses',
-    //     GARDEN => 'Gardens',
-    //   ];
-    //   foreach ($statMap as $type => $stat) {
-    //     $statName = 'set' . $stat . 'DistrictVisibleTiles';
-    //     Stats::$statName($this->player, $visibleTiles[$type] ?? 0);
-    //   }
-    // }
 
     return $districts;
   }
@@ -588,43 +598,50 @@ class TriangulatedBoard
     $mark = 1;
     foreach ($cells as $cell) {
       $queue = [$cell];
-      $uid = self::getCellId($cell);
-      if (isset($marks[$uid])) {
-        continue;
-      }
-
-      $type = $this->getTypeAtPos($cell);
-      $component = [];
-      $size = 0;
-      while (!empty($queue)) {
-        $cell = array_pop($queue);
-        $uid = self::getCellId($cell);
+      $types = $this->getTypesAtPos($cell, false);
+      foreach ($types as $type => $triangles) {
+        // Mark now also includes the type to work with dual tiles
+        $uid = self::getCellId($cell) . "_" . $type;
         if (isset($marks[$uid])) {
           continue;
         }
-        $marks[$uid] = $mark;
-        $component[] = $cell;
-        $size += $cell['z'] + 1;
 
-        foreach (self::getNeighbours($cell) as $pos) {
-          if ($pos['x'] < $minX || $pos['x'] > $maxX || $pos['y'] < $minY || $pos['y'] > $maxY) {
+        $component = [];
+        $size = 0;
+        while (!empty($queue)) {
+          $cell = array_pop($queue);
+          $uid = self::getCellId($cell) . "_" . $type;
+          if (isset($marks[$uid])) {
             continue;
           }
+          $marks[$uid] = $mark;
+          $component[] = $cell;
+          $size += $cell['z'] + 1;
 
-          $pos = $this->getMaxHeightAtPos($pos, false);
-          $pos['z'] = max(0, $pos['z']);
-          if ($this->getTypeAtPos($pos) == $type) {
-            $queue[] = $pos;
+          // Get triangles
+          $triangles = $this->getTypesAtPos($cell, false)[$type];
+          foreach (self::getNeighbours($cell, $triangles) as $pos) {
+            if ($pos['x'] < $minX || $pos['x'] > $maxX || $pos['y'] < $minY || $pos['y'] > $maxY) {
+              continue;
+            }
+
+            $pos = $this->getMaxHeightAtPos($pos, false);
+            $pos['z'] = max(0, $pos['z']);
+            foreach ($this->getTypesAtPos($pos, false) as $type2 => $triangles2) {
+              if ($type2 == $type && $this->areCellsTrianglesAdjacent($cell, $triangles, $pos, $triangles2)) {
+                $queue[] = $pos;
+              }
+            }
           }
         }
-      }
 
-      $components[] = [
-        'type' => $type,
-        'cells' => $component,
-        'size' => $size,
-      ];
-      $mark++;
+        $components[] = [
+          'type' => $type,
+          'cells' => $component,
+          'size' => $size,
+        ];
+        $mark++;
+      }
     }
 
     return [$cells, $components, $marks];
@@ -664,10 +681,10 @@ class TriangulatedBoard
     return $cells;
   }
 
-  public function getBuiltNeighbours($cell)
+  public function getBuiltNeighbours($cell, $directions = null)
   {
     $cells = [];
-    foreach (self::getNeighbours($cell) as $cell) {
+    foreach (self::getNeighbours($cell, false, $directions) as $cell) {
       $cell = $this->getMaxHeightAtPos($cell, false);
       if ($cell['z'] >= 0) {
         $cells[] = $cell;
@@ -702,10 +719,10 @@ class TriangulatedBoard
     return isset($this->grid[$cell['x']][$cell['y']]);
   }
 
-  public function getNeighbours($cell, $projectAtZ0 = false)
+  public function getNeighbours($cell, $projectAtZ0 = false, $directions = null)
   {
     $cells = [];
-    foreach (DIRECTIONS as $dir) {
+    foreach (($directions ?? DIRECTIONS) as $dir) {
       $newCell = [
         'x' => $cell['x'] + $dir['x'],
         'y' => $cell['y'] + $dir['y'],
@@ -714,6 +731,22 @@ class TriangulatedBoard
       $cells[] = $newCell;
     }
     return $cells;
+  }
+
+  public function isAdjacent($source, $target, $directions = null)
+  {
+    $neighbours = $this->getNeighbours($source, false, $directions);
+    foreach ($neighbours as $pos) {
+      if ($this->getDistance($pos, $target) == 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public function areCellsTrianglesAdjacent($cell1, $triangles1, $cell2, $triangles2)
+  {
+    return $this->isAdjacent($cell1, $cell2, $triangles1) && $this->isAdjacent($cell2, $cell1, $triangles2);
   }
 
   protected function getRotatedHex($hex, $rotation)
