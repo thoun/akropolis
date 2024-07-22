@@ -283,23 +283,23 @@ class TriangulatedBoard
    */
   public function isCellBuilt($cell)
   {
-    return !is_null($this->getTypesAtPos($cell));
+    return !is_null($this->getTypesAtPos($cell, true));
   }
 
   /**
    * getTypesAtPos: return the type(s) of hex at a given cell
    */
-  public function getTypesAtPos($cell, $nullIfEmpty = true)
+  public function getTypesAtPos($cell, $nullIfEmpty = false)
   {
     $type = $this->grid[$cell['x']][$cell['y']][$cell['z']] ?? null;
     if (is_null($type)) {
-      return $nullIfEmpty ? null : [FREE => [0, 1, 2, 3, 4, 5, 6]];
+      return $nullIfEmpty ? null : [FREE => [0, 1, 2, 3, 4, 5]];
     }
 
     $types = [];
     // Hex with only one type
     if (!is_array($type)) {
-      $types[$type] = [0, 1, 2, 3, 4, 5, 6];
+      $types[$type] = [0, 1, 2, 3, 4, 5];
     }
     // Dual tiles
     else {
@@ -438,6 +438,7 @@ class TriangulatedBoard
     list($cells, $components, $marks) = $this->computeComponents();
     foreach ($cells as $cell) {
       foreach ($this->getTypesAtPos($cell) as $type => $triangles) {
+        if ($type == FREE) continue;
 
         // Handle ARCHITECT scoring here
         if ($this->pId == ARCHITECT_ID) {
@@ -598,7 +599,7 @@ class TriangulatedBoard
     $mark = 1;
     foreach ($cells as $cell) {
       $queue = [$cell];
-      $types = $this->getTypesAtPos($cell, false);
+      $types = $this->getTypesAtPos($cell);
       foreach ($types as $type => $triangles) {
         // Mark now also includes the type to work with dual tiles
         $uid = self::getCellId($cell) . "_" . $type;
@@ -619,7 +620,7 @@ class TriangulatedBoard
           $size += $cell['z'] + 1;
 
           // Get triangles
-          $triangles = $this->getTypesAtPos($cell, false)[$type];
+          $triangles = $this->getTypesAtPos($cell)[$type];
           foreach (self::getNeighbours($cell, $triangles) as $pos) {
             if ($pos['x'] < $minX || $pos['x'] > $maxX || $pos['y'] < $minY || $pos['y'] > $maxY) {
               continue;
@@ -627,7 +628,7 @@ class TriangulatedBoard
 
             $pos = $this->getMaxHeightAtPos($pos, false);
             $pos['z'] = max(0, $pos['z']);
-            foreach ($this->getTypesAtPos($pos, false) as $type2 => $triangles2) {
+            foreach ($this->getTypesAtPos($pos) as $type2 => $triangles2) {
               if ($type2 == $type && $this->areCellsTrianglesAdjacent($cell, $triangles, $pos, $triangles2)) {
                 $queue[] = $pos;
               }
@@ -722,7 +723,8 @@ class TriangulatedBoard
   public function getNeighbours($cell, $projectAtZ0 = false, $directions = null)
   {
     $cells = [];
-    foreach (($directions ?? DIRECTIONS) as $dir) {
+    foreach (($directions ?? [0, 1, 2, 3, 4, 5]) as $d) {
+      $dir = DIRECTIONS[$d];
       $newCell = [
         'x' => $cell['x'] + $dir['x'],
         'y' => $cell['y'] + $dir['y'],
