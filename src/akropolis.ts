@@ -934,7 +934,7 @@ class Akropolis implements AkropolisGame {
     public format_string_recursive(log: string, args: any) {
         try {
             if (log && args && !args.processed) {
-                // TODO
+                 // TODO format icons
             }
         } catch (e) {
             console.error(log,args,"Exception thrown", e.stack);

@@ -1,6 +1,8 @@
 interface ConstructionCard {
     id: string;
     location: string;
+    name: string;
+    desc: string;
 }
 
 class AthenaConstructionSite {
@@ -21,6 +23,9 @@ class AthenaConstructionSite {
         document.getElementById('market').insertAdjacentHTML('beforebegin', html);
 
         [1,2,3,4].forEach(space => {
+            const card = cards.find(card => card.location === `athena-${space}`);
+            this.game.setTooltip(`construction-card-${card.id}`, this.getCardTooltip(card));
+
             const tiles = dockTiles.filter(tile => tile.location === `athena-${space}`);
             tiles.forEach(tile => this.addTile(tile, space));
         });
@@ -28,8 +33,15 @@ class AthenaConstructionSite {
 
     private generateCardHTML(card: ConstructionCard): string {
         return `<div id="construction-card-${card.id}" class="construction-card">
-            <strong>${card.id}</strong>
+            <div class="name-wrapper"><div class="name">${_(card.name)}</div></div>
+            <div class="desc">${_(card.desc)}</div>
         </div>`;
+    }
+
+    public getCardTooltip(card: ConstructionCard): string {
+        return `<strong>${_(card.name)}</strong>
+        <br><br>
+        ${_(card.desc)}`;
     }
 
     public addTile(tile: Tile, space: number) {

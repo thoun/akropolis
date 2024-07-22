@@ -42,7 +42,7 @@ $machinestates = [
     'type' => 'activeplayer',
     'args' => 'argsCompleteCard',
     'possibleactions' => ['actCompleteCard', 'actSkipCompleteCard'],
-    'transitions' => ['next' => ST_NEXT_PLAYER],
+    'transitions' => ['completeCard' => ST_COMPLETE_CARD, 'next' => ST_NEXT_PLAYER],
   ],
 
 

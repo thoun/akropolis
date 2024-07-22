@@ -819,12 +819,17 @@ var AthenaConstructionSite = /** @class */ (function () {
         html += "</div>";
         document.getElementById('market').insertAdjacentHTML('beforebegin', html);
         [1, 2, 3, 4].forEach(function (space) {
+            var card = cards.find(function (card) { return card.location === "athena-".concat(space); });
+            _this.game.setTooltip("construction-card-".concat(card.id), _this.getCardTooltip(card));
             var tiles = dockTiles.filter(function (tile) { return tile.location === "athena-".concat(space); });
             tiles.forEach(function (tile) { return _this.addTile(tile, space); });
         });
     }
     AthenaConstructionSite.prototype.generateCardHTML = function (card) {
-        return "<div id=\"construction-card-".concat(card.id, "\" class=\"construction-card\">\n            <strong>").concat(card.id, "</strong>\n        </div>");
+        return "<div id=\"construction-card-".concat(card.id, "\" class=\"construction-card\">\n            <div class=\"name-wrapper\"><div class=\"name\">").concat(_(card.name), "</div></div>\n            <div class=\"desc\">").concat(_(card.desc), "</div>\n        </div>");
+    };
+    AthenaConstructionSite.prototype.getCardTooltip = function (card) {
+        return "<strong>".concat(_(card.name), "</strong>\n        <br><br>\n        ").concat(_(card.desc));
     };
     AthenaConstructionSite.prototype.addTile = function (tile, space) {
         var _this = this;
@@ -1806,7 +1811,7 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.format_string_recursive = function (log, args) {
         try {
             if (log && args && !args.processed) {
-                // TODO
+                // TODO format icons
             }
         }
         catch (e) {

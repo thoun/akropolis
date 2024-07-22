@@ -28,7 +28,7 @@ class ConstructionCards extends \AKR\Helpers\Pieces
 
   public static function getUiData()
   {
-    return self::getAll()->toArray();
+    return self::getAll()->ui();
   }
 
   public static function setupNewGame($players, $options)

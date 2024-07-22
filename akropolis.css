@@ -292,6 +292,30 @@
 #athena-contruction-space .construction-card.active {
   box-shadow: 0 0 5px 5px orange;
 }
+#athena-contruction-space .construction-card .name-wrapper {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  top: 5px;
+  left: 0;
+  right: 0;
+}
+#athena-contruction-space .construction-card .name-wrapper .name {
+  --background: black;
+  font-weight: bold;
+  font-size: 10pt;
+  padding: 0 5px;
+  font-family: "xtraregular";
+  color: white;
+  background: var(--background);
+  border-radius: 3px;
+}
+#athena-contruction-space .construction-card .desc {
+  position: absolute;
+  bottom: 55px;
+  left: 0;
+  right: 0;
+}
 #athena-contruction-space .athena-tiles-space {
   display: flex;
   flex-wrap: wrap;
