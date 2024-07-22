@@ -52,6 +52,8 @@ interface AkropolisGamedatas {
     soloPlayer?: AkropolisPlayer;
     allTiles: boolean;
     lastMoves: { [playerId: number]: Tile };
+    isAthena: boolean;
+    cards?: ConstructionCard[];
 }
 
 interface AkropolisGame extends Game {

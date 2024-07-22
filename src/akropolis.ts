@@ -48,6 +48,7 @@ class Akropolis implements AkropolisGame {
 
     private gamedatas: AkropolisGamedatas;
     private constructionSite: ConstructionSite;
+    private athenaConstructionSpace?: AthenaConstructionSpace;
     private selectedPosition: Partial<PlaceTileOption>;
     private selectedTile: Tile;
     private selectedTileHexIndex: number;
@@ -101,6 +102,9 @@ class Akropolis implements AkropolisGame {
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
+        if (gamedatas.isAthena) {
+            this.athenaConstructionSpace = new AthenaConstructionSpace(this, gamedatas.cards, gamedatas.dock);
+        }
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         this.createPlayerJumps(gamedatas);
@@ -796,7 +800,10 @@ class Akropolis implements AkropolisGame {
             const animated = document.createElement('div');
             animated.classList.add('stone', 'score-icon', 'animated');
             document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
-            this.animationManager.slideFromElement(animated, origin).then(() => animated.remove());
+            this.animationManager.play(new BgaSlideAnimation({
+                element: animated,
+                fromElement: origin,
+            })).then(() => animated.remove());
         } else {
             const lastTile = document.getElementById(`player-table-${playerId}-grid`).getElementsByClassName('last-move')[0];
             if (lastTile) {
@@ -805,7 +812,10 @@ class Akropolis implements AkropolisGame {
                     const animated = document.createElement('div');
                     animated.classList.add('stone', 'score-icon', 'animated');
                     document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
-                    this.animationManager.slideFromElement(animated, origin).then(() => animated.remove());
+                    this.animationManager.play(new BgaSlideAnimation({
+                        element: animated,
+                        fromElement: origin,
+                    })).then(() => animated.remove());
                 }
             }
         }
@@ -820,11 +830,11 @@ class Akropolis implements AkropolisGame {
         const destinationId = `first-player-token-wrapper-${notif.args.pId}`;
         const originId = firstPlayerToken.parentElement.id;
         if (destinationId !== originId) {
-            this.animationManager.attachWithSlideAnimation(
-                firstPlayerToken,
-                document.getElementById(destinationId),
-                { zoom: 1 },
-            );
+            this.animationManager.attachWithAnimation(new BgaSlideAnimation({
+                element: firstPlayerToken,
+                zoom: 1,
+            }),
+            document.getElementById(destinationId));
         }
     }
 

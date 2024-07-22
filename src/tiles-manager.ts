@@ -7,7 +7,14 @@ const TILE_COORDINATES = [
 class TilesManager {
     constructor(public game: AkropolisGame) {}
 
-    public hexFromString(types: string) {
+    public hexFromString(types: string | string[]) {
+        if (Array.isArray(types)) { // double tiles
+            return { 
+                type: types.map(type => type.split('-')[0]).join('-'), 
+                plaza: false,
+            };
+        }
+
         const typeArray = types.split('-');
         const type = typeArray[0];
         const plaza = typeArray[1] === 'plaza';
@@ -39,6 +46,9 @@ class TilesManager {
 
     public createTile(tile: Tile, withSides: boolean = true, classes: string[] = []): HTMLDivElement {
         const tileDiv = document.createElement('div');
+        if (tile.hexes.length === 1) {
+            classes.push('single-tile');
+        }
         tileDiv.classList.add('tile', ...classes);
         tile.hexes.forEach((hex, index) => {
             const hexDiv = this.createTileHex(TILE_COORDINATES[index][0], TILE_COORDINATES[index][1], 0, hex, withSides);

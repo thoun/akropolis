@@ -8,7 +8,7 @@ class ConstructionSite {
     constructor(private game: AkropolisGame, tiles: Tile[], remainingStacks: number) {
         this.market = document.getElementById('market') as HTMLDivElement;
         this.remainingstacksDiv = document.getElementById('remaining-stacks') as HTMLDivElement;
-        this.setTiles(this.orderTiles(tiles));
+        this.setTiles(this.orderTiles(tiles.filter(tile => tile.location === 'dock')));
 
         document.getElementById('remaining-stacks-counter').insertAdjacentText('beforebegin', _('Remaining stacks'));
         this.remainingStacksCounter = new ebg.counter();
@@ -60,10 +60,10 @@ class ConstructionSite {
         const orderedTiles = this.orderTiles(tiles);
         this.setTiles(orderedTiles);
         orderedTiles.forEach(tile => 
-            this.game.animationManager.slideFromElement(
-                document.getElementById(`market-tile-${tile.id}`),
-                this.remainingstacksDiv,
-            )
+            this.game.animationManager.play(new BgaSlideAnimation({
+                element: document.getElementById(`market-tile-${tile.id}`),
+                fromElement: this.remainingstacksDiv,
+            }))
         ); 
 
         this.remainingStacksCounter.setValue(remainingStacks);
@@ -72,10 +72,12 @@ class ConstructionSite {
     public animateTileTo(tile: Tile, to: HTMLDivElement): Promise<any> {
         const marketTileDiv = document.getElementById(`market-tile-${tile.id}`).querySelector('.tile') as HTMLElement;
         const finalTransform = `rotate(${60 * Number(marketTileDiv.style.getPropertyValue('--r'))}deg)`;
-        return slideToAnimation(
-            marketTileDiv,
-            { fromElement: to, scale: 1, finalTransform }
-        );
+        return this.game.animationManager.play(new BgaSlideAnimation({
+            element: marketTileDiv,
+            fromElement: to,
+            scale: 1, 
+            finalTransform,
+        }));
     }
 
     public removeTile(tile: Tile) {

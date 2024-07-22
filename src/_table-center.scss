@@ -101,3 +101,29 @@
         top: calc(($hexHeight * var(--y) / 2) + 16px);
     }
 }
+
+#athena-contruction-space {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    justify-items: center;
+
+    .construction-card {
+        width: 120px;
+        height: 182px;
+        border-radius: 8px;
+        box-shadow: 1px 1px 2px 2px #888888;
+    }
+
+    .athena-tiles-space {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .single-tile {
+        position: relative !important;
+    }
+}

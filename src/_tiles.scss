@@ -3,7 +3,13 @@
   width: #{$hexSide * 4};
   height: #{$hexSide * 4};
 
-  &::after {
+  &.single-tile {
+    width: #{$hexSide * 2};
+    height: #{$hexSide * 2};
+
+  }
+
+  &:not(.single-tile)::after {
       content: '';
       position: absolute;
       top: 0;
@@ -45,47 +51,83 @@
 
     &[data-type] {
       background-image: url("img/sprite.png");
-      background-size: auto 350%;
+      background-size: auto 450%;
       transform: translateZ(calc($hexThickness * (var(--z) + 1)));
     }
 
     &[data-type="quarry"] {
-      background-position: 66% 80%;
+      background-position: 50% #{2 * 100% / 3.5};
     }
 
     &[data-type="house"] {
-      background-position: 66% 0%;
+      background-position: 50% #{0 * 100% / 3.5};
       &[data-plaza="true"] {
-        background-position: 100% 20%;
+        background-position: 75% #{0.5 * 100% / 3.5};
       }
     }
 
     &[data-type="market"] {
-      background-position: 66% 40%;
+      background-position: 50% #{1 * 100% / 3.5};
       &[data-plaza="true"] {
-        background-position: 100% 60%;
+        background-position: 75% #{1.5 * 100% / 3.5};
       }
     }
 
     &[data-type="barrack"] {
-      background-position: 33% 20%;
+      background-position: 25% #{0.5 * 100% / 3.5};
       &[data-plaza="true"] {
         background-position: 0% 0%;
       }
     }
 
     &[data-type="temple"] {
-      background-position: 0% 80%;
+      background-position: 0% #{2 * 100% / 3.5};
       &[data-plaza="true"] {
-        background-position: 33% 100%;
+        background-position: 25% #{2.5 * 100% / 3.5};
       }
     }
 
     &[data-type="garden"] {
-      background-position: 0% 40%;
+      background-position: 0% #{1 * 100% / 3.5};
       &[data-plaza="true"] {
-        background-position: 33% 60%;
+        background-position: 25% #{1.5 * 100% / 3.5};
       }
+    }
+
+    &[data-type="barrack-garden"], &[data-type="garden-barrack"] {
+        background-position: 75% #{2.5 * 100% / 3.5};
+    }
+
+    &[data-type="barrack-temple"], &[data-type="temple-barrack"] {
+        background-position: 100% #{3 * 100% / 3.5};
+    }
+
+    &[data-type="house-barrack"], &[data-type="barrack-house"] {
+        background-position: 100% #{2 * 100% / 3.5};
+    }
+
+    &[data-type="house-garden"], &[data-type="garden-house"] {
+        background-position: 100% #{1 * 100% / 3.5};
+    }
+
+    &[data-type="house-market"], &[data-type="market-house"] {
+        background-position: 100% #{0 * 100% / 3.5};
+    }
+
+    &[data-type="house-temple"], &[data-type="temple-house"] {
+        background-position: 0% #{3 * 100% / 3.5};
+    }
+
+    &[data-type="market-barrack"], &[data-type="barrack-market"] {
+        background-position: 25% #{3.5 * 100% / 3.5};
+    }
+
+    &[data-type="market-garden"], &[data-type="garden-market"] {
+        background-position: 75% #{3.5 * 100% / 3.5};
+    }
+
+    &[data-type="market-temple"], &[data-type="temple-market"] {
+        background-position: 50% #{3 * 100% / 3.5};
     }
   }
 

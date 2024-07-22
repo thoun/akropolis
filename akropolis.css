@@ -54,7 +54,11 @@
   width: 194px;
   height: 194px;
 }
-.tile::after {
+.tile.single-tile {
+  width: 97px;
+  height: 97px;
+}
+.tile:not(.single-tile)::after {
   content: "";
   position: absolute;
   top: 0;
@@ -93,41 +97,68 @@
 }
 .hex .face[data-type] {
   background-image: url("img/sprite.png");
-  background-size: auto 350%;
+  background-size: auto 450%;
   transform: translateZ(calc(16px * (var(--z) + 1)));
 }
 .hex .face[data-type=quarry] {
-  background-position: 66% 80%;
+  background-position: 50% 57.1428571429%;
 }
 .hex .face[data-type=house] {
-  background-position: 66% 0%;
+  background-position: 50% 0%;
 }
 .hex .face[data-type=house][data-plaza=true] {
-  background-position: 100% 20%;
+  background-position: 75% 14.2857142857%;
 }
 .hex .face[data-type=market] {
-  background-position: 66% 40%;
+  background-position: 50% 28.5714285714%;
 }
 .hex .face[data-type=market][data-plaza=true] {
-  background-position: 100% 60%;
+  background-position: 75% 42.8571428571%;
 }
 .hex .face[data-type=barrack] {
-  background-position: 33% 20%;
+  background-position: 25% 14.2857142857%;
 }
 .hex .face[data-type=barrack][data-plaza=true] {
   background-position: 0% 0%;
 }
 .hex .face[data-type=temple] {
-  background-position: 0% 80%;
+  background-position: 0% 57.1428571429%;
 }
 .hex .face[data-type=temple][data-plaza=true] {
-  background-position: 33% 100%;
+  background-position: 25% 71.4285714286%;
 }
 .hex .face[data-type=garden] {
-  background-position: 0% 40%;
+  background-position: 0% 28.5714285714%;
 }
 .hex .face[data-type=garden][data-plaza=true] {
-  background-position: 33% 60%;
+  background-position: 25% 42.8571428571%;
+}
+.hex .face[data-type=barrack-garden], .hex .face[data-type=garden-barrack] {
+  background-position: 75% 71.4285714286%;
+}
+.hex .face[data-type=barrack-temple], .hex .face[data-type=temple-barrack] {
+  background-position: 100% 85.7142857143%;
+}
+.hex .face[data-type=house-barrack], .hex .face[data-type=barrack-house] {
+  background-position: 100% 57.1428571429%;
+}
+.hex .face[data-type=house-garden], .hex .face[data-type=garden-house] {
+  background-position: 100% 28.5714285714%;
+}
+.hex .face[data-type=house-market], .hex .face[data-type=market-house] {
+  background-position: 100% 0%;
+}
+.hex .face[data-type=house-temple], .hex .face[data-type=temple-house] {
+  background-position: 0% 85.7142857143%;
+}
+.hex .face[data-type=market-barrack], .hex .face[data-type=barrack-market] {
+  background-position: 25% 100%;
+}
+.hex .face[data-type=market-garden], .hex .face[data-type=garden-market] {
+  background-position: 75% 100%;
+}
+.hex .face[data-type=market-temple], .hex .face[data-type=temple-market] {
+  background-position: 50% 85.7142857143%;
 }
 .hex.selected .face {
   cursor: pointer;
@@ -244,6 +275,29 @@
   position: absolute;
   left: calc(48.5px * (0.5 + var(--x) * 1.5) - 12px);
   top: calc(84px * var(--y) / 2 + 16px);
+}
+
+#athena-contruction-space {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  justify-items: center;
+}
+#athena-contruction-space .construction-card {
+  width: 120px;
+  height: 182px;
+  border-radius: 8px;
+  box-shadow: 1px 1px 2px 2px #888888;
+}
+#athena-contruction-space .athena-tiles-space {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+#athena-contruction-space .single-tile {
+  position: relative !important;
 }
 
 .player-board .counters {
