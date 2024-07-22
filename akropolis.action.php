@@ -52,7 +52,7 @@ class action_akropolis extends APP_GameAction
   public function actCompleteCard()
   {
     self::setAjaxMode();
-    $cardId = (int) self::getArg('cardId', AT_int, true);
+    $cardId = self::getArg('cardId', AT_alphanum, true);
     $tileId = (int) self::getArg('tileId', AT_int, true);
     $x = (int) self::getArg('x', AT_int, true);
     $y = (int) self::getArg('y', AT_int, true);

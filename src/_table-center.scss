@@ -113,6 +113,10 @@
         height: 182px;
         border-radius: 8px;
         box-shadow: 1px 1px 2px 2px #888888;
+
+        &.active {
+            box-shadow: 0 0 5px 5px orange;
+        }
     }
 
     .athena-tiles-space {
@@ -121,9 +125,26 @@
         gap: 10px;
         justify-content: center;
         align-items: center;
+
+        &.selectable {
+            .tile {
+                .hex {
+                    cursor: pointer;
+                }
+            }
+        }
     }
 
     .single-tile {
-        position: relative !important;
+        position: relative;
+        transform: rotate(calc(60deg * var(--r)));
+        // transition: transform 0.5s; // change from 5 to 0 is weird
+
+        /*&::after {
+            top: 16px;
+            bottom: -16px;
+            left: -12px;
+            right: 12px;
+        }*/
     }
 }

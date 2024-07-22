@@ -289,6 +289,9 @@
   border-radius: 8px;
   box-shadow: 1px 1px 2px 2px #888888;
 }
+#athena-contruction-space .construction-card.active {
+  box-shadow: 0 0 5px 5px orange;
+}
 #athena-contruction-space .athena-tiles-space {
   display: flex;
   flex-wrap: wrap;
@@ -296,8 +299,18 @@
   justify-content: center;
   align-items: center;
 }
+#athena-contruction-space .athena-tiles-space.selectable .tile .hex {
+  cursor: pointer;
+}
 #athena-contruction-space .single-tile {
-  position: relative !important;
+  position: relative;
+  transform: rotate(calc(60deg * var(--r)));
+  /*&::after {
+      top: 16px;
+      bottom: -16px;
+      left: -12px;
+      right: 12px;
+  }*/
 }
 
 .player-board .counters {

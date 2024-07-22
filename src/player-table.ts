@@ -71,7 +71,7 @@ class PlayerTable {
 
         options/*.filter(option => option.r.some(r => r == rotation))*/.forEach(option => {
             if (pivot) {
-                if (option.r.includes(0)) {
+                if (option.r && option.r.includes(0)) {
                     const pivot = this.createPossiblePivot(option.x, option.y, option.z);
                     pivot.addEventListener('click', () => {
                         this.game.possiblePositionClicked(option.x, option.y, option.z);

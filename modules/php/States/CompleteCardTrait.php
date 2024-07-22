@@ -74,11 +74,11 @@ trait CompleteCardTrait
     ];
   }
 
-  public function actCompleteCard($cardId, $tileId, $pos, $r)
+  public function actCompleteCard(string $cardId, $tileId, $pos, $r)
   {
     $player = Players::getActive();
     // Sanity check
-    self::checkAction('actPlaceTile');
+    self::checkAction('actCompleteCard');
     $args = $this->argsCompleteCard();
     // Check card
     if (!in_array($cardId, $args['cardIds'])) {

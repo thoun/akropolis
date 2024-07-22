@@ -82,6 +82,11 @@ interface EnteringPlaceTileArgs {
     options: PlaceTileOption[][];
 }
 
+interface EnteringCompleteCardArgs {
+    options: PlaceTileOption[];
+    cardIds: string[];
+}
+
 interface NotifPlacedTileArgs {
     player_id: number;
     tile: Tile;
