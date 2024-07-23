@@ -291,6 +291,8 @@
   height: 182px;
   border-radius: 8px;
   box-shadow: 1px 1px 2px 2px #888888;
+  background-image: url("img/construction-cards.jpg");
+  background-size: auto 200%;
 }
 #athena-contruction-space .construction-card.active {
   box-shadow: 0 0 5px 5px orange;
@@ -304,9 +306,8 @@
   right: 0;
 }
 #athena-contruction-space .construction-card .name-wrapper .name {
-  --background: black;
   font-weight: bold;
-  font-size: 10pt;
+  font-size: 9pt;
   padding: 0 5px;
   font-family: "xtraregular";
   color: white;
@@ -315,9 +316,16 @@
 }
 #athena-contruction-space .construction-card .desc {
   position: absolute;
-  bottom: 55px;
-  left: 0;
-  right: 0;
+  bottom: 12px;
+  left: 14px;
+  right: 14px;
+  height: 24px;
+  font-size: 8pt;
+  text-align: center;
+}
+#athena-contruction-space .construction-card .desc .icon, #athena-contruction-space .construction-card .desc .score-icon {
+  width: 16px;
+  height: 16px;
 }
 #athena-contruction-space .athena-tiles-space {
   display: flex;

@@ -5,6 +5,29 @@ interface ConstructionCard {
     desc: string;
 }
 
+
+
+const CARDS = {
+    "Housing": '#55b5e9',
+    "Villa": '#55b5e9',
+    "DistrictCenter": '#55b5e9',
+    "CityMarket": '#fcc812',
+    "Storehouses": '#fcc812',
+    "LuxuryGoods": '#fcc812',
+    "Rampart": '#d11e25',
+    "GuardTower": '#d11e25',
+    "Fortress": '#d11e25',
+    "Sanctuary": '#782f9a',
+    "Pantheon": '#782f9a',
+    "PilgrimsStairs": '#782f9a',
+    "Oasis": '#3cb941',
+    "HangingGardens": '#3cb941',
+    "Parkland": '#3cb941',
+    "MainStreet": '#918f90',
+    "QuarryMine": '#918f90',
+    "Agora": '#918f90',
+};
+
 function formatTextIcons(text: string): string {
     if (typeof text !== 'string') { // TODO TEMP
         return '';
@@ -44,7 +67,11 @@ class AthenaConstructionSite {
     }
 
     private generateCardHTML(card: ConstructionCard): string {
-        return `<div id="construction-card-${card.id}" class="construction-card">
+        const cardIndex = Object.keys(CARDS).indexOf(card.id);
+        const row = Math.floor(cardIndex / 9);
+        const col = cardIndex % 9;
+
+        return `<div id="construction-card-${card.id}" class="construction-card" style="background-position: ${col * 100 / 8}% ${row * 100}%; --background: ${CARDS[card.id]};">
             <div class="name-wrapper"><div class="name">${_(card.name)}</div></div>
             <div class="desc">${formatTextIcons(_(card.desc))}</div>
         </div>`;

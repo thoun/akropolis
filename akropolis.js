@@ -803,6 +803,26 @@ var ConstructionSite = /** @class */ (function () {
     };
     return ConstructionSite;
 }());
+var CARDS = {
+    "Housing": '#55b5e9',
+    "Villa": '#55b5e9',
+    "DistrictCenter": '#55b5e9',
+    "CityMarket": '#fcc812',
+    "Storehouses": '#fcc812',
+    "LuxuryGoods": '#fcc812',
+    "Rampart": '#d11e25',
+    "GuardTower": '#d11e25',
+    "Fortress": '#d11e25',
+    "Sanctuary": '#782f9a',
+    "Pantheon": '#782f9a',
+    "PilgrimsStairs": '#782f9a',
+    "Oasis": '#3cb941',
+    "HangingGardens": '#3cb941',
+    "Parkland": '#3cb941',
+    "MainStreet": '#918f90',
+    "QuarryMine": '#918f90',
+    "Agora": '#918f90',
+};
 function formatTextIcons(text) {
     if (typeof text !== 'string') { // TODO TEMP
         return '';
@@ -835,7 +855,10 @@ var AthenaConstructionSite = /** @class */ (function () {
         });
     }
     AthenaConstructionSite.prototype.generateCardHTML = function (card) {
-        return "<div id=\"construction-card-".concat(card.id, "\" class=\"construction-card\">\n            <div class=\"name-wrapper\"><div class=\"name\">").concat(_(card.name), "</div></div>\n            <div class=\"desc\">").concat(formatTextIcons(_(card.desc)), "</div>\n        </div>");
+        var cardIndex = Object.keys(CARDS).indexOf(card.id);
+        var row = Math.floor(cardIndex / 9);
+        var col = cardIndex % 9;
+        return "<div id=\"construction-card-".concat(card.id, "\" class=\"construction-card\" style=\"background-position: ").concat(col * 100 / 8, "% ").concat(row * 100, "%; --background: ").concat(CARDS[card.id], ";\">\n            <div class=\"name-wrapper\"><div class=\"name\">").concat(_(card.name), "</div></div>\n            <div class=\"desc\">").concat(formatTextIcons(_(card.desc)), "</div>\n        </div>");
     };
     AthenaConstructionSite.prototype.getCardTooltip = function (card) {
         return "<strong>".concat(_(card.name), "</strong>\n        <br><br>\n        ").concat(_(card.desc));

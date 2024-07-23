@@ -1,0 +1,82 @@
+#athena-contruction-space {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    justify-items: center;
+
+    .construction-card {
+        width: 120px;
+        height: 182px;
+        border-radius: 8px;
+        box-shadow: 1px 1px 2px 2px #888888;
+        background-image: url('img/construction-cards.jpg');
+        background-size: auto 200%;
+
+        &.active {
+            box-shadow: 0 0 5px 5px orange;
+        }
+
+        .name-wrapper {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            top: 5px;
+            left: 0;
+            right: 0;
+
+            .name {
+                font-weight: bold;
+                font-size: 9pt;
+                padding: 0 5px;
+                font-family: 'xtraregular'; 
+                color: white;
+                background: var(--background);
+                border-radius: 3px;
+            }
+        }
+
+        .desc {
+            position: absolute;
+            bottom: 12px;
+            left: 14px;
+            right: 14px;
+            height: 24px;
+            font-size: 8pt;
+            text-align: center;
+
+            .icon, .score-icon {
+                width: 16px;
+                height: 16px;
+            }
+        }
+    }
+
+    .athena-tiles-space {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+
+        &.selectable {
+            .tile {
+                .hex {
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+
+    .single-tile {
+        position: relative;
+        transform: rotate(calc(60deg * var(--r)));
+        // transition: transform 0.5s; // change from 5 to 0 is weird
+
+        /*&::after {
+            top: 16px;
+            bottom: -16px;
+            left: -12px;
+            right: 12px;
+        }*/
+    }
+}
