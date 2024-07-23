@@ -1,5 +1,7 @@
 <?php
+
 namespace AKR\Models;
+
 use AKR\Core\Stats;
 use AKR\Core\Notifications;
 use AKR\Core\Preferences;
@@ -62,10 +64,10 @@ class Architect extends Player
 
   // Cached attribute
   protected $board = null;
-  public function board()
+  public function board(): TriangulatedBoard
   {
     if ($this->board == null) {
-      $this->board = new Board($this);
+      $this->board = new TriangulatedBoard($this);
     }
     return $this->board;
   }

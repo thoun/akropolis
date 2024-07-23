@@ -18,7 +18,7 @@ class GuardTower extends \AKR\Models\ConstructionCard
     $highBarracks = 0;
     $cells = $board->getVisibleBuiltCells();
     foreach ($cells as $cell) {
-      if ($cell['z'] < 2) continue;
+      if ($cell['z'] < 1) continue;
 
       $types = array_keys($board->getTypesAtPos($cell));
       if (in_array(BARRACK, $types)) {

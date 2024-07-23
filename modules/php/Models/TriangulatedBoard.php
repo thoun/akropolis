@@ -233,13 +233,23 @@ class TriangulatedBoard
       }
     }
 
-    // Z > 0 : check also that this is not covering only a single tile
-    $coveredTileIds = array_unique($coveredTileIds);
-    if (count($coveredTileIds) == 1) {
+    // Must touch existing tile
+    if (!$touchExisting) {
       return false;
     }
 
-    return $touchExisting;
+    // Z > 0 : check also that this is not covering only a single tile
+    $coveredTileIds = array_unique($coveredTileIds);
+    if (count($coveredTileIds) == 1) {
+      $tileId = $coveredTileIds[0]; // Handle starting tile with id = -1...
+      $coveredGeometry = $tileId == -1 ? TILE_GEOMETRY : $this->getTileGeometry($this->tiles[$tileId]);
+      // Single tile can cover only one tile, EXCEPT IF IT'S A SINGLE TILE
+      if (count($geometry) > 1 || count($coveredGeometry) == 1) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -283,7 +293,7 @@ class TriangulatedBoard
    */
   public function isCellBuilt($cell)
   {
-    return !is_null($this->getTypesAtPos($cell, true));
+    return !is_null($this->grid[$cell['x']][$cell['y']][$cell['z']] ?? null);
   }
 
   /**
@@ -291,6 +301,7 @@ class TriangulatedBoard
    */
   public function getTypesAtPos($cell, $nullIfEmpty = false)
   {
+    $cell = $this->getMaxHeightAtPos($cell, false);
     $type = $this->grid[$cell['x']][$cell['y']][$cell['z']] ?? null;
     if (is_null($type)) {
       return $nullIfEmpty ? null : [FREE => [0, 1, 2, 3, 4, 5]];
