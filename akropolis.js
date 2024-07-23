@@ -803,6 +803,15 @@ var ConstructionSite = /** @class */ (function () {
     };
     return ConstructionSite;
 }());
+function formatTextIcons(text) {
+    if (typeof text !== 'string') { // TODO TEMP
+        return '';
+    }
+    console.log(text);
+    // TODO format icons
+    return text
+        .replace(/<STONE>/g, "<div class=\"stone score-icon\"></div>");
+}
 var AthenaConstructionSite = /** @class */ (function () {
     function AthenaConstructionSite(game, cards, dockTiles) {
         var _this = this;
@@ -826,7 +835,7 @@ var AthenaConstructionSite = /** @class */ (function () {
         });
     }
     AthenaConstructionSite.prototype.generateCardHTML = function (card) {
-        return "<div id=\"construction-card-".concat(card.id, "\" class=\"construction-card\">\n            <div class=\"name-wrapper\"><div class=\"name\">").concat(_(card.name), "</div></div>\n            <div class=\"desc\">").concat(_(card.desc), "</div>\n        </div>");
+        return "<div id=\"construction-card-".concat(card.id, "\" class=\"construction-card\">\n            <div class=\"name-wrapper\"><div class=\"name\">").concat(_(card.name), "</div></div>\n            <div class=\"desc\">").concat(formatTextIcons(_(card.desc)), "</div>\n        </div>");
     };
     AthenaConstructionSite.prototype.getCardTooltip = function (card) {
         return "<strong>".concat(_(card.name), "</strong>\n        <br><br>\n        ").concat(_(card.desc));
@@ -1800,18 +1809,12 @@ var Akropolis = /** @class */ (function () {
     /* @Override */
     Akropolis.prototype.change3d = function (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) {
         this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);
-        /*(this as any).control3dscale = Math.min(ZOOM_MAX, (this as any).control3dscale);
-        if (arguments[4] > 0 && (this as any).control3dscale >= ZOOM_MAX) {
-            arguments[4] = 0;
-        }
-        return (this as any).inherited(arguments);*/
     };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */
     Akropolis.prototype.format_string_recursive = function (log, args) {
         try {
             if (log && args && !args.processed) {
-                // TODO format icons
             }
         }
         catch (e) {

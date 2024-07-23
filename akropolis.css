@@ -96,69 +96,72 @@
   cursor: pointer;
 }
 .hex .face[data-type] {
-  background-image: url("img/sprite.png");
-  background-size: auto 450%;
+  background-image: url("img/sprite.jpg");
+  background-size: auto 500%;
   transform: translateZ(calc(16px * (var(--z) + 1)));
 }
 .hex .face[data-type=quarry] {
-  background-position: 50% 57.1428571429%;
+  background-position: 50% 50%;
 }
 .hex .face[data-type=house] {
   background-position: 50% 0%;
 }
 .hex .face[data-type=house][data-plaza=true] {
-  background-position: 75% 14.2857142857%;
+  background-position: 75% 12.5%;
 }
 .hex .face[data-type=market] {
-  background-position: 50% 28.5714285714%;
+  background-position: 50% 25%;
 }
 .hex .face[data-type=market][data-plaza=true] {
-  background-position: 75% 42.8571428571%;
+  background-position: 75% 37.5%;
 }
 .hex .face[data-type=barrack] {
-  background-position: 25% 14.2857142857%;
+  background-position: 25% 12.5%;
 }
 .hex .face[data-type=barrack][data-plaza=true] {
   background-position: 0% 0%;
 }
 .hex .face[data-type=temple] {
-  background-position: 0% 57.1428571429%;
+  background-position: 0% 50%;
 }
 .hex .face[data-type=temple][data-plaza=true] {
-  background-position: 25% 71.4285714286%;
+  background-position: 25% 62.5%;
 }
 .hex .face[data-type=garden] {
-  background-position: 0% 28.5714285714%;
+  background-position: 0% 25%;
 }
 .hex .face[data-type=garden][data-plaza=true] {
-  background-position: 25% 42.8571428571%;
+  background-position: 25% 37.5%;
 }
 .hex .face[data-type=barrack-garden], .hex .face[data-type=garden-barrack] {
-  background-position: 75% 71.4285714286%;
+  background-position: 75% 62.5%;
 }
 .hex .face[data-type=barrack-temple], .hex .face[data-type=temple-barrack] {
-  background-position: 100% 85.7142857143%;
+  background-position: 100% 75%;
 }
 .hex .face[data-type=house-barrack], .hex .face[data-type=barrack-house] {
-  background-position: 100% 57.1428571429%;
+  background-position: 100% 50%;
 }
 .hex .face[data-type=house-garden], .hex .face[data-type=garden-house] {
-  background-position: 100% 28.5714285714%;
+  background-position: 100% 25%;
 }
 .hex .face[data-type=house-market], .hex .face[data-type=market-house] {
   background-position: 100% 0%;
 }
 .hex .face[data-type=house-temple], .hex .face[data-type=temple-house] {
-  background-position: 0% 85.7142857143%;
+  background-position: 0% 75%;
 }
 .hex .face[data-type=market-barrack], .hex .face[data-type=barrack-market] {
-  background-position: 25% 100%;
+  background-position: 25% 87.5%;
 }
 .hex .face[data-type=market-garden], .hex .face[data-type=garden-market] {
-  background-position: 75% 100%;
+  background-position: 75% 87.5%;
 }
 .hex .face[data-type=market-temple], .hex .face[data-type=temple-market] {
-  background-position: 50% 85.7142857143%;
+  background-position: 50% 75%;
+}
+.hex .face[data-type=garden-temple], .hex .face[data-type=temple-garden] {
+  background-position: 0% 100%;
 }
 .hex.selected .face {
   cursor: pointer;
@@ -353,55 +356,6 @@
 }
 .player-board .hide-live-scores {
   display: none;
-}
-.player-board .score-icon {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-}
-.player-board .score-icon[data-type="0"] {
-  background-position: 0% 16.6666666667%;
-}
-.player-board .score-icon[data-type="0"].star {
-  background-position-x: 100%;
-}
-.player-board .score-icon[data-type="1"] {
-  background-position: 0% 33.3333333333%;
-}
-.player-board .score-icon[data-type="1"].star {
-  background-position-x: 100%;
-}
-.player-board .score-icon[data-type="2"] {
-  background-position: 0% 50%;
-}
-.player-board .score-icon[data-type="2"].star {
-  background-position-x: 100%;
-}
-.player-board .score-icon[data-type="3"] {
-  background-position: 0% 66.6666666667%;
-}
-.player-board .score-icon[data-type="3"].star {
-  background-position-x: 100%;
-}
-.player-board .score-icon[data-type="4"] {
-  background-position: 0% 83.3333333333%;
-}
-.player-board .score-icon[data-type="4"].star {
-  background-position-x: 100%;
-}
-.player-board .score-icon[data-type="5"] {
-  background-position: 0% 100%;
-}
-.player-board .score-icon[data-type="5"].star {
-  background-position-x: 100%;
-}
-.player-board .score-icon.stone {
-  position: relative;
-}
-.player-board .score-icon.stone .animated {
-  position: absolute;
-  top: 0;
-  left: 0;
 }
 .player-board .first-player-token-wrapper {
   position: relative;
@@ -670,9 +624,54 @@
   background-size: 200% auto;
   vertical-align: middle;
   background-repeat: no-repeat;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
+.score-icon[data-type="0"] {
+  background-position: 0% 16.6666666667%;
+}
+.score-icon[data-type="0"].star {
+  background-position-x: 100%;
+}
+.score-icon[data-type="1"] {
+  background-position: 0% 33.3333333333%;
+}
+.score-icon[data-type="1"].star {
+  background-position-x: 100%;
+}
+.score-icon[data-type="2"] {
+  background-position: 0% 50%;
+}
+.score-icon[data-type="2"].star {
+  background-position-x: 100%;
+}
+.score-icon[data-type="3"] {
+  background-position: 0% 66.6666666667%;
+}
+.score-icon[data-type="3"].star {
+  background-position-x: 100%;
+}
+.score-icon[data-type="4"] {
+  background-position: 0% 83.3333333333%;
+}
+.score-icon[data-type="4"].star {
+  background-position-x: 100%;
+}
+.score-icon[data-type="5"] {
+  background-position: 0% 100%;
+}
+.score-icon[data-type="5"].star {
+  background-position-x: 100%;
 }
 .score-icon.stone {
   background-position: 0% 0%;
+  position: relative;
+}
+.score-icon.stone .animated {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 #full-table {

@@ -86,9 +86,29 @@ $hexThickness: 16px;
   background-size: 200% auto;
   vertical-align: middle;
   background-repeat: no-repeat;
+  display: inline-block;    
+  width: 24px;
+  height: 24px;
+  
+  @for $i from 0 through 5 {
+    &[data-type="#{$i}"] {
+      background-position: 0% #{($i + 1) * 100% / 6};
+
+      &.star {
+        background-position-x: 100%;
+      }
+    }
+  }
 
   &.stone {
     background-position: 0% 0%;
+    position: relative;
+
+    .animated {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
   }
 }
 

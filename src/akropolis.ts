@@ -922,11 +922,6 @@ class Akropolis implements AkropolisGame {
     /* @Override */
     public change3d(incXAxis: number, xpos: number, ypos: number, xAxis: number, incScale: number, is3Dactive: boolean, reset: boolean) {
         this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);
-        /*(this as any).control3dscale = Math.min(ZOOM_MAX, (this as any).control3dscale);
-        if (arguments[4] > 0 && (this as any).control3dscale >= ZOOM_MAX) {
-            arguments[4] = 0;
-        }
-        return (this as any).inherited(arguments);*/
     }
 
     /* This enable to inject translatable styled things to logs or action bar */
@@ -934,7 +929,6 @@ class Akropolis implements AkropolisGame {
     public format_string_recursive(log: string, args: any) {
         try {
             if (log && args && !args.processed) {
-                 // TODO format icons
             }
         } catch (e) {
             console.error(log,args,"Exception thrown", e.stack);

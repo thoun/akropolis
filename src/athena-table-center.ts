@@ -5,6 +5,18 @@ interface ConstructionCard {
     desc: string;
 }
 
+function formatTextIcons(text: string): string {
+    if (typeof text !== 'string') { // TODO TEMP
+        return '';
+    }
+    console.log(text);
+
+    // TODO format icons
+   return text
+       .replace(/<STONE>/g, `<div class="stone score-icon"></div>`);
+
+}
+
 class AthenaConstructionSite {
     private selectionActivated: boolean = false;
 
@@ -34,7 +46,7 @@ class AthenaConstructionSite {
     private generateCardHTML(card: ConstructionCard): string {
         return `<div id="construction-card-${card.id}" class="construction-card">
             <div class="name-wrapper"><div class="name">${_(card.name)}</div></div>
-            <div class="desc">${_(card.desc)}</div>
+            <div class="desc">${formatTextIcons(_(card.desc))}</div>
         </div>`;
     }
 
