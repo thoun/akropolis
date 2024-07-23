@@ -20,7 +20,9 @@ const OFFSET_X = SIZE / 2;
 
 // V1 : just putting them side by side
 // prettier-ignore
-let imagesConfiguration = JSON.parse(localStorage.getItem('imagesConfigurationAkropolis')) ?? {"barrack-district":{"x":2,"y":1},"barrack-plaza":{"x":2,"y":1},"garden-district":{"x":2,"y":1},"garden-plaza":{"x":2,"y":1},"house-district":{"x":2,"y":1},"house-plaza":{"x":2,"y":1},"market-district":{"x":2,"y":1},"market-plaza":{"x":2,"y":1},"temple-district":{"x":2,"y":1},"temple-plaza":{"x":2,"y":1},"quarry":{"x":2,"y":1}};;
+// let imagesConfiguration = JSON.parse(localStorage.getItem('imagesConfigurationAkropolis')) ?? {"barrack-district":{"x":2,"y":1},"barrack-plaza":{"x":2,"y":1},"garden-district":{"x":2,"y":1},"garden-plaza":{"x":2,"y":1},"house-district":{"x":2,"y":1},"house-plaza":{"x":2,"y":1},"market-district":{"x":2,"y":1},"market-plaza":{"x":2,"y":1},"temple-district":{"x":2,"y":1},"temple-plaza":{"x":2,"y":1},"quarry":{"x":2,"y":1}};;
+// V2 : with expansion
+let imagesConfiguration = JSON.parse(localStorage.getItem('imagesConfigurationAkropolis')) ?? {"barrack-district":{"x":"606","y":"373"},"barrack-plaza":{"x":"-29","y":"-62"},"garden-district":{"x":"-72","y":"742"},"garden-plaza":{"x":"670","y":"1154"},"house-district":{"x":"1359","y":"-50"},"house-plaza":{"x":"1975","y":"366"},"market-district":{"x":"1286","y":"778"},"market-plaza":{"x":"1968","y":"1167"},"temple-district":{"x":"-85","y":"1554"},"temple-plaza":{"x":"634","y":"1957"},"quarry":{"x":"1325","y":"1508"},"garden-market":{"x":"7","y":0},"garden-market-district":{"x":"-46","y":"2308"},"barrack-garden-district":{"x":"2052","y":"1963"},"barrack-temple-district":{"x":"2724","y":"2366"},"house-barrack-district":{"x":"2732","y":"1555"},"house-garden-district":{"x":"2736","y":"760"},"house-market-district":{"x":"2742","y":"-46"},"house-temple-district":{"x":"-40","y":"2356"},"market-barrack-district":{"x":"656","y":"2759"},"market-garden-district":{"x":"2039","y":"2764"},"market-temple-district":{"x":"1352","y":"2360"},"back":{"x":"1359","y":"3160"},"temple-garden-district":{"x":"-61","y":"3173"}}
 
 let images = [
 
@@ -36,6 +38,7 @@ let images = [
 	'temple-plaza',
 	'quarry',
 
+
 	'barrack-garden-district',
 	'barrack-temple-district',
 	'house-barrack-district',
@@ -45,7 +48,8 @@ let images = [
 	'market-barrack-district',
 	'market-garden-district',
 	'market-temple-district',
-//	'back',
+	'temple-garden-district',
+	'back',
 ];
 
 // For each image, starting at the corner, give the list of hex that should be kept
@@ -71,6 +75,7 @@ let imagesHex = {
 	'market-barrack-district': ['1_1'],
 	'market-garden-district': ['1_1'],
 	'market-temple-district': ['1_1'],
+	'temple-garden-district': ['1_1'],
 	'back': ['1_1'],
 };
 
