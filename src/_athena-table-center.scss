@@ -44,9 +44,10 @@
             font-size: 8pt;
             text-align: center;
 
-            .icon, .score-icon {
+            svg, .icon, .score-icon {
                 width: 16px;
                 height: 16px;
+                vertical-align: middle;
             }
         }
     }

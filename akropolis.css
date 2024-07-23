@@ -323,9 +323,10 @@
   font-size: 8pt;
   text-align: center;
 }
-#athena-contruction-space .construction-card .desc .icon, #athena-contruction-space .construction-card .desc .score-icon {
+#athena-contruction-space .construction-card .desc svg, #athena-contruction-space .construction-card .desc .icon, #athena-contruction-space .construction-card .desc .score-icon {
   width: 16px;
   height: 16px;
+  vertical-align: middle;
 }
 #athena-contruction-space .athena-tiles-space {
   display: flex;
