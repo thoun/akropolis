@@ -94,6 +94,10 @@ $y0: 300px;
             &.last-move::after {
                 background-image: url("img/tile-mask-last.png") !important;
             }
+
+            &.single-tile.last-move::after {
+                background-image: url("img/single-tile-mask-last.png") !important;
+            }
         }
 
         .pivot {
@@ -122,6 +126,9 @@ $y0: 300px;
                 @for $i from 0 through 3 {
                     &[data-z="#{$i}"]::after {
                         background-image: url("img/tile-mask#{$i}.png");
+                    }
+                    &.single-tile[data-z="#{$i}"]::after {
+                        background-image: url("img/single-tile-mask#{$i}.png");
                     }
                 }
             }

@@ -128,6 +128,63 @@ var BgaSlideAnimation = /** @class */ (function (_super) {
     }
     return BgaSlideAnimation;
 }(BgaAnimation));
+/**
+ * Slide of the element from destination to origin.
+ *
+ * @param animationManager the animation manager
+ * @param animation a `BgaAnimation` object
+ * @returns a promise when animation ends
+ */
+function slideToAnimation(animationManager, animation) {
+    var promise = new Promise(function (success) {
+        var _a, _b, _c, _d, _e;
+        var settings = animation.settings;
+        var element = settings.element;
+        var _f = getDeltaCoordinates(element, settings), x = _f.x, y = _f.y;
+        var duration = (_a = settings === null || settings === void 0 ? void 0 : settings.duration) !== null && _a !== void 0 ? _a : 500;
+        var originalZIndex = element.style.zIndex;
+        var originalTransition = element.style.transition;
+        var transitionTimingFunction = (_b = settings.transitionTimingFunction) !== null && _b !== void 0 ? _b : 'linear';
+        element.style.zIndex = "".concat((_c = settings === null || settings === void 0 ? void 0 : settings.zIndex) !== null && _c !== void 0 ? _c : 10);
+        var timeoutId = null;
+        var cleanOnTransitionEnd = function () {
+            element.style.zIndex = originalZIndex;
+            element.style.transition = originalTransition;
+            success();
+            element.removeEventListener('transitioncancel', cleanOnTransitionEnd);
+            element.removeEventListener('transitionend', cleanOnTransitionEnd);
+            document.removeEventListener('visibilitychange', cleanOnTransitionEnd);
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
+        var cleanOnTransitionCancel = function () {
+            var _a;
+            element.style.transition = "";
+            element.offsetHeight;
+            element.style.transform = (_a = settings === null || settings === void 0 ? void 0 : settings.finalTransform) !== null && _a !== void 0 ? _a : null;
+            element.offsetHeight;
+            cleanOnTransitionEnd();
+        };
+        element.addEventListener('transitioncancel', cleanOnTransitionEnd);
+        element.addEventListener('transitionend', cleanOnTransitionEnd);
+        document.addEventListener('visibilitychange', cleanOnTransitionCancel);
+        element.offsetHeight;
+        element.style.transition = "transform ".concat(duration, "ms ").concat(transitionTimingFunction);
+        element.offsetHeight;
+        element.style.transform = "translate(".concat(-x, "px, ").concat(-y, "px) rotate(").concat((_d = settings === null || settings === void 0 ? void 0 : settings.rotationDelta) !== null && _d !== void 0 ? _d : 0, "deg) scale(").concat((_e = settings.scale) !== null && _e !== void 0 ? _e : 1, ")");
+        // safety in case transitionend and transitioncancel are not called
+        timeoutId = setTimeout(cleanOnTransitionEnd, duration + 100);
+    });
+    return promise;
+}
+var BgaSlideToAnimation = /** @class */ (function (_super) {
+    __extends(BgaSlideToAnimation, _super);
+    function BgaSlideToAnimation(settings) {
+        return _super.call(this, slideToAnimation, settings) || this;
+    }
+    return BgaSlideToAnimation;
+}(BgaAnimation));
 function shouldAnimate(settings) {
     var _a;
     return document.visibilityState !== 'hidden' && !((_a = settings === null || settings === void 0 ? void 0 : settings.game) === null || _a === void 0 ? void 0 : _a.instantaneousMode);
@@ -748,7 +805,7 @@ var ConstructionSite = /** @class */ (function () {
     ConstructionSite.prototype.animateTileTo = function (tile, to) {
         var marketTileDiv = document.getElementById("market-tile-".concat(tile.id)).querySelector('.tile');
         var finalTransform = "rotate(".concat(60 * Number(marketTileDiv.style.getPropertyValue('--r')), "deg)");
-        return this.game.animationManager.play(new BgaSlideAnimation({
+        return this.game.animationManager.play(new BgaSlideToAnimation({
             element: marketTileDiv,
             fromElement: to,
             scale: 1,
@@ -831,8 +888,6 @@ function formatDescIcons(text, color) {
     if (typeof text !== 'string') { // TODO TEMP
         return '';
     }
-    console.log(text);
-    // TODO format icons
     return text
         .replace(/<STONE>/g, "<div class=\"stone score-icon\"></div>")
         .replace(/<PLAZA>/g, WHITE_PLAZA_ICON)
@@ -870,7 +925,8 @@ var AthenaConstructionSite = /** @class */ (function () {
         return "<div id=\"construction-card-".concat(card.id, "\" class=\"construction-card\" style=\"background-position: ").concat(col * 100 / 8, "% ").concat(row * 100, "%; --background: ").concat(color, ";\">\n            <div class=\"name-wrapper\"><div class=\"name\">").concat(_(card.name), "</div></div>\n            <div class=\"desc\">").concat(formatDescIcons(_(card.desc), color), "</div>\n        </div>");
     };
     AthenaConstructionSite.prototype.getCardTooltip = function (card) {
-        return "<strong>".concat(_(card.name), "</strong>\n        <br><br>\n        ").concat(_(card.desc));
+        var color = CARDS[card.id];
+        return "<strong>".concat(_(card.name), "</strong>\n        <br><br>\n        ").concat(formatDescIcons(_(card.desc), color));
     };
     AthenaConstructionSite.prototype.addTile = function (tile, space) {
         var _this = this;
@@ -893,7 +949,7 @@ var AthenaConstructionSite = /** @class */ (function () {
         tile.hexes.forEach(function (hex, index) {
             var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
             hexDiv.addEventListener('click', function () {
-                if (_this.selectionActivated) {
+                if (_this.selectionActivated && hexDiv.closest('.athena-tiles-space.selectable')) {
                     _this.game.constructionSiteHexClicked(tile, _this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
                 }
             });
@@ -902,13 +958,29 @@ var AthenaConstructionSite = /** @class */ (function () {
     };
     AthenaConstructionSite.prototype.setRotation = function (rotation, tile) {
         var tileDiv = document.getElementById("market-tile-".concat(tile.id)).getElementsByClassName('tile')[0];
+        var SHIFT_LEFT = [0, -6, -6, 0, 6, 6];
+        var SHIFT_TOP = [0, -3, -10, -13, -10, -3];
         tileDiv.style.setProperty('--r', "".concat(rotation));
+        tileDiv.style.setProperty('--shift-left', "".concat(SHIFT_LEFT[(rotation + 600) % 6], "px"));
+        tileDiv.style.setProperty('--shift-top', "".concat(SHIFT_TOP[(rotation + 600) % 6], "px"));
     };
     AthenaConstructionSite.prototype.setSelectable = function (selectable) {
         this.selectionActivated = selectable.length > 0;
         [1, 2, 3, 4].forEach(function (space) {
             document.getElementById("athena-tiles-".concat(space)).classList.toggle('selectable', selectable.includes(space));
         });
+    };
+    AthenaConstructionSite.prototype.removeTile = function (tile) {
+        var _a;
+        (_a = document.getElementById("market-tile-".concat(tile.id))) === null || _a === void 0 ? void 0 : _a.remove();
+    };
+    AthenaConstructionSite.prototype.setSelectedHex = function (tileId, hex) {
+        var _a;
+        Array.from(document.getElementById('athena-contruction-space').querySelectorAll('.selected')).forEach(function (option) { return option.classList.remove('selected'); });
+        (_a = document.getElementById("market-tile-".concat(tileId))) === null || _a === void 0 ? void 0 : _a.classList.add('selected');
+        if (!this.game.usePivotRotation()) {
+            hex === null || hex === void 0 ? void 0 : hex.classList.add('selected');
+        }
     };
     return AthenaConstructionSite;
 }());
@@ -1540,7 +1612,12 @@ var Akropolis = /** @class */ (function () {
         }
         this.selectedTile = tile;
         this.selectedTileHexIndex = hexIndex;
-        this.constructionSite.setSelectedHex(tile.id, hex);
+        if (this.gamedatas.gamestate.name === 'completeCard') {
+            this.athenaConstructionSite.setSelectedHex(tile.id, hex);
+        }
+        else {
+            this.constructionSite.setSelectedHex(tile.id, hex);
+        }
         this.setRotation(rotation);
         if (this.selectedPosition) {
             var option = this.getSelectedPositionOption();
@@ -1759,7 +1836,7 @@ var Akropolis = /** @class */ (function () {
         //log( 'notifications subscriptions setup' );
         var _this = this;
         var notifs = [
-            ['placedTile', 500],
+            ['placedTile', 800],
             ['pay', 1],
             ['gainStones', 1],
             ['refillDock', 1],
@@ -1768,27 +1845,35 @@ var Akropolis = /** @class */ (function () {
             ['automataDelay', 2000],
         ];
         notifs.forEach(function (notif) {
-            dojo.subscribe(notif[0], _this, "notif_".concat(notif[0]));
+            dojo.subscribe(notif[0], _this, function (notifDetails) {
+                log('notif', notif[0], notifDetails);
+                _this["notif_".concat(notif[0])](notifDetails.args);
+            });
             _this.notifqueue.setSynchronous(notif[0], notif[1]);
         });
     };
-    Akropolis.prototype.notif_placedTile = function (notif) {
+    Akropolis.prototype.notif_placedTile = function (args) {
         var _this = this;
-        var playerTable = this.getPlayerTable(notif.args.tile.pId);
-        var tile = notif.args.tile;
+        var playerTable = this.getPlayerTable(args.tile.pId);
+        var tile = args.tile;
         playerTable.removePreviewTile();
         var invisibleTile = playerTable.placeTile(tile, false, 'invisible');
         this.constructionSite.animateTileTo(tile, invisibleTile).then(function () {
             playerTable.placeTile(tile, true, 'final');
-            _this.constructionSite.removeTile(tile);
+            if (tile.hexes.length === 1) {
+                _this.athenaConstructionSite.removeTile(tile);
+            }
+            else {
+                _this.constructionSite.removeTile(tile);
+            }
         });
     };
-    Akropolis.prototype.notif_pay = function (notif) {
-        this.stonesCounters[notif.args.player_id].incValue(-notif.args.cost);
+    Akropolis.prototype.notif_pay = function (args) {
+        this.stonesCounters[args.player_id].incValue(-args.cost);
     };
-    Akropolis.prototype.notif_gainStones = function (notif) {
-        var playerId = notif.args.player_id;
-        var n = +notif.args.n;
+    Akropolis.prototype.notif_gainStones = function (args) {
+        var playerId = args.player_id;
+        var n = +args.n;
         this.stonesCounters[playerId].incValue(n);
         if (playerId == 0) {
             var origin_1 = document.getElementById("stones-icon-".concat(this.gamedatas.playerorder[0]));
@@ -1802,6 +1887,7 @@ var Akropolis = /** @class */ (function () {
         }
         else {
             var lastTile = document.getElementById("player-table-".concat(playerId, "-grid")).getElementsByClassName('last-move')[0];
+            console.log(lastTile, n);
             if (lastTile) {
                 var _loop_4 = function (i) {
                     var origin_2 = lastTile.getElementsByClassName('hex')[i];
@@ -1820,12 +1906,12 @@ var Akropolis = /** @class */ (function () {
             }
         }
     };
-    Akropolis.prototype.notif_refillDock = function (notif) {
-        this.constructionSite.refill(notif.args.dock, notif.args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
+    Akropolis.prototype.notif_refillDock = function (args) {
+        this.constructionSite.refill(args.dock, args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
     };
-    Akropolis.prototype.notif_updateFirstPlayer = function (notif) {
+    Akropolis.prototype.notif_updateFirstPlayer = function (args) {
         var firstPlayerToken = document.getElementById('first-player-token');
-        var destinationId = "first-player-token-wrapper-".concat(notif.args.pId);
+        var destinationId = "first-player-token-wrapper-".concat(args.pId);
         var originId = firstPlayerToken.parentElement.id;
         if (destinationId !== originId) {
             this.animationManager.attachWithAnimation(new BgaSlideAnimation({
@@ -1834,8 +1920,8 @@ var Akropolis = /** @class */ (function () {
             }), document.getElementById(destinationId));
         }
     };
-    Akropolis.prototype.notif_updateScores = function (notif) {
-        this.updateScores(notif.args.player_id, notif.args.scores);
+    Akropolis.prototype.notif_updateScores = function (args) {
+        this.updateScores(args.player_id, args.scores);
     };
     Akropolis.prototype.notif_automataDelay = function () { };
     /* @Override */

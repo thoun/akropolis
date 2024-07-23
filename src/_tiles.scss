@@ -9,7 +9,7 @@
 
   }
 
-  &:not(.single-tile)::after {
+  &::after {
       content: '';
       position: absolute;
       top: 0;
@@ -23,6 +23,12 @@
       pointer-events: none;
       transform: translateZ($hexThickness);
       backface-visibility: hidden;
+  }
+
+  &.single-tile::after {
+      background-image: url("img/single-tile-mask0.png");
+      background-size: 88% 87%;
+      background-position: 99% 0%;
   }
 
   &.invisible {

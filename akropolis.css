@@ -58,7 +58,7 @@
   width: 97px;
   height: 97px;
 }
-.tile:not(.single-tile)::after {
+.tile::after {
   content: "";
   position: absolute;
   top: 0;
@@ -72,6 +72,11 @@
   pointer-events: none;
   transform: translateZ(16px);
   backface-visibility: hidden;
+}
+.tile.single-tile::after {
+  background-image: url("img/single-tile-mask0.png");
+  background-size: 88% 87%;
+  background-position: 99% 0%;
 }
 .tile.invisible {
   visibility: hidden;
@@ -340,13 +345,19 @@
 }
 #athena-contruction-space .single-tile {
   position: relative;
-  transform: rotate(calc(60deg * var(--r)));
+  transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
   /*&::after {
       top: 16px;
       bottom: -16px;
       left: -12px;
       right: 12px;
   }*/
+}
+
+.dijitTooltipContents svg, .dijitTooltipContents .icon, .dijitTooltipContents .score-icon {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
 }
 
 .player-board .counters {
@@ -454,6 +465,9 @@
 .player-table .city .tile.last-move::after {
   background-image: url("img/tile-mask-last.png") !important;
 }
+.player-table .city .tile.single-tile.last-move::after {
+  background-image: url("img/single-tile-mask-last.png") !important;
+}
 .player-table .city .pivot {
   cursor: pointer;
   position: absolute;
@@ -472,14 +486,26 @@
 .tile-level-colors .player-table .city .tile[data-z="0"]::after {
   background-image: url("img/tile-mask0.png");
 }
+.tile-level-colors .player-table .city .tile.single-tile[data-z="0"]::after {
+  background-image: url("img/single-tile-mask0.png");
+}
 .tile-level-colors .player-table .city .tile[data-z="1"]::after {
   background-image: url("img/tile-mask1.png");
+}
+.tile-level-colors .player-table .city .tile.single-tile[data-z="1"]::after {
+  background-image: url("img/single-tile-mask1.png");
 }
 .tile-level-colors .player-table .city .tile[data-z="2"]::after {
   background-image: url("img/tile-mask2.png");
 }
+.tile-level-colors .player-table .city .tile.single-tile[data-z="2"]::after {
+  background-image: url("img/single-tile-mask2.png");
+}
 .tile-level-colors .player-table .city .tile[data-z="3"]::after {
   background-image: url("img/tile-mask3.png");
+}
+.tile-level-colors .player-table .city .tile.single-tile[data-z="3"]::after {
+  background-image: url("img/single-tile-mask3.png");
 }
 
 .reset-view-button {

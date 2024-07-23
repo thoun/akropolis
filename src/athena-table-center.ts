@@ -35,10 +35,8 @@ function formatDescIcons(text: string, color: string): string {
     if (typeof text !== 'string') { // TODO TEMP
         return '';
     }
-    console.log(text);
-
-    // TODO format icons
-   return text
+    
+    return text
        .replace(/<STONE>/g, `<div class="stone score-icon"></div>`)
        .replace(/<PLAZA>/g, WHITE_PLAZA_ICON)
        .replace(/<DISTRICT>/g, WHITE_DISCTRICT_ICON)
@@ -86,9 +84,11 @@ class AthenaConstructionSite {
     }
 
     public getCardTooltip(card: ConstructionCard): string {
+        const color = CARDS[card.id];
+
         return `<strong>${_(card.name)}</strong>
         <br><br>
-        ${_(card.desc)}`;
+        ${formatDescIcons(_(card.desc), color)}`;
     }
 
     public addTile(tile: Tile, space: number) {
@@ -112,7 +112,7 @@ class AthenaConstructionSite {
         tile.hexes.forEach((hex, index) => {
             const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
             hexDiv.addEventListener('click', () => {
-                if (this.selectionActivated) {
+                if (this.selectionActivated && hexDiv.closest('.athena-tiles-space.selectable')) {
                     this.game.constructionSiteHexClicked(tile, this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
                 }
             });
@@ -123,7 +123,12 @@ class AthenaConstructionSite {
     public setRotation(rotation: number, tile: Tile) {        
         const tileDiv = document.getElementById(`market-tile-${tile.id}`).getElementsByClassName('tile')[0] as HTMLDivElement;
 
+        const SHIFT_LEFT = [0, -6, -6, 0, 6, 6];
+        const SHIFT_TOP = [0, -3, -10, -13, -10, -3];
+
         tileDiv.style.setProperty('--r', `${rotation}`);
+        tileDiv.style.setProperty('--shift-left', `${SHIFT_LEFT[(rotation + 600) % 6]}px`);
+        tileDiv.style.setProperty('--shift-top', `${SHIFT_TOP[(rotation + 600) % 6]}px`);
     }
 
     public setSelectable(selectable: number[]) {
@@ -131,5 +136,17 @@ class AthenaConstructionSite {
         [1,2,3,4].forEach(space => {
             document.getElementById(`athena-tiles-${space}`).classList.toggle('selectable', selectable.includes(space));
         });
+    }
+
+    public removeTile(tile: Tile) {
+        document.getElementById(`market-tile-${tile.id}`)?.remove();
+    }
+
+    public setSelectedHex(tileId: number, hex: HTMLDivElement) {
+        Array.from(document.getElementById('athena-contruction-space').querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
+        document.getElementById(`market-tile-${tileId}`)?.classList.add('selected');
+        if (!this.game.usePivotRotation()) {
+            hex?.classList.add('selected');
+        }
     }
 }

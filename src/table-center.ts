@@ -72,7 +72,7 @@ class ConstructionSite {
     public animateTileTo(tile: Tile, to: HTMLDivElement): Promise<any> {
         const marketTileDiv = document.getElementById(`market-tile-${tile.id}`).querySelector('.tile') as HTMLElement;
         const finalTransform = `rotate(${60 * Number(marketTileDiv.style.getPropertyValue('--r'))}deg)`;
-        return this.game.animationManager.play(new BgaSlideAnimation({
+        return this.game.animationManager.play(new BgaSlideToAnimation({
             element: marketTileDiv,
             fromElement: to,
             scale: 1, 

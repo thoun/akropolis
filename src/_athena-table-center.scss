@@ -70,7 +70,7 @@
 
     .single-tile {
         position: relative;
-        transform: rotate(calc(60deg * var(--r)));
+        transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
         // transition: transform 0.5s; // change from 5 to 0 is weird
 
         /*&::after {
@@ -79,5 +79,13 @@
             left: -12px;
             right: 12px;
         }*/
+    }
+}
+
+.dijitTooltipContents {
+    svg, .icon, .score-icon {
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
     }
 }

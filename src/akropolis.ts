@@ -582,7 +582,11 @@ class Akropolis implements AkropolisGame {
 
         this.selectedTile = tile;
         this.selectedTileHexIndex = hexIndex;
-        this.constructionSite.setSelectedHex(tile.id, hex);
+        if (this.gamedatas.gamestate.name === 'completeCard') {
+            this.athenaConstructionSite.setSelectedHex(tile.id, hex);
+        } else {
+            this.constructionSite.setSelectedHex(tile.id, hex);
+        }
         this.setRotation(rotation);
 
         if (this.selectedPosition) {
@@ -835,7 +839,7 @@ class Akropolis implements AkropolisGame {
         //log( 'notifications subscriptions setup' );
 
         const notifs = [
-            ['placedTile', 500],
+            ['placedTile', 800],
             ['pay', 1],
             ['gainStones', 1],
             ['refillDock', 1],
@@ -845,29 +849,36 @@ class Akropolis implements AkropolisGame {
         ];
     
         notifs.forEach((notif) => {
-            dojo.subscribe(notif[0], this, `notif_${notif[0]}`);
+            dojo.subscribe(notif[0], this, (notifDetails: Notif<any>) => {
+                log('notif', notif[0], notifDetails);
+                this[`notif_${notif[0]}`](notifDetails.args);
+            });
             (this as any).notifqueue.setSynchronous(notif[0], notif[1]);
         });
     }
 
-    notif_placedTile(notif: Notif<NotifPlacedTileArgs>) {
-        const playerTable = this.getPlayerTable(notif.args.tile.pId);
-        const tile = notif.args.tile;
+    notif_placedTile(args: NotifPlacedTileArgs) {
+        const playerTable = this.getPlayerTable(args.tile.pId);
+        const tile = args.tile;
         playerTable.removePreviewTile();
         const invisibleTile = playerTable.placeTile(tile, false, 'invisible');
         this.constructionSite.animateTileTo(tile, invisibleTile).then(() => {
             playerTable.placeTile(tile, true, 'final');
-            this.constructionSite.removeTile(tile);
+            if (tile.hexes.length === 1) {
+                this.athenaConstructionSite.removeTile(tile);
+            } else {
+                this.constructionSite.removeTile(tile);
+            }
         });
     }
 
-    notif_pay(notif: Notif<NotifPayArgs>) {
-        this.stonesCounters[notif.args.player_id].incValue(-notif.args.cost);
+    notif_pay(args: NotifPayArgs) {
+        this.stonesCounters[args.player_id].incValue(-args.cost);
     }
 
-    notif_gainStones(notif: Notif<NotifGainStonesArgs>) {
-        const playerId = notif.args.player_id;
-        const n = +notif.args.n;
+    notif_gainStones(args: NotifGainStonesArgs) {
+        const playerId = args.player_id;
+        const n = +args.n;
         this.stonesCounters[playerId].incValue(n);
 
         if (playerId == 0) {
@@ -881,6 +892,7 @@ class Akropolis implements AkropolisGame {
             })).then(() => animated.remove());
         } else {
             const lastTile = document.getElementById(`player-table-${playerId}-grid`).getElementsByClassName('last-move')[0];
+            console.log(lastTile, n);
             if (lastTile) {
                 for (let i = 0; i < n; i++) {
                     const origin = lastTile.getElementsByClassName('hex')[i] as HTMLElement;
@@ -896,13 +908,13 @@ class Akropolis implements AkropolisGame {
         }
     }
 
-    notif_refillDock(notif: Notif<NotifDockRefillArgs>) {
-        this.constructionSite.refill(notif.args.dock, notif.args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
+    notif_refillDock(args: NotifDockRefillArgs) {
+        this.constructionSite.refill(args.dock, args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
     }
 
-    notif_updateFirstPlayer(notif: Notif<NotifUpdateFirstPlayerArgs>) {
+    notif_updateFirstPlayer(args: NotifUpdateFirstPlayerArgs) {
         const firstPlayerToken = document.getElementById('first-player-token');
-        const destinationId = `first-player-token-wrapper-${notif.args.pId}`;
+        const destinationId = `first-player-token-wrapper-${args.pId}`;
         const originId = firstPlayerToken.parentElement.id;
         if (destinationId !== originId) {
             this.animationManager.attachWithAnimation(new BgaSlideAnimation({
@@ -913,8 +925,8 @@ class Akropolis implements AkropolisGame {
         }
     }
 
-    notif_updateScores(notif: Notif<NotifUpdateScoresArgs>) {
-        this.updateScores(notif.args.player_id, notif.args.scores);
+    notif_updateScores(args: NotifUpdateScoresArgs) {
+        this.updateScores(args.player_id, args.scores);
     }
 
     notif_automataDelay() {}
