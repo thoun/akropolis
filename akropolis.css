@@ -75,8 +75,11 @@
 }
 .tile.single-tile::after {
   background-image: url("img/single-tile-mask0.png");
-  background-size: 88% 87%;
-  background-position: 99% 0%;
+  background-size: 100% 100%;
+  background-position: 0% 0%;
+  right: -25px;
+  left: 24px;
+  bottom: 12px;
 }
 .tile.invisible {
   visibility: hidden;
@@ -288,7 +291,7 @@
 #athena-contruction-space {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 15px;
   justify-items: center;
 }
 #athena-contruction-space .construction-card {
@@ -336,22 +339,20 @@
 #athena-contruction-space .athena-tiles-space {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 0;
   justify-content: center;
   align-items: center;
 }
 #athena-contruction-space .athena-tiles-space.selectable .tile .hex {
   cursor: pointer;
 }
-#athena-contruction-space .single-tile {
+#athena-contruction-space .tile.single-tile {
   position: relative;
   transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
-  /*&::after {
-      top: 16px;
-      bottom: -16px;
-      left: -12px;
-      right: 12px;
-  }*/
+}
+#athena-contruction-space .tile.single-tile::after {
+  left: 0;
+  right: 0;
 }
 
 .dijitTooltipContents svg, .dijitTooltipContents .icon, .dijitTooltipContents .score-icon {
