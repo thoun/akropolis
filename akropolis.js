@@ -1492,7 +1492,7 @@ var Akropolis = /** @class */ (function () {
             for (var i = (playerId == 0 && player.lvl == 1 ? 0 : 1); i <= 5; i++) {
                 _loop_2(i);
             }
-            if (playerId > 0) {
+            if (playerId > 0 && gamedatas.isAthena) {
                 var _loop_3 = function (space) {
                     var card = gamedatas.cards.find(function (card) { return card.location === "athena-".concat(space); });
                     var statuePartDone = ((_a = gamedatas.cardStatuses[playerId]) !== null && _a !== void 0 ? _a : []).includes(card.id);

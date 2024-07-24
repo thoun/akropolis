@@ -437,7 +437,7 @@ class Akropolis implements AkropolisGame {
                 
             }
 
-            if (playerId > 0) {
+            if (playerId > 0 && gamedatas.isAthena) {
                 for (let space = 1; space <= 4; space++) {
                     const card = gamedatas.cards.find(card => card.location === `athena-${space}`);
                     const statuePartDone: boolean = (gamedatas.cardStatuses[playerId] ?? []).includes(card.id);
