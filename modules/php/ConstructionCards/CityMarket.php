@@ -20,17 +20,11 @@ class CityMarket extends \AKR\Models\ConstructionCard
     $previousConnection = null;
     foreach ($neighbours as $dir => $pos) {
       $hasConnectedMarket = false;
-      // if ($cell['x'] == 1 && $cell['y'] == 1) {
-      //   var_dump($board->getTypesAtPos($pos));
-      // }
       foreach ($board->getTypesAtPos($pos) as $type => $triangles) {
         if ($type == MARKET && $board->areCellsTrianglesAdjacent($cell, [$dir], $pos, $triangles)) {
           $hasConnectedMarket = true;
         }
       }
-      // if ($cell['x'] == 1 && $cell['y'] == 1) {
-      //   var_dump($previousConnection, $hasConnectedMarket, "<br/>#########<br />");
-      // }
 
       // Non alternating pattern => false
       if ($previousConnection === $hasConnectedMarket) {

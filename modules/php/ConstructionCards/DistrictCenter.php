@@ -12,6 +12,7 @@ class DistrictCenter extends \AKR\Models\ConstructionCard
     $this->desc = clienttranslate('1 central <HOUSE_PLAZA> below its surrounding <DISTRICT> and/or <PLAZA>');
   }
 
+  // Testée
   public function isSatisfied(\AKR\Models\Player $player)
   {
     $board = $player->board();

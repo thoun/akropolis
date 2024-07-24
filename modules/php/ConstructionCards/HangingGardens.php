@@ -12,6 +12,7 @@ class HangingGardens extends \AKR\Models\ConstructionCard
     $this->desc = clienttranslate('2 adjacent <GARDEN> on different levels');
   }
 
+  // Testée
   public function isSatisfied(\AKR\Models\Player $player)
   {
     $board = $player->board();

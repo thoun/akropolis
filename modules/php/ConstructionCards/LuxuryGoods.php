@@ -12,6 +12,7 @@ class LuxuryGoods extends \AKR\Models\ConstructionCard
     $this->desc = clienttranslate('1 <MARKET_PLAZA> on 3rd level or above');
   }
 
+  // Testée
   public function isSatisfied(\AKR\Models\Player $player)
   {
     $board = $player->board();
@@ -22,7 +23,7 @@ class LuxuryGoods extends \AKR\Models\ConstructionCard
         if ($type != MARKET_PLAZA) continue;
 
         // Is on 3rd floor ?
-        if ($cell['z'] >= 3) {
+        if ($cell['z'] >= 2) {
           return true;
         }
       }
