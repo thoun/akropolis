@@ -1,3 +1,120 @@
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+/**
+ * Jump to entry.
+ */
+var JumpToEntry = /** @class */ (function () {
+    function JumpToEntry(
+    /**
+     * Label shown on the entry. For players, it's player name.
+     */
+    label, 
+    /**
+     * HTML Element id, to scroll into view when clicked.
+     */
+    targetId, 
+    /**
+     * Any element that is useful to customize the link.
+     * Basic ones are 'color' and 'colorback'.
+     */
+    data) {
+        if (data === void 0) { data = {}; }
+        this.label = label;
+        this.targetId = targetId;
+        this.data = data;
+    }
+    return JumpToEntry;
+}());
+var JumpToManager = /** @class */ (function () {
+    function JumpToManager(game, settings) {
+        var _a, _b, _c, _d;
+        this.game = game;
+        this.settings = settings;
+        var entries = __spreadArray(__spreadArray(__spreadArray([], ((_a = settings === null || settings === void 0 ? void 0 : settings.topEntries) !== null && _a !== void 0 ? _a : []), true), ((_b = settings === null || settings === void 0 ? void 0 : settings.playersEntries) !== null && _b !== void 0 ? _b : this.createEntries(Object.values(game.gamedatas.players))), true), ((_c = settings === null || settings === void 0 ? void 0 : settings.bottomEntries) !== null && _c !== void 0 ? _c : []), true);
+        this.createPlayerJumps(entries);
+        var folded = (_d = settings === null || settings === void 0 ? void 0 : settings.defaultFolded) !== null && _d !== void 0 ? _d : false;
+        if (settings === null || settings === void 0 ? void 0 : settings.localStorageFoldedKey) {
+            var localStorageValue = localStorage.getItem(settings.localStorageFoldedKey);
+            if (localStorageValue) {
+                folded = localStorageValue == 'true';
+            }
+        }
+        document.getElementById('bga-jump-to_controls').classList.toggle('folded', folded);
+    }
+    JumpToManager.prototype.createPlayerJumps = function (entries) {
+        var _this = this;
+        var _a, _b, _c, _d;
+        document.getElementById("game_play_area_wrap").insertAdjacentHTML('afterend', "\n        <div id=\"bga-jump-to_controls\">        \n            <div id=\"bga-jump-to_toggle\" class=\"bga-jump-to_link ".concat((_b = (_a = this.settings) === null || _a === void 0 ? void 0 : _a.entryClasses) !== null && _b !== void 0 ? _b : '', " toggle\" style=\"--color: ").concat((_d = (_c = this.settings) === null || _c === void 0 ? void 0 : _c.toggleColor) !== null && _d !== void 0 ? _d : 'black', "\">\n                \u21D4\n            </div>\n        </div>"));
+        document.getElementById("bga-jump-to_toggle").addEventListener('click', function () { return _this.jumpToggle(); });
+        entries.forEach(function (entry) {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+            var html = "<div id=\"bga-jump-to_".concat(entry.targetId, "\" class=\"bga-jump-to_link ").concat((_b = (_a = _this.settings) === null || _a === void 0 ? void 0 : _a.entryClasses) !== null && _b !== void 0 ? _b : '', "\">");
+            if ((_d = (_c = _this.settings) === null || _c === void 0 ? void 0 : _c.showEye) !== null && _d !== void 0 ? _d : true) {
+                html += "<div class=\"eye\"></div>";
+            }
+            if (((_f = (_e = _this.settings) === null || _e === void 0 ? void 0 : _e.showAvatar) !== null && _f !== void 0 ? _f : true) && ((_g = entry.data) === null || _g === void 0 ? void 0 : _g.id)) {
+                var cssUrl = (_h = entry.data) === null || _h === void 0 ? void 0 : _h.avatarUrl;
+                if (!cssUrl) {
+                    var img = document.getElementById("avatar_".concat(entry.data.id));
+                    var url = img === null || img === void 0 ? void 0 : img.src;
+                    // ? Custom image : Bga Image
+                    //url = url.replace('_32', url.indexOf('data/avatar/defaults') > 0 ? '' : '_184');
+                    if (url) {
+                        cssUrl = "url('".concat(url, "')");
+                    }
+                }
+                if (cssUrl) {
+                    html += "<div class=\"bga-jump-to_avatar\" style=\"--avatar-url: ".concat(cssUrl, ";\"></div>");
+                }
+            }
+            html += "\n                <span class=\"bga-jump-to_label\">".concat(entry.label, "</span>\n            </div>");
+            //
+            document.getElementById("bga-jump-to_controls").insertAdjacentHTML('beforeend', html);
+            var entryDiv = document.getElementById("bga-jump-to_".concat(entry.targetId));
+            Object.getOwnPropertyNames((_j = entry.data) !== null && _j !== void 0 ? _j : []).forEach(function (key) {
+                entryDiv.dataset[key] = entry.data[key];
+                entryDiv.style.setProperty("--".concat(key), entry.data[key]);
+            });
+            entryDiv.addEventListener('click', function () { return _this.jumpTo(entry.targetId); });
+        });
+        var jumpDiv = document.getElementById("bga-jump-to_controls");
+        jumpDiv.style.marginTop = "-".concat(Math.round(jumpDiv.getBoundingClientRect().height / 2), "px");
+    };
+    JumpToManager.prototype.jumpToggle = function () {
+        var _a;
+        var jumpControls = document.getElementById('bga-jump-to_controls');
+        jumpControls.classList.toggle('folded');
+        if ((_a = this.settings) === null || _a === void 0 ? void 0 : _a.localStorageFoldedKey) {
+            localStorage.setItem(this.settings.localStorageFoldedKey, jumpControls.classList.contains('folded').toString());
+        }
+    };
+    JumpToManager.prototype.jumpTo = function (targetId) {
+        document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    };
+    JumpToManager.prototype.getOrderedPlayers = function (unorderedPlayers) {
+        var _this = this;
+        var players = unorderedPlayers.sort(function (a, b) { return Number(a.playerNo) - Number(b.playerNo); });
+        var playerIndex = players.findIndex(function (player) { return Number(player.id) === Number(_this.game.player_id); });
+        var orderedPlayers = playerIndex > 0 ? __spreadArray(__spreadArray([], players.slice(playerIndex), true), players.slice(0, playerIndex), true) : players;
+        return orderedPlayers;
+    };
+    JumpToManager.prototype.createEntries = function (players) {
+        var orderedPlayers = this.getOrderedPlayers(players);
+        return orderedPlayers.map(function (player) { return new JumpToEntry(player.name, "player-table-".concat(player.id), {
+            'color': '#' + player.color,
+            'colorback': player.color_back ? '#' + player.color_back : null,
+            'id': player.id,
+        }); });
+    };
+    return JumpToManager;
+}());
 var BgaAnimation = /** @class */ (function () {
     function BgaAnimation(animationFunction, settings) {
         this.animationFunction = animationFunction;
@@ -279,15 +396,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
 };
 var AnimationManager = /** @class */ (function () {
     /**
@@ -1248,7 +1356,22 @@ var Akropolis = /** @class */ (function () {
         }
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
-        this.createPlayerJumps(gamedatas);
+        var topEntries = [];
+        if (gamedatas.isAthena) {
+            topEntries.push(new JumpToEntry(_("Athena"), 'athena-contruction-spaces', { 'color': '#1fa7d9' }));
+        }
+        topEntries.push(new JumpToEntry(_("Construction Site"), 'market', { 'color': '#7e7978' }));
+        var bottomEntries = [];
+        if (gamedatas.soloPlayer) {
+            bottomEntries.push(new JumpToEntry(_(gamedatas.soloPlayer.name), 'player-table-0', { 'color': "#".concat(gamedatas.soloPlayer.color) }));
+        }
+        new JumpToManager(this, {
+            localStorageFoldedKey: LOCAL_STORAGE_JUMP_KEY,
+            topEntries: topEntries,
+            bottomEntries: bottomEntries,
+            entryClasses: 'hexa-point',
+            defaultFolded: false,
+        });
         document.getElementsByTagName('body')[0].addEventListener('keydown', function (e) { return _this.onKeyPress(e); });
         this.setupNotifications();
         this.setupPreferences();
@@ -1802,32 +1925,6 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.takeAction = function (action, data) {
         this.bgaPerformAction(action, data);
-    };
-    // TODO move into bga-jump-to ?
-    Akropolis.prototype.createPlayerJumps = function (gamedatas) {
-        var _this = this;
-        document.getElementById("game_play_area_wrap").insertAdjacentHTML('afterend', "\n        <div id=\"jump-controls\">        \n            <div id=\"jump-toggle\" class=\"jump-link toggle\">\n                \u21D4\n            </div>\n            <div id=\"jump--1\" class=\"jump-link\">\n                <div class=\"eye\"></div> ".concat(_('Construction Site'), "\n            </div>\n        </div>"));
-        document.getElementById("jump-toggle").addEventListener('click', function () { return _this.jumpToggle(); });
-        document.getElementById("jump--1").addEventListener('click', function () { return _this.jumpToPlayer(-1); });
-        var orderedPlayers = this.getOrderedPlayers(gamedatas);
-        if (gamedatas.soloPlayer) {
-            orderedPlayers.push(gamedatas.soloPlayer);
-        }
-        orderedPlayers.forEach(function (player) {
-            dojo.place("<div id=\"jump-".concat(player.id, "\" class=\"jump-link\" style=\"color: #").concat(player.color, "; border-color: #").concat(player.color, ";\"><div class=\"eye\" style=\"background: #").concat(player.color, ";\"></div> ").concat(player.name, "</div>"), "jump-controls");
-            document.getElementById("jump-".concat(player.id)).addEventListener('click', function () { return _this.jumpToPlayer(Number(player.id)); });
-        });
-        var jumpDiv = document.getElementById("jump-controls");
-        jumpDiv.style.marginTop = "-".concat(Math.round(jumpDiv.getBoundingClientRect().height / 2), "px");
-    };
-    Akropolis.prototype.jumpToggle = function () {
-        var jumpControls = document.getElementById('jump-controls');
-        jumpControls.classList.toggle('folded');
-        localStorage.setItem(LOCAL_STORAGE_JUMP_KEY, jumpControls.classList.contains('folded').toString());
-    };
-    Akropolis.prototype.jumpToPlayer = function (playerId) {
-        var elementId = playerId === -1 ? "market" : "player-table-".concat(playerId);
-        document.getElementById(elementId).scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     };
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications

@@ -107,7 +107,25 @@ class Akropolis implements AkropolisGame {
         }
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
-        this.createPlayerJumps(gamedatas);
+
+        const topEntries = [];
+        if (gamedatas.isAthena) {
+            topEntries.push(new JumpToEntry(_("Athena"), 'athena-contruction-spaces', { 'color': '#1fa7d9' }));
+        }
+        topEntries.push(new JumpToEntry(_("Construction Site"), 'market', { 'color': '#7e7978' }));
+
+        const bottomEntries = [];
+        if (gamedatas.soloPlayer) {
+            bottomEntries.push(new JumpToEntry(_(gamedatas.soloPlayer.name), 'player-table-0', { 'color': `#${gamedatas.soloPlayer.color}` }));
+        }
+
+        new JumpToManager(this, {
+            localStorageFoldedKey: LOCAL_STORAGE_JUMP_KEY,
+            topEntries,
+            bottomEntries,
+            entryClasses: 'hexa-point',
+            defaultFolded: false,
+        });
 
         document.getElementsByTagName('body')[0].addEventListener('keydown', e => this.onKeyPress(e));
 
@@ -774,46 +792,6 @@ class Akropolis implements AkropolisGame {
 
     public takeAction(action: string, data?: any) {
         (this as any).bgaPerformAction(action, data);
-    }
-
-    // TODO move into bga-jump-to ?
-    private createPlayerJumps(gamedatas: AkropolisGamedatas) {
-        document.getElementById(`game_play_area_wrap`).insertAdjacentHTML('afterend',
-        `
-        <div id="jump-controls">        
-            <div id="jump-toggle" class="jump-link toggle">
-                ⇔
-            </div>
-            <div id="jump--1" class="jump-link">
-                <div class="eye"></div> ${_('Construction Site')}
-            </div>
-        </div>`);
-        document.getElementById(`jump-toggle`).addEventListener('click', () => this.jumpToggle());
-        document.getElementById(`jump--1`).addEventListener('click', () => this.jumpToPlayer(-1));
-        
-        const orderedPlayers = this.getOrderedPlayers(gamedatas);
-        if (gamedatas.soloPlayer) {
-            orderedPlayers.push(gamedatas.soloPlayer);
-        }
-
-        orderedPlayers.forEach(player => {
-            dojo.place(`<div id="jump-${player.id}" class="jump-link" style="color: #${player.color}; border-color: #${player.color};"><div class="eye" style="background: #${player.color};"></div> ${player.name}</div>`, `jump-controls`);
-            document.getElementById(`jump-${player.id}`).addEventListener('click', () => this.jumpToPlayer(Number(player.id)));	
-        });
-
-        const jumpDiv = document.getElementById(`jump-controls`);
-        jumpDiv.style.marginTop = `-${Math.round(jumpDiv.getBoundingClientRect().height / 2)}px`;
-    }
-    
-    private jumpToggle(): void {
-        const jumpControls = document.getElementById('jump-controls');
-        jumpControls.classList.toggle('folded');
-        localStorage.setItem(LOCAL_STORAGE_JUMP_KEY, jumpControls.classList.contains('folded').toString());
-    }
-    
-    private jumpToPlayer(playerId: number): void {
-        const elementId = playerId === -1 ? `market` : `player-table-${playerId}`;
-        document.getElementById(elementId).scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     }
 
     ///////////////////////////////////////////////////
