@@ -288,24 +288,38 @@
   top: calc(84px * var(--y) / 2 + 16px);
 }
 
-#athena-contruction-space {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+#athena-contruction-spaces {
+  display: flex;
   gap: 15px;
-  justify-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
 }
-#athena-contruction-space .construction-card {
+#athena-contruction-spaces .athena-contruction-space {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: center;
+  justify-items: center;
+  gap: 30px;
+  background-size: auto 200%;
+  border-radius: 15px;
+}
+#athena-contruction-spaces .athena-contruction-space.active {
+  box-shadow: 0 0 3px 3px orange;
+}
+#athena-contruction-spaces .athena-contruction-space .construction-card-holder {
+  justify-self: flex-end;
+}
+#athena-contruction-spaces .athena-contruction-space .statue-parts-holder {
+  justify-self: flex-start;
+}
+#athena-contruction-spaces .athena-contruction-space .construction-card {
   width: 120px;
   height: 182px;
   border-radius: 8px;
   box-shadow: 1px 1px 2px 2px #888888;
   background-image: url("img/construction-cards.jpg");
-  background-size: auto 200%;
 }
-#athena-contruction-space .construction-card.active {
-  box-shadow: 0 0 5px 5px orange;
-}
-#athena-contruction-space .construction-card .name-wrapper {
+#athena-contruction-spaces .athena-contruction-space .construction-card .name-wrapper {
   position: absolute;
   display: flex;
   justify-content: center;
@@ -313,7 +327,7 @@
   left: 0;
   right: 0;
 }
-#athena-contruction-space .construction-card .name-wrapper .name {
+#athena-contruction-spaces .athena-contruction-space .construction-card .name-wrapper .name {
   font-weight: bold;
   font-size: 9pt;
   padding: 0 5px;
@@ -322,7 +336,7 @@
   background: var(--background);
   border-radius: 3px;
 }
-#athena-contruction-space .construction-card .desc {
+#athena-contruction-spaces .athena-contruction-space .construction-card .desc {
   position: absolute;
   bottom: 12px;
   left: 14px;
@@ -331,26 +345,42 @@
   font-size: 8pt;
   text-align: center;
 }
-#athena-contruction-space .construction-card .desc svg, #athena-contruction-space .construction-card .desc .icon, #athena-contruction-space .construction-card .desc .score-icon {
+#athena-contruction-spaces .athena-contruction-space .construction-card .desc svg, #athena-contruction-spaces .athena-contruction-space .construction-card .desc .icon, #athena-contruction-spaces .athena-contruction-space .construction-card .desc .score-icon {
   width: 16px;
   height: 16px;
   vertical-align: middle;
 }
-#athena-contruction-space .athena-tiles-space {
+#athena-contruction-spaces .athena-contruction-space .player-statue-part {
+  border-radius: 8px;
+  margin: 8px 0;
+  text-align: center;
+  width: 120px;
+  font-size: 13px;
+  height: 36px;
+  /*
+              .statue-part {
+                  width: 63px;
+                  height: 35.5px;
+              }*/
+}
+#athena-contruction-spaces .athena-contruction-space .athena-tiles-space {
+  grid-column: 1/3;
   display: flex;
   flex-wrap: wrap;
   gap: 0;
   justify-content: center;
   align-items: center;
+  margin: -8px 8px;
 }
-#athena-contruction-space .athena-tiles-space.selectable .tile .hex {
+#athena-contruction-spaces .athena-contruction-space .athena-tiles-space.selectable .tile .hex {
   cursor: pointer;
 }
-#athena-contruction-space .tile.single-tile {
+#athena-contruction-spaces .athena-contruction-space .tile.single-tile {
+  margin: 0 -8px;
   position: relative;
   transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
 }
-#athena-contruction-space .tile.single-tile::after {
+#athena-contruction-spaces .athena-contruction-space .tile.single-tile::after {
   left: 0;
   right: 0;
 }
@@ -359,6 +389,32 @@
   width: 16px;
   height: 16px;
   vertical-align: middle;
+}
+
+.statue-part {
+  background-image: url("img/athena-statue.png");
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+  /*width: 251px;
+  height: 142px;*/
+  width: 63px;
+  height: 35.5px;
+  display: inline-block;
+}
+.statue-part[data-part="1"] {
+  background-position: 50% 0%;
+}
+.statue-part[data-part="2"] {
+  background-position: 50% 33.3333333333%;
+}
+.statue-part[data-part="3"] {
+  background-position: 50% 66.6666666667%;
+}
+.statue-part[data-part="4"] {
+  background-position: 50% 100%;
+}
+.statue-part[data-part="5"] {
+  background-position: 50% 133.3333333333%;
 }
 
 .player-board .counters {
@@ -387,6 +443,11 @@
   background-size: contain;
   width: 20px;
   height: 50px;
+}
+.player-board .scores-and-statue {
+  display: flex;
+  gap: 5px;
+  align-items: center;
 }
 
 .player-table {

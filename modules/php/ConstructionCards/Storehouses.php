@@ -31,6 +31,6 @@ class Storehouses extends \AKR\Models\ConstructionCard
     }
     // TODO : not sure about "separate"
 
-    return $storehouses >= 0;//TODO2;
+    return $storehouses >= 2;
   }
 }

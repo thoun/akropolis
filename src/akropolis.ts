@@ -103,7 +103,7 @@ class Akropolis implements AkropolisGame {
         this.tilesManager = new TilesManager(this);
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
         if (gamedatas.isAthena) {
-            this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.dock);
+            this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.cardStatuses, gamedatas.dock, Object.values(gamedatas.players));
         }
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
@@ -152,7 +152,7 @@ class Akropolis implements AkropolisGame {
     }
     
     private onEnteringCompleteCard(args: EnteringCompleteCardArgs) {
-        args.cardIds.forEach(id => document.getElementById(`construction-card-${id}`).classList.add('active'));
+        args.cardIds.forEach(id => document.getElementById(`contruction-space-${id}`).classList.add('active'));
         
         if ((this as any).isCurrentPlayerActive()) {
             this.selectedPosition = null;
@@ -185,7 +185,7 @@ class Akropolis implements AkropolisGame {
     }
 
     private onLeavingCompleteCard() {
-        document.querySelectorAll('.construction-card.active').forEach(elem => elem.classList.remove('active'));
+        document.querySelectorAll('.athena-contruction-space.active').forEach(elem => elem.classList.remove('active'));
         this.getCurrentPlayerTable()?.setPlaceTileOptions([], this.rotation);
         this.athenaConstructionSite.setSelectable([]);
     }
@@ -341,10 +341,10 @@ class Akropolis implements AkropolisGame {
                 </div>
             </div>`, `overall_player_board_${players[0].id}`, 'after');
 
-            const tomScoreCounter = new ebg.counter();
-            tomScoreCounter.create(`player_score_0`);
-            tomScoreCounter.setValue(soloPlayer.score);
-            (this as any).scoreCtrl[0] = tomScoreCounter;
+            const soloScoreCounter = new ebg.counter();
+            soloScoreCounter.create(`player_score_0`);
+            soloScoreCounter.setValue(soloPlayer.score);
+            (this as any).scoreCtrl[0] = soloScoreCounter;
         }
 
         (soloPlayer ? [...players, gamedatas.soloPlayer] : players).forEach(player => {
@@ -357,6 +357,10 @@ class Akropolis implements AkropolisGame {
                     <span id="stones-counter-${player.id}"></span>
                 </div>
                 <div id="first-player-token-wrapper-${player.id}" class="first-player-token-wrapper"></div>
+            </div>
+            <div class="scores-and-statue">
+                <div id="scores-${player.id}"></div> 
+                <div id="statue-${player.id}"></div>
             </div>`, `player_board_${player.id}`);
             if (gamedatas.firstPlayerId == playerId) {
                 dojo.place(`<div id="first-player-token" class="first-player-token"></div>`, `first-player-token-wrapper-${player.id}`);
@@ -389,7 +393,7 @@ class Akropolis implements AkropolisGame {
                     </div>
                 </div>`;
 
-                dojo.place(html, `player_board_${player.id}`);
+                dojo.place(html, `scores-${player.id}`);
     
                 const starKey = showScores ? Object.keys(player.board.scores.stars).find(key => key.startsWith(TYPES[i])) : null;
                 const starCounter: Counter = new ebg.counter();
@@ -431,6 +435,20 @@ class Akropolis implements AkropolisGame {
 
                 this.setTooltip(`color-points-${i}-counter-border-${player.id}`, tooltip);
                 
+            }
+
+            if (playerId > 0) {
+                for (let space = 1; space <= 4; space++) {
+                    const card = gamedatas.cards.find(card => card.location === `athena-${space}`);
+                    const statuePartDone: boolean = (gamedatas.cardStatuses[playerId] ?? []).includes(card.id);
+
+                    let html = `
+                    <div id="statue-${player.id}-${space}">
+                        ${statuePartDone ? `<div class="statue-part" data-part="${space}"></div>` : ''}
+                    </div>`;
+
+                    dojo.place(html, `statue-${player.id}`);
+                }
             }
         });
 
@@ -528,31 +546,6 @@ class Akropolis implements AkropolisGame {
             document.getElementById(`player_score_${playerId}`).innerHTML = ''+score;
         }
     }
-
-    /*private addHelp() {
-        dojo.place(`
-            <button id="akropolis-help-button">?</button>
-        `, 'left-side');
-        document.getElementById('akropolis-help-button').addEventListener('click', () => this.showHelp());
-    }
-
-    private showHelp() {
-        const helpDialog = new ebg.popindialog();
-        helpDialog.create('akropolisHelpDialog');
-        helpDialog.setTitle(_*("Card details").toUpperCase());
-
-        
-        let html = `
-        <div id="help-popin">
-            TODO
-        </div>
-        `;
-        
-        // Show the dialog
-        helpDialog.setContent(html);
-
-        helpDialog.show();
-    }*/
     
     private updateScores(playerId: number, scores: Scores) {
         Array.from(document.querySelectorAll('.hide-live-scores')).forEach(element => element.classList.remove('hide-live-scores'));
@@ -840,6 +833,7 @@ class Akropolis implements AkropolisGame {
 
         const notifs = [
             ['placedTile', 800],
+            ['completeCard', 800],
             ['pay', 1],
             ['gainStones', 1],
             ['refillDock', 1],
@@ -872,11 +866,16 @@ class Akropolis implements AkropolisGame {
         });
     }
 
+    async notif_completeCard(args: NotifCompleteCardArgs) {
+        const { player_id, card } = args;
+        await this.athenaConstructionSite.completeCard(player_id, card.id);
+    }
+
     notif_pay(args: NotifPayArgs) {
         this.stonesCounters[args.player_id].incValue(-args.cost);
     }
 
-    notif_gainStones(args: NotifGainStonesArgs) {
+    async notif_gainStones(args: NotifGainStonesArgs) {
         const playerId = args.player_id;
         const n = +args.n;
         this.stonesCounters[playerId].incValue(n);
@@ -886,23 +885,25 @@ class Akropolis implements AkropolisGame {
             const animated = document.createElement('div');
             animated.classList.add('stone', 'score-icon', 'animated');
             document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
-            this.animationManager.play(new BgaSlideAnimation({
+            await this.animationManager.play(new BgaSlideAnimation({
                 element: animated,
                 fromElement: origin,
-            })).then(() => animated.remove());
+            }))
+            animated.remove();
         } else {
             const lastTile = document.getElementById(`player-table-${playerId}-grid`).getElementsByClassName('last-move')[0];
-            console.log(lastTile, n);
             if (lastTile) {
+                const promises = [];
                 for (let i = 0; i < n; i++) {
                     const origin = lastTile.getElementsByClassName('hex')[i] as HTMLElement;
                     const animated = document.createElement('div');
                     animated.classList.add('stone', 'score-icon', 'animated');
                     document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
-                    this.animationManager.play(new BgaSlideAnimation({
+                    promises.push(this.animationManager.play(new BgaSlideAnimation({
                         element: animated,
                         fromElement: origin,
-                    })).then(() => animated.remove());
+                    })).then(() => animated.remove()));
+                    await Promise.all(promises);
                 }
             }
         }

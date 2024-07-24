@@ -54,6 +54,7 @@ interface AkropolisGamedatas {
     lastMoves: { [playerId: number]: Tile };
     isAthena: boolean;
     cards?: ConstructionCard[];
+    cardStatuses?: { [playerId: number]: string[] };
 }
 
 interface AkropolisGame extends Game {
@@ -90,6 +91,11 @@ interface EnteringCompleteCardArgs {
 interface NotifPlacedTileArgs {
     player_id: number;
     tile: Tile;
+}
+
+interface NotifCompleteCardArgs {
+    player_id: number;
+    card: ConstructionCard;
 }
 
 interface NotifPayArgs {
