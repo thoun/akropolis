@@ -43,6 +43,7 @@ class CityMarket extends \AKR\Models\ConstructionCard
     return true;
   }
 
+  // Testée mais question en suspens
   public function isSatisfied(Player $player)
   {
     $board = $player->board();

@@ -401,8 +401,12 @@ class TriangulatedBoard
       }
     }
 
+    // Score stones
+    $statuses = Globals::getAthenaCardStatuses()[$this->pId] ?? [];
+    $hasAthena = count($statuses) == 4;
+
     $money = $this->player->getMoney();
-    $score += $money;
+    $score += ($hasAthena ? 5 : 1) * $money;
     if ($this->pId != \ARCHITECT_ID) {
       Stats::setMoneyLeft($this->player, $money);
       Stats::setScore($this->player, $score);

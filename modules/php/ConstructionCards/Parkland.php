@@ -12,6 +12,7 @@ class Parkland extends \AKR\Models\ConstructionCard
     $this->desc = clienttranslate('1 <GARDEN> adjacent to 1 <GARDEN_PLAZA>');
   }
 
+  // Testée
   public function isSatisfied(\AKR\Models\Player $player)
   {
     $board = $player->board();

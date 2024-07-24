@@ -34,6 +34,7 @@ class Housing extends \AKR\Models\ConstructionCard
     return true;
   }
 
+  // Testée (sans dual tile)
   public function isSatisfied(Player $player)
   {
     $board = $player->board();

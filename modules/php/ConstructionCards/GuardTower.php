@@ -12,6 +12,7 @@ class GuardTower extends \AKR\Models\ConstructionCard
     $this->desc = clienttranslate('2 <BARRACK> on 2nd level or above');
   }
 
+  // Testée
   public function isSatisfied(\AKR\Models\Player $player)
   {
     $board = $player->board();

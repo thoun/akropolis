@@ -14,6 +14,7 @@ class Agora extends \AKR\Models\ConstructionCard
     $this->desc = clienttranslate('1 <PLAZA> of each type');
   }
 
+  // Testée
   public function isSatisfied(Player $player)
   {
     $board = $player->board();

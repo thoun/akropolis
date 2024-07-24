@@ -13,6 +13,7 @@ class Sanctuary extends \AKR\Models\ConstructionCard
     $this->name = clienttranslate('Sanctuary');
   }
 
+  // Testée
   public function isSatisfied(Player $player)
   {
     $board = $player->board();

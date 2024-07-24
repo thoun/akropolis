@@ -12,13 +12,14 @@ class Villa extends \AKR\Models\ConstructionCard
     $this->desc = clienttranslate('4 <HOUSE> on second level or above');
   }
 
+  // Testée
   public function isSatisfied(\AKR\Models\Player $player)
   {
     $board = $player->board();
     $highHouses = 0;
     $cells = $board->getVisibleBuiltCells();
     foreach ($cells as $cell) {
-      if ($cell['z'] < 2) continue;
+      if ($cell['z'] < 1) continue;
 
       $types = array_keys($board->getTypesAtPos($cell));
       if (in_array(HOUSE, $types)) {

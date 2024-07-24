@@ -98,8 +98,15 @@ trait CompleteCardTrait
       throw new \BgaVisibleSystemException('Impossible hex to place that tile. Should not happen');
     }
 
+    // Complete card
+    $statuses = Globals::getAthenaCardStatuses();
+    $statuses[$player->getId()][] = $cardId;
+    Globals::setAthenaCardStatuses($statuses);
     Notifications::completeCard($player, $card);
+
+    // Place tile
     $this->actPlaceTileAux($player, $tileId, 0, $pos, $r);
+
     $this->goToNextPlayerUnlessCompletableCard();
   }
 }

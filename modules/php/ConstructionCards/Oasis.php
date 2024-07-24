@@ -12,6 +12,7 @@ class Oasis extends \AKR\Models\ConstructionCard
     $this->desc = clienttranslate('1 <GARDEN> completely surrounded by <DISTRICT> and/or <PLAZA>');
   }
 
+  // Testée mais attente réponse éditeur pour savoir si la tuile centrale peut être une dual tile ou non
   public function isSatisfied(\AKR\Models\Player $player)
   {
     $board = $player->board();
