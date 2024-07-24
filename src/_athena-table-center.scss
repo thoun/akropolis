@@ -1,7 +1,7 @@
 #athena-contruction-space {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 15px;
     justify-items: center;
 
     .construction-card {
@@ -55,7 +55,7 @@
     .athena-tiles-space {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 0;
         justify-content: center;
         align-items: center;
 
@@ -68,17 +68,15 @@
         }
     }
 
-    .single-tile {
+    .tile.single-tile {
         position: relative;
         transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
         // transition: transform 0.5s; // change from 5 to 0 is weird
 
-        /*&::after {
-            top: 16px;
-            bottom: -16px;
-            left: -12px;
-            right: 12px;
-        }*/
+        &::after {
+            left: 0;
+            right: 0;
+        }
     }
 }
 
