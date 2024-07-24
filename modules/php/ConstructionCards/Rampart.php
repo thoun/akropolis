@@ -14,6 +14,7 @@ class Rampart extends \AKR\Models\ConstructionCard
     $this->desc = clienttranslate('1 straight line of 3 or more <BARRACK>');
   }
 
+  // Testée
   public function isSatisfied(Player $player)
   {
     $board = $player->board();

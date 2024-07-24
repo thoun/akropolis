@@ -12,6 +12,7 @@ class Storehouses extends \AKR\Models\ConstructionCard
     $this->desc = clienttranslate('2 separate <MARKET> both completely surrounded by <DISTRICT> and/or <PLAZA>');
   }
 
+  // Testée mais attente réponse (not sure about "separate")
   public function isSatisfied(\AKR\Models\Player $player)
   {
     $board = $player->board();
@@ -29,8 +30,7 @@ class Storehouses extends \AKR\Models\ConstructionCard
         $storehouses++;
       }
     }
-    // TODO : not sure about "separate"
 
-    return $storehouses >= 0;//TODO2;
+    return $storehouses >= 2;
   }
 }
