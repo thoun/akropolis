@@ -1,81 +1,116 @@
-#athena-contruction-space {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+#athena-contruction-spaces {
+    display: flex;
     gap: 15px;
-    justify-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
 
-    .construction-card {
-        width: 120px;
-        height: 182px;
-        border-radius: 8px;
-        box-shadow: 1px 1px 2px 2px #888888;
-        background-image: url('img/construction-cards.jpg');
+    .athena-contruction-space {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        align-items: center;
+        justify-items: center;
+        gap: 30px;
         background-size: auto 200%;
+        border-radius: 15px;
 
         &.active {
-            box-shadow: 0 0 5px 5px orange;
+            box-shadow: 0 0 3px 3px orange;
         }
 
-        .name-wrapper {
-            position: absolute;
-            display: flex;
-            justify-content: center;
-            top: 5px;
-            left: 0;
-            right: 0;
+        .construction-card-holder {
+            justify-self: flex-end;
+        }
+        .statue-parts-holder {
+            justify-self: flex-start;
+        }
 
-            .name {
-                font-weight: bold;
-                font-size: 9pt;
-                padding: 0 5px;
-                font-family: 'xtraregular'; 
-                color: white;
-                background: var(--background);
-                border-radius: 3px;
+        .construction-card {
+            width: 120px;
+            height: 182px;
+            border-radius: 8px;
+            box-shadow: 1px 1px 2px 2px #888888;
+            background-image: url('img/construction-cards.jpg');
+
+            .name-wrapper {
+                position: absolute;
+                display: flex;
+                justify-content: center;
+                top: 5px;
+                left: 0;
+                right: 0;
+
+                .name {
+                    font-weight: bold;
+                    font-size: 9pt;
+                    padding: 0 5px;
+                    font-family: 'xtraregular'; 
+                    color: white;
+                    background: var(--background);
+                    border-radius: 3px;
+                }
             }
-        }
 
-        .desc {
-            position: absolute;
-            bottom: 12px;
-            left: 14px;
-            right: 14px;
-            height: 24px;
-            font-size: 8pt;
-            text-align: center;
+            .desc {
+                position: absolute;
+                bottom: 12px;
+                left: 14px;
+                right: 14px;
+                height: 24px;
+                font-size: 8pt;
+                text-align: center;
 
-            svg, .icon, .score-icon {
-                width: 16px;
-                height: 16px;
-                vertical-align: middle;
-            }
-        }
-    }
-
-    .athena-tiles-space {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0;
-        justify-content: center;
-        align-items: center;
-
-        &.selectable {
-            .tile {
-                .hex {
-                    cursor: pointer;
+                svg, .icon, .score-icon {
+                    width: 16px;
+                    height: 16px;
+                    vertical-align: middle;
                 }
             }
         }
-    }
 
-    .tile.single-tile {
-        position: relative;
-        transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
-        // transition: transform 0.5s; // change from 5 to 0 is weird
 
-        &::after {
-            left: 0;
-            right: 0;
+        .player-statue-part {
+            border-radius: 8px;
+            margin: 8px 0;
+            text-align: center;
+            width: 120px;
+            font-size: 13px;
+            height: 36px;
+/*
+            .statue-part {
+                width: 63px;
+                height: 35.5px;
+            }*/
+        }
+
+        .athena-tiles-space {
+            grid-column: 1 / 3;
+
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+            justify-content: center;
+            align-items: center;
+            margin: -8px 8px;
+
+            &.selectable {
+                .tile {
+                    .hex {
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+
+        .tile.single-tile {
+            margin: 0 -8px;
+            position: relative;
+            transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
+            // transition: transform 0.5s; // change from 5 to 0 is weird
+
+            &::after {
+                left: 0;
+                right: 0;
+            }
         }
     }
 }
@@ -85,5 +120,22 @@
         width: 16px;
         height: 16px;
         vertical-align: middle;
+    }
+}
+
+.statue-part {
+    background-image: url('img/athena-statue.png');
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+    /*width: 251px;
+    height: 142px;*/
+    width: 63px;
+    height: 35.5px;
+    display: inline-block;
+  
+    @for $i from 1 through 5 {
+      &[data-part="#{$i}"] {
+        background-position: 50% #{($i - 1) * 100% / 3};
+      }
     }
 }

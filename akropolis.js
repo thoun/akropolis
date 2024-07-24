@@ -896,22 +896,25 @@ function formatDescIcons(text, color) {
         .replace(/<(\w+)>/g, COLORED_DISCTRICT_ICON(color)); // last, because not suffixed by _DISTRICT
 }
 var AthenaConstructionSite = /** @class */ (function () {
-    function AthenaConstructionSite(game, cards, dockTiles) {
+    function AthenaConstructionSite(game, cards, cardStatuses, dockTiles, players) {
         var _this = this;
         this.game = game;
         this.selectionActivated = false;
-        var html = "\n            <div id=\"athena-contruction-space\">";
+        this.cards = []; // 0 indexed!
+        var html = "\n            <div id=\"athena-contruction-spaces\">";
         [1, 2, 3, 4].forEach(function (space) {
             var card = cards.find(function (card) { return card.location === "athena-".concat(space); });
-            html += "<div>".concat(_this.generateCardHTML(card), "</div>");
-        });
-        [1, 2, 3, 4].forEach(function (space) {
-            html += "<div id=\"athena-tiles-".concat(space, "\" class=\"athena-tiles-space\"></div>");
+            _this.cards.push(card);
+            html += "\n            <div id=\"contruction-space-".concat(card.id, "\" class=\"athena-contruction-space\">\n                <div class=\"construction-card-holder\">").concat(_this.generateCardHTML(card), "</div>\n                <div class=\"statue-parts-holder\">").concat(players.map(function (player) {
+                var _a;
+                var statuePartDone = ((_a = cardStatuses[player.id]) !== null && _a !== void 0 ? _a : []).includes(card.id);
+                return "<div id=\"player-statue-part-".concat(player.id, "-").concat(space, "\" class=\"player-statue-part\" style=\"outline: 1px solid #").concat(player.color, "; background-color: #").concat(player.color, "20;\">\n                        <!--<div class=\"player-name\" style=\"color: #").concat(player.color, "\">").concat(player.name, "</div>-->\n                        ").concat(statuePartDone ? '' : "<div class=\"statue-part\" data-part=\"".concat(space, "\"></div>"), "\n                    </div>");
+            }).join(''), "</div>\n                <div id=\"athena-tiles-").concat(space, "\" class=\"athena-tiles-space\"></div>\n            </div>\n            ");
         });
         html += "</div>";
         document.getElementById('market').insertAdjacentHTML('beforebegin', html);
         [1, 2, 3, 4].forEach(function (space) {
-            var card = cards.find(function (card) { return card.location === "athena-".concat(space); });
+            var card = _this.cards[space - 1];
             _this.game.setTooltip("construction-card-".concat(card.id), _this.getCardTooltip(card));
             var tiles = dockTiles.filter(function (tile) { return tile.location === "athena-".concat(space); });
             tiles.forEach(function (tile) { return _this.addTile(tile, space); });
@@ -976,11 +979,28 @@ var AthenaConstructionSite = /** @class */ (function () {
     };
     AthenaConstructionSite.prototype.setSelectedHex = function (tileId, hex) {
         var _a;
-        Array.from(document.getElementById('athena-contruction-space').querySelectorAll('.selected')).forEach(function (option) { return option.classList.remove('selected'); });
+        Array.from(document.getElementById('athena-contruction-spaces').querySelectorAll('.selected')).forEach(function (option) { return option.classList.remove('selected'); });
         (_a = document.getElementById("market-tile-".concat(tileId))) === null || _a === void 0 ? void 0 : _a.classList.add('selected');
         if (!this.game.usePivotRotation()) {
             hex === null || hex === void 0 ? void 0 : hex.classList.add('selected');
         }
+    };
+    AthenaConstructionSite.prototype.completeCard = function (playerId, cardId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var space;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        space = this.cards.findIndex(function (card) { return card.id === cardId; }) + 1;
+                        return [4 /*yield*/, this.game.animationManager.attachWithAnimation(new BgaSlideAnimation({
+                                element: document.querySelector("#player-statue-part-".concat(playerId, "-").concat(space, " .statue-part")),
+                            }), document.getElementById("statue-".concat(playerId, "-").concat(space)))];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     return AthenaConstructionSite;
 }());
@@ -1224,7 +1244,7 @@ var Akropolis = /** @class */ (function () {
         this.tilesManager = new TilesManager(this);
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
         if (gamedatas.isAthena) {
-            this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.dock);
+            this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.cardStatuses, gamedatas.dock, Object.values(gamedatas.players));
         }
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
@@ -1265,7 +1285,7 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.onEnteringCompleteCard = function (args) {
         var _this = this;
-        args.cardIds.forEach(function (id) { return document.getElementById("construction-card-".concat(id)).classList.add('active'); });
+        args.cardIds.forEach(function (id) { return document.getElementById("contruction-space-".concat(id)).classList.add('active'); });
         if (this.isCurrentPlayerActive()) {
             this.selectedPosition = null;
             this.selectedTile = null;
@@ -1295,7 +1315,7 @@ var Akropolis = /** @class */ (function () {
     };
     Akropolis.prototype.onLeavingCompleteCard = function () {
         var _a;
-        document.querySelectorAll('.construction-card.active').forEach(function (elem) { return elem.classList.remove('active'); });
+        document.querySelectorAll('.athena-contruction-space.active').forEach(function (elem) { return elem.classList.remove('active'); });
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setPlaceTileOptions([], this.rotation);
         this.athenaConstructionSite.setSelectable([]);
     };
@@ -1417,15 +1437,16 @@ var Akropolis = /** @class */ (function () {
         var soloPlayer = gamedatas.soloPlayer;
         if (soloPlayer) {
             dojo.place("\n            <div id=\"overall_player_board_0\" class=\"player-board current-player-board\">\t\t\t\t\t\n                <div class=\"player_board_inner\" id=\"player_board_inner_982fff\">\n                    \n                    <div class=\"emblemwrap\" id=\"avatar_active_wrap_0\">\n                        <img src=\"".concat(g_gamethemeurl, "img/gear.png\" alt=\"\" class=\"avatar avatar_active\" id=\"avatar_active_0\" />\n                    </div>\n                                               \n                    <div class=\"player-name\" id=\"player_name_0\">\n                        ").concat(_(soloPlayer.name), "\n                    </div>\n                    <div id=\"player_board_0\" class=\"player_board_content\">\n                        <div class=\"player_score\">\n                            <span id=\"player_score_0\" class=\"player_score_value\">0</span> <i class=\"fa fa-star\" id=\"icon_point_0\"></i>           \n                        </div>\n                    </div>\n                </div>\n            </div>"), "overall_player_board_".concat(players[0].id), 'after');
-            var tomScoreCounter = new ebg.counter();
-            tomScoreCounter.create("player_score_0");
-            tomScoreCounter.setValue(soloPlayer.score);
-            this.scoreCtrl[0] = tomScoreCounter;
+            var soloScoreCounter = new ebg.counter();
+            soloScoreCounter.create("player_score_0");
+            soloScoreCounter.setValue(soloPlayer.score);
+            this.scoreCtrl[0] = soloScoreCounter;
         }
         (soloPlayer ? __spreadArray(__spreadArray([], players, true), [gamedatas.soloPlayer], false) : players).forEach(function (player) {
+            var _a;
             var playerId = Number(player.id);
             // Stones counter
-            dojo.place("<div class=\"counters\">\n                <div id=\"stones-counter-wrapper-".concat(player.id, "\" class=\"stones-counter\">\n                    <div id=\"stones-icon-").concat(player.id, "\" class=\"stone score-icon\"></div> \n                    <span id=\"stones-counter-").concat(player.id, "\"></span>\n                </div>\n                <div id=\"first-player-token-wrapper-").concat(player.id, "\" class=\"first-player-token-wrapper\"></div>\n            </div>"), "player_board_".concat(player.id));
+            dojo.place("<div class=\"counters\">\n                <div id=\"stones-counter-wrapper-".concat(player.id, "\" class=\"stones-counter\">\n                    <div id=\"stones-icon-").concat(player.id, "\" class=\"stone score-icon\"></div> \n                    <span id=\"stones-counter-").concat(player.id, "\"></span>\n                </div>\n                <div id=\"first-player-token-wrapper-").concat(player.id, "\" class=\"first-player-token-wrapper\"></div>\n            </div>\n            <div class=\"scores-and-statue\">\n                <div id=\"scores-").concat(player.id, "\"></div> \n                <div id=\"statue-").concat(player.id, "\"></div>\n            </div>"), "player_board_".concat(player.id));
             if (gamedatas.firstPlayerId == playerId) {
                 dojo.place("<div id=\"first-player-token\" class=\"first-player-token\"></div>", "first-player-token-wrapper-".concat(player.id));
             }
@@ -1440,7 +1461,7 @@ var Akropolis = /** @class */ (function () {
             _this.colorPointsCounters[playerId] = [];
             var _loop_2 = function (i) {
                 var html = "<div class=\"counters ".concat(!showScores && !someVariants ? 'hide-live-scores' : '', "\" id=\"color-points-").concat(i, "-counter-border-").concat(player.id, "\">\n                    <div id=\"color-points-").concat(i, "-counter-wrapper-").concat(player.id, "\" class=\"color-points-counter\">\n                        <span class=\"").concat(!showScores ? 'hide-live-scores' : '', "\">\n                        <div class=\"score-icon star\" data-type=\"").concat(i, "\"></div> \n                        <span id=\"stars-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">\u00D7</span>\n                        </span>\n                        <div class=\"score-icon\" data-type=\"").concat(i, "\"></div> \n                        <span class=\"").concat(!showScores ? 'hide-live-scores' : '', "\">\n                        <span id=\"hexes-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        <span class=\"multiplier\">=</span>\n                        <span id=\"color-points-").concat(i, "-counter-").concat(player.id, "\"></span>\n                        </span>\n                    </div>\n                </div>");
-                dojo.place(html, "player_board_".concat(player.id));
+                dojo.place(html, "scores-".concat(player.id));
                 var starKey = showScores ? Object.keys(player.board.scores.stars).find(function (key) { return key.startsWith(TYPES[i]); }) : null;
                 var starCounter = new ebg.counter();
                 starCounter.create("stars-".concat(i, "-counter-").concat(playerId));
@@ -1470,6 +1491,17 @@ var Akropolis = /** @class */ (function () {
             };
             for (var i = (playerId == 0 && player.lvl == 1 ? 0 : 1); i <= 5; i++) {
                 _loop_2(i);
+            }
+            if (playerId > 0 && gamedatas.isAthena) {
+                var _loop_3 = function (space) {
+                    var card = gamedatas.cards.find(function (card) { return card.location === "athena-".concat(space); });
+                    var statuePartDone = ((_a = gamedatas.cardStatuses[playerId]) !== null && _a !== void 0 ? _a : []).includes(card.id);
+                    var html = "\n                    <div id=\"statue-".concat(player.id, "-").concat(space, "\">\n                        ").concat(statuePartDone ? "<div class=\"statue-part\" data-part=\"".concat(space, "\"></div>") : '', "\n                    </div>");
+                    dojo.place(html, "statue-".concat(player.id));
+                };
+                for (var space = 1; space <= 4; space++) {
+                    _loop_3(space);
+                }
             }
         });
         this.setTooltipToClass('stones-counter', _('Number of stones'));
@@ -1560,33 +1592,9 @@ var Akropolis = /** @class */ (function () {
             document.getElementById("player_score_".concat(playerId)).innerHTML = '' + score;
         }
     };
-    /*private addHelp() {
-        dojo.place(`
-            <button id="akropolis-help-button">?</button>
-        `, 'left-side');
-        document.getElementById('akropolis-help-button').addEventListener('click', () => this.showHelp());
-    }
-
-    private showHelp() {
-        const helpDialog = new ebg.popindialog();
-        helpDialog.create('akropolisHelpDialog');
-        helpDialog.setTitle(_*("Card details").toUpperCase());
-
-        
-        let html = `
-        <div id="help-popin">
-            TODO
-        </div>
-        `;
-        
-        // Show the dialog
-        helpDialog.setContent(html);
-
-        helpDialog.show();
-    }*/
     Akropolis.prototype.updateScores = function (playerId, scores) {
         Array.from(document.querySelectorAll('.hide-live-scores')).forEach(function (element) { return element.classList.remove('hide-live-scores'); });
-        var _loop_3 = function (i) {
+        var _loop_4 = function (i) {
             var type = TYPES[i];
             var starKey = Object.keys(scores.stars).find(function (key) { return key.startsWith(type); });
             var hexKey = Object.keys(scores.districts).find(function (key) { return key.startsWith(type); });
@@ -1596,7 +1604,7 @@ var Akropolis = /** @class */ (function () {
         };
         var this_1 = this;
         for (var i = (playerId == 0 && this.gamedatas.soloPlayer.lvl == 1 ? 0 : 1); i <= 5; i++) {
-            _loop_3(i);
+            _loop_4(i);
         }
         ;
         this.setPlayerScore(playerId, scores.score);
@@ -1837,6 +1845,7 @@ var Akropolis = /** @class */ (function () {
         var _this = this;
         var notifs = [
             ['placedTile', 800],
+            ['completeCard', 800],
             ['pay', 1],
             ['gainStones', 1],
             ['refillDock', 1],
@@ -1868,43 +1877,86 @@ var Akropolis = /** @class */ (function () {
             }
         });
     };
+    Akropolis.prototype.notif_completeCard = function (args) {
+        return __awaiter(this, void 0, void 0, function () {
+            var player_id, card;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        player_id = args.player_id, card = args.card;
+                        return [4 /*yield*/, this.athenaConstructionSite.completeCard(player_id, card.id)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     Akropolis.prototype.notif_pay = function (args) {
         this.stonesCounters[args.player_id].incValue(-args.cost);
     };
     Akropolis.prototype.notif_gainStones = function (args) {
-        var playerId = args.player_id;
-        var n = +args.n;
-        this.stonesCounters[playerId].incValue(n);
-        if (playerId == 0) {
-            var origin_1 = document.getElementById("stones-icon-".concat(this.gamedatas.playerorder[0]));
-            var animated_1 = document.createElement('div');
-            animated_1.classList.add('stone', 'score-icon', 'animated');
-            document.getElementById("stones-icon-".concat(playerId)).appendChild(animated_1);
-            this.animationManager.play(new BgaSlideAnimation({
-                element: animated_1,
-                fromElement: origin_1,
-            })).then(function () { return animated_1.remove(); });
-        }
-        else {
-            var lastTile = document.getElementById("player-table-".concat(playerId, "-grid")).getElementsByClassName('last-move')[0];
-            console.log(lastTile, n);
-            if (lastTile) {
-                var _loop_4 = function (i) {
-                    var origin_2 = lastTile.getElementsByClassName('hex')[i];
-                    var animated = document.createElement('div');
-                    animated.classList.add('stone', 'score-icon', 'animated');
-                    document.getElementById("stones-icon-".concat(playerId)).appendChild(animated);
-                    this_2.animationManager.play(new BgaSlideAnimation({
-                        element: animated,
-                        fromElement: origin_2,
-                    })).then(function () { return animated.remove(); });
-                };
-                var this_2 = this;
-                for (var i = 0; i < n; i++) {
-                    _loop_4(i);
+        return __awaiter(this, void 0, void 0, function () {
+            var playerId, n, origin_1, animated, lastTile, promises, _loop_5, this_2, i;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        playerId = args.player_id;
+                        n = +args.n;
+                        this.stonesCounters[playerId].incValue(n);
+                        if (!(playerId == 0)) return [3 /*break*/, 2];
+                        origin_1 = document.getElementById("stones-icon-".concat(this.gamedatas.playerorder[0]));
+                        animated = document.createElement('div');
+                        animated.classList.add('stone', 'score-icon', 'animated');
+                        document.getElementById("stones-icon-".concat(playerId)).appendChild(animated);
+                        return [4 /*yield*/, this.animationManager.play(new BgaSlideAnimation({
+                                element: animated,
+                                fromElement: origin_1,
+                            }))];
+                    case 1:
+                        _a.sent();
+                        animated.remove();
+                        return [3 /*break*/, 6];
+                    case 2:
+                        lastTile = document.getElementById("player-table-".concat(playerId, "-grid")).getElementsByClassName('last-move')[0];
+                        if (!lastTile) return [3 /*break*/, 6];
+                        promises = [];
+                        _loop_5 = function (i) {
+                            var origin_2, animated;
+                            return __generator(this, function (_b) {
+                                switch (_b.label) {
+                                    case 0:
+                                        origin_2 = lastTile.getElementsByClassName('hex')[i];
+                                        animated = document.createElement('div');
+                                        animated.classList.add('stone', 'score-icon', 'animated');
+                                        document.getElementById("stones-icon-".concat(playerId)).appendChild(animated);
+                                        promises.push(this_2.animationManager.play(new BgaSlideAnimation({
+                                            element: animated,
+                                            fromElement: origin_2,
+                                        })).then(function () { return animated.remove(); }));
+                                        return [4 /*yield*/, Promise.all(promises)];
+                                    case 1:
+                                        _b.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        };
+                        this_2 = this;
+                        i = 0;
+                        _a.label = 3;
+                    case 3:
+                        if (!(i < n)) return [3 /*break*/, 6];
+                        return [5 /*yield**/, _loop_5(i)];
+                    case 4:
+                        _a.sent();
+                        _a.label = 5;
+                    case 5:
+                        i++;
+                        return [3 /*break*/, 3];
+                    case 6: return [2 /*return*/];
                 }
-            }
-        }
+            });
+        });
     };
     Akropolis.prototype.notif_refillDock = function (args) {
         this.constructionSite.refill(args.dock, args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));

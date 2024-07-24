@@ -47,23 +47,34 @@ function formatDescIcons(text: string, color: string): string {
 
 class AthenaConstructionSite {
     private selectionActivated: boolean = false;
+    private cards: ConstructionCard[] = []; // 0 indexed!
 
-    constructor(private game: AkropolisGame, cards: ConstructionCard[], dockTiles: Tile[]) {
+    constructor(private game: AkropolisGame, cards: ConstructionCard[], cardStatuses: { [playerId: number]: string[] }, dockTiles: Tile[], players: AkropolisPlayer[]) {
         let html = `
-            <div id="athena-contruction-space">`;
+            <div id="athena-contruction-spaces">`;
 
         [1,2,3,4].forEach(space => {
             const card = cards.find(card => card.location === `athena-${space}`);
-            html += `<div>${this.generateCardHTML(card)}</div>`;
-        });
-        [1,2,3,4].forEach(space => {
-            html += `<div id="athena-tiles-${space}" class="athena-tiles-space"></div>`;
+            this.cards.push(card);
+            html += `
+            <div id="contruction-space-${card.id}" class="athena-contruction-space">
+                <div class="construction-card-holder">${this.generateCardHTML(card)}</div>
+                <div class="statue-parts-holder">${players.map(player => {
+                    const statuePartDone: boolean = (cardStatuses[player.id] ?? []).includes(card.id);
+                    return `<div id="player-statue-part-${player.id}-${space}" class="player-statue-part" style="outline: 1px solid #${player.color}; background-color: #${player.color}20;">
+                        <!--<div class="player-name" style="color: #${player.color}">${player.name}</div>-->
+                        ${statuePartDone ? '' : `<div class="statue-part" data-part="${space}"></div>`}
+                    </div>`
+                }).join('')}</div>
+                <div id="athena-tiles-${space}" class="athena-tiles-space"></div>
+            </div>
+            `;
         });
         html += `</div>`;
         document.getElementById('market').insertAdjacentHTML('beforebegin', html);
 
         [1,2,3,4].forEach(space => {
-            const card = cards.find(card => card.location === `athena-${space}`);
+            const card = this.cards[space - 1];
             this.game.setTooltip(`construction-card-${card.id}`, this.getCardTooltip(card));
 
             const tiles = dockTiles.filter(tile => tile.location === `athena-${space}`);
@@ -143,10 +154,18 @@ class AthenaConstructionSite {
     }
 
     public setSelectedHex(tileId: number, hex: HTMLDivElement) {
-        Array.from(document.getElementById('athena-contruction-space').querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
+        Array.from(document.getElementById('athena-contruction-spaces').querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
         document.getElementById(`market-tile-${tileId}`)?.classList.add('selected');
         if (!this.game.usePivotRotation()) {
             hex?.classList.add('selected');
         }
+    }
+    
+    public async completeCard(playerId: number, cardId: string) {
+        const space = this.cards.findIndex(card => card.id === cardId) + 1;
+        await this.game.animationManager.attachWithAnimation(new BgaSlideAnimation({
+            element: document.querySelector(`#player-statue-part-${playerId}-${space} .statue-part`),
+        }),
+        document.getElementById(`statue-${playerId}-${space}`));
     }
 }
