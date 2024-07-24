@@ -899,26 +899,48 @@ var ConstructionSite = /** @class */ (function () {
         }
     };
     ConstructionSite.prototype.refill = function (tiles, remainingStacks) {
-        var _this = this;
-        var orderedTiles = this.orderTiles(tiles);
-        this.setTiles(orderedTiles);
-        orderedTiles.forEach(function (tile) {
-            return _this.game.animationManager.play(new BgaSlideAnimation({
-                element: document.getElementById("market-tile-".concat(tile.id)),
-                fromElement: _this.remainingstacksDiv,
-            }));
+        return __awaiter(this, void 0, void 0, function () {
+            var orderedTiles;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        orderedTiles = this.orderTiles(tiles);
+                        this.setTiles(orderedTiles);
+                        return [4 /*yield*/, Promise.all(orderedTiles.map(function (tile) {
+                                return _this.game.animationManager.play(new BgaSlideAnimation({
+                                    element: document.getElementById("market-tile-".concat(tile.id)),
+                                    fromElement: _this.remainingstacksDiv,
+                                }));
+                            }))];
+                    case 1:
+                        _a.sent();
+                        this.remainingStacksCounter.setValue(remainingStacks);
+                        return [2 /*return*/];
+                }
+            });
         });
-        this.remainingStacksCounter.setValue(remainingStacks);
     };
     ConstructionSite.prototype.animateTileTo = function (tile, to) {
-        var marketTileDiv = document.getElementById("market-tile-".concat(tile.id)).querySelector('.tile');
-        var finalTransform = "rotate(".concat(60 * Number(marketTileDiv.style.getPropertyValue('--r')), "deg)");
-        return this.game.animationManager.play(new BgaSlideToAnimation({
-            element: marketTileDiv,
-            fromElement: to,
-            scale: 1,
-            finalTransform: finalTransform,
-        }));
+        return __awaiter(this, void 0, void 0, function () {
+            var marketTileDiv, finalTransform;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        marketTileDiv = document.getElementById("market-tile-".concat(tile.id)).querySelector('.tile');
+                        finalTransform = "rotate(".concat(60 * Number(marketTileDiv.style.getPropertyValue('--r')), "deg)");
+                        return [4 /*yield*/, this.game.animationManager.play(new BgaSlideToAnimation({
+                                element: marketTileDiv,
+                                fromElement: to,
+                                scale: 1,
+                                finalTransform: finalTransform,
+                            }))];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     ConstructionSite.prototype.removeTile = function (tile) {
         var index = this.tiles.findIndex(function (t) { return t.id == tile.id; });
@@ -1282,6 +1304,7 @@ var PlayerTable = /** @class */ (function () {
     };
     return PlayerTable;
 }());
+var MIN_NOTIFICATION_MS = 1200;
 var TYPES = {
     0: 'quarry',
     1: 'house',
@@ -1313,6 +1336,9 @@ var PIVOT_ROTATIONS_REVERSE = [
 ];
 var AKROPOLIS_FOLDED_HELP = 'Akropolis-FoldedHelp';
 var LOCAL_STORAGE_JUMP_KEY = 'Akropolis-jump-to-folded';
+function sleep(ms) {
+    return new Promise(function (r) { return setTimeout(r, ms); });
+}
 var Akropolis = /** @class */ (function () {
     function Akropolis() {
         this.rotation = 0;
@@ -1940,38 +1966,57 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.setupNotifications = function () {
         //log( 'notifications subscriptions setup' );
         var _this = this;
-        var notifs = [
-            ['placedTile', 800],
-            ['completeCard', 800],
-            ['pay', 1],
-            ['gainStones', 1],
-            ['refillDock', 1],
-            ['updateFirstPlayer', 1],
-            ['updateScores', 1],
-            ['automataDelay', 2000],
-        ];
-        notifs.forEach(function (notif) {
-            dojo.subscribe(notif[0], _this, function (notifDetails) {
-                log('notif', notif[0], notifDetails);
-                _this["notif_".concat(notif[0])](notifDetails.args);
+        var notifs = Object.getOwnPropertyNames(Object.getPrototypeOf(this)).filter(function (name) { return name.startsWith('notif_'); }).map(function (name) { return name.slice(6); });
+        notifs.forEach(function (notifName) {
+            dojo.subscribe(notifName, _this, function (notifDetails) {
+                log("notif_".concat(notifName), notifDetails.args);
+                var promise = _this["notif_".concat(notifName)](notifDetails.args);
+                var promises = promise ? [promise] : [];
+                var minDuration = 1;
+                var msg = _this.format_string_recursive(notifDetails.log, notifDetails.args);
+                if (msg != '') {
+                    $('gameaction_status').innerHTML = msg;
+                    $('pagemaintitletext').innerHTML = msg;
+                    $('generalactions').innerHTML = '';
+                    // If there is some text, we let the message some time, to be read 
+                    minDuration = MIN_NOTIFICATION_MS;
+                }
+                // tell the UI notification ends, if the function returned a promise. 
+                if (_this.animationManager.animationsActive()) {
+                    Promise.all(__spreadArray(__spreadArray([], promises, true), [sleep(minDuration)], false)).then(function () { return _this.notifqueue.onSynchronousNotificationEnd(); });
+                }
+                else {
+                    _this.notifqueue.setSynchronousDuration(0);
+                }
             });
-            _this.notifqueue.setSynchronous(notif[0], notif[1]);
+            _this.notifqueue.setSynchronous(notifName, undefined);
         });
     };
     Akropolis.prototype.notif_placedTile = function (args) {
-        var _this = this;
-        var playerTable = this.getPlayerTable(args.tile.pId);
-        var tile = args.tile;
-        playerTable.removePreviewTile();
-        var invisibleTile = playerTable.placeTile(tile, false, 'invisible');
-        this.constructionSite.animateTileTo(tile, invisibleTile).then(function () {
-            playerTable.placeTile(tile, true, 'final');
-            if (tile.hexes.length === 1) {
-                _this.athenaConstructionSite.removeTile(tile);
-            }
-            else {
-                _this.constructionSite.removeTile(tile);
-            }
+        return __awaiter(this, void 0, void 0, function () {
+            var playerTable, tile, invisibleTile;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        playerTable = this.getPlayerTable(args.tile.pId);
+                        tile = args.tile;
+                        playerTable.removePreviewTile();
+                        invisibleTile = playerTable.placeTile(tile, false, 'invisible');
+                        return [4 /*yield*/, this.constructionSite.animateTileTo(tile, invisibleTile).then(function () {
+                                playerTable.placeTile(tile, true, 'final');
+                                if (tile.hexes.length === 1) {
+                                    _this.athenaConstructionSite.removeTile(tile);
+                                }
+                                else {
+                                    _this.constructionSite.removeTile(tile);
+                                }
+                            })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
         });
     };
     Akropolis.prototype.notif_completeCard = function (args) {
@@ -2056,23 +2101,54 @@ var Akropolis = /** @class */ (function () {
         });
     };
     Akropolis.prototype.notif_refillDock = function (args) {
-        this.constructionSite.refill(args.dock, args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.constructionSite.refill(args.dock, args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1))];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     Akropolis.prototype.notif_updateFirstPlayer = function (args) {
-        var firstPlayerToken = document.getElementById('first-player-token');
-        var destinationId = "first-player-token-wrapper-".concat(args.pId);
-        var originId = firstPlayerToken.parentElement.id;
-        if (destinationId !== originId) {
-            this.animationManager.attachWithAnimation(new BgaSlideAnimation({
-                element: firstPlayerToken,
-                zoom: 1,
-            }), document.getElementById(destinationId));
-        }
+        return __awaiter(this, void 0, void 0, function () {
+            var firstPlayerToken, destinationId, originId;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        firstPlayerToken = document.getElementById('first-player-token');
+                        destinationId = "first-player-token-wrapper-".concat(args.pId);
+                        originId = firstPlayerToken.parentElement.id;
+                        if (!(destinationId !== originId)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.animationManager.attachWithAnimation(new BgaSlideAnimation({
+                                element: firstPlayerToken,
+                                zoom: 1,
+                            }), document.getElementById(destinationId))];
+                    case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2: return [2 /*return*/];
+                }
+            });
+        });
     };
     Akropolis.prototype.notif_updateScores = function (args) {
         this.updateScores(args.player_id, args.scores);
     };
-    Akropolis.prototype.notif_automataDelay = function () { };
+    Akropolis.prototype.notif_automataDelay = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, sleep(2000)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     /* @Override */
     Akropolis.prototype.change3d = function (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) {
         this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);

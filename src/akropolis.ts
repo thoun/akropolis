@@ -4,6 +4,7 @@ declare const $;
 declare const dojo: Dojo;
 declare const _;
 declare const g_gamethemeurl;
+const MIN_NOTIFICATION_MS = 1200;
 
 const TYPES = {
     0: 'quarry',
@@ -40,6 +41,10 @@ const PIVOT_ROTATIONS_REVERSE = [
 
 const AKROPOLIS_FOLDED_HELP = 'Akropolis-FoldedHelp';
 const LOCAL_STORAGE_JUMP_KEY = 'Akropolis-jump-to-folded';
+
+function sleep(ms: number){
+    return new Promise((r) => setTimeout(r, ms));
+}
 
 class Akropolis implements AkropolisGame {
     public tilesManager: TilesManager;
@@ -809,32 +814,41 @@ class Akropolis implements AkropolisGame {
     setupNotifications() {
         //log( 'notifications subscriptions setup' );
 
-        const notifs = [
-            ['placedTile', 800],
-            ['completeCard', 800],
-            ['pay', 1],
-            ['gainStones', 1],
-            ['refillDock', 1],
-            ['updateFirstPlayer', 1],
-            ['updateScores', 1],
-            ['automataDelay', 2000],
-        ];
+        const notifs = Object.getOwnPropertyNames(Object.getPrototypeOf(this)).filter(name => name.startsWith('notif_')).map(name => name.slice(6));
     
-        notifs.forEach((notif) => {
-            dojo.subscribe(notif[0], this, (notifDetails: Notif<any>) => {
-                log('notif', notif[0], notifDetails);
-                this[`notif_${notif[0]}`](notifDetails.args);
+        notifs.forEach((notifName) => {
+            dojo.subscribe(notifName, this, (notifDetails: Notif<any>) => {
+                log(`notif_${notifName}`, notifDetails.args);
+                const promise = this[`notif_${notifName}`](notifDetails.args);
+                const promises = promise ? [promise] : [];
+                let minDuration = 1;
+                let msg = this.format_string_recursive(notifDetails.log, notifDetails.args);
+                if (msg != '') {
+                    $('gameaction_status').innerHTML = msg;
+                    $('pagemaintitletext').innerHTML = msg;
+                    $('generalactions').innerHTML = '';
+
+                    // If there is some text, we let the message some time, to be read 
+                    minDuration = MIN_NOTIFICATION_MS;
+                }
+
+                // tell the UI notification ends, if the function returned a promise. 
+                if (this.animationManager.animationsActive()) {
+                    Promise.all([...promises, sleep(minDuration)]).then(() => (this as any).notifqueue.onSynchronousNotificationEnd());
+                } else {
+                    (this as any).notifqueue.setSynchronousDuration(0);
+                }
             });
-            (this as any).notifqueue.setSynchronous(notif[0], notif[1]);
+            (this as any).notifqueue.setSynchronous(notifName, undefined);
         });
     }
 
-    notif_placedTile(args: NotifPlacedTileArgs) {
+    async notif_placedTile(args: NotifPlacedTileArgs) {
         const playerTable = this.getPlayerTable(args.tile.pId);
         const tile = args.tile;
         playerTable.removePreviewTile();
         const invisibleTile = playerTable.placeTile(tile, false, 'invisible');
-        this.constructionSite.animateTileTo(tile, invisibleTile).then(() => {
+        await this.constructionSite.animateTileTo(tile, invisibleTile).then(() => {
             playerTable.placeTile(tile, true, 'final');
             if (tile.hexes.length === 1) {
                 this.athenaConstructionSite.removeTile(tile);
@@ -887,16 +901,16 @@ class Akropolis implements AkropolisGame {
         }
     }
 
-    notif_refillDock(args: NotifDockRefillArgs) {
-        this.constructionSite.refill(args.dock, args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
+    async notif_refillDock(args: NotifDockRefillArgs) {
+        await this.constructionSite.refill(args.dock, args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
     }
 
-    notif_updateFirstPlayer(args: NotifUpdateFirstPlayerArgs) {
+    async notif_updateFirstPlayer(args: NotifUpdateFirstPlayerArgs) {
         const firstPlayerToken = document.getElementById('first-player-token');
         const destinationId = `first-player-token-wrapper-${args.pId}`;
         const originId = firstPlayerToken.parentElement.id;
         if (destinationId !== originId) {
-            this.animationManager.attachWithAnimation(new BgaSlideAnimation({
+            await this.animationManager.attachWithAnimation(new BgaSlideAnimation({
                 element: firstPlayerToken,
                 zoom: 1,
             }),
@@ -908,7 +922,9 @@ class Akropolis implements AkropolisGame {
         this.updateScores(args.player_id, args.scores);
     }
 
-    notif_automataDelay() {}
+    async notif_automataDelay() {
+        await sleep(2000);
+    }
 
     /* @Override */
     public change3d(incXAxis: number, xpos: number, ypos: number, xAxis: number, incScale: number, is3Dactive: boolean, reset: boolean) {
