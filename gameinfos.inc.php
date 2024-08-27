@@ -12,7 +12,7 @@
 
 $gameinfos = [
   // Name of the game in English (will serve as the basis for translation)
-  'game_name' => 'Akropolis',
+  'game_name' => 'AkropolisAthena',
 
   // Game publisher (use empty string if there is no publisher)
   'publisher' => 'Gigamic',
@@ -24,7 +24,7 @@ $gameinfos = [
   'publisher_bgg_id' => 155,
 
   // Board game geek ID of the game
-  'bgg_id' => 357563,
+  'bgg_id' => 0,
 
   // Players configuration that can be played (ex: 2 to 4 players)
   'players' => [1, 2, 3, 4],

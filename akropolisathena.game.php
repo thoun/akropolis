@@ -3,13 +3,13 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * Akropolis implementation : © Timothée Pecatte <tim.pecatte@gmail.com>, Guy Baudin <guy.thoun@gmail.com>
+ * AkropolisAthena implementation : © Timothée Pecatte <tim.pecatte@gmail.com>, Guy Baudin <guy.thoun@gmail.com>
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
  *
- * akropolis.game.php
+ * akropolisathena.game.php
  *
  * This is the main file for your game logic.
  *
@@ -40,7 +40,7 @@ use AKR\Managers\ConstructionCards;
 use AKR\Managers\Players;
 use AKR\Managers\Tiles;
 
-class Akropolis extends Table
+class AkropolisAthena extends Table
 {
   use AKR\DebugTrait;
   use AKR\States\TurnTrait;
@@ -64,7 +64,7 @@ class Akropolis extends Table
 
   protected function getGameName()
   {
-    return 'akropolis';
+    return 'akropolisathena';
   }
 
   /*

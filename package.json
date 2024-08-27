@@ -1,17 +1,16 @@
 {
-  "name": "akropolis",
+  "name": "akropolisathena",
   "version": "1.0.0",
   "description": "",
-  "main": "akropolis.js",
+  "main": "akropolisathena.js",
   "scripts": {
     "build:ts": "tsc",
-    "build:scss": "sass --no-source-map src/akropolis.scss akropolis.css"
+    "build:scss": "sass --no-source-map src/akropolis.scss akropolisathena.css"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bga-animations": "thoun/bga-animations#1.1.1",
-    "bga-jump-to": "thoun/bga-jump-to#1.1.0"
+    "bga-animations": "thoun/bga-animations#1.1.1"
   },
   "devDependencies": {
     "sass": "^1.71.0",
