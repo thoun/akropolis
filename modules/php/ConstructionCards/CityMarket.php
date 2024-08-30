@@ -17,7 +17,8 @@ class CityMarket extends \AKR\Models\ConstructionCard
   public function checkTriangleAroundHex($board, $cell)
   {
     $neighbours = $board->getNeighbours($cell);
-    $previousConnection = null;
+
+    $connectedMarkets = [];
     foreach ($neighbours as $dir => $pos) {
       $hasConnectedMarket = false;
       foreach ($board->getTypesAtPos($pos) as $type => $triangles) {
@@ -25,16 +26,16 @@ class CityMarket extends \AKR\Models\ConstructionCard
           $hasConnectedMarket = true;
         }
       }
+      $connectedMarkets[] = $hasConnectedMarket;
+    }
 
-      // Non alternating pattern => false
-      if ($previousConnection === $hasConnectedMarket) {
-        return false;
-      } else {
-        $previousConnection = $hasConnectedMarket;
+    for ($i = 0; $i < 6; $i++) {
+      if ($connectedMarkets[$i] && $connectedMarkets[($i + 2) % 6] && $connectedMarkets[($i + 4) % 6]) {
+        return true;
       }
     }
 
-    return true;
+    return false;
   }
 
   // Testée mais question en suspens

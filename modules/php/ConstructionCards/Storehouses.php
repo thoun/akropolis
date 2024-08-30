@@ -17,20 +17,28 @@ class Storehouses extends \AKR\Models\ConstructionCard
   {
     $board = $player->board();
     $cells = $board->getVisibleBuiltCells();
-    $storehouses = 0;
+    $storehouses = [];
     foreach ($cells as $cell) {
       foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
         // Is market  ?
         if ($type != MARKET) continue;
 
         // Is surrounded by built neighbours ?
-        $neighbours = $board->getBuiltNeighbours($cell);
-        if (count($neighbours) < 6) continue;
+        $neighbours = $board->getBuiltNeighbours($cell, $triangles);
+        if (count($neighbours) < count($triangles)) continue;
 
-        $storehouses++;
+        $storehouses[] = $cell;
       }
     }
 
-    return $storehouses >= 2;
+    foreach ($storehouses as $cell1) {
+      foreach ($storehouses as $cell2) {
+        if ($board->getDistance($cell1, $cell2) >= 2) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }

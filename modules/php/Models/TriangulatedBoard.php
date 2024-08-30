@@ -784,7 +784,7 @@ class TriangulatedBoard
     ];
   }
 
-  protected function getDistance($hex1, $hex2)
+  public function getDistance($hex1, $hex2)
   {
     $deltaX = abs($hex1['x'] - $hex2['x']);
     $deltaY = abs($hex1['y'] - $hex2['y']);

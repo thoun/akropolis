@@ -35,7 +35,7 @@ class Fortress extends \AKR\Models\ConstructionCard
         }
 
         for ($i = 0; $i < 6; $i++) {
-          if ($connectedBarracks[$i] && !$connectedBarracks[($i + 1) % 6] && $connectedBarracks[($i + 2) % 6]) {
+          if ($connectedBarracks[$i] && $connectedBarracks[($i + 2) % 6]) {
             return true;
           }
         }

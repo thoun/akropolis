@@ -45,6 +45,8 @@ class Housing extends \AKR\Models\ConstructionCard
         if ($type != HOUSE) continue;
 
         foreach ($board->getNeighbours($cell, false, $triangles) as $pos) {
+          if (!$board->isCellBuilt($pos)) continue;
+
           $id = $board->getCellId($pos);
           if (in_array($id, $seen)) continue;
           $seen[] = $id;

@@ -12,7 +12,7 @@ class Oasis extends \AKR\Models\ConstructionCard
     $this->desc = clienttranslate('1 <GARDEN> completely surrounded by <DISTRICT> and/or <PLAZA>');
   }
 
-  // Testée mais attente réponse éditeur pour savoir si la tuile centrale peut être une dual tile ou non
+  // Testée
   public function isSatisfied(\AKR\Models\Player $player)
   {
     $board = $player->board();
@@ -23,8 +23,8 @@ class Oasis extends \AKR\Models\ConstructionCard
         if ($type != GARDEN) continue;
 
         // Is surrounded by built neighbours ?
-        $neighbours = $board->getBuiltNeighbours($cell);
-        if (count($neighbours) < 6) continue;
+        $neighbours = $board->getBuiltNeighbours($cell, $triangles);
+        if (count($neighbours) < count($triangles)) continue;
 
         return true;
       }
