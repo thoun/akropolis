@@ -56,23 +56,23 @@ class ConstructionSite {
         }
     }
     
-    public refill(tiles: Tile[], remainingStacks: number) {
+    public async refill(tiles: Tile[], remainingStacks: number) {
         const orderedTiles = this.orderTiles(tiles);
         this.setTiles(orderedTiles);
-        orderedTiles.forEach(tile => 
+        await Promise.all(orderedTiles.map(tile => 
             this.game.animationManager.play(new BgaSlideAnimation({
                 element: document.getElementById(`market-tile-${tile.id}`),
                 fromElement: this.remainingstacksDiv,
             }))
-        ); 
+        )); 
 
         this.remainingStacksCounter.setValue(remainingStacks);
     }
 
-    public animateTileTo(tile: Tile, to: HTMLDivElement): Promise<any> {
+    public async animateTileTo(tile: Tile, to: HTMLDivElement): Promise<any> {
         const marketTileDiv = document.getElementById(`market-tile-${tile.id}`).querySelector('.tile') as HTMLElement;
         const finalTransform = `rotate(${60 * Number(marketTileDiv.style.getPropertyValue('--r'))}deg)`;
-        return this.game.animationManager.play(new BgaSlideToAnimation({
+        await this.game.animationManager.play(new BgaSlideToAnimation({
             element: marketTileDiv,
             fromElement: to,
             scale: 1, 

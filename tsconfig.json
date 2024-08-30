@@ -10,6 +10,7 @@
     "files": [
         "src/framework.d.ts",
         "src/counter.d.ts",
+        "node_modules/bga-jump-to/src/jump-to-manager.ts",
         "node_modules/bga-animations/src/framework.d.ts",
         "node_modules/bga-animations/src/animations.ts",
         "node_modules/bga-animations/src/animations/attach-with-animation.ts",
