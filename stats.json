@@ -1,0 +1,105 @@
+{
+    "table": [],
+    "player": {
+        "position": {
+            "id": 10,
+            "name": "Starting position in first round",
+            "type": "int"
+        },
+        "housesDistrictValue": {
+            "id": 22,
+            "name": "Value of houses districts",
+            "type": "int"
+        },
+        "housesPlazaMultiplier": {
+            "id": 25,
+            "name": "Houses plazas stars",
+            "type": "int"
+        },
+        "housesScore": {
+            "id": 26,
+            "name": "Houses victory points",
+            "type": "int"
+        },
+        "marketsDistrictValue": {
+            "id": 32,
+            "name": "Value of markets districts",
+            "type": "int"
+        },
+        "marketsPlazaMultiplier": {
+            "id": 35,
+            "name": "Markets plazas stars",
+            "type": "int"
+        },
+        "marketsScore": {
+            "id": 36,
+            "name": "Markets victory points",
+            "type": "int"
+        },
+        "barracksDistrictValue": {
+            "id": 42,
+            "name": "Value of barracks districts",
+            "type": "int"
+        },
+        "barracksPlazaMultiplier": {
+            "id": 45,
+            "name": "Barracks plazas stars",
+            "type": "int"
+        },
+        "barracksScore": {
+            "id": 46,
+            "name": "Barracks victory points",
+            "type": "int"
+        },
+        "templesDistrictValue": {
+            "id": 52,
+            "name": "Value of temples districts",
+            "type": "int"
+        },
+        "templesPlazaMultiplier": {
+            "id": 55,
+            "name": "Temples plazas stars",
+            "type": "int"
+        },
+        "templesScore": {
+            "id": 56,
+            "name": "Temples victory points",
+            "type": "int"
+        },
+        "gardensDistrictValue": {
+            "id": 62,
+            "name": "Value of gardens districts",
+            "type": "int"
+        },
+        "gardensPlazaMultiplier": {
+            "id": 65,
+            "name": "Gardens plazas stars",
+            "type": "int"
+        },
+        "gardensScore": {
+            "id": 66,
+            "name": "Gardens victory points",
+            "type": "int"
+        },
+        "moneyEarned": {
+            "id": 11,
+            "name": "Stone gained by covering quarries",
+            "type": "int"
+        },
+        "moneyUsed": {
+            "id": 12,
+            "name": "Stone used to buy tiles",
+            "type": "int"
+        },
+        "moneyLeft": {
+            "id": 13,
+            "name": "Stone left at the end of the game",
+            "type": "int"
+        },
+        "score": {
+            "id": 15,
+            "name": "Final score",
+            "type": "int"
+        }
+    }
+}

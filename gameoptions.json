@@ -1,0 +1,231 @@
+{
+    "101": {
+        "name": "Live scoring",
+        "values": {
+            "1": {
+                "name": "Enabled",
+                "tmdisplay": "[Live scoring]",
+                "description": "Live scoring during the game"
+            },
+            "0": {
+                "name": "Disabled",
+                "description": "Hidden scores during the game"
+            }
+        },
+        "default": 1
+    },
+    "102": {
+        "name": "All tiles",
+        "values": [
+            {
+                "name": "Disabled",
+                "description": "Always form 11 stack of tiles"
+            },
+            {
+                "name": "Enabled",
+                "description": "Play with the whole set of 61 tiles"
+            }
+        ],
+        "default": 0,
+        "displaycondition": [
+            {
+                "type": "maxplayers",
+                "value": [
+                    1,
+                    2,
+                    3
+                ]
+            }
+        ]
+    },
+    "110": {
+        "name": "Architect level",
+        "values": [
+            {
+                "name": "Easy - Hippodamos",
+                "description": "All the Districts of Hippodamos are considered to be at the 1st level."
+            },
+            {
+                "name": "Medium - Metagenes",
+                "description": "All the Districts of Metagenes are considered to be at the 1st level. Metagenes earns 2 additional points for each Quarry he owns.",
+                "nobeginner": true
+            },
+            {
+                "name": "Hard - Callicrates",
+                "description": "All Callicrates Districts are considered to be at the 2nd level.",
+                "nobeginner": true
+            }
+        ],
+        "default": 0,
+        "displaycondition": [
+            {
+                "type": "maxplayers",
+                "value": [
+                    1
+                ]
+            }
+        ]
+    },
+    "103": {
+        "name": "Variants",
+        "values": [
+            {
+                "name": "None",
+                "description": "Only the base rules"
+            },
+            {
+                "name": "All variants",
+                "tmdisplay": "[All variants]",
+                "description": "The five variants will be enabled",
+                "nobeginner": true
+            },
+            {
+                "name": "Some variants",
+                "description": "Select the variants you want enabled",
+                "nobeginner": true
+            }
+        ],
+        "default": 0
+    },
+    "106": {
+        "name": "Variant for Barrack",
+        "values": [
+            {
+                "name": "Disabled",
+                "description": "Only the base rule for barracks"
+            },
+            {
+                "name": "Enabled",
+                "tmdisplay": "[Barrack variant]",
+                "description": "Variant rules for Barracks",
+                "nobeginner": true
+            }
+        ],
+        "default": 0,
+        "displaycondition": [
+            {
+                "type": "otheroption",
+                "id": 103,
+                "value": [
+                    2
+                ]
+            }
+        ]
+    },
+    "108": {
+        "name": "Variant for gardens",
+        "values": [
+            {
+                "name": "Disabled",
+                "description": "Only the base rule for gardens"
+            },
+            {
+                "name": "Enabled",
+                "tmdisplay": "[Gardens variant]",
+                "description": "Variant rules for gardens",
+                "nobeginner": true
+            }
+        ],
+        "default": 0,
+        "displaycondition": [
+            {
+                "type": "otheroption",
+                "id": 103,
+                "value": [
+                    2
+                ]
+            }
+        ]
+    },
+    "104": {
+        "name": "Variant for houses",
+        "values": [
+            {
+                "name": "Disabled",
+                "description": "Only the base rule for houses"
+            },
+            {
+                "name": "Enabled",
+                "tmdisplay": "[Houses variant]",
+                "description": "Variant rules for houses",
+                "nobeginner": true
+            }
+        ],
+        "default": 0,
+        "displaycondition": [
+            {
+                "type": "otheroption",
+                "id": 103,
+                "value": [
+                    2
+                ]
+            }
+        ]
+    },
+    "105": {
+        "name": "Variant for markets",
+        "values": [
+            {
+                "name": "Disabled",
+                "description": "Only the base rule for markets"
+            },
+            {
+                "name": "Enabled",
+                "tmdisplay": "[Markets variant]",
+                "description": "Variant rules for markets",
+                "nobeginner": true
+            }
+        ],
+        "default": 0,
+        "displaycondition": [
+            {
+                "type": "otheroption",
+                "id": 103,
+                "value": [
+                    2
+                ]
+            }
+        ]
+    },
+    "107": {
+        "name": "Variant for temples",
+        "values": [
+            {
+                "name": "Disabled",
+                "description": "Only the base rule for temples"
+            },
+            {
+                "name": "Enabled",
+                "tmdisplay": "[Temples variant]",
+                "description": "Variant rules for temples",
+                "nobeginner": true
+            }
+        ],
+        "default": 0,
+        "displaycondition": [
+            {
+                "type": "otheroption",
+                "id": 103,
+                "value": [
+                    2
+                ]
+            }
+        ]
+    },
+    "111": {
+        "name": "Athena expansion",
+        "values": [
+            {
+                "name": "Disabled",
+                "description": "Only the base game"
+            },
+            {
+                "name": "Enabled",
+                "tmdisplay": "[Athena]",
+                "description": "Include Athena expansion",
+                "nobeginner": true
+            }
+        ],
+        "default": 1
+    }
+}
