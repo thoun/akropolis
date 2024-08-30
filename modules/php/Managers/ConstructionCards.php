@@ -28,6 +28,8 @@ class ConstructionCards extends \AKR\Helpers\Pieces
 
   public static function getUiData()
   {
+    if (!Globals::isAthena()) return [];
+
     return self::getAll()->ui();
   }
 
