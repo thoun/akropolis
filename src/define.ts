@@ -5,5 +5,5 @@ define([
     "ebg/stock"
 ],
 function (dojo, declare) {
-    return declare("bgagame.akropolis", ebg.core.gamegui, new Akropolis());
+    return declare("bgagame.akropolisathena", ebg.core.gamegui, new Akropolis());
 });
