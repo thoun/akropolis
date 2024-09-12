@@ -1055,7 +1055,7 @@ var AthenaConstructionSite = /** @class */ (function () {
         var row = Math.floor(cardIndex / 9);
         var col = cardIndex % 9;
         var color = CARDS[card.id];
-        return "<div id=\"construction-card-".concat(card.id, "\" class=\"construction-card\" style=\"background-position: ").concat(col * 100 / 8, "% ").concat(row * 100, "%; --background: ").concat(color, ";\">\n            <div class=\"name-wrapper\"><div class=\"name\">").concat(_(card.name), "</div></div>\n            <div class=\"desc\">").concat(formatDescIcons(_(card.desc), color), "</div>\n        </div>");
+        return "<div id=\"construction-card-".concat(card.id, "\" class=\"construction-card\" style=\"background-position: ").concat(col * 100 / 8, "% ").concat(row * 100, "%; --background: ").concat(color, ";\">\n            <div class=\"name-wrapper\"><div class=\"name\">").concat(_(card.name), "</div></div>\n            <div class=\"desc bga-autofit\">").concat(formatDescIcons(_(card.desc), color), "</div>\n        </div>");
     };
     AthenaConstructionSite.prototype.getCardTooltip = function (card) {
         var color = CARDS[card.id];
@@ -1334,13 +1334,13 @@ var PIVOT_ROTATIONS_REVERSE = [
     [+1, -1],
     [+1, +1],
 ];
-var AKROPOLIS_FOLDED_HELP = 'AkropolisAthena-FoldedHelp';
-var LOCAL_STORAGE_JUMP_KEY = 'AkropolisAthena-jump-to-folded';
+var AKROPOLIS_FOLDED_HELP = 'Akropolis-FoldedHelp';
+var LOCAL_STORAGE_JUMP_KEY = 'Akropolis-jump-to-folded';
 function sleep(ms) {
     return new Promise(function (r) { return setTimeout(r, ms); });
 }
-var AkropolisAthena = /** @class */ (function () {
-    function AkropolisAthena() {
+var Akropolis = /** @class */ (function () {
+    function Akropolis() {
         this.rotation = 0;
         this.playersTables = [];
         this.stonesCounters = [];
@@ -1362,7 +1362,7 @@ var AkropolisAthena = /** @class */ (function () {
 
         "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
     */
-    AkropolisAthena.prototype.setup = function (gamedatas) {
+    Akropolis.prototype.setup = function (gamedatas) {
         var _this = this;
         log("Starting game setup");
         this.pivotRotation = window.location.href.indexOf('pivot') !== -1;
@@ -1379,6 +1379,7 @@ var AkropolisAthena = /** @class */ (function () {
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
         if (gamedatas.isAthena) {
             this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.cardStatuses, gamedatas.dock, Object.values(gamedatas.players));
+            this.bgaAutoFit();
         }
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
@@ -1410,7 +1411,7 @@ var AkropolisAthena = /** @class */ (function () {
     // onEnteringState: this method is called each time we are entering into a new game state.
     //                  You can use this method to perform some user interface changes at this moment.
     //
-    AkropolisAthena.prototype.onEnteringState = function (stateName, args) {
+    Akropolis.prototype.onEnteringState = function (stateName, args) {
         log('Entering state: ' + stateName, args.args);
         switch (stateName) {
             case 'placeTile':
@@ -1421,7 +1422,7 @@ var AkropolisAthena = /** @class */ (function () {
                 break;
         }
     };
-    AkropolisAthena.prototype.onEnteringPlaceTile = function (args) {
+    Akropolis.prototype.onEnteringPlaceTile = function (args) {
         if (this.isCurrentPlayerActive()) {
             this.selectedPosition = null;
             this.selectedTile = null;
@@ -1432,7 +1433,7 @@ var AkropolisAthena = /** @class */ (function () {
             this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());
         }
     };
-    AkropolisAthena.prototype.onEnteringCompleteCard = function (args) {
+    Akropolis.prototype.onEnteringCompleteCard = function (args) {
         var _this = this;
         args.cardIds.forEach(function (id) { return document.getElementById("contruction-space-".concat(id)).classList.add('active'); });
         if (this.isCurrentPlayerActive()) {
@@ -1446,7 +1447,7 @@ var AkropolisAthena = /** @class */ (function () {
             this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());*/
         }
     };
-    AkropolisAthena.prototype.onLeavingState = function (stateName) {
+    Akropolis.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
         switch (stateName) {
             case 'placeTile':
@@ -1457,12 +1458,12 @@ var AkropolisAthena = /** @class */ (function () {
                 break;
         }
     };
-    AkropolisAthena.prototype.onLeavingPlaceTile = function () {
+    Akropolis.prototype.onLeavingPlaceTile = function () {
         var _a;
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setPlaceTileOptions([], this.rotation);
         this.constructionSite.setSelectable(false);
     };
-    AkropolisAthena.prototype.onLeavingCompleteCard = function () {
+    Akropolis.prototype.onLeavingCompleteCard = function () {
         var _a;
         document.querySelectorAll('.athena-contruction-space.active').forEach(function (elem) { return elem.classList.remove('active'); });
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setPlaceTileOptions([], this.rotation);
@@ -1471,7 +1472,7 @@ var AkropolisAthena = /** @class */ (function () {
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
     //
-    AkropolisAthena.prototype.onUpdateActionButtons = function (stateName, args) {
+    Akropolis.prototype.onUpdateActionButtons = function (stateName, args) {
         var _this = this;
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
@@ -1509,26 +1510,26 @@ var AkropolisAthena = /** @class */ (function () {
     ///////////////////////////////////////////////////
     //// Utility methods
     ///////////////////////////////////////////////////
-    AkropolisAthena.prototype.setTooltip = function (id, html) {
+    Akropolis.prototype.setTooltip = function (id, html) {
         this.addTooltipHtml(id, html, this.TOOLTIP_DELAY);
     };
-    AkropolisAthena.prototype.setTooltipToClass = function (className, html) {
+    Akropolis.prototype.setTooltipToClass = function (className, html) {
         this.addTooltipHtmlToClass(className, html, this.TOOLTIP_DELAY);
     };
-    AkropolisAthena.prototype.getPlayerId = function () {
+    Akropolis.prototype.getPlayerId = function () {
         return Number(this.player_id);
     };
-    AkropolisAthena.prototype.getPlayer = function (playerId) {
+    Akropolis.prototype.getPlayer = function (playerId) {
         return Object.values(this.gamedatas.players).find(function (player) { return Number(player.id) == playerId; });
     };
-    AkropolisAthena.prototype.getPlayerTable = function (playerId) {
+    Akropolis.prototype.getPlayerTable = function (playerId) {
         return this.playersTables.find(function (playerTable) { return playerTable.playerId === playerId; });
     };
-    AkropolisAthena.prototype.getCurrentPlayerTable = function () {
+    Akropolis.prototype.getCurrentPlayerTable = function () {
         var _this = this;
         return this.playersTables.find(function (playerTable) { return playerTable.playerId === _this.getPlayerId(); });
     };
-    AkropolisAthena.prototype.setupPreferences = function () {
+    Akropolis.prototype.setupPreferences = function () {
         var _this = this;
         // Extract the ID and value from the UI control
         var onchange = function (e) {
@@ -1546,7 +1547,7 @@ var AkropolisAthena = /** @class */ (function () {
         // Call onPreferenceChange() now
         dojo.forEach(dojo.query("#ingame_menu_content .preference_control"), function (el) { return onchange({ target: el }); });
     };
-    AkropolisAthena.prototype.onPreferenceChange = function (prefId, prefValue) {
+    Akropolis.prototype.onPreferenceChange = function (prefId, prefValue) {
         switch (prefId) {
             case 201:
                 document.getElementsByTagName('html')[0].classList.toggle('tile-level-colors', prefValue == 2);
@@ -1562,7 +1563,7 @@ var AkropolisAthena = /** @class */ (function () {
                 break;
         }
     };
-    AkropolisAthena.prototype.usePivotRotation = function () {
+    Akropolis.prototype.usePivotRotation = function () {
         /*const playersIds = Object.keys(this.gamedatas.players).map(val => +val);
         return (playersIds.length == 1 && [
             2343492, // thoun studio
@@ -1573,14 +1574,14 @@ var AkropolisAthena = /** @class */ (function () {
         ].includes(playersIds[0]));*/
         return this.pivotRotation;
     };
-    AkropolisAthena.prototype.getOrderedPlayers = function (gamedatas) {
+    Akropolis.prototype.getOrderedPlayers = function (gamedatas) {
         var _this = this;
         var players = Object.values(gamedatas.players).sort(function (a, b) { return a.no - b.no; });
         var playerIndex = players.findIndex(function (player) { return Number(player.id) === Number(_this.player_id); });
         var orderedPlayers = playerIndex > 0 ? __spreadArray(__spreadArray([], players.slice(playerIndex), true), players.slice(0, playerIndex), true) : players;
         return orderedPlayers;
     };
-    AkropolisAthena.prototype.createPlayerPanels = function (gamedatas) {
+    Akropolis.prototype.createPlayerPanels = function (gamedatas) {
         var _this = this;
         var players = Object.values(gamedatas.players);
         var soloPlayer = gamedatas.soloPlayer;
@@ -1656,7 +1657,7 @@ var AkropolisAthena = /** @class */ (function () {
         this.setTooltipToClass('stones-counter', _('Number of stones'));
         this.setTooltipToClass("player_score_value", _('The sum of the score for each color, plus 1 point for each stone'));
     };
-    AkropolisAthena.prototype.createPlayerTables = function (gamedatas) {
+    Akropolis.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
         var orderedPlayers = this.getOrderedPlayers(gamedatas);
         orderedPlayers.forEach(function (player) {
@@ -1667,11 +1668,11 @@ var AkropolisAthena = /** @class */ (function () {
             this.playersTables.push(table);
         }
     };
-    AkropolisAthena.prototype.createPlayerTable = function (gamedatas, playerId) {
+    Akropolis.prototype.createPlayerTable = function (gamedatas, playerId) {
         var table = new PlayerTable(this, gamedatas.players[playerId], gamedatas.lastMoves[playerId]);
         this.playersTables.push(table);
     };
-    AkropolisAthena.prototype.addHelp = function (playerCount) {
+    Akropolis.prototype.addHelp = function (playerCount) {
         var _this = this;
         var _a;
         var labels = "<div class=\"quantities-table plazza\">".concat(HEX_QUANTITIES[playerCount].map(function (quantities) { return "<div><span>".concat(quantities[0], "</span></div>"); }).join(''), "</div>");
@@ -1686,7 +1687,7 @@ var AkropolisAthena = /** @class */ (function () {
         });
         this.setTooltip('quantities-help-button', _('Plazzas / District quantities'));
     };
-    AkropolisAthena.prototype.onKeyPress = function (event) {
+    Akropolis.prototype.onKeyPress = function (event) {
         var _a;
         if (['TEXTAREA', 'INPUT'].includes(event.target.nodeName) || !this.isCurrentPlayerActive()) {
             return;
@@ -1733,7 +1734,7 @@ var AkropolisAthena = /** @class */ (function () {
                 break;
         }
     };
-    AkropolisAthena.prototype.setPlayerScore = function (playerId, score) {
+    Akropolis.prototype.setPlayerScore = function (playerId, score) {
         if (this.scoreCtrl[playerId]) {
             this.scoreCtrl[playerId].toValue(score);
         }
@@ -1741,7 +1742,7 @@ var AkropolisAthena = /** @class */ (function () {
             document.getElementById("player_score_".concat(playerId)).innerHTML = '' + score;
         }
     };
-    AkropolisAthena.prototype.updateScores = function (playerId, scores) {
+    Akropolis.prototype.updateScores = function (playerId, scores) {
         Array.from(document.querySelectorAll('.hide-live-scores')).forEach(function (element) { return element.classList.remove('hide-live-scores'); });
         var _loop_4 = function (i) {
             var type = TYPES[i];
@@ -1758,7 +1759,7 @@ var AkropolisAthena = /** @class */ (function () {
         ;
         this.setPlayerScore(playerId, scores.score);
     };
-    AkropolisAthena.prototype.constructionSiteHexClicked = function (tile, hexIndex, hex, rotation) {
+    Akropolis.prototype.constructionSiteHexClicked = function (tile, hexIndex, hex, rotation) {
         if (hex.classList.contains('selected')) {
             this.incRotation();
             return;
@@ -1786,7 +1787,7 @@ var AkropolisAthena = /** @class */ (function () {
         }
         this.updateRotationButtonState();
     };
-    AkropolisAthena.prototype.findClosestRotation = function (rotations) {
+    Akropolis.prototype.findClosestRotation = function (rotations) {
         var _this = this;
         var minDistance = 999;
         var minIndex = 0;
@@ -1799,7 +1800,7 @@ var AkropolisAthena = /** @class */ (function () {
         });
         return rotations[minIndex];
     };
-    AkropolisAthena.prototype.getSelectedPositionOption = function () {
+    Akropolis.prototype.getSelectedPositionOption = function () {
         var _this = this;
         if (this.gamedatas.gamestate.name === 'completeCard') {
             return this.gamedatas.gamestate.args.options.find(function (o) {
@@ -1812,7 +1813,7 @@ var AkropolisAthena = /** @class */ (function () {
             });
         }
     };
-    AkropolisAthena.prototype.possiblePositionClicked = function (x, y, z) {
+    Akropolis.prototype.possiblePositionClicked = function (x, y, z) {
         if (!this.selectedTile) {
             return;
         }
@@ -1835,7 +1836,7 @@ var AkropolisAthena = /** @class */ (function () {
         ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { return document.getElementById(id).classList.remove('disabled'); });
         this.updateRotationButtonState();
     };
-    AkropolisAthena.prototype.decRotation = function () {
+    Akropolis.prototype.decRotation = function () {
         var _this = this;
         if (this.selectedPosition && this.gamedatas.gamestate.name !== 'completeCard') {
             var option = this.getSelectedPositionOption();
@@ -1848,7 +1849,7 @@ var AkropolisAthena = /** @class */ (function () {
             this.setRotation(this.rotation == 0 ? 5 : this.rotation - 1);
         }
     };
-    AkropolisAthena.prototype.incRotation = function () {
+    Akropolis.prototype.incRotation = function () {
         var _this = this;
         if (this.selectedPosition && this.gamedatas.gamestate.name !== 'completeCard') {
             var option = this.getSelectedPositionOption();
@@ -1861,7 +1862,7 @@ var AkropolisAthena = /** @class */ (function () {
             this.setRotation(this.rotation == 5 ? 0 : this.rotation + 1);
         }
     };
-    AkropolisAthena.prototype.setRotation = function (rotation) {
+    Akropolis.prototype.setRotation = function (rotation) {
         while (rotation < 0) {
             rotation += 6;
         }
@@ -1885,13 +1886,13 @@ var AkropolisAthena = /** @class */ (function () {
         }
         this.getCurrentPlayerTable().rotatePreviewTile(this.rotation);
     };
-    AkropolisAthena.prototype.decRotationPivot = function () {
+    Akropolis.prototype.decRotationPivot = function () {
         this.changeRotationPivot(-1);
     };
-    AkropolisAthena.prototype.incRotationPivot = function () {
+    Akropolis.prototype.incRotationPivot = function () {
         this.changeRotationPivot(+1);
     };
-    AkropolisAthena.prototype.changeRotationPivot = function (direction) {
+    Akropolis.prototype.changeRotationPivot = function (direction) {
         var rotation = this.rotation;
         while (rotation < 0) {
             rotation += 6;
@@ -1900,7 +1901,7 @@ var AkropolisAthena = /** @class */ (function () {
         this.possiblePositionClicked(this.selectedPosition.x + pivotRotation[0], this.selectedPosition.y + pivotRotation[1], this.selectedPosition.z);
         this.setRotation(rotation + direction * 2);
     };
-    AkropolisAthena.prototype.cancelPlaceTile = function () {
+    Akropolis.prototype.cancelPlaceTile = function () {
         ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { return document.getElementById(id).classList.add('disabled'); });
         this.selectedPosition = null;
         this.getCurrentPlayerTable().removePreviewTile();
@@ -1912,12 +1913,12 @@ var AkropolisAthena = /** @class */ (function () {
         }
         this.updateRotationButtonState();
     };
-    AkropolisAthena.prototype.updateRotationButtonState = function () {
+    Akropolis.prototype.updateRotationButtonState = function () {
         var _a;
         var cannotRotate = this.selectedTile ? (this.selectedTile.hexes.length > 1 && this.selectedPosition && ((_a = this.getSelectedPositionOption()) === null || _a === void 0 ? void 0 : _a.r.length) <= 1) : true;
         ["decRotation_button", "incRotation_button"].forEach(function (id) { var _a; return (_a = document.getElementById(id)) === null || _a === void 0 ? void 0 : _a.classList.toggle('disabled', cannotRotate); });
     };
-    AkropolisAthena.prototype.placeTile = function () {
+    Akropolis.prototype.placeTile = function () {
         var _this = this;
         var _a, _b;
         if (this.gamedatas.gamestate.name === 'completeCard') {
@@ -1949,7 +1950,7 @@ var AkropolisAthena = /** @class */ (function () {
             });
         }
     };
-    AkropolisAthena.prototype.takeAction = function (action, data) {
+    Akropolis.prototype.takeAction = function (action, data) {
         this.bgaPerformAction(action, data);
     };
     ///////////////////////////////////////////////////
@@ -1963,7 +1964,7 @@ var AkropolisAthena = /** @class */ (function () {
                 your pylos.game.php file.
 
     */
-    AkropolisAthena.prototype.setupNotifications = function () {
+    Akropolis.prototype.setupNotifications = function () {
         //log( 'notifications subscriptions setup' );
         var _this = this;
         var notifs = Object.getOwnPropertyNames(Object.getPrototypeOf(this)).filter(function (name) { return name.startsWith('notif_'); }).map(function (name) { return name.slice(6); });
@@ -1992,7 +1993,7 @@ var AkropolisAthena = /** @class */ (function () {
             _this.notifqueue.setSynchronous(notifName, undefined);
         });
     };
-    AkropolisAthena.prototype.notif_placedTile = function (args) {
+    Akropolis.prototype.notif_placedTile = function (args) {
         return __awaiter(this, void 0, void 0, function () {
             var playerTable, tile, invisibleTile;
             var _this = this;
@@ -2019,7 +2020,7 @@ var AkropolisAthena = /** @class */ (function () {
             });
         });
     };
-    AkropolisAthena.prototype.notif_completeCard = function (args) {
+    Akropolis.prototype.notif_completeCard = function (args) {
         return __awaiter(this, void 0, void 0, function () {
             var player_id, card;
             return __generator(this, function (_a) {
@@ -2034,10 +2035,10 @@ var AkropolisAthena = /** @class */ (function () {
             });
         });
     };
-    AkropolisAthena.prototype.notif_pay = function (args) {
+    Akropolis.prototype.notif_pay = function (args) {
         this.stonesCounters[args.player_id].incValue(-args.cost);
     };
-    AkropolisAthena.prototype.notif_gainStones = function (args) {
+    Akropolis.prototype.notif_gainStones = function (args) {
         return __awaiter(this, void 0, void 0, function () {
             var playerId, n, origin_1, animated, lastTile, promises, _loop_5, this_2, i;
             return __generator(this, function (_a) {
@@ -2100,7 +2101,7 @@ var AkropolisAthena = /** @class */ (function () {
             });
         });
     };
-    AkropolisAthena.prototype.notif_refillDock = function (args) {
+    Akropolis.prototype.notif_refillDock = function (args) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -2112,7 +2113,7 @@ var AkropolisAthena = /** @class */ (function () {
             });
         });
     };
-    AkropolisAthena.prototype.notif_updateFirstPlayer = function (args) {
+    Akropolis.prototype.notif_updateFirstPlayer = function (args) {
         return __awaiter(this, void 0, void 0, function () {
             var firstPlayerToken, destinationId, originId;
             return __generator(this, function (_a) {
@@ -2134,10 +2135,10 @@ var AkropolisAthena = /** @class */ (function () {
             });
         });
     };
-    AkropolisAthena.prototype.notif_updateScores = function (args) {
+    Akropolis.prototype.notif_updateScores = function (args) {
         this.updateScores(args.player_id, args.scores);
     };
-    AkropolisAthena.prototype.notif_automataDelay = function () {
+    Akropolis.prototype.notif_automataDelay = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -2150,12 +2151,12 @@ var AkropolisAthena = /** @class */ (function () {
         });
     };
     /* @Override */
-    AkropolisAthena.prototype.change3d = function (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) {
+    Akropolis.prototype.change3d = function (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) {
         this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);
     };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */
-    AkropolisAthena.prototype.format_string_recursive = function (log, args) {
+    Akropolis.prototype.format_string_recursive = function (log, args) {
         try {
             if (log && args && !args.processed) {
             }
@@ -2165,7 +2166,37 @@ var AkropolisAthena = /** @class */ (function () {
         }
         return this.inherited(arguments);
     };
-    return AkropolisAthena;
+    /**
+     * Auto-scale the content of divs with a `bga-autofit` class. Those divs should have a fixed width and height.
+     * @param settings settings, width default : { scaleStep: 0.05, minScale: 0.1 }
+     */
+    Akropolis.prototype.bgaAutoFit = function (settings) {
+        if (settings === void 0) { settings = {}; }
+        settings = __assign({ scaleStep: 0.05, minScale: 0.1 }, settings);
+        // apply an automatic scaling for each element with `bga-autofit` class
+        document.querySelectorAll('.bga-autofit').forEach(function (element) {
+            // we get (or create) the inner div, that will contain the resized content
+            var inner = element.querySelector('.bga-autofit__inner');
+            if (!inner) {
+                inner = document.createElement('div');
+                inner.classList.add('bga-autofit__inner');
+                while (element.childNodes.length > 0) {
+                    inner.appendChild(element.childNodes[0]);
+                }
+                element.appendChild(inner);
+            }
+            var scale = 1;
+            var outerWidth = element.clientWidth;
+            element.style.setProperty('--autofit-scale', "".concat(scale)); // reset, in case there was a font reloading when bgaAutoFit was called again, and scale needs to go back up
+            // while the inner element is of a bigger height than the element, make it smaller
+            while (scale > settings.minScale && inner.clientHeight * scale > element.clientHeight) {
+                scale -= settings.scaleStep;
+                element.style.setProperty('--autofit-scale', "".concat(scale));
+                element.style.setProperty('--autofit-inner-width', "".concat(outerWidth / scale, "px"));
+            }
+        });
+    };
+    return Akropolis;
 }());
 define([
     "dojo", "dojo/_base/declare",
@@ -2173,5 +2204,5 @@ define([
     "ebg/counter",
     "ebg/stock"
 ], function (dojo, declare) {
-    return declare("bgagame.akropolisathena", ebg.core.gamegui, new AkropolisAthena());
+    return declare("bgagame.akropolisathena", ebg.core.gamegui, new Akropolis());
 });

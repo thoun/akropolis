@@ -90,7 +90,7 @@ class AthenaConstructionSite {
 
         return `<div id="construction-card-${card.id}" class="construction-card" style="background-position: ${col * 100 / 8}% ${row * 100}%; --background: ${color};">
             <div class="name-wrapper"><div class="name">${_(card.name)}</div></div>
-            <div class="desc">${formatDescIcons(_(card.desc), color)}</div>
+            <div class="desc bga-autofit">${formatDescIcons(_(card.desc), color)}</div>
         </div>`;
     }
 

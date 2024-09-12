@@ -109,6 +109,7 @@ class Akropolis implements AkropolisGame {
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
         if (gamedatas.isAthena) {
             this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.cardStatuses, gamedatas.dock, Object.values(gamedatas.players));
+            this.bgaAutoFit();
         }
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
@@ -941,5 +942,42 @@ class Akropolis implements AkropolisGame {
             console.error(log,args,"Exception thrown", e.stack);
         }
         return (this as any).inherited(arguments);
+    }
+
+    /**
+     * Auto-scale the content of divs with a `bga-autofit` class. Those divs should have a fixed width and height.
+     * @param settings settings, width default : { scaleStep: 0.05, minScale: 0.1 }
+     */
+    private bgaAutoFit(settings: any = {}) {
+        settings = { 
+            scaleStep: 0.05,
+            minScale: 0.1,
+            ...settings,
+        };
+
+        // apply an automatic scaling for each element with `bga-autofit` class
+        document.querySelectorAll('.bga-autofit').forEach((element: HTMLElement) => {
+                
+            // we get (or create) the inner div, that will contain the resized content
+            let inner = element.querySelector('.bga-autofit__inner');
+            if (!inner) {
+                inner = document.createElement('div');
+                inner.classList.add('bga-autofit__inner');
+                while (element.childNodes.length > 0) {
+                    inner.appendChild(element.childNodes[0]);
+                }
+                element.appendChild(inner);
+            }
+
+            let scale = 1;
+            const outerWidth = element.clientWidth;
+            element.style.setProperty('--autofit-scale', `${scale}`); // reset, in case there was a font reloading when bgaAutoFit was called again, and scale needs to go back up
+            // while the inner element is of a bigger height than the element, make it smaller
+            while (scale > settings.minScale && inner.clientHeight * scale > element.clientHeight) {
+                scale -= settings.scaleStep;
+                element.style.setProperty('--autofit-scale', `${scale}`);
+                element.style.setProperty('--autofit-inner-width', `${outerWidth / scale}px`);
+            }   
+        });
     }
 }

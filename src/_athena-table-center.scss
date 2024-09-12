@@ -139,3 +139,17 @@
       }
     }
 }
+
+.bga-autofit {
+  --autofit-scale: 1;
+  --autofit-inner-width: unset;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .bga-autofit__inner {
+    transform: scale(var(--autofit-scale));
+    min-width: var(--autofit-inner-width);
+  }
+}

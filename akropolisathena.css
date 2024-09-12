@@ -2,23 +2,23 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * AkropolisAthena implementation : © Timothée Pecatte <tim.pecatte@gmail.com>, Guy Baudin <guy.thoun@gmail.com>
+ * Akropolis implementation : © Timothée Pecatte <tim.pecatte@gmail.com>, Guy Baudin <guy.thoun@gmail.com>
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
  *
- * akropolisathena.css
+ * akropolis.css
  *
- * AkropolisAthena stylesheet
+ * Akropolis stylesheet
  *
  */
 /*
     This is the CSS stylesheet of your game User Interface.
 
     Styles defined on this file will be applied to the HTML elements you define in your
-    HTML template (akropolisathena_akropolisathena.tpl), and to HTML elements you create dynamically
-    (in akropolisathena.js).
+    HTML template (akropolis_akropolis.tpl), and to HTML elements you create dynamically
+    (in akropolis.js).
 
     Usually, you are using CSS to:
 
@@ -539,6 +539,18 @@
 }
 .statue-part[data-part="5"] {
   background-position: 50% 133.3333333333%;
+}
+
+.bga-autofit {
+  --autofit-scale: 1;
+  --autofit-inner-width: unset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.bga-autofit .bga-autofit__inner {
+  transform: scale(var(--autofit-scale));
+  min-width: var(--autofit-inner-width);
 }
 
 .player-board .counters {
