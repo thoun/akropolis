@@ -133,7 +133,7 @@ class TriangulatedBoard
     $geometry = $this->getTileGeometry($tile);
     foreach ($this->getCoveredHexes($geometry, $pos, $rotation) as $cell) {
       $cell['z']--;
-      $types = array_keys($this->getTypesAtPos($cell));
+      $types = array_keys($this->getTypesAtPos($cell, false, false));
       if ($cell['z'] >= 0 && in_array(QUARRY, $types)) {
         $bonus++;
       }
@@ -299,9 +299,11 @@ class TriangulatedBoard
   /**
    * getTypesAtPos: return the type(s) of hex at a given cell
    */
-  public function getTypesAtPos($cell, $nullIfEmpty = false)
+  public function getTypesAtPos($cell, $nullIfEmpty = false, $maxHeight = true)
   {
-    $cell = $this->getMaxHeightAtPos($cell, false);
+    if ($maxHeight) {
+      $cell = $this->getMaxHeightAtPos($cell, false);
+    }
     $type = $this->grid[$cell['x']][$cell['y']][$cell['z']] ?? null;
     if (is_null($type)) {
       return $nullIfEmpty ? null : [FREE => [0, 1, 2, 3, 4, 5]];
