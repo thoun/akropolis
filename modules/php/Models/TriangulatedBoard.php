@@ -517,7 +517,7 @@ class TriangulatedBoard
         }
         // Dont score temple if not fully built around
         elseif ($type == TEMPLE) {
-          if (count($builtNeighbours) < 6) {
+          if (count($builtNeighbours) < count($triangles)) {
             continue;
           }
 
