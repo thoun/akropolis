@@ -17,7 +17,8 @@ class Pantheon extends \AKR\Models\ConstructionCard
   public function checkTriangleAroundHex($board, $cell)
   {
     $neighbours = $board->getNeighbours($cell);
-    $previousConnection = null;
+
+    $connectedPlazas = [];
     foreach ($neighbours as $dir => $pos) {
       $hasConnectedPlaza = false;
       foreach ($board->getTypesAtPos($pos) as $type => $triangles) {
@@ -25,16 +26,16 @@ class Pantheon extends \AKR\Models\ConstructionCard
           $hasConnectedPlaza = true;
         }
       }
+      $connectedPlazas[] = $hasConnectedPlaza;
+    }
 
-      // Non alternating pattern => false
-      if ($previousConnection === $hasConnectedPlaza) {
-        return false;
-      } else {
-        $previousConnection = $hasConnectedPlaza;
+    for ($i = 0; $i < 6; $i++) {
+      if ($connectedPlazas[$i] && $connectedPlazas[($i + 2) % 6] && $connectedPlazas[($i + 4) % 6]) {
+        return true;
       }
     }
 
-    return true;
+    return false;
   }
 
   // Testée
