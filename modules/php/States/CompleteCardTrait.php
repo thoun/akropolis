@@ -68,9 +68,33 @@ trait CompleteCardTrait
       unset($option['r']); // Useless for single tile
     }
 
+    $automaPicks = [];
+    if (Globals::isSolo()) {
+      foreach ($cards as $cardId => $card) {
+        $tiles = Tiles::getInLocation($card->getLocation());
+        $hierarchy = [];
+        foreach ($tiles as $tileId => $tile) {
+          $type = $tile['hexes'][0];
+          $rank = 2;
+          // DOUBLE TILE
+          if (is_array($type)) {
+            $rank = 1;
+          }
+          // PLAZA 
+          else if (in_array($type, PLAZAS)) {
+            $rank = 0;
+          }
+          $hierarchy[$rank][] = $tileId;
+        }
+
+        $automaPicks[$cardId] = $hierarchy[0] ?? $hierarchy[1] ?? $hierarchy[2];
+      }
+    }
+
     return [
       'options' => $options,
       'cardIds' => $cards->getIds(),
+      'automaPicks' => $automaPicks,
     ];
   }
 

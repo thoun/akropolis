@@ -237,7 +237,6 @@ $game_options = [
         'tmdisplay' => totranslate('[Athena]'),
         'description' => totranslate('Include Athena expansion'),
         'nobeginner' => true,
-        'alpha' => true,
       ],
     ],
     'default' => OPTION_ATHENA_DISABLED,
