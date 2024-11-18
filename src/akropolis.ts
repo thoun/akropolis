@@ -50,10 +50,10 @@ class Akropolis implements AkropolisGame {
     public tilesManager: TilesManager;
     public viewManager: ViewManager;
     public animationManager: AnimationManager;
+    public athenaConstructionSite?: AthenaConstructionSite;
 
     private gamedatas: AkropolisGamedatas;
     private constructionSite: ConstructionSite;
-    private athenaConstructionSite?: AthenaConstructionSite;
     private selectedPosition: Partial<PlaceTileOption>;
     private selectedTile: Tile;
     private selectedTileHexIndex: number;
@@ -65,10 +65,15 @@ class Akropolis implements AkropolisGame {
     private colorPointsCounters: Counter[][] = [];
 
     private pivotRotation = false;
+
+    private states: StateHandler<any>[] = [];
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
     constructor() {
+        this.states.push(
+			new CompleteCardState(this),
+        );
     }
     
     /*
@@ -108,7 +113,11 @@ class Akropolis implements AkropolisGame {
         this.tilesManager = new TilesManager(this);
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
         if (gamedatas.isAthena) {
-            this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.cardStatuses, gamedatas.dock, Object.values(gamedatas.players));
+            const players = Object.values(gamedatas.players);
+            if (gamedatas.soloPlayer) {
+                players.push(gamedatas.soloPlayer);
+            }
+            this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.cardStatuses, gamedatas.dock, players);
         }
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
@@ -152,12 +161,13 @@ class Akropolis implements AkropolisGame {
     public onEnteringState(stateName: string, args: any) {
         log('Entering state: ' + stateName, args.args);
 
+        if (this.gamedatas.gamestate.type !== 'multipleactiveplayer') {
+            this.states.find(state => state.stateName === stateName)?.onEnteringState(args.args, (this as any).isCurrentPlayerActive());
+        }
+
         switch (stateName) {
             case 'placeTile':
                 this.onEnteringPlaceTile(args.args);
-                break;
-            case 'completeCard':
-                this.onEnteringCompleteCard(args.args);
                 break;
         }
     }
@@ -173,31 +183,15 @@ class Akropolis implements AkropolisGame {
             this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());
         }
     }
-    
-    private onEnteringCompleteCard(args: EnteringCompleteCardArgs) {
-        args.cardIds.forEach(id => document.getElementById(`contruction-space-${id}`).classList.add('active'));
-        
-        if ((this as any).isCurrentPlayerActive()) {
-            this.selectedPosition = null;
-            this.selectedTile = null;
-            this.selectedTileHexIndex = null;
-            this.setRotation(0);
-            const spaces = args.cardIds.map(id => Number(this.gamedatas.cards.find(card => card.id === id).location.split('-')[1]));
-            this.athenaConstructionSite.setSelectable(spaces);
-            /*this.getCurrentPlayerTable().setPlaceTileOptions(args.options[0], this.rotation);
-            this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());*/
-        }
-    }
 
     public onLeavingState(stateName: string) {
         log( 'Leaving state: '+stateName );
 
+        this.states.find(state => state.stateName === stateName)?.onLeavingState(this.gamedatas.gamestate.args, (this as any).isCurrentPlayerActive());
+
         switch (stateName) {
             case 'placeTile':
                 this.onLeavingPlaceTile();
-                break;
-            case 'completeCard':
-                this.onLeavingCompleteCard();
                 break;
         }
     }
@@ -207,16 +201,25 @@ class Akropolis implements AkropolisGame {
         this.constructionSite.setSelectable(false);
     }
 
-    private onLeavingCompleteCard() {
-        document.querySelectorAll('.athena-contruction-space.active').forEach(elem => elem.classList.remove('active'));
-        this.getCurrentPlayerTable()?.setPlaceTileOptions([], this.rotation);
-        this.athenaConstructionSite.setSelectable([]);
-    }
-
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
     //
-    public onUpdateActionButtons(stateName: string, args: any) {
+    public onUpdateActionButtons(stateName: string, args: any) {        
+		const state = this.states.find(state => state.stateName === stateName);
+        if (state) {
+            const isCurrentPlayerActive = (this as any).isCurrentPlayerActive();
+            if (this.gamedatas.gamestate.type === 'multipleactiveplayer') {
+                state.onEnteringState(args, isCurrentPlayerActive);
+            }
+            state.onUpdateActionButtons(args, isCurrentPlayerActive);
+        } else if (this.gamedatas.gamestate.type === 'multipleactiveplayer' && this.gamedatas.gamestate.private_state) {
+            const leftState = this.states.find(state => state.stateName === this.gamedatas.gamestate.private_state?.name);
+            if (leftState) {
+                const isCurrentPlayerActive = (this as any).isCurrentPlayerActive();
+                leftState.onLeavingState(this.gamedatas.gamestate.private_state.args, isCurrentPlayerActive);
+            }
+        }
+
         if ((this as any).isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'placeTile':
@@ -232,21 +235,6 @@ class Akropolis implements AkropolisGame {
                     [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
                     this.updateRotationButtonState();
                     break;
-                case 'completeCard':
-                    if (this.usePivotRotation()) {
-                        (this as any).addActionButton(`decRotationPivot_button`, `⭯`, () => this.decRotationPivot());
-                        (this as any).addActionButton(`incRotationPivot_button`, `⭮`, () => this.incRotationPivot());
-                    } else {
-                        (this as any).addActionButton(`decRotation_button`, `⤹`, () => this.decRotation());
-                        (this as any).addActionButton(`incRotation_button`, `⤸`, () => this.incRotation());
-                    }
-                    (this as any).addActionButton(`placeTile_button`, _('Confirm'), () => this.placeTile());
-                    (this as any).addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.cancelPlaceTile(), null, null, 'gray');
-                    [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
-                    this.updateRotationButtonState();
-
-                    (this as any).addActionButton(`skip_button`, _('Skip'), () => (this as any).bgaPerformAction('actSkipCompleteCard'), null, null, 'gray');
-                    
             }
         }
     }
@@ -268,7 +256,7 @@ class Akropolis implements AkropolisGame {
         return Number((this as any).player_id);
     }
 
-    private getPlayer(playerId: number): AkropolisPlayer {
+    public getPlayer(playerId: number): AkropolisPlayer {
         return Object.values(this.gamedatas.players).find(player => Number(player.id) == playerId);
     }
 
@@ -276,7 +264,7 @@ class Akropolis implements AkropolisGame {
         return this.playersTables.find(playerTable => playerTable.playerId === playerId);
     }
 
-    private getCurrentPlayerTable(): PlayerTable | null {
+    public getCurrentPlayerTable(): PlayerTable | null {
         return this.playersTables.find(playerTable => playerTable.playerId === this.getPlayerId());
     }
 
@@ -460,7 +448,7 @@ class Akropolis implements AkropolisGame {
                 
             }
 
-            if (playerId > 0 && gamedatas.isAthena) {
+            if (gamedatas.isAthena) {
                 for (let space = 1; space <= 4; space++) {
                     const card = gamedatas.cards.find(card => card.location === `athena-${space}`);
                     const statuePartDone: boolean = (gamedatas.cardStatuses[playerId] ?? []).includes(card.id);
@@ -756,7 +744,7 @@ class Akropolis implements AkropolisGame {
         this.updateRotationButtonState();
     }
 
-    private updateRotationButtonState() {
+    public updateRotationButtonState() {
         const cannotRotate = this.selectedTile ? (this.selectedTile.hexes.length > 1 && this.selectedPosition && this.getSelectedPositionOption()?.r.length <= 1) : true;
         [`decRotation_button`, `incRotation_button`].forEach(id => document.getElementById(id)?.classList.toggle('disabled', cannotRotate));
     }

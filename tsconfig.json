@@ -25,6 +25,8 @@
         "src/table-center.ts",
         "src/athena-table-center.ts",
         "src/player-table.ts",
+        "src/states/state-handler.ts",
+        "src/states/complete-card.ts",
         "src/akropolis.ts",
         "src/define.ts"
     ]

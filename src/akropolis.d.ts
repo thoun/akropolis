@@ -62,14 +62,24 @@ interface AkropolisGame extends Game {
     viewManager: ViewManager;
     animationManager: AnimationManager;
     tilesManager: TilesManager;
+    athenaConstructionSite?: AthenaConstructionSite;
 
+    getPlayer(playerId: number): AkropolisPlayer;
     getPlayerId(): number;
     usePivotRotation(): boolean;
+    getCurrentPlayerTable(): PlayerTable | null;
 
     setTooltip(id: string, html: string): void;  
     constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement, rotation: number): void;
     possiblePositionClicked(x: number, y: number, z: number): void;
     incRotation(): void;
+    cancelPlaceTile(): void;
+    placeTile(): void;
+    decRotation(): void;
+    incRotationPivot(): void;
+    decRotationPivot(): void;
+    updateRotationButtonState(): void;
+    setRotation(r: number): void;
 }
 
 interface PlaceTileOption {
@@ -81,11 +91,6 @@ interface PlaceTileOption {
 
 interface EnteringPlaceTileArgs {
     options: PlaceTileOption[][];
-}
-
-interface EnteringCompleteCardArgs {
-    options: PlaceTileOption[];
-    cardIds: string[];
 }
 
 interface NotifPlacedTileArgs {
