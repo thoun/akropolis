@@ -46,6 +46,7 @@ function formatDescIcons(text: string, color: string): string {
 }
 
 class AthenaConstructionSite {
+    private selectionActivatedForAutomata: boolean = false;
     private selectionActivated: boolean = false;
     private cards: ConstructionCard[] = []; // 0 indexed!
 
@@ -123,8 +124,11 @@ class AthenaConstructionSite {
         tile.hexes.forEach((hex, index) => {
             const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
             hexDiv.addEventListener('click', () => {
-                if (this.selectionActivated && hexDiv.closest('.athena-tiles-space.selectable')) {
+                if (this.selectionActivated && hexDiv.closest('.athena-tiles-space.selectable') && !hexDiv.closest('.for-automata')) {
                     this.game.constructionSiteHexClicked(tile, this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
+                }
+                if (this.selectionActivatedForAutomata && hexDiv.closest('.athena-tiles-space.selectable')) {
+                    this.game.singleTileClickedForAutomata(tile);
                 }
             });
         });
@@ -142,11 +146,14 @@ class AthenaConstructionSite {
         tileDiv.style.setProperty('--shift-top', `${SHIFT_TOP[(rotation + 600) % 6]}px`);
     }
 
-    public setSelectable(selectable: number[]) {
-        this.selectionActivated = selectable.length > 0;
+    public setSelectable(selectable: number[], unselectableTiles: Tile[]) {
+        this.selectionActivatedForAutomata = unselectableTiles && selectable.length > 0;
+        this.selectionActivated = !unselectableTiles && selectable.length > 0;
         [1,2,3,4].forEach(space => {
             document.getElementById(`athena-tiles-${space}`).classList.toggle('selectable', selectable.includes(space));
         });
+
+        unselectableTiles?.forEach(tile => document.getElementById(`market-tile-${tile.id}`).classList.add('unselectable'));
     }
 
     public removeTile(tile: Tile) {

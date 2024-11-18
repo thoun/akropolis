@@ -66,13 +66,15 @@ class Akropolis implements AkropolisGame {
 
     private pivotRotation = false;
 
+    private completeCardState: CompleteCardState;
     private states: StateHandler<any>[] = [];
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
     constructor() {
+        this.completeCardState = new CompleteCardState(this);
         this.states.push(
-			new CompleteCardState(this),
+			this.completeCardState,
         );
     }
     
@@ -738,6 +740,7 @@ class Akropolis implements AkropolisGame {
         this.getCurrentPlayerTable().removePreviewTile();
         if (this.gamedatas.gamestate.name === 'completeCard') {
             this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+            this.completeCardState.onCancel();
         } else {
             this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
         }
@@ -749,15 +752,12 @@ class Akropolis implements AkropolisGame {
         [`decRotation_button`, `incRotation_button`].forEach(id => document.getElementById(id)?.classList.toggle('disabled', cannotRotate));
     }
 
-    public placeTile(): void {
-        if (this.gamedatas.gamestate.name === 'completeCard') {
-            if(!(this as any).checkAction('actCompleteCard')) {
-                return;
-            }
-    
+    public placeTile(tileForAutomata?: Tile | null): void {
+        if (this.gamedatas.gamestate.name === 'completeCard') {    
             this.getCurrentPlayerTable()?.cleanPossibleHex();
     
-            this.takeAction('actCompleteCard', {
+            (this as any).bgaPerformAction('actCompleteCard', {
+                tileIdForAutomata: tileForAutomata?.id,
                 x: this.selectedPosition.x,
                 y: this.selectedPosition.y,
                 z: this.selectedPosition.z,
@@ -766,13 +766,9 @@ class Akropolis implements AkropolisGame {
                 cardId: this.gamedatas.cards.find(card => card.location === this.selectedTile.location).id,
             });
         } else {
-            if(!(this as any).checkAction('actPlaceTile')) {
-                return;
-            }
-
             this.getCurrentPlayerTable()?.cleanPossibleHex();
 
-            this.takeAction('actPlaceTile', {
+            (this as any).bgaPerformAction('actPlaceTile', {
                 x: this.selectedPosition.x,
                 y: this.selectedPosition.y,
                 z: this.selectedPosition.z,
@@ -782,9 +778,9 @@ class Akropolis implements AkropolisGame {
             });
         }
     }
-
-    public takeAction(action: string, data?: any) {
-        (this as any).bgaPerformAction(action, data);
+    
+    public singleTileClickedForAutomata(tile: Tile): void {
+        this.completeCardState.singleTileClickedForAutomata(tile);
     }
 
     ///////////////////////////////////////////////////

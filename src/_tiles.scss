@@ -184,3 +184,11 @@
     backface-visibility: hidden;
   }
 }
+
+.for-automata {
+  opacity: 0.6;
+
+  .face {
+    cursor: not-allowed !important;
+  }
+}

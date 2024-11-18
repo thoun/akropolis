@@ -74,12 +74,13 @@ interface AkropolisGame extends Game {
     possiblePositionClicked(x: number, y: number, z: number): void;
     incRotation(): void;
     cancelPlaceTile(): void;
-    placeTile(): void;
+    placeTile(tileForAutomata?: Tile | null): void;
     decRotation(): void;
     incRotationPivot(): void;
     decRotationPivot(): void;
     updateRotationButtonState(): void;
     setRotation(r: number): void;
+    singleTileClickedForAutomata(tile: Tile): void;
 }
 
 interface PlaceTileOption {

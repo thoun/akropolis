@@ -1029,6 +1029,7 @@ var AthenaConstructionSite = /** @class */ (function () {
     function AthenaConstructionSite(game, cards, cardStatuses, dockTiles, players) {
         var _this = this;
         this.game = game;
+        this.selectionActivatedForAutomata = false;
         this.selectionActivated = false;
         this.cards = []; // 0 indexed!
         var html = "\n            <div id=\"athena-contruction-spaces\">";
@@ -1082,8 +1083,11 @@ var AthenaConstructionSite = /** @class */ (function () {
         tile.hexes.forEach(function (hex, index) {
             var hexDiv = tileDiv.querySelector("[data-index=\"".concat(index, "\"]"));
             hexDiv.addEventListener('click', function () {
-                if (_this.selectionActivated && hexDiv.closest('.athena-tiles-space.selectable')) {
+                if (_this.selectionActivated && hexDiv.closest('.athena-tiles-space.selectable') && !hexDiv.closest('.for-automata')) {
                     _this.game.constructionSiteHexClicked(tile, _this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
+                }
+                if (_this.selectionActivatedForAutomata && hexDiv.closest('.athena-tiles-space.selectable')) {
+                    _this.game.singleTileClickedForAutomata(tile);
                 }
             });
         });
@@ -1097,11 +1101,13 @@ var AthenaConstructionSite = /** @class */ (function () {
         tileDiv.style.setProperty('--shift-left', "".concat(SHIFT_LEFT[(rotation + 600) % 6], "px"));
         tileDiv.style.setProperty('--shift-top', "".concat(SHIFT_TOP[(rotation + 600) % 6], "px"));
     };
-    AthenaConstructionSite.prototype.setSelectable = function (selectable) {
-        this.selectionActivated = selectable.length > 0;
+    AthenaConstructionSite.prototype.setSelectable = function (selectable, unselectableTiles) {
+        this.selectionActivatedForAutomata = unselectableTiles && selectable.length > 0;
+        this.selectionActivated = !unselectableTiles && selectable.length > 0;
         [1, 2, 3, 4].forEach(function (space) {
             document.getElementById("athena-tiles-".concat(space)).classList.toggle('selectable', selectable.includes(space));
         });
+        unselectableTiles === null || unselectableTiles === void 0 ? void 0 : unselectableTiles.forEach(function (tile) { return document.getElementById("market-tile-".concat(tile.id)).classList.add('unselectable'); });
     };
     AthenaConstructionSite.prototype.removeTile = function (tile) {
         var _a;
@@ -1331,7 +1337,10 @@ var StateHandler = /** @class */ (function () {
 var CompleteCardState = /** @class */ (function (_super) {
     __extends(CompleteCardState, _super);
     function CompleteCardState() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.selectedCard = null;
+        _this.tileForAutomata = null;
+        return _this;
     }
     Object.defineProperty(CompleteCardState.prototype, "stateName", {
         get: function () { return "completeCard"; },
@@ -1339,15 +1348,14 @@ var CompleteCardState = /** @class */ (function (_super) {
         configurable: true
     });
     CompleteCardState.prototype.onEnteringState = function (args, isCurrentPlayerActive) {
-        var _this = this;
         args.cardIds.forEach(function (id) { var _a; return (_a = document.getElementById("contruction-space-".concat(id))) === null || _a === void 0 ? void 0 : _a.classList.add('active'); });
+        this.selectedCard = null;
+        this.tileForAutomata = null;
         if (isCurrentPlayerActive) {
             this.game.selectedPosition = null;
             this.game.selectedTile = null;
             this.game.selectedTileHexIndex = null;
             this.game.setRotation(0);
-            var spaces = args.cardIds.map(function (id) { return Number(_this.game.gamedatas.cards.find(function (card) { return card.id === id; }).location.split('-')[1]); });
-            this.game.athenaConstructionSite.setSelectable(spaces);
             /*this.getCurrentPlayerTable().setPlaceTileOptions(args.options[0], this.rotation);
             this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());*/
         }
@@ -1358,23 +1366,72 @@ var CompleteCardState = /** @class */ (function (_super) {
             this.game.getCurrentPlayerTable().setPlaceTileOptions([], this.game.rotation);
             this.game.athenaConstructionSite.setSelectable([]);
         }
+        this.removeForAutomataClass();
+        this.removeUnselectableClass();
+        this.selectedCard = null;
+        this.tileForAutomata = null;
     };
     CompleteCardState.prototype.onUpdateActionButtons = function (args, isCurrentPlayerActive) {
-        var _this = this;
         if (isCurrentPlayerActive) {
-            if (this.game.usePivotRotation()) {
-                this.game.addActionButton("decRotationPivot_button", "\u2B6F", function () { return _this.game.decRotationPivot(); });
-                this.game.addActionButton("incRotationPivot_button", "\u2B6E", function () { return _this.game.incRotationPivot(); });
+            if (Object.keys(args.automaPicks).length && !this.tileForAutomata) {
+                this.onUpdateActionButtonsForAutomata(args);
             }
             else {
-                this.game.addActionButton("decRotation_button", "\u2939", function () { return _this.game.decRotation(); });
-                this.game.addActionButton("incRotation_button", "\u2938", function () { return _this.game.incRotation(); });
+                this.onUpdateActionButtonsForPlayer(args);
             }
-            this.game.addActionButton("placeTile_button", _('Confirm'), function () { return _this.game.placeTile(); });
-            this.game.addActionButton("cancelPlaceTile_button", _('Cancel'), function () { return _this.game.cancelPlaceTile(); }, null, null, 'gray');
-            ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { var _a; return (_a = document.getElementById(id)) === null || _a === void 0 ? void 0 : _a.classList.add('disabled'); });
-            this.game.updateRotationButtonState();
-            this.game.addActionButton("skip_button", _('Skip'), function () { return _this.game.bgaPerformAction('actSkipCompleteCard'); }, null, null, 'gray');
+        }
+    };
+    CompleteCardState.prototype.onUpdateActionButtonsForAutomata = function (args) {
+        var _this = this;
+        this.setGamestateDescription(_('${you} may give a tile to the Automata to complete a fulfilled construction card'));
+        document.getElementById('generalactions').innerHTML = '';
+        this.game.addActionButton("skip_button", _('Skip'), function () { return _this.game.bgaPerformAction('actSkipCompleteCard'); }, null, null, 'gray');
+        var spaces = args.cardIds.map(function (id) { return Number(_this.game.gamedatas.cards.find(function (card) { return card.id === id; }).location.split('-')[1]); });
+        var selectableTilesIds = Object.values(args.automaPicks).flat();
+        var tilesOfCards = this.game.gamedatas.dock.filter(function (tile) { return tile.location.startsWith('athena') && spaces.includes(Number(tile.location.split('-')[1])); });
+        this.game.athenaConstructionSite.setSelectable(spaces, tilesOfCards.filter(function (tile) { return !selectableTilesIds.includes(tile.id); }));
+    };
+    CompleteCardState.prototype.onUpdateActionButtonsForPlayer = function (args) {
+        var _this = this;
+        this.setGamestateDescription(_('${you} may complete a fulfilled construction card'));
+        document.getElementById('generalactions').innerHTML = '';
+        if (this.game.usePivotRotation()) {
+            this.game.addActionButton("decRotationPivot_button", "\u2B6F", function () { return _this.game.decRotationPivot(); });
+            this.game.addActionButton("incRotationPivot_button", "\u2B6E", function () { return _this.game.incRotationPivot(); });
+        }
+        else {
+            this.game.addActionButton("decRotation_button", "\u2939", function () { return _this.game.decRotation(); });
+            this.game.addActionButton("incRotation_button", "\u2938", function () { return _this.game.incRotation(); });
+        }
+        this.game.addActionButton("placeTile_button", _('Confirm'), function () { return _this.game.placeTile(_this.tileForAutomata); });
+        this.game.addActionButton("cancelPlaceTile_button", _('Cancel'), function () { return _this.game.cancelPlaceTile(); }, null, null, 'gray');
+        ["placeTile_button", "cancelPlaceTile_button"].forEach(function (id) { var _a; return (_a = document.getElementById(id)) === null || _a === void 0 ? void 0 : _a.classList.toggle('disabled', id !== "cancelPlaceTile_button" || !_this.tileForAutomata); });
+        this.game.updateRotationButtonState();
+        this.game.addActionButton("skip_button", _('Skip'), function () { return _this.game.bgaPerformAction('actSkipCompleteCard'); }, null, null, 'gray');
+        var cardsIds = this.selectedCard ? [this.selectedCard] : args.cardIds;
+        var spaces = cardsIds.map(function (id) { return Number(_this.game.gamedatas.cards.find(function (card) { return card.id === id; }).location.split('-')[1]); });
+        this.game.athenaConstructionSite.setSelectable(spaces, null);
+    };
+    CompleteCardState.prototype.removeUnselectableClass = function () {
+        document.querySelectorAll('.unselectable').forEach(function (elem) { return elem.classList.remove('unselectable'); });
+    };
+    CompleteCardState.prototype.removeForAutomataClass = function () {
+        document.querySelectorAll('.for-automata').forEach(function (elem) { return elem.classList.remove('for-automata'); });
+    };
+    CompleteCardState.prototype.singleTileClickedForAutomata = function (tile) {
+        this.tileForAutomata = tile;
+        this.selectedCard = this.game.gamedatas.cards.find(function (card) { return card.location === tile.location; }).id;
+        this.removeUnselectableClass();
+        document.getElementById("market-tile-".concat(tile.id)).classList.add('for-automata');
+        this.onUpdateActionButtonsForPlayer(this.args);
+    };
+    CompleteCardState.prototype.onCancel = function () {
+        var args = this.args;
+        if (Object.keys(args.automaPicks).length) {
+            this.selectedCard = null;
+            this.tileForAutomata = null;
+            this.removeForAutomataClass();
+            this.onUpdateActionButtonsForAutomata(args);
         }
     };
     return CompleteCardState;
@@ -1425,7 +1482,8 @@ var Akropolis = /** @class */ (function () {
         this.pivotRotation = false;
         this.states = [];
         this.TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
-        this.states.push(new CompleteCardState(this));
+        this.completeCardState = new CompleteCardState(this);
+        this.states.push(this.completeCardState);
     }
     /*
         setup:
@@ -1968,6 +2026,7 @@ var Akropolis = /** @class */ (function () {
         this.getCurrentPlayerTable().removePreviewTile();
         if (this.gamedatas.gamestate.name === 'completeCard') {
             this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+            this.completeCardState.onCancel();
         }
         else {
             this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
@@ -1979,15 +2038,13 @@ var Akropolis = /** @class */ (function () {
         var cannotRotate = this.selectedTile ? (this.selectedTile.hexes.length > 1 && this.selectedPosition && ((_a = this.getSelectedPositionOption()) === null || _a === void 0 ? void 0 : _a.r.length) <= 1) : true;
         ["decRotation_button", "incRotation_button"].forEach(function (id) { var _a; return (_a = document.getElementById(id)) === null || _a === void 0 ? void 0 : _a.classList.toggle('disabled', cannotRotate); });
     };
-    Akropolis.prototype.placeTile = function () {
+    Akropolis.prototype.placeTile = function (tileForAutomata) {
         var _this = this;
         var _a, _b;
         if (this.gamedatas.gamestate.name === 'completeCard') {
-            if (!this.checkAction('actCompleteCard')) {
-                return;
-            }
             (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.cleanPossibleHex();
-            this.takeAction('actCompleteCard', {
+            this.bgaPerformAction('actCompleteCard', {
+                tileIdForAutomata: tileForAutomata === null || tileForAutomata === void 0 ? void 0 : tileForAutomata.id,
                 x: this.selectedPosition.x,
                 y: this.selectedPosition.y,
                 z: this.selectedPosition.z,
@@ -1997,11 +2054,8 @@ var Akropolis = /** @class */ (function () {
             });
         }
         else {
-            if (!this.checkAction('actPlaceTile')) {
-                return;
-            }
             (_b = this.getCurrentPlayerTable()) === null || _b === void 0 ? void 0 : _b.cleanPossibleHex();
-            this.takeAction('actPlaceTile', {
+            this.bgaPerformAction('actPlaceTile', {
                 x: this.selectedPosition.x,
                 y: this.selectedPosition.y,
                 z: this.selectedPosition.z,
@@ -2011,8 +2065,8 @@ var Akropolis = /** @class */ (function () {
             });
         }
     };
-    Akropolis.prototype.takeAction = function (action, data) {
-        this.bgaPerformAction(action, data);
+    Akropolis.prototype.singleTileClickedForAutomata = function (tile) {
+        this.completeCardState.singleTileClickedForAutomata(tile);
     };
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications

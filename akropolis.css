@@ -331,6 +331,13 @@
   backface-visibility: hidden;
 }
 
+.for-automata {
+  opacity: 0.6;
+}
+.for-automata .face {
+  cursor: not-allowed !important;
+}
+
 #market {
   display: flex;
   flex-direction: row-reverse;
@@ -539,6 +546,10 @@
 }
 .statue-part[data-part="5"] {
   background-position: 50% 133.3333333333%;
+}
+
+.unselectable {
+  filter: grayscale(0.8);
 }
 
 .player-board .counters {
