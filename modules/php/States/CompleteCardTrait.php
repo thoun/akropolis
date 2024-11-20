@@ -98,7 +98,7 @@ trait CompleteCardTrait
     ];
   }
 
-  public function actCompleteCard(string $cardId, $tileId, $pos, $r)
+  public function actCompleteCard(string $cardId, $tileId, $pos, $r, $automaTileId)
   {
     $player = Players::getActive();
     // Sanity check
@@ -122,11 +122,27 @@ trait CompleteCardTrait
       throw new \BgaVisibleSystemException('Impossible hex to place that tile. Should not happen');
     }
 
-    // Complete card
+
+    // AUTOMA
     $statuses = Globals::getAthenaCardStatuses();
+    if (Globals::isSolo()) {
+      if (!in_array($automaTileId, $args['automaPicks'][$cardId])) {
+        throw new \BgaVisibleSystemException('Impossible hex to place that tile. Should not happen');
+      }
+
+      $architect = Players::getArchitect();
+      $statuses[$architect->getId()][] = $cardId;
+    }
+
+    // Complete card
     $statuses[$player->getId()][] = $cardId;
     Globals::setAthenaCardStatuses($statuses);
     Notifications::completeCard($player, $card);
+
+    if (Globals::isSolo()) {
+      Notifications::completeCard($architect, $card, true);
+      $this->stArchitectPlaceSingleTile($automaTileId);
+    }
 
     // Place tile
     $this->actPlaceTileAux($player, $tileId, 0, $pos, $r);

@@ -50,4 +50,29 @@ trait ArchitectTurnTrait
 
     $this->actPlaceTileAux($architect, $tileId, 0, $minOption, $minOption['r'][0]);
   }
+
+  public function stArchitectPlaceSingleTile($tileId)
+  {
+    $geometry = TILE_GEOMETRIES[1];
+    $architect = Players::getArchitect();
+    $options = $architect->board()->getPlacementOptions(0, $geometry);
+
+    // Keep only options at ground level
+    Utils::filter($options, function ($option) {
+      return $option['z'] == 0;
+    });
+
+    // Keep the closest one to the center
+    $min = null;
+    $minOption = null;
+    foreach ($options as $option) {
+      $dist = abs($option['x']) + abs($option['y']);
+      if (is_null($min) || $dist < $min) {
+        $min = $dist;
+        $minOption = $option;
+      }
+    }
+
+    $this->actPlaceTileAux($architect, $tileId, 0, $minOption, $minOption['r'][0]);
+  }
 }

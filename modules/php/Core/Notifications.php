@@ -90,9 +90,10 @@ class Notifications
     ]);
   }
 
-  public static function completeCard($player, $card)
+  public static function completeCard($player, $card, $isArchitect = false)
   {
-    self::notifyAll('completeCard', clienttranslate('${player_name} completes construction card "${card_name}"'), [
+    $msg = $isArchitect ? clienttranslate('As a result, ${player_name} also completes construction card "${card_name}" and get one single tile') : clienttranslate('${player_name} completes construction card "${card_name}"');
+    self::notifyAll('completeCard', $msg, [
       'player' => $player,
       'card' => $card,
       'card_name' => $card->getName(),

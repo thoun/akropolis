@@ -58,7 +58,8 @@ class action_akropolis extends APP_GameAction
     $y = (int) self::getArg('y', AT_int, true);
     $z = (int) self::getArg('z', AT_int, true);
     $r = (int) self::getArg('r', AT_int, true);
-    $this->game->actCompleteCard($cardId, $tileId, ['x' => $x, 'y' => $y, 'z' => $z], $r);
+    $automaTileId = self::getArg('tileIdForAutomata', AT_int, false);
+    $this->game->actCompleteCard($cardId, $tileId, ['x' => $x, 'y' => $y, 'z' => $z], $r, $automaTileId);
     self::ajaxResponse();
   }
 
