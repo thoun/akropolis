@@ -18,7 +18,7 @@ class MainStreet extends \AKR\Models\ConstructionCard
   {
     // Any connected built barrack in that dir ?
     foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
-      if (in_array($type, $types) || $type == QUARRY) continue;
+      if (in_array($type, $types) || !in_array($type, DISTRICTS)) continue;
 
       // Cell must be connected to previous cell, unless $i = 0
       if ($i > 0 && !in_array(($dir + 3) % 6, $triangles)) continue;
