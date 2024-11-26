@@ -1417,12 +1417,14 @@ var CompleteCardState = /** @class */ (function (_super) {
     };
     CompleteCardState.prototype.removeForAutomataClass = function () {
         document.querySelectorAll('.for-automata').forEach(function (elem) { return elem.classList.remove('for-automata'); });
+        document.querySelectorAll('.given-to-automata').forEach(function (elem) { return elem === null || elem === void 0 ? void 0 : elem.remove(); });
     };
     CompleteCardState.prototype.singleTileClickedForAutomata = function (tile) {
         this.tileForAutomata = tile;
         this.selectedCard = this.game.gamedatas.cards.find(function (card) { return card.location === tile.location; }).id;
         this.removeUnselectableClass();
         document.getElementById("market-tile-".concat(tile.id)).classList.add('for-automata');
+        document.getElementById("market-tile-".concat(tile.id)).insertAdjacentHTML('beforeend', "\n            <div class=\"given-to-automata\">".concat(_('Given to automata'), "</div>    \n        "));
         this.onUpdateActionButtonsForPlayer(this.args);
     };
     CompleteCardState.prototype.onCancel = function () {

@@ -192,3 +192,15 @@
     cursor: not-allowed !important;
   }
 }
+
+.given-to-automata {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  font-size: 10pt;
+  text-align: center;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid black;
+}

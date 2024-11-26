@@ -91,6 +91,7 @@ class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
 
     private removeForAutomataClass() {
         document.querySelectorAll('.for-automata').forEach(elem => elem.classList.remove('for-automata'));
+        document.querySelectorAll('.given-to-automata').forEach(elem => elem?.remove());
     }
     
     public singleTileClickedForAutomata(tile: Tile) {
@@ -98,6 +99,9 @@ class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
         this.selectedCard = this.game.gamedatas.cards.find(card => card.location === tile.location).id;
         this.removeUnselectableClass();
         document.getElementById(`market-tile-${tile.id}`).classList.add('for-automata');
+        document.getElementById(`market-tile-${tile.id}`).insertAdjacentHTML('beforeend', `
+            <div class="given-to-automata">${_('Given to automata')}</div>    
+        `);
 
         this.onUpdateActionButtonsForPlayer(this.args);
     }
