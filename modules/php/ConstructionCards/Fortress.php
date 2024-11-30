@@ -11,6 +11,7 @@ class Fortress extends \AKR\Models\ConstructionCard
     parent::__construct($row);
     $this->id = 'Fortress';
     $this->name = clienttranslate('Fortress');
+    $this->desc = clienttranslate('Exact layout of 1 <BARRACK_PLAZA> and 2 <BARRACK>');
   }
 
   // Testée mais question en suspens
