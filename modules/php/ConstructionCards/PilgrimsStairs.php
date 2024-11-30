@@ -11,7 +11,7 @@ class PilgrimsStairs extends \AKR\Models\ConstructionCard
     parent::__construct($row);
     $this->id = 'PilgrimsStairs';
     $this->name = clienttranslate('Pilgrims\' Stairs');
-    $this->desc = clienttranslate('1 <PLAZA> above a straight set of at least 2 steps');
+    $this->desc = clienttranslate('1 <TEMPLE_PLAZA> above a straight set of at least 2 steps');
   }
 
   // Testée mais en attente de réponse

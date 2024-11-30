@@ -11,6 +11,7 @@ class Sanctuary extends \AKR\Models\ConstructionCard
     parent::__construct($row);
     $this->id = 'Sanctuary';
     $this->name = clienttranslate('Sanctuary');
+    $this->desc = clienttranslate('Exact layout of 3 adjacent <TEMPLE>');
   }
 
   // Testée

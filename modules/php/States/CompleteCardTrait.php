@@ -127,7 +127,7 @@ trait CompleteCardTrait
     $statuses = Globals::getAthenaCardStatuses();
     if (Globals::isSolo()) {
       if (!in_array($automaTileId, $args['automaPicks'][$cardId])) {
-        throw new \BgaVisibleSystemException('Impossible hex to place that tile. Should not happen');
+        throw new \BgaVisibleSystemException('Wrong tile given to automa. You must give him a plaza if possible, then a double-til if possible, otherwise a single disctrict tile');
       }
 
       $architect = Players::getArchitect();
