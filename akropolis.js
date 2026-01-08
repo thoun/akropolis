@@ -1502,6 +1502,7 @@ var Akropolis = /** @class */ (function () {
     Akropolis.prototype.setup = function (gamedatas) {
         var _this = this;
         log("Starting game setup");
+        this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', "\n            <div id=\"full-table\">\n                <div id=\"market\" class=\"left-to-right\">\n                    <div id=\"remaining-stacks\"><div id=\"remaining-stacks-counter\"></div></div>\n                </div>\n                <div id=\"tables\"></div>\n            </div>\n        ");
         this.pivotRotation = window.location.href.indexOf('pivot') !== -1;
         this.gamedatas = gamedatas;
         // Setup camera controls reminder
@@ -1541,7 +1542,7 @@ var Akropolis = /** @class */ (function () {
         });
         document.getElementsByTagName('body')[0].addEventListener('keydown', function (e) { return _this.onKeyPress(e); });
         this.setupNotifications();
-        this.setupPreferences();
+        this.bga.userPreferences.onChange = function (prefId, prefValue) { return _this.onPreferenceChange(prefId, prefValue); };
         this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
         window.addEventListener('resize', function () { return _this.viewManager.fitCitiesToView(); });
         log("Ending game setup");
@@ -1650,24 +1651,6 @@ var Akropolis = /** @class */ (function () {
         var _this = this;
         return this.playersTables.find(function (playerTable) { return playerTable.playerId === _this.getPlayerId(); });
     };
-    Akropolis.prototype.setupPreferences = function () {
-        var _this = this;
-        // Extract the ID and value from the UI control
-        var onchange = function (e) {
-            var match = e.target.id.match(/^preference_[cf]ontrol_(\d+)$/);
-            if (!match) {
-                return;
-            }
-            var prefId = +match[1];
-            var prefValue = +e.target.value;
-            _this.prefs[prefId].value = prefValue;
-            _this.onPreferenceChange(prefId, prefValue);
-        };
-        // Call onPreferenceChange() when any value changes
-        dojo.query(".preference_control").connect("onchange", onchange);
-        // Call onPreferenceChange() now
-        dojo.forEach(dojo.query("#ingame_menu_content .preference_control"), function (el) { return onchange({ target: el }); });
-    };
     Akropolis.prototype.onPreferenceChange = function (prefId, prefValue) {
         switch (prefId) {
             case 201:
@@ -1710,7 +1693,7 @@ var Akropolis = /** @class */ (function () {
             dojo.place("\n            <div id=\"overall_player_board_0\" class=\"player-board current-player-board\">\t\t\t\t\t\n                <div class=\"player_board_inner\" id=\"player_board_inner_982fff\">\n                    \n                    <div class=\"emblemwrap\" id=\"avatar_active_wrap_0\">\n                        <img src=\"".concat(g_gamethemeurl, "img/gear.png\" alt=\"\" class=\"avatar avatar_active\" id=\"avatar_active_0\" />\n                    </div>\n                                               \n                    <div class=\"player-name\" id=\"player_name_0\">\n                        ").concat(_(soloPlayer.name), "\n                    </div>\n                    <div id=\"player_board_0\" class=\"player_board_content\">\n                        <div class=\"player_score\">\n                            <span id=\"player_score_0\" class=\"player_score_value\">0</span> <i class=\"fa fa-star\" id=\"icon_point_0\"></i>           \n                        </div>\n                    </div>\n                </div>\n            </div>"), "overall_player_board_".concat(players[0].id), 'after');
             var soloScoreCounter = new ebg.counter();
             soloScoreCounter.create("player_score_0");
-            soloScoreCounter.setValue(soloPlayer.score);
+            soloScoreCounter.setValue(Number(soloPlayer.score));
             this.scoreCtrl[0] = soloScoreCounter;
         }
         (soloPlayer ? __spreadArray(__spreadArray([], players, true), [gamedatas.soloPlayer], false) : players).forEach(function (player) {

@@ -62,11 +62,6 @@ class Akropolis extends Table
     return self::$instance;
   }
 
-  protected function getGameName()
-  {
-    return 'akropolis';
-  }
-
   /*
    * setupNewGame:
    */

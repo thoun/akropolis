@@ -106,7 +106,7 @@ class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
         this.onUpdateActionButtonsForPlayer(this.args);
     }
     
-    private onCancel() {
+    public onCancel() {
         const args = this.args;
         if (Object.keys(args.automaPicks).length) {
             this.selectedCard = null;

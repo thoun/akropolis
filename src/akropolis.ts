@@ -1,9 +1,3 @@
-declare const define;
-declare const ebg;
-declare const $;
-declare const dojo: Dojo;
-declare const _;
-declare const g_gamethemeurl;
 const MIN_NOTIFICATION_MS = 1200;
 
 const TYPES = {
@@ -68,6 +62,8 @@ class Akropolis implements AkropolisGame {
 
     private completeCardState: CompleteCardState;
     private states: StateHandler<any>[] = [];
+
+    public bga: Bga;
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
@@ -93,6 +89,14 @@ class Akropolis implements AkropolisGame {
 
     public setup(gamedatas: AkropolisGamedatas) {
         log( "Starting game setup" );
+        this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
+            <div id="full-table">
+                <div id="market" class="left-to-right">
+                    <div id="remaining-stacks"><div id="remaining-stacks-counter"></div></div>
+                </div>
+                <div id="tables"></div>
+            </div>
+        `);
         
         this.pivotRotation = window.location.href.indexOf('pivot') !== -1;
         this.gamedatas = gamedatas;
@@ -146,7 +150,7 @@ class Akropolis implements AkropolisGame {
         document.getElementsByTagName('body')[0].addEventListener('keydown', e => this.onKeyPress(e));
 
         this.setupNotifications();
-        this.setupPreferences();
+        (this as any).bga.userPreferences.onChange = (prefId, prefValue) => this.onPreferenceChange(prefId, prefValue);
         this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
 
         window.addEventListener('resize', () => this.viewManager.fitCitiesToView());
@@ -269,29 +273,6 @@ class Akropolis implements AkropolisGame {
     public getCurrentPlayerTable(): PlayerTable | null {
         return this.playersTables.find(playerTable => playerTable.playerId === this.getPlayerId());
     }
-
-    private setupPreferences() {
-        // Extract the ID and value from the UI control
-        const onchange = (e) => {
-          var match = e.target.id.match(/^preference_[cf]ontrol_(\d+)$/);
-          if (!match) {
-            return;
-          }
-          var prefId = +match[1];
-          var prefValue = +e.target.value;
-          (this as any).prefs[prefId].value = prefValue;
-          this.onPreferenceChange(prefId, prefValue);
-        }
-        
-        // Call onPreferenceChange() when any value changes
-        dojo.query(".preference_control").connect("onchange", onchange);
-        
-        // Call onPreferenceChange() now
-        dojo.forEach(
-          dojo.query("#ingame_menu_content .preference_control"),
-          el => onchange({ target: el })
-        );
-    }
       
     private onPreferenceChange(prefId: number, prefValue: number) {
         switch (prefId) {
@@ -356,7 +337,7 @@ class Akropolis implements AkropolisGame {
 
             const soloScoreCounter = new ebg.counter();
             soloScoreCounter.create(`player_score_0`);
-            soloScoreCounter.setValue(soloPlayer.score);
+            soloScoreCounter.setValue(Number(soloPlayer.score));
             (this as any).scoreCtrl[0] = soloScoreCounter;
         }
 
