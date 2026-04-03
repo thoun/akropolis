@@ -31,7 +31,7 @@ $swdNamespaceAutoload = function ($class) {
 };
 spl_autoload_register($swdNamespaceAutoload, true, true);
 
-require_once APP_GAMEMODULE_PATH . 'module/table/table.game.php';
+require_once 'modules/php/constants.inc.php';
 
 use AKR\Core\Globals;
 use AKR\Core\Stats;
@@ -39,6 +39,7 @@ use AKR\Core\Preferences;
 use AKR\Managers\ConstructionCards;
 use AKR\Managers\Players;
 use AKR\Managers\Tiles;
+use Bga\GameFramework\Table;
 
 class Akropolis extends Table
 {
@@ -77,10 +78,8 @@ class Akropolis extends Table
   /*
    * getAllDatas:
    */
-  public function getAllDatas()
+  public function getAllDatas(int $currentPlayerId): array
   {
-    $pId = $this->getCurrentPId();
-
     $activatedVariants = [];
     foreach (DISTRICTS as $district) {
       if (Globals::isVariant($district)) {
@@ -89,14 +88,14 @@ class Akropolis extends Table
     }
 
     return [
-      'prefs' => Preferences::getUiData($pId),
-      'players' => Players::getUiData($pId),
+      'prefs' => Preferences::getUiData($currentPlayerId),
+      'players' => Players::getUiData($currentPlayerId),
       'dock' => Tiles::getUiData(),
       'deck' => Tiles::countInLocation('deck'),
       'firstPlayerId' => Globals::getFirstPlayer(),
       'activatedVariants' => $activatedVariants,
       'allTiles' => Globals::isAllTiles(),
-      'soloPlayer' => Globals::isSolo() ? Players::getArchitect()->getUiData($pId) : null,
+      'soloPlayer' => Globals::isSolo() ? Players::getArchitect()->getUiData($currentPlayerId) : null,
       'lastMoves' => Globals::getLastMoves(),
 
       // Athena
@@ -118,7 +117,7 @@ class Akropolis extends Table
 
   function actChangePreference($pref, $value)
   {
-    Preferences::set($this->getCurrentPId(), $pref, $value);
+    Preferences::set($this->getCurrentPlayerId(), $pref, $value);
   }
 
   ////////////////////////////////////
@@ -154,20 +153,4 @@ class Akropolis extends Table
    *      For example, if the game was running with a release of your game named "140430-1345", $from_version is equal to 1404301345
    */
   public function upgradeTableDb($from_version) {}
-
-  /////////////////////////////////////////////////////////////
-  // Exposing protected methods, please use at your own risk //
-  /////////////////////////////////////////////////////////////
-
-  // Exposing protected method getCurrentPlayerId
-  public function getCurrentPId()
-  {
-    return $this->getCurrentPlayerId();
-  }
-
-  // Exposing protected method translation
-  public function translate($text)
-  {
-    return $this->_($text);
-  }
 }

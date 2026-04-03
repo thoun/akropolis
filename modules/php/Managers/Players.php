@@ -54,7 +54,7 @@ class Players extends \AKR\Helpers\DB_Manager
 
   public static function getCurrentId()
   {
-    return (int) Game::get()->getCurrentPId();
+    return (int) Game::get()->getCurrentPlayerId();
   }
 
   public static function getAll()
