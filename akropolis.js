@@ -1690,17 +1690,15 @@ var Akropolis = /** @class */ (function () {
         var players = Object.values(gamedatas.players);
         var soloPlayer = gamedatas.soloPlayer;
         if (soloPlayer) {
-            dojo.place("\n            <div id=\"overall_player_board_0\" class=\"player-board current-player-board\">\t\t\t\t\t\n                <div class=\"player_board_inner\" id=\"player_board_inner_982fff\">\n                    \n                    <div class=\"emblemwrap\" id=\"avatar_active_wrap_0\">\n                        <img src=\"".concat(g_gamethemeurl, "img/gear.png\" alt=\"\" class=\"avatar avatar_active\" id=\"avatar_active_0\" />\n                    </div>\n                                               \n                    <div class=\"player-name\" id=\"player_name_0\">\n                        ").concat(_(soloPlayer.name), "\n                    </div>\n                    <div id=\"player_board_0\" class=\"player_board_content\">\n                        <div class=\"player_score\">\n                            <span id=\"player_score_0\" class=\"player_score_value\">0</span> <i class=\"fa fa-star\" id=\"icon_point_0\"></i>           \n                        </div>\n                    </div>\n                </div>\n            </div>"), "overall_player_board_".concat(players[0].id), 'after');
-            var soloScoreCounter = new ebg.counter();
-            soloScoreCounter.create("player_score_0");
-            soloScoreCounter.setValue(Number(soloPlayer.score));
-            this.scoreCtrl[0] = soloScoreCounter;
+            this.bga.playerPanels.addAutomataPlayerPanel(0, _(soloPlayer.name), {
+                iconClass: 'solo-player-icon',
+            });
         }
         (soloPlayer ? __spreadArray(__spreadArray([], players, true), [gamedatas.soloPlayer], false) : players).forEach(function (player) {
             var _a;
             var playerId = Number(player.id);
             // Stones counter
-            dojo.place("<div class=\"counters\">\n                <div id=\"stones-counter-wrapper-".concat(player.id, "\" class=\"stones-counter\">\n                    <div id=\"stones-icon-").concat(player.id, "\" class=\"stone score-icon\"></div> \n                    <span id=\"stones-counter-").concat(player.id, "\"></span>\n                </div>\n                <div id=\"first-player-token-wrapper-").concat(player.id, "\" class=\"first-player-token-wrapper\"></div>\n            </div>\n            <div class=\"scores-and-statue\">\n                <div id=\"scores-").concat(player.id, "\"></div> \n                <div id=\"statue-").concat(player.id, "\"></div>\n            </div>"), "player_board_".concat(player.id));
+            _this.bga.playerPanels.getElement(playerId).insertAdjacentHTML('beforeend', "<div class=\"counters\">\n                <div id=\"stones-counter-wrapper-".concat(player.id, "\" class=\"stones-counter\">\n                    <div id=\"stones-icon-").concat(player.id, "\" class=\"stone score-icon\"></div> \n                    <span id=\"stones-counter-").concat(player.id, "\"></span>\n                </div>\n                <div id=\"first-player-token-wrapper-").concat(player.id, "\" class=\"first-player-token-wrapper\"></div>\n            </div>\n            <div class=\"scores-and-statue\">\n                <div id=\"scores-").concat(player.id, "\"></div> \n                <div id=\"statue-").concat(player.id, "\"></div>\n            </div>"));
             if (gamedatas.firstPlayerId == playerId) {
                 dojo.place("<div id=\"first-player-token\" class=\"first-player-token\"></div>", "first-player-token-wrapper-".concat(player.id));
             }
@@ -1839,8 +1837,9 @@ var Akropolis = /** @class */ (function () {
         }
     };
     Akropolis.prototype.setPlayerScore = function (playerId, score) {
-        if (this.scoreCtrl[playerId]) {
-            this.scoreCtrl[playerId].toValue(score);
+        var scoreCounter = this.bga.playerPanels.getScoreCounter(playerId);
+        if (scoreCounter) {
+            scoreCounter.toValue(score);
         }
         else {
             document.getElementById("player_score_".concat(playerId)).innerHTML = '' + score;

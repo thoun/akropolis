@@ -316,36 +316,16 @@ class Akropolis implements AkropolisGame {
         const soloPlayer = gamedatas.soloPlayer;
 
         if (soloPlayer) {
-            dojo.place(`
-            <div id="overall_player_board_0" class="player-board current-player-board">					
-                <div class="player_board_inner" id="player_board_inner_982fff">
-                    
-                    <div class="emblemwrap" id="avatar_active_wrap_0">
-                        <img src="${g_gamethemeurl}img/gear.png" alt="" class="avatar avatar_active" id="avatar_active_0" />
-                    </div>
-                                               
-                    <div class="player-name" id="player_name_0">
-                        ${_(soloPlayer.name)}
-                    </div>
-                    <div id="player_board_0" class="player_board_content">
-                        <div class="player_score">
-                            <span id="player_score_0" class="player_score_value">0</span> <i class="fa fa-star" id="icon_point_0"></i>           
-                        </div>
-                    </div>
-                </div>
-            </div>`, `overall_player_board_${players[0].id}`, 'after');
-
-            const soloScoreCounter = new ebg.counter();
-            soloScoreCounter.create(`player_score_0`);
-            soloScoreCounter.setValue(Number(soloPlayer.score));
-            (this as any).scoreCtrl[0] = soloScoreCounter;
+            this.bga.playerPanels.addAutomataPlayerPanel(0, _(soloPlayer.name), {
+                iconClass: 'solo-player-icon',
+            });
         }
 
         (soloPlayer ? [...players, gamedatas.soloPlayer] : players).forEach(player => {
             const playerId = Number(player.id);   
 
             // Stones counter
-            dojo.place(`<div class="counters">
+            this.bga.playerPanels.getElement(playerId).insertAdjacentHTML('beforeend', `<div class="counters">
                 <div id="stones-counter-wrapper-${player.id}" class="stones-counter">
                     <div id="stones-icon-${player.id}" class="stone score-icon"></div> 
                     <span id="stones-counter-${player.id}"></span>
@@ -355,7 +335,7 @@ class Akropolis implements AkropolisGame {
             <div class="scores-and-statue">
                 <div id="scores-${player.id}"></div> 
                 <div id="statue-${player.id}"></div>
-            </div>`, `player_board_${player.id}`);
+            </div>`);
             if (gamedatas.firstPlayerId == playerId) {
                 dojo.place(`<div id="first-player-token" class="first-player-token"></div>`, `first-player-token-wrapper-${player.id}`);
             }
@@ -534,8 +514,9 @@ class Akropolis implements AkropolisGame {
     }
     
     private setPlayerScore(playerId: number, score: number) {
-        if ((this as any).scoreCtrl[playerId]) {
-            (this as any).scoreCtrl[playerId].toValue(score);
+        const scoreCounter = this.bga.playerPanels.getScoreCounter(playerId);
+        if (scoreCounter) {
+            scoreCounter.toValue(score);
         } else {
             document.getElementById(`player_score_${playerId}`).innerHTML = ''+score;
         }
