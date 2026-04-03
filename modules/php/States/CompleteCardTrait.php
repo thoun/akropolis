@@ -145,7 +145,7 @@ trait CompleteCardTrait
     }
 
     // Place tile
-    $this->actPlaceTileAux($player, $tileId, 0, $pos, $r);
+    $this->actPlaceTileAux($player, $tileId, 0, $pos, $r, false);
 
     $this->goToNextPlayerUnlessCompletableCard();
   }

@@ -64,7 +64,7 @@ trait TurnTrait
   /**
    * Auxiliary function that place the tile => can be reused for Architect
    */
-  public function actPlaceTileAux($player, $tileId, $hex, $pos, $r)
+  public function actPlaceTileAux($player, $tileId, $hex, $pos, $r, $shiftDock = true)
   {
     $tile = Tiles::getSingle($tileId);
     $cost = $tile['state'];
@@ -104,7 +104,9 @@ trait TurnTrait
     }
 
     // Shift remaining tiles
-    Tiles::shiftDock($cost);
+    if ($shiftDock) {
+      Tiles::shiftDock($cost);
+    }
 
     // Update score if live scoring
     if (Globals::isLiveScoring()) {

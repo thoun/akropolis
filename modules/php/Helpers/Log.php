@@ -1,5 +1,7 @@
 <?php
+
 namespace AKR\Helpers;
+
 use AKR\Core\Game;
 use AKR\Core\Globals;
 use AKR\Core\Notifications;
@@ -18,18 +20,18 @@ use AKR\Managers\Players;
 
 class Log extends \APP_DbObject
 {
-  public function enable()
+  public static function enable()
   {
     Game::get()->setGameStateValue('logging', 1);
   }
 
-  public function disable()
+  public static function disable()
   {
     Game::get()->setGameStateValue('logging', 0);
   }
 
   // Create a new checkpoint : anything before that checkpoint cannot be undo (unless in studio)
-  public function checkpoint()
+  public static function checkpoint()
   {
     $query = new QueryBuilder('log', null, 'id');
     $entry = [
@@ -58,7 +60,7 @@ class Log extends \APP_DbObject
   /**
    * Add an entry
    */
-  public function addEntry($entry)
+  public static function addEntry($entry)
   {
     $entry['affected'] = \json_encode($entry['affected']);
     $entry['move_id'] = self::getUniqueValueFromDB('SELECT global_value FROM global WHERE global_id = 3');
@@ -69,7 +71,7 @@ class Log extends \APP_DbObject
   /**
    * Clear the log table
    */
-  public function clearAll()
+  public static function clearAll()
   {
     static::checkpoint();
     // $query = new QueryBuilder('log', null, 'id');
@@ -79,7 +81,7 @@ class Log extends \APP_DbObject
   /**
    * Revert all the logged changes
    */
-  public function revertAll()
+  public static function revertAll()
   {
     $checkpoint = static::getLastCheckpoint();
     $query = new QueryBuilder('log', null, 'id');
@@ -174,7 +176,7 @@ class Log extends \APP_DbObject
     return $notificationUIds;
   }
 
-  public function getCanceledNotifIds()
+  public static function getCanceledNotifIds()
   {
     return self::extractNotifIds(
       self::getObjectListFromDb('SELECT `gamelog_notification` FROM gamelog WHERE `cancel` = 1', true)
