@@ -58,6 +58,7 @@ class Tiles extends \AKR\Helpers\Pieces
         'player_id' => null,
         'x' => 0,
         'y' => 0,
+        'z' => 0,
         'r' => 0,
       ];
     }
@@ -78,6 +79,7 @@ class Tiles extends \AKR\Helpers\Pieces
             'player_id' => null,
             'x' => 0,
             'y' => 0,
+            'z' => 0,
             'r' => 0,
           ];
         }
