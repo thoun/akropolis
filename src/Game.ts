@@ -1,3 +1,15 @@
+/// <reference path="../bga-framework.d.ts" />
+/// <reference path="./types.d.ts" />
+
+import { BgaAnimations, BgaJumpTo } from "./libs";
+import { ViewManager } from "./view-manager";
+import { TilesManager, TILE_COORDINATES } from "./tiles-manager";
+import { ConstructionSite } from "./table-center";
+import { AthenaConstructionSite } from "./athena-table-center";
+import { PlayerTable } from "./player-table";
+import { StateHandler } from "./states/state-handler";
+import { CompleteCardState, type EnteringCompleteCardArgs } from "./states/complete-card";
+
 const MIN_NOTIFICATION_MS = 1200;
 
 const TYPES = {
@@ -40,18 +52,18 @@ function sleep(ms: number){
     return new Promise((r) => setTimeout(r, ms));
 }
 
-class Akropolis implements AkropolisGame {
+export class Game {
     public tilesManager: TilesManager;
     public viewManager: ViewManager;
     public animationManager: AnimationManager;
     public athenaConstructionSite?: AthenaConstructionSite;
 
-    private gamedatas: AkropolisGamedatas;
+    public gamedatas: AkropolisGamedatas;
     private constructionSite: ConstructionSite;
-    private selectedPosition: Partial<PlaceTileOption>;
-    private selectedTile: Tile;
-    private selectedTileHexIndex: number;
-    private rotation: number = 0;
+    public selectedPosition: Partial<PlaceTileOption>;
+    public selectedTile: Tile;
+    public selectedTileHexIndex: number;
+    public rotation: number = 0;
     private playersTables: PlayerTable[] = [];
     public stonesCounters: Counter[] = [];
     private hexesCounters: Counter[][] = [];
@@ -63,15 +75,20 @@ class Akropolis implements AkropolisGame {
     private completeCardState: CompleteCardState;
     private states: StateHandler<any>[] = [];
 
-    public bga: Bga;
+    public bga: Bga<AkropolisPlayer, AkropolisGamedatas>;
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
-    constructor() {
+    constructor(bga: Bga<AkropolisPlayer, AkropolisGamedatas>) {
+        this.bga = bga;
+
         this.completeCardState = new CompleteCardState(this);
         this.states.push(
 			this.completeCardState,
         );
+
+        /* @Override */
+        (this.bga.gameui as any).change3d = (incXAxis: number, xpos: number, ypos: number, xAxis: number, incScale: number, is3Dactive: boolean, reset: boolean) => this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);
     }
     
     /*
@@ -88,7 +105,7 @@ class Akropolis implements AkropolisGame {
     */
 
     public setup(gamedatas: AkropolisGamedatas) {
-        log( "Starting game setup" );
+        console.log( "Starting game setup" );
         this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
             <div id="full-table">
                 <div id="market" class="left-to-right">
@@ -102,7 +119,7 @@ class Akropolis implements AkropolisGame {
         this.gamedatas = gamedatas;
 
         // Setup camera controls reminder
-        var reminderHtml = document.getElementsByTagName('body')[0].classList.contains('touch-device') ?
+        const reminderHtml = document.getElementsByTagName('body')[0].classList.contains('touch-device') ?
         `<div id="controls-reminder">
         ${_('You can drag this block')}
         </div>`
@@ -112,9 +129,9 @@ class Akropolis implements AkropolisGame {
         </div>`;
         dojo.place(reminderHtml, 'controls3d_wrap', 'first');
 
-        log('gamedatas', gamedatas);
+        console.log('gamedatas', gamedatas);
 
-        this.animationManager = new AnimationManager(this);
+        this.animationManager = new BgaAnimations.AnimationManager(this);
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
@@ -130,16 +147,16 @@ class Akropolis implements AkropolisGame {
 
         const topEntries = [];
         if (gamedatas.isAthena) {
-            topEntries.push(new JumpToEntry(_("Athena"), 'athena-contruction-spaces', { 'color': '#1fa7d9' }));
+            topEntries.push(new BgaJumpTo.JumpToEntry(_("Athena"), 'athena-contruction-spaces', { 'color': '#1fa7d9' }));
         }
-        topEntries.push(new JumpToEntry(_("Construction Site"), 'market', { 'color': '#7e7978' }));
+        topEntries.push(new BgaJumpTo.JumpToEntry(_("Construction Site"), 'market', { 'color': '#7e7978' }));
 
         const bottomEntries = [];
         if (gamedatas.soloPlayer) {
-            bottomEntries.push(new JumpToEntry(_(gamedatas.soloPlayer.name), 'player-table-0', { 'color': `#${gamedatas.soloPlayer.color}` }));
+            bottomEntries.push(new BgaJumpTo.JumpToEntry(_(gamedatas.soloPlayer.name), 'player-table-0', { 'color': `#${gamedatas.soloPlayer.color}` }));
         }
 
-        new JumpToManager(this, {
+        new BgaJumpTo.JumpToManager(this, {
             localStorageFoldedKey: LOCAL_STORAGE_JUMP_KEY,
             topEntries,
             bottomEntries,
@@ -150,12 +167,12 @@ class Akropolis implements AkropolisGame {
         document.getElementsByTagName('body')[0].addEventListener('keydown', e => this.onKeyPress(e));
 
         this.setupNotifications();
-        (this as any).bga.userPreferences.onChange = (prefId, prefValue) => this.onPreferenceChange(prefId, prefValue);
+        this.bga.userPreferences.onChange = (prefId, prefValue) => this.onPreferenceChange(prefId, prefValue);
         this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
 
         window.addEventListener('resize', () => this.viewManager.fitCitiesToView());
 
-        log( "Ending game setup" );
+        console.log( "Ending game setup" );
     }
 
     ///////////////////////////////////////////////////
@@ -165,10 +182,10 @@ class Akropolis implements AkropolisGame {
     //                  You can use this method to perform some user interface changes at this moment.
     //
     public onEnteringState(stateName: string, args: any) {
-        log('Entering state: ' + stateName, args.args);
+        console.log('Entering state: ' + stateName, args.args);
 
         if (this.gamedatas.gamestate.type !== 'multipleactiveplayer') {
-            this.states.find(state => state.stateName === stateName)?.onEnteringState(args.args, (this as any).isCurrentPlayerActive());
+            this.states.find(state => state.stateName === stateName)?.onEnteringState(args.args, this.bga.players.isCurrentPlayerActive());
         }
 
         switch (stateName) {
@@ -179,21 +196,21 @@ class Akropolis implements AkropolisGame {
     }
     
     private onEnteringPlaceTile(args: EnteringPlaceTileArgs) {
-        if ((this as any).isCurrentPlayerActive()) {
+        if (this.bga.players.isCurrentPlayerActive()) {
             this.selectedPosition = null;
             this.selectedTile = null;
             this.selectedTileHexIndex = null;
             this.setRotation(0);
             this.constructionSite.setSelectable(true);
             this.getCurrentPlayerTable().setPlaceTileOptions(args.options[0], this.rotation);
-            this.constructionSite.setDisabledTiles(this.stonesCounters[this.getPlayerId()].getValue());
+            this.constructionSite.setDisabledTiles(this.stonesCounters[this.bga.players.getCurrentPlayerId()].getValue());
         }
     }
 
     public onLeavingState(stateName: string) {
-        log( 'Leaving state: '+stateName );
+        console.log( 'Leaving state: '+stateName );
 
-        this.states.find(state => state.stateName === stateName)?.onLeavingState(this.gamedatas.gamestate.args, (this as any).isCurrentPlayerActive());
+        this.states.find(state => state.stateName === stateName)?.onLeavingState(this.gamedatas.gamestate.args, this.bga.players.isCurrentPlayerActive());
 
         switch (stateName) {
             case 'placeTile':
@@ -213,7 +230,7 @@ class Akropolis implements AkropolisGame {
     public onUpdateActionButtons(stateName: string, args: any) {        
 		const state = this.states.find(state => state.stateName === stateName);
         if (state) {
-            const isCurrentPlayerActive = (this as any).isCurrentPlayerActive();
+            const isCurrentPlayerActive = this.bga.players.isCurrentPlayerActive();
             if (this.gamedatas.gamestate.type === 'multipleactiveplayer') {
                 state.onEnteringState(args, isCurrentPlayerActive);
             }
@@ -221,23 +238,23 @@ class Akropolis implements AkropolisGame {
         } else if (this.gamedatas.gamestate.type === 'multipleactiveplayer' && this.gamedatas.gamestate.private_state) {
             const leftState = this.states.find(state => state.stateName === this.gamedatas.gamestate.private_state?.name);
             if (leftState) {
-                const isCurrentPlayerActive = (this as any).isCurrentPlayerActive();
+                const isCurrentPlayerActive = this.bga.players.isCurrentPlayerActive();
                 leftState.onLeavingState(this.gamedatas.gamestate.private_state.args, isCurrentPlayerActive);
             }
         }
 
-        if ((this as any).isCurrentPlayerActive()) {
+        if (this.bga.players.isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'placeTile':
                     if (this.usePivotRotation()) {
-                        (this as any).addActionButton(`decRotationPivot_button`, `⭯`, () => this.decRotationPivot());
-                        (this as any).addActionButton(`incRotationPivot_button`, `⭮`, () => this.incRotationPivot());
+                        this.bga.gameui.addActionButton(`decRotationPivot_button`, `⭯`, () => this.decRotationPivot());
+                        this.bga.gameui.addActionButton(`incRotationPivot_button`, `⭮`, () => this.incRotationPivot());
                     } else {
-                        (this as any).addActionButton(`decRotation_button`, `⤹`, () => this.decRotation());
-                        (this as any).addActionButton(`incRotation_button`, `⤸`, () => this.incRotation());
+                        this.bga.gameui.addActionButton(`decRotation_button`, `⤹`, () => this.decRotation());
+                        this.bga.gameui.addActionButton(`incRotation_button`, `⤸`, () => this.incRotation());
                     }
-                    (this as any).addActionButton(`placeTile_button`, _('Confirm'), () => this.placeTile());
-                    (this as any).addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.cancelPlaceTile(), null, null, 'gray');
+                    this.bga.gameui.addActionButton(`placeTile_button`, _('Confirm'), () => this.placeTile());
+                    this.bga.gameui.addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.cancelPlaceTile(), null, null, 'gray');
                     [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
                     this.updateRotationButtonState();
                     break;
@@ -252,14 +269,14 @@ class Akropolis implements AkropolisGame {
     ///////////////////////////////////////////////////
 
     public setTooltip(id: string, html: string) {
-        (this as any).addTooltipHtml(id, html, this.TOOLTIP_DELAY);
+        this.bga.gameui.addTooltipHtml(id, html, this.TOOLTIP_DELAY);
     }
     public setTooltipToClass(className: string, html: string) {
-        (this as any).addTooltipHtmlToClass(className, html, this.TOOLTIP_DELAY);
+        this.bga.gameui.addTooltipHtmlToClass(className, html, this.TOOLTIP_DELAY);
     }
 
-    public getPlayerId(): number {
-        return Number((this as any).player_id);
+    public getCurrentPlayerId(): number {
+        return this.bga.players.getCurrentPlayerId();
     }
 
     public getPlayer(playerId: number): AkropolisPlayer {
@@ -271,7 +288,7 @@ class Akropolis implements AkropolisGame {
     }
 
     public getCurrentPlayerTable(): PlayerTable | null {
-        return this.playersTables.find(playerTable => playerTable.playerId === this.getPlayerId());
+        return this.playersTables.find(playerTable => playerTable.playerId === this.bga.players.getCurrentPlayerId());
     }
       
     private onPreferenceChange(prefId: number, prefValue: number) {
@@ -306,7 +323,7 @@ class Akropolis implements AkropolisGame {
 
     private getOrderedPlayers(gamedatas: AkropolisGamedatas) {
         const players = Object.values(gamedatas.players).sort((a, b) => a.no - b.no);
-        const playerIndex = players.findIndex(player => Number(player.id) === Number((this as any).player_id));
+        const playerIndex = players.findIndex(player => Number(player.id) === this.bga.players.getCurrentPlayerId());
         const orderedPlayers = playerIndex > 0 ? [...players.slice(playerIndex), ...players.slice(0, playerIndex)] : players;
         return orderedPlayers;
     }
@@ -465,7 +482,7 @@ class Akropolis implements AkropolisGame {
     }
     
     private onKeyPress(event: KeyboardEvent): void {
-        if (['TEXTAREA', 'INPUT'].includes((event.target as HTMLElement).nodeName) || !(this as any).isCurrentPlayerActive()) {
+        if (['TEXTAREA', 'INPUT'].includes((event.target as HTMLElement).nodeName) || !this.bga.players.isCurrentPlayerActive()) {
             return;
         }
 
@@ -718,7 +735,7 @@ class Akropolis implements AkropolisGame {
         if (this.gamedatas.gamestate.name === 'completeCard') {    
             this.getCurrentPlayerTable()?.cleanPossibleHex();
     
-            (this as any).bgaPerformAction('actCompleteCard', {
+            this.bga.actions.performAction('actCompleteCard', {
                 tileIdForAutomata: tileForAutomata?.id,
                 x: this.selectedPosition.x,
                 y: this.selectedPosition.y,
@@ -730,7 +747,7 @@ class Akropolis implements AkropolisGame {
         } else {
             this.getCurrentPlayerTable()?.cleanPossibleHex();
 
-            (this as any).bgaPerformAction('actPlaceTile', {
+            this.bga.actions.performAction('actPlaceTile', {
                 x: this.selectedPosition.x,
                 y: this.selectedPosition.y,
                 z: this.selectedPosition.z,
@@ -764,11 +781,11 @@ class Akropolis implements AkropolisGame {
     
         notifs.forEach((notifName) => {
             dojo.subscribe(notifName, this, (notifDetails: Notif<any>) => {
-                log(`notif_${notifName}`, notifDetails.args);
+                console.log(`notif_${notifName}`, notifDetails.args);
                 const promise = this[`notif_${notifName}`](notifDetails.args);
                 const promises = promise ? [promise] : [];
                 let minDuration = 1;
-                let msg = this.format_string_recursive(notifDetails.log, notifDetails.args);
+                let msg = this.bga.gameui.format_string_recursive(notifDetails.log, notifDetails.args);
                 if (msg != '') {
                     $('gameaction_status').innerHTML = msg;
                     $('pagemaintitletext').innerHTML = msg;
@@ -780,12 +797,12 @@ class Akropolis implements AkropolisGame {
 
                 // tell the UI notification ends, if the function returned a promise. 
                 if (this.animationManager.animationsActive()) {
-                    Promise.all([...promises, sleep(minDuration)]).then(() => (this as any).notifqueue.onSynchronousNotificationEnd());
+                    Promise.all([...promises, sleep(minDuration)]).then(() => (this.bga.gameui as any).notifqueue.onSynchronousNotificationEnd());
                 } else {
-                    (this as any).notifqueue.setSynchronousDuration(0);
+                    (this.bga.gameui as any).notifqueue.setSynchronousDuration(0);
                 }
             });
-            (this as any).notifqueue.setSynchronous(notifName, undefined);
+            (this.bga.gameui as any).notifqueue.setSynchronous(notifName, undefined);
         });
     }
 
@@ -823,7 +840,7 @@ class Akropolis implements AkropolisGame {
             const animated = document.createElement('div');
             animated.classList.add('stone', 'score-icon', 'animated');
             document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
-            await this.animationManager.play(new BgaSlideAnimation({
+            await this.animationManager.play(new BgaAnimations.BgaSlideAnimation({
                 element: animated,
                 fromElement: origin,
             }))
@@ -837,7 +854,7 @@ class Akropolis implements AkropolisGame {
                     const animated = document.createElement('div');
                     animated.classList.add('stone', 'score-icon', 'animated');
                     document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
-                    promises.push(this.animationManager.play(new BgaSlideAnimation({
+                    promises.push(this.animationManager.play(new BgaAnimations.BgaSlideAnimation({
                         element: animated,
                         fromElement: origin,
                     })).then(() => animated.remove()));
@@ -856,7 +873,7 @@ class Akropolis implements AkropolisGame {
         const destinationId = `first-player-token-wrapper-${args.pId}`;
         const originId = firstPlayerToken.parentElement.id;
         if (destinationId !== originId) {
-            await this.animationManager.attachWithAnimation(new BgaSlideAnimation({
+            await this.animationManager.attachWithAnimation(new BgaAnimations.BgaSlideAnimation({
                 element: firstPlayerToken,
                 zoom: 1,
             }),
@@ -870,22 +887,5 @@ class Akropolis implements AkropolisGame {
 
     async notif_automataDelay() {
         await sleep(2000);
-    }
-
-    /* @Override */
-    public change3d(incXAxis: number, xpos: number, ypos: number, xAxis: number, incScale: number, is3Dactive: boolean, reset: boolean) {
-        this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);
-    }
-
-    /* This enable to inject translatable styled things to logs or action bar */
-    /* @Override */
-    public format_string_recursive(log: string, args: any) {
-        try {
-            if (log && args && !args.processed) {
-            }
-        } catch (e) {
-            console.error(log,args,"Exception thrown", e.stack);
-        }
-        return (this as any).inherited(arguments);
     }
 }

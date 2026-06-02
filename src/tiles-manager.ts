@@ -1,10 +1,12 @@
-const TILE_COORDINATES = [
+export {};
+
+export const TILE_COORDINATES = [
     [0, 0],
     [1, 1],
     [0, 2],
 ];
 
-class TilesManager {
+export class TilesManager {
     constructor(public game: AkropolisGame) {}
 
     public hexFromString(types: string | string[]) {

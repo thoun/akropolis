@@ -1,9 +1,5 @@
-interface ConstructionCard {
-    id: string;
-    location: string;
-    name: string;
-    desc: string;
-}
+import { Game } from "./Game";
+import { BgaAnimations } from "./libs";
 
 const CARDS = {
     "Housing": '#55b5e9',
@@ -45,12 +41,12 @@ function formatDescIcons(text: string, color: string): string {
 
 }
 
-class AthenaConstructionSite {
+export class AthenaConstructionSite {
     private selectionActivatedForAutomata: boolean = false;
     private selectionActivated: boolean = false;
     private cards: ConstructionCard[] = []; // 0 indexed!
 
-    constructor(private game: AkropolisGame, cards: ConstructionCard[], cardStatuses: { [playerId: number]: string[] }, dockTiles: Tile[], players: AkropolisPlayer[]) {
+    constructor(private game: Game, cards: ConstructionCard[], cardStatuses: { [playerId: number]: string[] }, dockTiles: Tile[], players: AkropolisPlayer[]) {
         let html = `
             <div id="athena-contruction-spaces">`;
 
@@ -170,7 +166,7 @@ class AthenaConstructionSite {
     
     public async completeCard(playerId: number, cardId: string) {
         const space = this.cards.findIndex(card => card.id === cardId) + 1;
-        await this.game.animationManager.attachWithAnimation(new BgaSlideAnimation({
+        await this.game.animationManager.attachWithAnimation(new BgaAnimations.BgaSlideAnimation({
             element: document.querySelector(`#player-statue-part-${playerId}-${space} .statue-part`),
         }),
         document.getElementById(`statue-${playerId}-${space}`));

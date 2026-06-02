@@ -4,8 +4,12 @@
   "description": "",
   "main": "akropolis.js",
   "scripts": {
-    "build:ts": "tsc",
-    "build:scss": "sass --no-source-map src/akropolis.scss akropolis.css"
+    "build:ts": "rollup -c",
+    "build:scss": "sass --no-source-map src/Game.scss akropolis.css",
+    "watch:ts": "rollup -c -w",
+    "watch:scss": "sass --watch src/Game.scss akropolis.css",
+    "watch": "npm run watch:ts && npm run watch:scss",
+    "build": "npm run build:ts && npm run build:scss"
   },
   "author": "",
   "license": "ISC",
@@ -14,7 +18,10 @@
     "bga-jump-to": "thoun/bga-jump-to#1.1.0"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^12.3.0",
+    "rollup": "^4.53.3",
     "sass": "^1.71.0",
+    "tslib": "^2.8.1",
     "typescript": "^5.3.3"
   }
 }

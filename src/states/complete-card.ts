@@ -1,10 +1,12 @@
-interface EnteringCompleteCardArgs {
+import { StateHandler } from "./state-handler";
+
+export interface EnteringCompleteCardArgs {
     options: PlaceTileOption[];
     cardIds: string[];
     automaPicks: { [cardId: string]: number[] }; // ids of tiles the automa can pick, for each enabled card
 }
 
-class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
+export class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
     public get stateName(): string { return `completeCard`; }
 
     private selectedCard: string | null = null;
@@ -30,7 +32,7 @@ class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
         if (isCurrentPlayerActive) {
             document.querySelectorAll('.athena-contruction-space.active').forEach(elem => elem.classList.remove('active'));
             this.game.getCurrentPlayerTable().setPlaceTileOptions([], this.game.rotation);
-            this.game.athenaConstructionSite.setSelectable([]);
+            this.game.athenaConstructionSite.setSelectable([], []);
         }
 
         this.removeForAutomataClass();
@@ -50,10 +52,10 @@ class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
     }
 
     private onUpdateActionButtonsForAutomata(args: EnteringCompleteCardArgs) {
-        this.setGamestateDescription(_('${you} may give a tile to the Automata to complete a fulfilled construction card'));
+        this.game.bga.statusBar.setTitle(_('${you} may give a tile to the Automata to complete a fulfilled construction card'));
         document.getElementById('generalactions').innerHTML = '';
 
-        (this.game as any).addActionButton(`skip_button`, _('Skip'), () => (this.game as any).bgaPerformAction('actSkipCompleteCard'), null, null, 'gray');
+        this.game.bga.gameui.addActionButton(`skip_button`, _('Skip'), () => (this.game as any).bgaPerformAction('actSkipCompleteCard'), null, null, 'gray');
 
         const spaces = args.cardIds.map(id => Number(this.game.gamedatas.cards.find(card => card.id === id).location.split('-')[1]));
         const selectableTilesIds = Object.values(args.automaPicks).flat();
@@ -63,22 +65,22 @@ class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
     }
 
     private onUpdateActionButtonsForPlayer(args: EnteringCompleteCardArgs) {
-        this.setGamestateDescription(_('${you} may complete a fulfilled construction card'));
+        this.game.bga.statusBar.setTitle(_('${you} may complete a fulfilled construction card'));
         document.getElementById('generalactions').innerHTML = '';
 
         if (this.game.usePivotRotation()) {
-            (this.game as any).addActionButton(`decRotationPivot_button`, `⭯`, () => this.game.decRotationPivot());
-            (this.game as any).addActionButton(`incRotationPivot_button`, `⭮`, () => this.game.incRotationPivot());
+            this.game.bga.gameui.addActionButton(`decRotationPivot_button`, `⭯`, () => this.game.decRotationPivot());
+            this.game.bga.gameui.addActionButton(`incRotationPivot_button`, `⭮`, () => this.game.incRotationPivot());
         } else {
-            (this.game as any).addActionButton(`decRotation_button`, `⤹`, () => this.game.decRotation());
-            (this.game as any).addActionButton(`incRotation_button`, `⤸`, () => this.game.incRotation());
+            this.game.bga.gameui.addActionButton(`decRotation_button`, `⤹`, () => this.game.decRotation());
+            this.game.bga.gameui.addActionButton(`incRotation_button`, `⤸`, () => this.game.incRotation());
         }
-        (this.game as any).addActionButton(`placeTile_button`, _('Confirm'), () => this.game.placeTile(this.tileForAutomata));
-        (this.game as any).addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.game.cancelPlaceTile(), null, null, 'gray');
+        this.game.bga.gameui.addActionButton(`placeTile_button`, _('Confirm'), () => this.game.placeTile(this.tileForAutomata));
+        this.game.bga.gameui.addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.game.cancelPlaceTile(), null, null, 'gray');
         [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id)?.classList.toggle('disabled', id !== `cancelPlaceTile_button` || !this.tileForAutomata));
         this.game.updateRotationButtonState();
 
-        (this.game as any).addActionButton(`skip_button`, _('Skip'), () => (this.game as any).bgaPerformAction('actSkipCompleteCard'), null, null, 'gray');
+        this.game.bga.gameui.addActionButton(`skip_button`, _('Skip'), () => (this.game as any).bgaPerformAction('actSkipCompleteCard'), null, null, 'gray');
 
         const cardsIds = this.selectedCard ? [this.selectedCard] : args.cardIds;
         const spaces = cardsIds.map(id => Number(this.game.gamedatas.cards.find(card => card.id === id).location.split('-')[1]));

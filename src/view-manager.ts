@@ -1,13 +1,15 @@
+import { Game } from "./Game";
+
 const ZOOM_MAX = 3;
 declare const __;
 
-class ViewManager {
+export class ViewManager {
     private isDragging: boolean = false;
     private elements: HTMLDivElement[] = [];
     // private rotating: boolean = false;
     private moving: boolean = false;
 
-    constructor(public game: AkropolisGame) {
+    constructor(public game: Game) {
         if (!dojo.hasClass("ebd-body", "mode_3d")) {
             dojo.addClass("ebd-body", "mode_3d");
             $("globalaction_3d").innerHTML = "2D"; // controls the upper right button
@@ -16,12 +18,12 @@ class ViewManager {
     }
 
     private setDefaultView() {
-        (this.game as any).control3dxaxis = 40; // rotation in degrees of x axis (it has a limit of 0 to 80 degrees in the frameword so users cannot turn it upsidedown)
-        (this.game as any).control3dzaxis = 0; // rotation in degrees of z axis
-        (this.game as any).control3dxpos = -100; // center of screen in pixels
-        (this.game as any).control3dypos = -50; // center of screen in pixels
-        (this.game as any).control3dscale = 1; // zoom level, 1 is default 2 is double normal size,
-        (this.game as any).control3dmode3d = true; // is the 3d enabled
+        (this.game.bga.gameui as any).control3dxaxis = 40; // rotation in degrees of x axis (it has a limit of 0 to 80 degrees in the frameword so users cannot turn it upsidedown)
+        (this.game.bga.gameui as any).control3dzaxis = 0; // rotation in degrees of z axis
+        (this.game.bga.gameui as any).control3dxpos = -100; // center of screen in pixels
+        (this.game.bga.gameui as any).control3dypos = -50; // center of screen in pixels
+        (this.game.bga.gameui as any).control3dscale = 1; // zoom level, 1 is default 2 is double normal size,
+        (this.game.bga.gameui as any).control3dmode3d = true; // is the 3d enabled
     }
 
     public resetView() {
@@ -55,7 +57,7 @@ class ViewManager {
 
         const expectedWidth = maxSpan + 50;
         const width = this.elements[0].clientWidth;
-        (this.game as any).control3dscale = Math.min(width / expectedWidth, 1);
+        (this.game.bga.gameui as any).control3dscale = Math.min(width / expectedWidth, 1);
         this.updateTransformOnElements();
     }
 
@@ -70,7 +72,7 @@ class ViewManager {
             return false;
         });
 
-        (this.game as any).drag3d = element;
+        (this.game.bga.gameui as any).drag3d = element;
     }
 
     private drag3dMouseDown(e: MouseEvent) {
@@ -79,7 +81,7 @@ class ViewManager {
             dojo.stopEvent(e);
             $("ebd-body").onmousemove = dojo.hitch(this, this.elementDrag3d);
             $("pagesection_gameview").onmouseleave = dojo.hitch(this, this.closeDragElement3d);
-            dojo.addClass($("pagesection_gameview"), "grabbinghand");
+            document.getElementById("pagesection_gameview").classList.add("grabbinghand");
             this.moving = true;
         }
     }
@@ -89,7 +91,7 @@ class ViewManager {
         dojo.stopEvent(e);
         if (e.buttons != 2 && e.buttons != 4) {
             $("ebd-body").onmousemove = null;
-            dojo.removeClass($("pagesection_gameview"), "grabbinghand");
+            document.getElementById("pagesection_gameview").classList.remove("grabbinghand");
             this.moving = false;
         }
         if (!this.isDragging) {
@@ -118,7 +120,7 @@ class ViewManager {
             evt.preventDefault();
             evt.stopImmediatePropagation();
             $("ebd-body").onmousemove = null;
-            dojo.removeClass($("pagesection_gameview"), "grabbinghand");
+            document.getElementById("pagesection_gameview").classList.remove("grabbinghand");
             this.moving = false;
         }
     }  
@@ -133,15 +135,15 @@ class ViewManager {
     
     // override of framework function to apply 3D on each player city instead of the whole view
     public change3d(incXAxis: number, xpos: number, ypos: number, xAxis: number, incScale: number, is3Dactive: boolean, reset: boolean) {
-        (this.game as any).control3dscale = Math.min(ZOOM_MAX, (this.game as any).control3dscale);
-        if (incScale > 0 && (this.game as any).control3dscale >= ZOOM_MAX) {
+        (this.game.bga.gameui as any).control3dscale = Math.min(ZOOM_MAX, (this.game.bga.gameui as any).control3dscale);
+        if (incScale > 0 && (this.game.bga.gameui as any).control3dscale >= ZOOM_MAX) {
             incScale = 0;
         }
 
         if (is3Dactive == false) {
-            (this.game as any).control3dmode3d = !(this.game as any).control3dmode3d;
+            (this.game.bga.gameui as any).control3dmode3d = !(this.game.bga.gameui as any).control3dmode3d;
         }
-        if ((this.game as any).control3dmode3d == false) {
+        if ((this.game.bga.gameui as any).control3dmode3d == false) {
             if (dojo.hasClass("ebd-body", "mode_3d")) {
                 dojo.removeClass("ebd-body", "mode_3d");
             }
@@ -151,29 +153,29 @@ class ViewManager {
                 dojo.addClass("ebd-body", "mode_3d");
             }
             dojo.addClass("ebd-body", "enableTransitions");
-            (this.game as any).control3dxaxis += incXAxis;
-            if ((this.game as any).control3dxaxis >= 80) {
-                (this.game as any).control3dxaxis = 80;
+            (this.game.bga.gameui as any).control3dxaxis += incXAxis;
+            if ((this.game.bga.gameui as any).control3dxaxis >= 80) {
+                (this.game.bga.gameui as any).control3dxaxis = 80;
             }
-            if ((this.game as any).control3dxaxis <= 0) {
-                (this.game as any).control3dxaxis = 0;
+            if ((this.game.bga.gameui as any).control3dxaxis <= 0) {
+                (this.game.bga.gameui as any).control3dxaxis = 0;
             }
-            if ((this.game as any).control3dscale < 0.5) {
-                (this.game as any).control3dscale = 0.5;
+            if ((this.game.bga.gameui as any).control3dscale < 0.5) {
+                (this.game.bga.gameui as any).control3dscale = 0.5;
             }
-            (this.game as any).control3dzaxis += xAxis;
-            (this.game as any).control3dxpos += xpos;
-            (this.game as any).control3dypos += ypos;
-            (this.game as any).control3dscale += incScale;
+            (this.game.bga.gameui as any).control3dzaxis += xAxis;
+            (this.game.bga.gameui as any).control3dxpos += xpos;
+            (this.game.bga.gameui as any).control3dypos += ypos;
+            (this.game.bga.gameui as any).control3dscale += incScale;
             if (reset) {
                 this.setDefaultView();
             }
-            dojo.toggleClass($("pagesection_gameview"), "view-changed", !reset);
+            document.getElementById("pagesection_gameview").classList.toggle("view-changed", !reset);
             this.updateTransformOnElements();
         }
     }
     
     private updateTransformOnElements() {
-        this.elements.forEach(element => element.style.transform = "rotatex(" + (this.game as any).control3dxaxis + "deg) translate(" + (this.game as any).control3dypos + "px," + (this.game as any).control3dxpos + "px) rotateZ(" + (this.game as any).control3dzaxis + "deg) scale3d(" + (this.game as any).control3dscale + "," + (this.game as any).control3dscale + "," + (this.game as any).control3dscale + ")");
+        this.elements.forEach(element => element.style.transform = "rotatex(" + (this.game.bga.gameui as any).control3dxaxis + "deg) translate(" + (this.game.bga.gameui as any).control3dypos + "px," + (this.game.bga.gameui as any).control3dxpos + "px) rotateZ(" + (this.game.bga.gameui as any).control3dzaxis + "deg) scale3d(" + (this.game.bga.gameui as any).control3dscale + "," + (this.game.bga.gameui as any).control3dscale + "," + (this.game.bga.gameui as any).control3dscale + ")");
     }
 }
