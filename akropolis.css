@@ -462,6 +462,7 @@ html[data-theme=dark] #market {
   justify-self: flex-start;
 }
 #athena-contruction-spaces .athena-contruction-space .construction-card {
+  position: relative;
   width: 120px;
   height: 182px;
   border-radius: 8px;
