@@ -56,7 +56,6 @@ export class PlayerTable {
 
         this.createGrid(player.board, lastMove);
 
-        this.city.style.transform = "rotatex(" + (game.bga.gameui as any).control3dxaxis + "deg) translate(" + (game.bga.gameui as any).control3dypos + "px," + (game.bga.gameui as any).control3dxpos + "px) rotateZ(" + (game.bga.gameui as any).control3dzaxis + "deg) scale3d(" + (game.bga.gameui as any).control3dscale + "," + (game.bga.gameui as any).control3dscale + "," + (game.bga.gameui as any).control3dscale + ")";
         this.game.viewManager.draggableElement3d(this.city);
     }    
 

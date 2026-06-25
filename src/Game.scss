@@ -146,28 +146,14 @@ html {
   background-repeat: repeat;
 }
 
-html[data-background="dark"] {
+html[data-background="dark"], html[data-theme="dark"][data-background="auto"] {
   background: url("img/background-dark.jpg");
-}
-
-@media (prefers-color-scheme: dark) {
-  html[data-background="auto"] {
-    background: url("img/background-dark.jpg");
-  }
-}
-
-#game_play_area {
-  will-change: transform;
-}
-
-.mode_3d {
-  background: unset;
-}
-
-.mode_3d #game_play_area_background {
-  display: none;
 }
 
 .solo-player-icon {
   background: url('img/gear.png');
+}
+
+.bga-3d-element-mode-3d {
+  background: unset !important; /* TEMP FIX */
 }
