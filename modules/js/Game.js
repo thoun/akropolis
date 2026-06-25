@@ -705,7 +705,7 @@ class CompleteCardState extends StateHandler {
     onUpdateActionButtonsForAutomata(args) {
         this.game.bga.statusBar.setTitle(_('${you} may give a tile to the Automata to complete a fulfilled construction card'));
         document.getElementById('generalactions').innerHTML = '';
-        this.game.bga.gameui.addActionButton(`skip_button`, _('Skip'), () => this.game.bgaPerformAction('actSkipCompleteCard'), null, null, 'gray');
+        this.game.bga.gameui.addActionButton(`skip_button`, _('Skip'), () => this.game.bga.actions.performAction('actSkipCompleteCard'), null, null, 'gray');
         const spaces = args.cardIds.map(id => Number(this.game.gamedatas.cards.find(card => card.id === id).location.split('-')[1]));
         const selectableTilesIds = Object.values(args.automaPicks).flat();
         const tilesOfCards = this.game.gamedatas.dock.filter(tile => tile.location.startsWith('athena') && spaces.includes(Number(tile.location.split('-')[1])));
@@ -726,7 +726,7 @@ class CompleteCardState extends StateHandler {
         this.game.bga.gameui.addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.game.cancelPlaceTile(), null, null, 'gray');
         [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id)?.classList.toggle('disabled', id !== `cancelPlaceTile_button` || !this.tileForAutomata));
         this.game.updateRotationButtonState();
-        this.game.bga.gameui.addActionButton(`skip_button`, _('Skip'), () => this.game.bgaPerformAction('actSkipCompleteCard'), null, null, 'gray');
+        this.game.bga.gameui.addActionButton(`skip_button`, _('Skip'), () => this.game.bga.actions.performAction('actSkipCompleteCard'), null, null, 'gray');
         const cardsIds = this.selectedCard ? [this.selectedCard] : args.cardIds;
         const spaces = cardsIds.map(id => Number(this.game.gamedatas.cards.find(card => card.id === id).location.split('-')[1]));
         this.game.athenaConstructionSite.setSelectable(spaces, null);
