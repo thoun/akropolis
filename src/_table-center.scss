@@ -1,3 +1,10 @@
+html[data-theme="dark"] {
+    #market {
+        text-shadow: 0 0 1px black, 0 0 2px black, 0 0 3px black, 0 0 4px black, 0 0 5px black, 0 0 6px black;
+        color: white;
+    }
+}
+
 #market {
     display: flex;
     flex-direction: row-reverse;
@@ -8,6 +15,7 @@
     margin: 15px;
     text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
     text-align: center;
+    color: black;
 
     &.left-to-right {
         flex-direction: row;

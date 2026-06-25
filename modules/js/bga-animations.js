@@ -528,6 +528,7 @@ var AnimationManager = /** @class */ (function () {
     return AnimationManager;
 }());
 define({
+    AnimationManager: AnimationManager,
     // utils functions
     shouldAnimate: shouldAnimate,
     getDeltaCoordinates: getDeltaCoordinates,

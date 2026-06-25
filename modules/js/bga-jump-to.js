@@ -117,4 +117,5 @@ var JumpToManager = /** @class */ (function () {
 }());
 define({
     JumpToManager: JumpToManager,
+    JumpToEntry: JumpToEntry,
 });
