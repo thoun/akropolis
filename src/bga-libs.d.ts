@@ -1,1 +1,1 @@
-type AnimationManager = any;
+/// <reference path="../bga-animations.d.ts" />

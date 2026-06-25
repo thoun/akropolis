@@ -1,4 +1,4 @@
-export {};
+import type { Game as AkropolisGame } from "./Game";
 
 export const TILE_COORDINATES = [
     [0, 0],

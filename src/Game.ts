@@ -55,7 +55,7 @@ function sleep(ms: number){
 export class Game {
     public tilesManager: TilesManager;
     public viewManager: ViewManager;
-    public animationManager: AnimationManager;
+    public animationManager: InstanceType<typeof BgaAnimations.Manager>;
     public athenaConstructionSite?: AthenaConstructionSite;
 
     public gamedatas: AkropolisGamedatas;
@@ -131,7 +131,9 @@ export class Game {
 
         console.log('gamedatas', gamedatas);
 
-        this.animationManager = new BgaAnimations.AnimationManager(this);
+        this.animationManager = new BgaAnimations.Manager({
+            animationsActive: () => this.bga.gameui.bgaAnimationsActive(),
+        });
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
@@ -840,10 +842,7 @@ export class Game {
             const animated = document.createElement('div');
             animated.classList.add('stone', 'score-icon', 'animated');
             document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
-            await this.animationManager.play(new BgaAnimations.BgaSlideAnimation({
-                element: animated,
-                fromElement: origin,
-            }))
+            await this.animationManager.slideIn(animated, origin);
             animated.remove();
         } else {
             const lastTile = document.getElementById(`player-table-${playerId}-grid`).getElementsByClassName('last-move')[0];
@@ -854,10 +853,7 @@ export class Game {
                     const animated = document.createElement('div');
                     animated.classList.add('stone', 'score-icon', 'animated');
                     document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
-                    promises.push(this.animationManager.play(new BgaAnimations.BgaSlideAnimation({
-                        element: animated,
-                        fromElement: origin,
-                    })).then(() => animated.remove()));
+                    promises.push(this.animationManager.slideIn(animated, origin).then(() => animated.remove()));
                     await Promise.all(promises);
                 }
             }
@@ -873,11 +869,7 @@ export class Game {
         const destinationId = `first-player-token-wrapper-${args.pId}`;
         const originId = firstPlayerToken.parentElement.id;
         if (destinationId !== originId) {
-            await this.animationManager.attachWithAnimation(new BgaAnimations.BgaSlideAnimation({
-                element: firstPlayerToken,
-                zoom: 1,
-            }),
-            document.getElementById(destinationId));
+            await this.animationManager.slideAndAttach(firstPlayerToken, document.getElementById(destinationId));
         }
     }
 

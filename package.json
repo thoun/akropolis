@@ -14,7 +14,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bga-animations": "thoun/bga-animations#1.1.1",
     "bga-jump-to": "thoun/bga-jump-to#1.1.0"
   },
   "devDependencies": {

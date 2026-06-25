@@ -209,6 +209,23 @@
   visibility: hidden;
 }
 
+.tile.animated-market-tile {
+  --shift-left: 0px;
+  --shift-top: 0px;
+  position: relative;
+  transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
+}
+.tile.animated-market-tile::after {
+  top: 16px;
+  bottom: -16px;
+  left: -12px;
+  right: 12px;
+}
+.tile.animated-market-tile .hex {
+  left: calc(48.5px * (0.5 + var(--x) * 1.5) - 12px);
+  top: calc(84px * var(--y) / 2 + 16px);
+}
+
 .hex {
   position: absolute;
   width: 97px;
@@ -355,6 +372,42 @@ html[data-theme=dark] #market {
   color: white;
 }
 
+.animated-market-tile-with-cost {
+  font-weight: bold;
+  width: 194px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 20px;
+}
+.animated-market-tile-with-cost .tile {
+  --shift-left: 0px;
+  --shift-top: 0px;
+  position: relative;
+  transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
+}
+.animated-market-tile-with-cost .tile::after {
+  top: 16px;
+  bottom: -16px;
+  left: -12px;
+  right: 12px;
+}
+.animated-market-tile-with-cost .cost {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.animated-market-tile-with-cost .cost .score-icon {
+  width: 24px;
+  height: 24px;
+}
+.animated-market-tile-with-cost .hex {
+  position: absolute;
+  left: calc(48.5px * (0.5 + var(--x) * 1.5) - 12px);
+  top: calc(84px * var(--y) / 2 + 16px);
+}
+
 #market {
   display: flex;
   flex-direction: row-reverse;
@@ -393,20 +446,6 @@ html[data-theme=dark] #market {
   align-items: center;
   border-radius: 20px;
 }
-#market .tile-with-cost.disabled {
-  cursor: not-allowed;
-  background: rgba(255, 128, 128, 0.4);
-}
-#market .tile-with-cost.disabled .tile {
-  opacity: 0.8;
-  pointer-events: none;
-}
-#market .tile-with-cost.disabled .cost {
-  color: red;
-}
-#market .tile-with-cost.selected {
-  box-shadow: 0 0 10px 8px #01c0ff;
-}
 #market .tile-with-cost .tile {
   --shift-left: 0px;
   --shift-top: 0px;
@@ -427,6 +466,20 @@ html[data-theme=dark] #market {
 #market .tile-with-cost .cost .score-icon {
   width: 24px;
   height: 24px;
+}
+#market .tile-with-cost.disabled {
+  cursor: not-allowed;
+  background: rgba(255, 128, 128, 0.4);
+}
+#market .tile-with-cost.disabled .tile {
+  opacity: 0.8;
+  pointer-events: none;
+}
+#market .tile-with-cost.disabled .cost {
+  color: red;
+}
+#market .tile-with-cost.selected {
+  box-shadow: 0 0 10px 8px #01c0ff;
 }
 #market.selectable .tile-with-cost:not(.disabled) .tile .hex {
   cursor: pointer;

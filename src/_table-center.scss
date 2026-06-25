@@ -5,6 +5,52 @@ html[data-theme="dark"] {
     }
 }
 
+@mixin market-tile-with-cost {
+    font-weight: bold;
+    width: #{$hexSide * 4};
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 20px;
+
+    .tile {
+        --shift-left: 0px;
+        --shift-top: 0px;
+        position: relative;
+        transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
+        // transition: transform 0.5s; // change from 5 to 0 is weird
+
+        &::after {
+            top: 16px;
+            bottom: -16px;
+            left: -12px;
+            right: 12px;
+        }
+    }
+
+    .cost {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        .score-icon {
+            width: 24px;
+            height: 24px;
+        }
+    }
+}
+
+.animated-market-tile-with-cost {
+    @include market-tile-with-cost;
+
+    .hex {
+        position: absolute;
+        left: calc($hexSide * (0.5 + var(--x) * 1.5) - 12px);
+        top: calc(($hexHeight * var(--y) / 2) + 16px);
+    }
+}
+
 #market {
     display: flex;
     flex-direction: row-reverse;
@@ -38,13 +84,7 @@ html[data-theme="dark"] {
     }
 
     .tile-with-cost {
-        font-weight: bold;
-        width: #{$hexSide * 4};
-        display: flex;
-        justify-content: space-between;
-        flex-direction: column;
-        align-items: center;
-        border-radius: 20px;
+        @include market-tile-with-cost;
 
         &.disabled {
             cursor: not-allowed;
@@ -62,32 +102,6 @@ html[data-theme="dark"] {
 
         &.selected {
             box-shadow: 0 0 10px 8px $selectionColor;
-        }
-
-        .tile {
-            --shift-left: 0px;
-            --shift-top: 0px;
-            position: relative;
-            transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
-            // transition: transform 0.5s; // change from 5 to 0 is weird
-
-            &::after {
-                top: 16px;
-                bottom: -16px;
-                left: -12px;
-                right: 12px;
-            }
-        }
-
-        .cost {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-
-            .score-icon {
-                width: 24px;
-                height: 24px;
-            }
         }
     }
 

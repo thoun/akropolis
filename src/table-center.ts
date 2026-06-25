@@ -1,5 +1,4 @@
 import { Game } from "./Game";
-import { BgaAnimations } from "./libs";
 
 export class ConstructionSite {
     private market: HTMLDivElement;
@@ -62,25 +61,22 @@ export class ConstructionSite {
     public async refill(tiles: Tile[], remainingStacks: number) {
         const orderedTiles = this.orderTiles(tiles);
         this.setTiles(orderedTiles);
-        await Promise.all(orderedTiles.map(tile => 
-            this.game.animationManager.play(new BgaAnimations.BgaSlideAnimation({
-                element: document.getElementById(`market-tile-${tile.id}`),
-                fromElement: this.remainingstacksDiv,
-            }))
-        )); 
+        await Promise.all(orderedTiles.map(tile => {
+            const tileWithCost = document.getElementById(`market-tile-${tile.id}`) as HTMLElement;
+            tileWithCost.classList.add('animated-market-tile-with-cost');
+
+            return this.game.animationManager.slideIn(tileWithCost, this.remainingstacksDiv)
+                .finally(() => tileWithCost.classList.remove('animated-market-tile-with-cost'));
+        }));
 
         this.remainingStacksCounter.setValue(remainingStacks);
     }
 
     public async animateTileTo(tile: Tile, to: HTMLDivElement): Promise<any> {
         const marketTileDiv = document.getElementById(`market-tile-${tile.id}`).querySelector('.tile') as HTMLElement;
-        const finalTransform = `rotate(${60 * Number(marketTileDiv.style.getPropertyValue('--r'))}deg)`;
-        await this.game.animationManager.play(new BgaAnimations.BgaSlideToAnimation({
-            element: marketTileDiv,
-            fromElement: to,
-            scale: 1, 
-            finalTransform,
-        }));
+        const animatedTileDiv = marketTileDiv.cloneNode(true) as HTMLElement;
+        animatedTileDiv.classList.add('animated-market-tile');
+        await this.game.animationManager.slideFloatingElement(animatedTileDiv, marketTileDiv, to, { scale: 1 });
     }
 
     public removeTile(tile: Tile) {

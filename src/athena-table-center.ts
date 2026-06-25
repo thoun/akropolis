@@ -1,5 +1,4 @@
 import { Game } from "./Game";
-import { BgaAnimations } from "./libs";
 
 const CARDS = {
     "Housing": '#55b5e9',
@@ -166,9 +165,9 @@ export class AthenaConstructionSite {
     
     public async completeCard(playerId: number, cardId: string) {
         const space = this.cards.findIndex(card => card.id === cardId) + 1;
-        await this.game.animationManager.attachWithAnimation(new BgaAnimations.BgaSlideAnimation({
-            element: document.querySelector(`#player-statue-part-${playerId}-${space} .statue-part`),
-        }),
-        document.getElementById(`statue-${playerId}-${space}`));
+        await this.game.animationManager.slideAndAttach(
+            document.querySelector(`#player-statue-part-${playerId}-${space} .statue-part`) as HTMLElement,
+            document.getElementById(`statue-${playerId}-${space}`),
+        );
     }
 }

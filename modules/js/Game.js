@@ -1,7 +1,7 @@
-const [BgaJumpTo, BgaAnimations] = await globalThis.importDojoLibs([
+const [BgaJumpTo] = await globalThis.importDojoLibs([
     g_gamethemeurl + 'modules/js/bga-jump-to.js',
-    g_gamethemeurl + 'modules/js/bga-animations.js',
 ]);
+const BgaAnimations = await globalThis.importEsmLib('bga-animations', '1.x');
 
 class ViewManager {
     constructor(game) {
@@ -260,21 +260,19 @@ class ConstructionSite {
     async refill(tiles, remainingStacks) {
         const orderedTiles = this.orderTiles(tiles);
         this.setTiles(orderedTiles);
-        await Promise.all(orderedTiles.map(tile => this.game.animationManager.play(new BgaAnimations.BgaSlideAnimation({
-            element: document.getElementById(`market-tile-${tile.id}`),
-            fromElement: this.remainingstacksDiv,
-        }))));
+        await Promise.all(orderedTiles.map(tile => {
+            const tileWithCost = document.getElementById(`market-tile-${tile.id}`);
+            tileWithCost.classList.add('animated-market-tile-with-cost');
+            return this.game.animationManager.slideIn(tileWithCost, this.remainingstacksDiv)
+                .finally(() => tileWithCost.classList.remove('animated-market-tile-with-cost'));
+        }));
         this.remainingStacksCounter.setValue(remainingStacks);
     }
     async animateTileTo(tile, to) {
         const marketTileDiv = document.getElementById(`market-tile-${tile.id}`).querySelector('.tile');
-        const finalTransform = `rotate(${60 * Number(marketTileDiv.style.getPropertyValue('--r'))}deg)`;
-        await this.game.animationManager.play(new BgaAnimations.BgaSlideToAnimation({
-            element: marketTileDiv,
-            fromElement: to,
-            scale: 1,
-            finalTransform,
-        }));
+        const animatedTileDiv = marketTileDiv.cloneNode(true);
+        animatedTileDiv.classList.add('animated-market-tile');
+        await this.game.animationManager.slideFloatingElement(animatedTileDiv, marketTileDiv, to, { scale: 1 });
     }
     removeTile(tile) {
         const index = this.tiles.findIndex(t => t.id == tile.id);
@@ -464,9 +462,7 @@ class AthenaConstructionSite {
     }
     async completeCard(playerId, cardId) {
         const space = this.cards.findIndex(card => card.id === cardId) + 1;
-        await this.game.animationManager.attachWithAnimation(new BgaAnimations.BgaSlideAnimation({
-            element: document.querySelector(`#player-statue-part-${playerId}-${space} .statue-part`),
-        }), document.getElementById(`statue-${playerId}-${space}`));
+        await this.game.animationManager.slideAndAttach(document.querySelector(`#player-statue-part-${playerId}-${space} .statue-part`), document.getElementById(`statue-${playerId}-${space}`));
     }
 }
 
@@ -848,7 +844,9 @@ class Game {
         </div>`;
         dojo.place(reminderHtml, 'controls3d_wrap', 'first');
         console.log('gamedatas', gamedatas);
-        this.animationManager = new BgaAnimations.AnimationManager(this);
+        this.animationManager = new BgaAnimations.Manager({
+            animationsActive: () => this.bga.gameui.bgaAnimationsActive(),
+        });
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
         this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
@@ -1471,10 +1469,7 @@ class Game {
             const animated = document.createElement('div');
             animated.classList.add('stone', 'score-icon', 'animated');
             document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
-            await this.animationManager.play(new BgaAnimations.BgaSlideAnimation({
-                element: animated,
-                fromElement: origin,
-            }));
+            await this.animationManager.slideIn(animated, origin);
             animated.remove();
         }
         else {
@@ -1486,10 +1481,7 @@ class Game {
                     const animated = document.createElement('div');
                     animated.classList.add('stone', 'score-icon', 'animated');
                     document.getElementById(`stones-icon-${playerId}`).appendChild(animated);
-                    promises.push(this.animationManager.play(new BgaAnimations.BgaSlideAnimation({
-                        element: animated,
-                        fromElement: origin,
-                    })).then(() => animated.remove()));
+                    promises.push(this.animationManager.slideIn(animated, origin).then(() => animated.remove()));
                     await Promise.all(promises);
                 }
             }
@@ -1503,10 +1495,7 @@ class Game {
         const destinationId = `first-player-token-wrapper-${args.pId}`;
         const originId = firstPlayerToken.parentElement.id;
         if (destinationId !== originId) {
-            await this.animationManager.attachWithAnimation(new BgaAnimations.BgaSlideAnimation({
-                element: firstPlayerToken,
-                zoom: 1,
-            }), document.getElementById(destinationId));
+            await this.animationManager.slideAndAttach(firstPlayerToken, document.getElementById(destinationId));
         }
     }
     notif_updateScores(args) {
