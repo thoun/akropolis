@@ -917,6 +917,10 @@ html[data-theme=dark] #market {
   transform-style: initial;
 }
 
+.bga-3d-element-mode-3d #controls3d_wrap {
+  display: block;
+}
+
 /* make space between buttons on touch devices */
 @media (hover: none) {
   #page-title .action-button.bgabutton,

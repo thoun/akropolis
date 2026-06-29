@@ -75,6 +75,11 @@ $hexThickness: 16px;
   transform-style: initial;
 }
 
+// TEMP fix while waiting next BGA release
+.bga-3d-element-mode-3d #controls3d_wrap {
+  display: block;
+}
+
 /* make space between buttons on touch devices */
 @media (hover: none) {
   #page-title .action-button.bgabutton,

@@ -28,6 +28,7 @@ export class ViewManager {
             view: ViewManager.DEFAULT_VIEW,
             draggable: true,
             zoomByWheel: true,
+            showControls: true,
         });
     }
 
