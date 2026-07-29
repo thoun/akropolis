@@ -1,6 +1,4 @@
-const [BgaJumpTo] = await globalThis.importDojoLibs([
-    g_gamethemeurl + 'modules/js/bga-jump-to.js',
-]);
+const BgaJumpTo = await globalThis.importEsmLib('bga-jump-to', '1.x');
 const BgaAnimations = await globalThis.importEsmLib('bga-animations', '1.x');
 
 class ViewManager {
@@ -860,21 +858,21 @@ class Game {
         }
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
-        const topEntries = [];
+        const entries = [];
         if (gamedatas.isAthena) {
-            topEntries.push(new BgaJumpTo.JumpToEntry(_("Athena"), 'athena-contruction-spaces', { 'color': '#1fa7d9' }));
+            entries.push(new BgaJumpTo.Entry(_("Athena"), 'athena-contruction-spaces', { color: '#1fa7d9', backgroundImage: `url('${this.bga.images.getImgUrl('athena-statue.png')}')` }));
         }
-        topEntries.push(new BgaJumpTo.JumpToEntry(_("Construction Site"), 'market', { 'color': '#7e7978' }));
-        const bottomEntries = [];
+        entries.push(new BgaJumpTo.Entry(_("Construction Site"), 'market', { color: '#7e7978', backgroundImage: `url('${this.bga.images.getImgUrl('score-icons.png')}')`, backgroundPosition: '0% 0%', backgroundSize: '200% auto' }));
+        const playerEntries = BgaJumpTo.BgaPlayerEntries(this.bga, {
+            entrySettings: (playerId) => ({ id: `bga-jump-to_player-table-${playerId}` }),
+        });
+        entries.push(...playerEntries);
         if (gamedatas.soloPlayer) {
-            bottomEntries.push(new BgaJumpTo.JumpToEntry(_(gamedatas.soloPlayer.name), 'player-table-0', { 'color': `#${gamedatas.soloPlayer.color}` }));
+            entries.push(new BgaJumpTo.Entry(_(gamedatas.soloPlayer.name), 'player-table-0', { color: `#${gamedatas.soloPlayer.color}`, backgroundImage: `url('${this.bga.images.getImgUrl('gear.png')}')` }));
         }
-        new BgaJumpTo.JumpToManager(this, {
+        new BgaJumpTo.Manager({
             localStorageFoldedKey: LOCAL_STORAGE_JUMP_KEY,
-            topEntries,
-            bottomEntries,
-            entryClasses: 'hexa-point',
-            defaultFolded: false,
+            entries,
         });
         document.getElementsByTagName('body')[0].addEventListener('keydown', e => this.onKeyPress(e));
         this.setupNotifications();
