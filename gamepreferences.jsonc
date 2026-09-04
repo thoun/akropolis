@@ -1,0 +1,67 @@
+// Akropolis game preferences description
+// This file is generated from gameoptions.inc.php
+
+{
+  "201": {
+    "name": "Different tile border colors based on level",
+    "needReload": false,
+    "values": {
+      "1": {"name": "Disabled"},
+      "2": {"name": "Enabled"}
+    },
+    "default": 1
+  },
+
+  // old preference, do not reuse
+  // "202": {
+  //   "name": "Allow to replace without cancel",
+  //   "needReload": false,
+  //   "values": {
+  //     "1": {"name": "Disabled"},
+  //     "2": {"name": "Enabled"}
+  //   },
+  //   "default": 1
+  // },
+
+  "203": {
+    "name": "Reverse construction site order",
+    "needReload": false,
+    "values": {
+      "1": {"name": "Disabled"},
+      "2": {"name": "Enabled"}
+    },
+    "default": 1
+  },
+
+  "204": {
+    "name": "Transparency animation on preview tile",
+    "needReload": false,
+    "values": {
+      "1": {"name": "Disabled"},
+      "2": {"name": "Enabled"}
+    },
+    "default": 2
+  },
+
+  // old preference, do not reuse
+  // "205": {
+  //   "name": "Reset camera between turns",
+  //   "needReload": false,
+  //   "values": {
+  //     "1": {"name": "Disabled"},
+  //     "2": {"name": "Enabled"}
+  //   },
+  //   "default": 2
+  // },
+
+  "206": {
+    "name": "Background",
+    "needReload": false,
+    "values": {
+      "0": {"name": "Automatic"},
+      "1": {"name": "Light"},
+      "2": {"name": "Dark"}
+    },
+    "default": 0
+  }
+}

@@ -35,6 +35,22 @@ const OPTION_EXP_ATHENA = 111;
 const OPTION_ATHENA_DISABLED = 0;
 const OPTION_ATHENA_ENABLED = 1;
 
+const OPTION_EXP_PANTHEON = 112;
+const OPTION_PANTHEON_DISABLED = 0;
+const OPTION_PANTHEON_ENABLED = 1;
+const OPTION_PANTHEON_SCENARIO = 113;
+const SCENARIO_CORINTHE = 0;
+const SCENARIO_SPARTE = 1;
+const SCENARIO_ATHENA = 2;
+
+/*
+ * State constants
+ */
+const ST_PANTHEON_SETUP = 50;
+const ST_PLACE_TILE_PANTHEON = 51;
+const ST_NEXT_PLAYER_PANTHEON = 52;
+const ST_COMPLETE_CHALLENGE = 53;
+
 
 /*
  * User preferences
@@ -71,16 +87,50 @@ const QUARRY = 'quarry';
 
 const FREE = 'free';
 
+/*
+ * Colors for Pantheon altars and challenges
+ */
+const COLOR_RED = 'red';
+const COLOR_YELLOW = 'yellow';
+const COLOR_GREEN = 'green';
+const COLOR_BLUE = 'blue';
+const COLOR_PURPLE = 'purple';
+const COLOR_ORANGE = 'orange';
+const COLOR_WHITE = 'white';
+
 const TILE_GEOMETRY = [[0, 0], [1, 1], [0, 2]]; // TODO : remove
 const TILE_GEOMETRIES = [
   1 => [[0, 0]],
   3 => [[0, 0], [1, 1], [0, 2]],
 ];
+
+// Tile-specific geometries (for tiles with unique shapes)
+// Maps tile ID to its geometry
+const PANTHEON_STARTING_TILE_HOUSE = 91;
+const PANTHEON_STARTING_TILE_MARKET = 92;
+const PANTHEON_STARTING_TILE_BARRACK = 93;
+const PANTHEON_STARTING_TILE_TEMPLE = 94;
+const PANTHEON_STARTING_TILE_GARDEN = 95;
+const PANTHEON_STARTING_TILES = [
+  PANTHEON_STARTING_TILE_HOUSE,
+  PANTHEON_STARTING_TILE_MARKET,
+  PANTHEON_STARTING_TILE_BARRACK,
+  PANTHEON_STARTING_TILE_TEMPLE,
+  PANTHEON_STARTING_TILE_GARDEN,
+];
+const PANTHEON_STARTING_TILE_GEOMETRY = [
+  [0, 0],
+  [1, 1],
+  [1, -1]
+];
+
 const DISTRICTS = [BARRACK, HOUSE, MARKET, TEMPLE, GARDEN];
 const PLAZAS = [BARRACK_PLAZA, HOUSE_PLAZA, MARKET_PLAZA, TEMPLE_PLAZA, GARDEN_PLAZA];
 const PLAZAS_MULT = [BARRACK_PLAZA => 2, HOUSE_PLAZA => 1, MARKET_PLAZA => 2, TEMPLE_PLAZA => 2, GARDEN_PLAZA => 3];
 
 const ARCHITECT_ID = 0;
+const CAPITAL_ID = -1;
+
 /**
  * Stats
  */

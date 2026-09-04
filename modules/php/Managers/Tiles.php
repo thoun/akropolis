@@ -3,6 +3,7 @@
 namespace AKR\Managers;
 
 use AKR\Core\Globals;
+use AKR\Helpers\Collection;
 
 /* Class to manage all the tiles for Akropolis */
 
@@ -53,6 +54,11 @@ class Tiles extends \AKR\Helpers\Pieces
         continue;
       }
 
+      // Pantheon starting tiles
+      if (in_array($id, PANTHEON_STARTING_TILES)) {
+        continue;
+      }
+
       $tiles[] = [
         'id' => $id,
         'player_id' => null,
@@ -85,7 +91,50 @@ class Tiles extends \AKR\Helpers\Pieces
       self::create($tiles);
     }
 
-    self::refillDock();
+    // Pantheon
+    if (Globals::isPantheon()) {
+      $tiles = [];
+
+      // ONe starting tile per player
+      $startingTiles = PANTHEON_STARTING_TILES;
+      shuffle($singleTiles);
+      $playerIds = Players::getAll()->getIds();
+      for ($i = 0; $i < count($playerIds); $i++) {
+        $tileId = $startingTiles[$i];
+        $tiles[] =  [
+          'id' => $tileId,
+          'location' => "board",
+          'player_id' => $playerIds[$i],
+          'x' => 0,
+          'y' => 0,
+          'r' => 0,
+        ];
+      }
+
+      // The rest in the capital
+      for (; $i < 5; $i++) {
+        // TODO : place them in pending state instead
+        $tiles[] =  [
+          'id' => $tileId,
+          'location' => "board",
+          'player_id' => CAPITAL_ID,
+          'x' => 0,
+          'y' => $i,
+          'r' => 0,
+        ];
+      }
+
+      self::create($tiles);
+
+      // Draw three random tiles per player
+      for ($i = 0; $i < count($playerIds); $i++) {
+        self::drawToHand($playerIds[$i], 3);
+      }
+    }
+    // Standard games has docks
+    else {
+      self::refillDock();
+    }
   }
 
   public static function refillDock()
@@ -113,6 +162,39 @@ class Tiles extends \AKR\Helpers\Pieces
       ->wherePlayer($pId)
       ->get();
   }
+
+  ////////////////////////////
+  // Hand management methods
+  public static function getPlayerHand($pId): Collection
+  {
+    return self::getInLocation('hand')
+      ->wherePlayer($pId)
+      ->get();
+  }
+
+  public static function addToHand($pId, $tileId)
+  {
+    Tiles::DB()->update([
+      'tile_location' => "hand",
+      'player_id' => $pId,
+    ], $tileId);
+  }
+
+  public static function drawToHand($pId, $n = 1)
+  {
+    $tiles = self::getTopOf('deck', $n);
+    $ids = [];
+    foreach ($tiles as $tile) {
+      self::addToHand(
+        $pId,
+        $tile['id']
+      );
+      $ids[] = $tile['id'];
+    }
+
+    return self::getMany($ids);
+  }
+  /////////////////////////
 
   public static function add($tileId, $pId, $pos, $rotation)
   {
@@ -240,6 +322,16 @@ class Tiles extends \AKR\Helpers\Pieces
     [TEMPLE_PLAZA],
     [BARRACK_PLAZA],
     [BARRACK_PLAZA],
+
+    # Pantheon
+    # 92
+    [HOUSE_PLAZA, QUARRY, QUARRY],
+    [MARKET_PLAZA, QUARRY, QUARRY],
+    [BARRACK_PLAZA, QUARRY, QUARRY],
+    [TEMPLE_PLAZA, QUARRY, QUARRY],
+    [GARDEN_PLAZA, QUARRY, QUARRY],
+
+    #97
   ];
 
   public static $tilesPlayers = [

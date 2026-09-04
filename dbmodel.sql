@@ -58,3 +58,24 @@ CREATE TABLE IF NOT EXISTS `log` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ALTER TABLE `gamelog` ADD `cancel` TINYINT(1) NOT NULL DEFAULT 0;
+
+-- Pantheon expansion tables
+
+-- Divine Altars
+CREATE TABLE IF NOT EXISTS `pantheon_altars` (
+  `altar_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `altar_color` varchar(32) NOT NULL,
+  `altar_location` varchar(32) NOT NULL DEFAULT 'reserve',
+  `capital_x` int(10) NULL,
+  `capital_y` int(10) NULL,
+  `capital_z` int(10) NULL,
+  PRIMARY KEY (`altar_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Challenge tiles
+CREATE TABLE IF NOT EXISTS `pantheon_challenges` (
+  `challenge_id` varchar(64) NOT NULL,
+  `challenge_location` varchar(32) NOT NULL DEFAULT 'deck',
+  `challenge_state` int(10) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`challenge_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

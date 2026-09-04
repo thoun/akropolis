@@ -25,6 +25,11 @@ class Globals extends \AKR\Helpers\DB_Manager
     // Athena expansion
     'athena' => 'bool',
     'athenaCardStatuses' => 'obj',
+
+    // Pantheon expansion
+    'pantheon' => 'bool',
+    'scenario' => 'int',
+    'unlockedChallengeSlots' => 'int',
   ];
 
   protected static $table = 'global_variables';
@@ -45,10 +50,12 @@ class Globals extends \AKR\Helpers\DB_Manager
     $tmp = self::$log;
     self::$log = false;
 
-    foreach (self::DB()
-      ->select(['value', 'name'])
-      ->get(false)
-      as $name => $variable) {
+    foreach (
+      self::DB()
+        ->select(['value', 'name'])
+        ->get(false)
+      as $name => $variable
+    ) {
       if (\array_key_exists($name, self::$variables)) {
         self::$data[$name] = $variable;
       }
@@ -172,12 +179,29 @@ class Globals extends \AKR\Helpers\DB_Manager
       ]);
     }
 
+    // Athena
     self::setAthena(($options[\OPTION_EXP_ATHENA] ?? OPTION_ATHENA_DISABLED) == OPTION_ATHENA_ENABLED);
     self::setAthenaCardStatuses([]);
+
+
+    // Pantheon expansion
+    self::setPantheon(($options[OPTION_EXP_PANTHEON] ?? OPTION_PANTHEON_DISABLED) == OPTION_PANTHEON_ENABLED);
+    self::setScenario($options[OPTION_PANTHEON_SCENARIO] ?? SCENARIO_CORINTHE);
+    self::setUnlockedChallengeSlots(3);
+    if (self::isPantheon()) {
+      self::setAthena(false);
+      self::setAllTiles(true);
+    }
   }
 
   public static function isVariant($type)
   {
     return self::getVariants()[$type];
+  }
+
+  // Pantheon expansion helper methods
+  public static function isPantheon()
+  {
+    return (bool) self::getPantheon();
   }
 }

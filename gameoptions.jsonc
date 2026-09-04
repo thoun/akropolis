@@ -1,0 +1,289 @@
+// Akropolis game options description
+// This file is generated from gameoptions.inc.php
+
+{
+  "101": {
+    "name": "Live scoring",
+    "values": {
+      "0": {
+        "name": "Disabled",
+        "description": "Hidden scores during the game"
+      },
+      "1": {
+        "name": "Enabled",
+        "tmdisplay": "[Live scoring]",
+        "description": "Live scoring during the game"
+      }
+    },
+    "default": 1
+  },
+
+  "102": {
+    "name": "All tiles",
+    "values": {
+      "0": {
+        "name": "Disabled",
+        "description": "Always form 11 stack of tiles"
+      },
+      "1": {
+        "name": "Enabled",
+        "description": "Play with the whole set of 61 tiles"
+      }
+    },
+    "default": 0,
+    "displaycondition": [
+      {
+        "type": "maxplayers",
+        "value": [1, 2, 3]
+      }
+    ]
+  },
+
+  "110": {
+    "name": "Architect level",
+    "values": {
+      "0": {
+        "name": "Easy - Hippodamos",
+        "description": "All the Districts of Hippodamos are considered to be at the 1st level."
+      },
+      "1": {
+        "name": "Medium - Metagenes",
+        "description": "All the Districts of Metagenes are considered to be at the 1st level. Metagenes earns 2 additional points for each Quarry he owns.",
+        "nobeginner": true
+      },
+      "2": {
+        "name": "Hard - Callicrates",
+        "description": "All Callicrates Districts are considered to be at the 2nd level.",
+        "nobeginner": true
+      }
+    },
+    "default": 0,
+    "displaycondition": [
+      {
+        "type": "maxplayers",
+        "value": [1]
+      }
+    ]
+  },
+
+  "103": {
+    "name": "Variants",
+    "values": {
+      "0": {
+        "name": "None",
+        "description": "Only the base rules"
+      },
+      "1": {
+        "name": "All variants",
+        "tmdisplay": "[All variants]",
+        "description": "The five variants will be enabled",
+        "nobeginner": true
+      },
+      "2": {
+        "name": "Some variants",
+        "description": "Select the variants you want enabled",
+        "nobeginner": true
+      }
+    },
+    "default": 0
+  },
+
+  "106": {
+    "name": "Variant for Barrack",
+    "values": {
+      "0": {
+        "name": "Disabled",
+        "description": "Only the base rule for barracks"
+      },
+      "1": {
+        "name": "Enabled",
+        "tmdisplay": "[Barrack variant]",
+        "description": "Variant rules for Barracks",
+        "nobeginner": true
+      }
+    },
+    "default": 0,
+    "displaycondition": [
+      {
+        "type": "otheroption",
+        "id": 103,
+        "value": [2]
+      }
+    ]
+  },
+
+  "108": {
+    "name": "Variant for gardens",
+    "values": {
+      "0": {
+        "name": "Disabled",
+        "description": "Only the base rule for gardens"
+      },
+      "1": {
+        "name": "Enabled",
+        "tmdisplay": "[Gardens variant]",
+        "description": "Variant rules for gardens",
+        "nobeginner": true
+      }
+    },
+    "default": 0,
+    "displaycondition": [
+      {
+        "type": "otheroption",
+        "id": 103,
+        "value": [2]
+      }
+    ]
+  },
+
+  "104": {
+    "name": "Variant for houses",
+    "values": {
+      "0": {
+        "name": "Disabled",
+        "description": "Only the base rule for houses"
+      },
+      "1": {
+        "name": "Enabled",
+        "tmdisplay": "[Houses variant]",
+        "description": "Variant rules for houses",
+        "nobeginner": true
+      }
+    },
+    "default": 0,
+    "displaycondition": [
+      {
+        "type": "otheroption",
+        "id": 103,
+        "value": [2]
+      }
+    ]
+  },
+
+  "105": {
+    "name": "Variant for markets",
+    "values": {
+      "0": {
+        "name": "Disabled",
+        "description": "Only the base rule for markets"
+      },
+      "1": {
+        "name": "Enabled",
+        "tmdisplay": "[Markets variant]",
+        "description": "Variant rules for markets",
+        "nobeginner": true
+      }
+    },
+    "default": 0,
+    "displaycondition": [
+      {
+        "type": "otheroption",
+        "id": 103,
+        "value": [2]
+      }
+    ]
+  },
+
+  "107": {
+    "name": "Variant for temples",
+    "values": {
+      "0": {
+        "name": "Disabled",
+        "description": "Only the base rule for temples"
+      },
+      "1": {
+        "name": "Enabled",
+        "tmdisplay": "[Temples variant]",
+        "description": "Variant rules for temples",
+        "nobeginner": true
+      }
+    },
+    "default": 0,
+    "displaycondition": [
+      {
+        "type": "otheroption",
+        "id": 103,
+        "value": [2]
+      }
+    ]
+  },
+
+  "111": {
+    "name": "Athena expansion",
+    "values": {
+      "0": {
+        "name": "Disabled",
+        "description": "Only the base game"
+      },
+      "1": {
+        "name": "Enabled",
+        "tmdisplay": "[Athena]",
+        "description": "Include Athena expansion",
+        "nobeginner": true
+      }
+    },
+    "default": 0,
+    "displaycondition": [
+      {
+        "type": "otheroptionisnot",
+        "id": 112,
+        "value": 1
+      }
+    ]
+  },
+
+  "112": {
+    "name": "Pantheon expansion",
+    "values": {
+      "0": {
+        "name": "Disabled",
+        "description": "Only the base game"
+      },
+      "1": {
+        "name": "Enabled",
+        "tmdisplay": "[Pantheon]",
+        "description": "Include Pantheon cooperative expansion",
+        "nobeginner": true
+      }
+    },
+    "default": 0,
+    "displaycondition": [
+      {
+        "type": "otheroptionisnot",
+        "id": 111,
+        "value": 1
+      }
+    ]
+  },
+
+  "113": {
+    "name": "Pantheon scenario",
+    "values": {
+      "0": {
+        "name": "Corinthe",
+        "description": "Easy scenario - Target: 40 points",
+        "tmdisplay": "[Corinthe]"
+      },
+      "1": {
+        "name": "Sparte",
+        "description": "Medium scenario - Target: 60 points",
+        "tmdisplay": "[Sparte]",
+        "nobeginner": true
+      },
+      "2": {
+        "name": "Athènes",
+        "description": "Hard scenario - Target: 80 points",
+        "tmdisplay": "[Athènes]",
+        "nobeginner": true
+      }
+    },
+    "default": 0,
+    "displaycondition": [
+      {
+        "type": "otheroption",
+        "id": 112,
+        "value": [1]
+      }
+    ]
+  }
+}
