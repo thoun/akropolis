@@ -98,7 +98,7 @@ class Akropolis extends Table
       }
     }
 
-    return [
+    $data = [
       'prefs' => Preferences::getUiData($currentPlayerId),
       'players' => Players::getUiData($currentPlayerId),
       'dock' => Tiles::getUiData(),
@@ -113,7 +113,20 @@ class Akropolis extends Table
       'isAthena' => Globals::isAthena(),
       'cards' => ConstructionCards::getUiData(),
       'cardStatuses' => Globals::getAthenaCardStatuses(),
+
+      // Pantheon
+      'isPantheon' => Globals::isPantheon(),
     ];
+
+    if (Globals::isPantheon()) {
+      $data['challenges'] = PantheonChallenges::getUiData();
+      $data['capital'] = [
+        'scores' => [],
+        'tiles' => Tiles::getOfPlayer(CAPITAL_ID)
+      ];
+    }
+
+    return $data;
   }
   public function stPantheonSetup()
   {

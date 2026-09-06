@@ -14,6 +14,7 @@ use AKR\Core\Globals;
 use AKR\Core\Engine;
 use AKR\Helpers\FlowConvertor;
 use AKR\Helpers\Utils;
+use AKR\Managers\Tiles;
 
 /*
  * Player: all utility functions concerning a player
@@ -41,6 +42,9 @@ class Player extends \AKR\Helpers\DB_Model
   {
     $data = parent::getUiData();
     $data['board'] = $this->board()->getUiData();
+    if (Globals::isPantheon() && $currentPlayerId == $this->getId()) {
+      $data['tiles'] = Tiles::getPlayerHand($this->getId());
+    }
     return $data;
   }
 

@@ -173,8 +173,7 @@ class Tiles extends \AKR\Helpers\Pieces
   public static function getPlayerHand($pId): Collection
   {
     return self::getInLocation('hand')
-      ->wherePlayer($pId)
-      ->get();
+      ->filter(fn($tile) => $tile['pId'] == $pId);
   }
 
   public static function addToHand($pId, $tileId)
