@@ -1,5 +1,4 @@
-const isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
-const log = isDebug ? console.log.bind(window.console) : function () { };
+import { Game } from "./Game";
 
 const TILE_SHIFT_BY_ROTATION = [
     { minX: 0, maxX: 1, minY: 0, maxY: 2, },
@@ -10,7 +9,7 @@ const TILE_SHIFT_BY_ROTATION = [
     { minX: 0, maxX: 1, minY: 1, maxY: 1, },
 ];
 
-class PlayerTable {
+export class PlayerTable {
     public playerId: number;
 
     private city: HTMLDivElement;
@@ -23,7 +22,7 @@ class PlayerTable {
     private minY = -2;
     private maxY = 1;
 
-    constructor(private game: AkropolisGame, player: AkropolisPlayer, lastMove: Tile | undefined) {
+    constructor(private game: Game, player: AkropolisPlayer, lastMove: Tile | undefined) {
         this.playerId = Number(player.id); 
 
         let html = `
@@ -57,7 +56,6 @@ class PlayerTable {
 
         this.createGrid(player.board, lastMove);
 
-        this.city.style.transform = "rotatex(" + (game as any).control3dxaxis + "deg) translate(" + (game as any).control3dypos + "px," + (game as any).control3dxpos + "px) rotateZ(" + (game as any).control3dzaxis + "deg) scale3d(" + (game as any).control3dscale + "," + (game as any).control3dscale + "," + (game as any).control3dscale + ")";
         this.game.viewManager.draggableElement3d(this.city);
     }    
 

@@ -45,7 +45,7 @@
 /********* You can start writing your CSS below this line: **********/
 @font-face {
   font-family: "xtraregular";
-  src: url("img/xtra-webfont.woff2") format("woff2"), url("img/xtra-webfont.woff") format("woff");
+  src: url("fonts/xtra-webfont.woff2") format("woff2"), url("img/fonts-webfont.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -209,6 +209,23 @@
   visibility: hidden;
 }
 
+.tile.animated-market-tile {
+  --shift-left: 0px;
+  --shift-top: 0px;
+  position: relative;
+  transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
+}
+.tile.animated-market-tile::after {
+  top: 16px;
+  bottom: -16px;
+  left: -12px;
+  right: 12px;
+}
+.tile.animated-market-tile .hex {
+  left: calc(48.5px * (0.5 + var(--x) * 1.5) - 12px);
+  top: calc(84px * var(--y) / 2 + 16px);
+}
+
 .hex {
   position: absolute;
   width: 97px;
@@ -350,6 +367,47 @@
   border: 1px solid black;
 }
 
+html[data-theme=dark] #market {
+  text-shadow: 0 0 1px black, 0 0 2px black, 0 0 3px black, 0 0 4px black, 0 0 5px black, 0 0 6px black;
+  color: white;
+}
+
+.animated-market-tile-with-cost {
+  font-weight: bold;
+  width: 194px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 20px;
+}
+.animated-market-tile-with-cost .tile {
+  --shift-left: 0px;
+  --shift-top: 0px;
+  position: relative;
+  transform: translate(var(--shift-left), var(--shift-top)) rotate(calc(60deg * var(--r)));
+}
+.animated-market-tile-with-cost .tile::after {
+  top: 16px;
+  bottom: -16px;
+  left: -12px;
+  right: 12px;
+}
+.animated-market-tile-with-cost .cost {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.animated-market-tile-with-cost .cost .score-icon {
+  width: 24px;
+  height: 24px;
+}
+.animated-market-tile-with-cost .hex {
+  position: absolute;
+  left: calc(48.5px * (0.5 + var(--x) * 1.5) - 12px);
+  top: calc(84px * var(--y) / 2 + 16px);
+}
+
 #market {
   display: flex;
   flex-direction: row-reverse;
@@ -360,6 +418,7 @@
   margin: 15px;
   text-shadow: 0 0 1px white, 0 0 2px white, 0 0 3px white, 0 0 4px white, 0 0 5px white, 0 0 6px white;
   text-align: center;
+  color: black;
 }
 #market.left-to-right {
   flex-direction: row;
@@ -387,20 +446,6 @@
   align-items: center;
   border-radius: 20px;
 }
-#market .tile-with-cost.disabled {
-  cursor: not-allowed;
-  background: rgba(255, 128, 128, 0.4);
-}
-#market .tile-with-cost.disabled .tile {
-  opacity: 0.8;
-  pointer-events: none;
-}
-#market .tile-with-cost.disabled .cost {
-  color: red;
-}
-#market .tile-with-cost.selected {
-  box-shadow: 0 0 10px 8px #01c0ff;
-}
 #market .tile-with-cost .tile {
   --shift-left: 0px;
   --shift-top: 0px;
@@ -421,6 +466,20 @@
 #market .tile-with-cost .cost .score-icon {
   width: 24px;
   height: 24px;
+}
+#market .tile-with-cost.disabled {
+  cursor: not-allowed;
+  background: rgba(255, 128, 128, 0.4);
+}
+#market .tile-with-cost.disabled .tile {
+  opacity: 0.8;
+  pointer-events: none;
+}
+#market .tile-with-cost.disabled .cost {
+  color: red;
+}
+#market .tile-with-cost.selected {
+  box-shadow: 0 0 10px 8px #01c0ff;
 }
 #market.selectable .tile-with-cost:not(.disabled) .tile .hex {
   cursor: pointer;
@@ -456,11 +515,13 @@
   justify-self: flex-start;
 }
 #athena-contruction-spaces .athena-contruction-space .construction-card {
+  position: relative;
   width: 120px;
   height: 182px;
   border-radius: 8px;
   box-shadow: 1px 1px 2px 2px #888888;
   background-image: url("img/construction-cards.jpg");
+  color: black;
 }
 #athena-contruction-spaces .athena-contruction-space .construction-card .name-wrapper {
   position: absolute;
@@ -848,14 +909,6 @@
     bottom: 5px;
   }
 }
-/* Firefox does not like nested 3D perspective somehow ?? */
-.mode_3d #game_play_area_wrap {
-  perspective: inherit;
-  transform-origin: initial;
-  perspective-origin: initial;
-  transform-style: initial;
-}
-
 /* make space between buttons on touch devices */
 @media (hover: none) {
   #page-title .action-button.bgabutton,
@@ -949,27 +1002,14 @@ html {
   background-repeat: repeat;
 }
 
-html[data-background=dark] {
+html[data-background=dark], html[data-theme=dark][data-background=auto] {
   background: url("img/background-dark.jpg");
-}
-
-@media (prefers-color-scheme: dark) {
-  html[data-background=auto] {
-    background: url("img/background-dark.jpg");
-  }
-}
-#game_play_area {
-  will-change: transform;
-}
-
-.mode_3d {
-  background: unset;
-}
-
-.mode_3d #game_play_area_background {
-  display: none;
 }
 
 .solo-player-icon {
   background: url("img/gear.png");
+}
+
+.bga-3d-element-mode-3d {
+  background: unset !important; /* TEMP FIX */
 }

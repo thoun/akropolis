@@ -1,11 +1,13 @@
-class ConstructionSite {
+import { Game } from "./Game";
+
+export class ConstructionSite {
     private market: HTMLDivElement;
     private tiles: Tile[];
     private remainingstacksDiv: HTMLDivElement;
     private remainingStacksCounter: Counter;
     private selectionActivated: boolean = false;
 
-    constructor(private game: AkropolisGame, tiles: Tile[], remainingStacks: number) {
+    constructor(private game: Game, tiles: Tile[], remainingStacks: number) {
         this.market = document.getElementById('market') as HTMLDivElement;
         this.remainingstacksDiv = document.getElementById('remaining-stacks') as HTMLDivElement;
         this.setTiles(this.orderTiles(tiles.filter(tile => tile.location === 'dock')));
@@ -59,25 +61,22 @@ class ConstructionSite {
     public async refill(tiles: Tile[], remainingStacks: number) {
         const orderedTiles = this.orderTiles(tiles);
         this.setTiles(orderedTiles);
-        await Promise.all(orderedTiles.map(tile => 
-            this.game.animationManager.play(new BgaSlideAnimation({
-                element: document.getElementById(`market-tile-${tile.id}`),
-                fromElement: this.remainingstacksDiv,
-            }))
-        )); 
+        await Promise.all(orderedTiles.map(tile => {
+            const tileWithCost = document.getElementById(`market-tile-${tile.id}`) as HTMLElement;
+            tileWithCost.classList.add('animated-market-tile-with-cost');
+
+            return this.game.animationManager.slideIn(tileWithCost, this.remainingstacksDiv)
+                .finally(() => tileWithCost.classList.remove('animated-market-tile-with-cost'));
+        }));
 
         this.remainingStacksCounter.setValue(remainingStacks);
     }
 
     public async animateTileTo(tile: Tile, to: HTMLDivElement): Promise<any> {
         const marketTileDiv = document.getElementById(`market-tile-${tile.id}`).querySelector('.tile') as HTMLElement;
-        const finalTransform = `rotate(${60 * Number(marketTileDiv.style.getPropertyValue('--r'))}deg)`;
-        await this.game.animationManager.play(new BgaSlideToAnimation({
-            element: marketTileDiv,
-            fromElement: to,
-            scale: 1, 
-            finalTransform,
-        }));
+        const animatedTileDiv = marketTileDiv.cloneNode(true) as HTMLElement;
+        animatedTileDiv.classList.add('animated-market-tile');
+        await this.game.animationManager.slideFloatingElement(animatedTileDiv, marketTileDiv, to, { scale: 1 });
     }
 
     public removeTile(tile: Tile) {
@@ -98,8 +97,8 @@ class ConstructionSite {
         Array.from(this.market.querySelectorAll('.tile-with-cost')).forEach(option => option.remove());
         this.tiles.forEach((tile, index) => this.addTile(tile, index));
 
-        if ((this.game as any).isCurrentPlayerActive() && this.game.stonesCounters[this.game.getPlayerId()]) {
-            this.setDisabledTiles(this.game.stonesCounters[this.game.getPlayerId()].getValue());
+        if (this.game.bga.players.isCurrentPlayerActive() && this.game.stonesCounters[this.game.getCurrentPlayerId()]) {
+            this.setDisabledTiles(this.game.stonesCounters[this.game.getCurrentPlayerId()].getValue());
         }
     }
 

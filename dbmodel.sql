@@ -10,7 +10,7 @@
 -- dbmodel.sql
 
 CREATE TABLE IF NOT EXISTS `tiles` (
-  `tile_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `tile_id` int(10) unsigned NOT NULL,
   `tile_location` varchar(32) NOT NULL,
   `tile_state` int(10) DEFAULT 0,
   `player_id` int(10) NULL,

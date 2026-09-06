@@ -14,6 +14,13 @@ interface Tile {
     state: number;
 }
 
+interface ConstructionCard {
+    id: string;
+    location: string;
+    name: string;
+    desc: string;
+}
+
 interface Scores {
     districts: { [type: string]: number };
     stars: { [type: string]: number };
@@ -55,32 +62,6 @@ interface AkropolisGamedatas {
     isAthena: boolean;
     cards?: ConstructionCard[];
     cardStatuses?: { [playerId: number]: string[] };
-}
-
-interface AkropolisGame extends Game {
-    stonesCounters: Counter[];
-    viewManager: ViewManager;
-    animationManager: AnimationManager;
-    tilesManager: TilesManager;
-    athenaConstructionSite?: AthenaConstructionSite;
-
-    getPlayer(playerId: number): AkropolisPlayer;
-    getPlayerId(): number;
-    usePivotRotation(): boolean;
-    getCurrentPlayerTable(): PlayerTable | null;
-
-    setTooltip(id: string, html: string): void;  
-    constructionSiteHexClicked(tile: Tile, hexIndex: number, hex: HTMLDivElement, rotation: number): void;
-    possiblePositionClicked(x: number, y: number, z: number): void;
-    incRotation(): void;
-    cancelPlaceTile(): void;
-    placeTile(tileForAutomata?: Tile | null): void;
-    decRotation(): void;
-    incRotationPivot(): void;
-    decRotationPivot(): void;
-    updateRotationButtonState(): void;
-    setRotation(r: number): void;
-    singleTileClickedForAutomata(tile: Tile): void;
 }
 
 interface PlaceTileOption {
