@@ -14,10 +14,10 @@ CREATE TABLE IF NOT EXISTS `tiles` (
   `tile_location` varchar(32) NOT NULL,
   `tile_state` int(10) DEFAULT 0,
   `player_id` int(10) NULL,
-  `x` int(10) NOT NULL,
-  `y` int(10) NOT NULL,
-  `z` int(10) NOT NULL,
-  `r` int(10) NOT NULL,
+  `x` int(10) NOT NULL DEFAULT 0,
+  `y` int(10) NOT NULL DEFAULT 0,
+  `z` int(10) NOT NULL DEFAULT 0,
+  `r` int(10) NOT NULL DEFAULT 0,
   PRIMARY KEY (`tile_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -64,11 +64,12 @@ ALTER TABLE `gamelog` ADD `cancel` TINYINT(1) NOT NULL DEFAULT 0;
 -- Divine Altars
 CREATE TABLE IF NOT EXISTS `pantheon_altars` (
   `altar_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `altar_color` varchar(32) NOT NULL,
   `altar_location` varchar(32) NOT NULL DEFAULT 'reserve',
-  `capital_x` int(10) NULL,
-  `capital_y` int(10) NULL,
-  `capital_z` int(10) NULL,
+  `altar_state` int(10) DEFAULT 0,
+  `color` varchar(32) NOT NULL,
+  `x` int(10) NULL,
+  `y` int(10) NULL,
+  `z` int(10) NULL,
   PRIMARY KEY (`altar_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

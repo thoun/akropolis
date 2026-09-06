@@ -35,6 +35,11 @@
       {
         "type": "maxplayers",
         "value": [1, 2, 3]
+      },
+      {
+        "type": "otheroptionisnot",
+        "id": 112,
+        "value": [1]
       }
     ]
   },
@@ -62,6 +67,11 @@
       {
         "type": "maxplayers",
         "value": [1]
+      },
+      {
+        "type": "otheroptionisnot",
+        "id": 112,
+        "value": [1]
       }
     ]
   },
@@ -85,7 +95,14 @@
         "nobeginner": true
       }
     },
-    "default": 0
+    "default": 0,
+    "displaycondition": [
+      {
+        "type": "otheroptionisnot",
+        "id": 112,
+        "value": [1]
+      }
+    ]
   },
 
   "106": {
@@ -227,7 +244,7 @@
       {
         "type": "otheroptionisnot",
         "id": 112,
-        "value": 1
+        "value": [1]
       }
     ]
   },
@@ -251,7 +268,7 @@
       {
         "type": "otheroptionisnot",
         "id": 111,
-        "value": 1
+        "value": [1]
       }
     ]
   },

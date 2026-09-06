@@ -11,7 +11,7 @@ use AKR\PantheonChallenges\Challenge;
 class PantheonChallenges extends \AKR\Helpers\Pieces
 {
     protected static $table = 'pantheon_challenges';
-    protected static $primary = 'challenge_id';
+    protected static $prefix = 'challenge_';
     protected static $autoIncrement = false;
     protected static $autoremovePrefix = false;
 

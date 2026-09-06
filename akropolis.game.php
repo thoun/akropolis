@@ -75,13 +75,14 @@ class Akropolis extends Table
     Players::setupNewGame($players, $options);
     ConstructionCards::setupNewGame($players, $options);
     Tiles::setupNewGame($players, $options);
+    $this->activeNextPlayer();
 
     if (Globals::isPantheon()) {
       Altars::setupNewGame();
       PantheonChallenges::setupNewGame($players, $options);
       $this->gamestate->nextState('pantheonSetup');
     } else {
-      $this->activeNextPlayer();
+      $this->gamestate->nextState('placeTile');
     }
   }
 
@@ -113,6 +114,10 @@ class Akropolis extends Table
       'cards' => ConstructionCards::getUiData(),
       'cardStatuses' => Globals::getAthenaCardStatuses(),
     ];
+  }
+  public function stPantheonSetup()
+  {
+    $this->gamestate->setAllPlayersMultiactive();
   }
 
   /*

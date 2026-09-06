@@ -99,7 +99,7 @@ class Tiles extends \AKR\Helpers\Pieces
 
       // ONe starting tile per player
       $startingTiles = PANTHEON_STARTING_TILES;
-      shuffle($singleTiles);
+      shuffle($startingTiles);
       $playerIds = Players::getAll()->getIds();
       for ($i = 0; $i < count($playerIds); $i++) {
         $tileId = $startingTiles[$i];
@@ -109,6 +109,7 @@ class Tiles extends \AKR\Helpers\Pieces
           'player_id' => $playerIds[$i],
           'x' => 0,
           'y' => 0,
+          'z' => 0,
           'r' => 0,
         ];
       }
@@ -116,12 +117,14 @@ class Tiles extends \AKR\Helpers\Pieces
       // The rest in the capital
       for (; $i < 5; $i++) {
         // TODO : place them in pending state instead
+        $tileId = $startingTiles[$i];
         $tiles[] =  [
           'id' => $tileId,
           'location' => "board",
           'player_id' => CAPITAL_ID,
           'x' => 0,
           'y' => $i,
+          'z' => 0,
           'r' => 0,
         ];
       }

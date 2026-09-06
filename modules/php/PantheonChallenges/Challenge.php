@@ -8,7 +8,7 @@ use AKR\Models\Player;
  * Base Challenge class for Pantheon expansion
  * Each specific challenge extends this class and implements isSatisfied()
  */
-abstract class Challenge extends \AKR\Helpers\DB_Model
+class Challenge extends \AKR\Helpers\DB_Model
 {
     protected $table = 'pantheon_challenges';
     protected $primary = 'challenge_id';

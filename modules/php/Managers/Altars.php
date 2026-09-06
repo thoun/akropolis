@@ -5,7 +5,6 @@ namespace AKR\Managers;
 use AKR\Core\Globals;
 use AKR\Core\Notifications;
 
-require_once 'modules/php/constants.inc.php';
 
 // Circular dependency: PantheonManager uses Altars, Altars uses PantheonManager
 // We'll use the class name directly without import to avoid issues
@@ -16,7 +15,7 @@ class Altars extends \AKR\Helpers\Pieces
 {
   protected static $table = 'pantheon_altars';
   protected static $prefix = 'altar_';
-  protected static $customFields = ['altar_color', 'capital_x', 'capital_y', 'capital_z'];
+  protected static $customFields = ['color', 'x', 'y', 'z'];
   protected static $autoIncrement = true;
   protected static $autoremovePrefix = true;
 
@@ -25,12 +24,11 @@ class Altars extends \AKR\Helpers\Pieces
     return [
       'id' => (int) $altar['altar_id'],
       'location' => $altar['altar_location'],
-      'state' => (int) ($altar['altar_state'] ?? 0),
+      'state' => (int) ($altar['altar_state']),
       'color' => $altar['altar_color'],
-      'god' => $altar['altar_god'],
-      'capital_x' => $altar['capital_x'] !== null ? (int) $altar['capital_x'] : null,
-      'capital_y' => $altar['capital_y'] !== null ? (int) $altar['capital_y'] : null,
-      'capital_z' => $altar['capital_z'] !== null ? (int) $altar['capital_z'] : null,
+      'x' => $altar['x'] !== null ? (int) $altar['x'] : null,
+      'y' => $altar['y'] !== null ? (int) $altar['y'] : null,
+      'z' => $altar['z'] !== null ? (int) $altar['z'] : null,
     ];
   }
 
@@ -53,10 +51,11 @@ class Altars extends \AKR\Helpers\Pieces
       $altars[] = [
         'nbr' => $altar['count'],
         'color' => $altar['color'],
+        'state' => 0,
         'location' => 'reserve',
-        'capital_x' => null,
-        'capital_y' => null,
-        'capital_z' => null,
+        'x' => null,
+        'y' => null,
+        'z' => null,
       ];
     }
 
@@ -79,9 +78,9 @@ class Altars extends \AKR\Helpers\Pieces
   //       if ($altar) {
   //         self::DB()->update([
   //           'altar_location' => 'capital',
-  //           'capital_x' => $plaza['x'],
-  //           'capital_y' => $plaza['y'],
-  //           'capital_z' => $plaza['z'],
+  //           'x' => $plaza['x'],
+  //           'y' => $plaza['y'],
+  //           'z' => $plaza['z'],
   //         ], $altar['altar_id'], 'pantheon_altars');
 
   //         $capital->placeAltar($altar, $plaza);
@@ -103,9 +102,9 @@ class Altars extends \AKR\Helpers\Pieces
   // public static function hasAtPosition($x, $y, $z): bool
   // {
   //   $result = self::getInLocation(CAPITAL_LOC)
-  //     ->where('capital_x', $x)
-  //     ->where('capital_y', $y)
-  //     ->where('capital_z', $z)
+  //     ->where('x', $x)
+  //     ->where('y', $y)
+  //     ->where('z', $z)
   //     ->where('location', 'capital')
   //     ->getSingle();
 

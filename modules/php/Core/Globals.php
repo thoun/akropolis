@@ -158,16 +158,11 @@ class Globals extends \AKR\Helpers\DB_Manager
     );
     self::setLiveScoring($options[\OPTION_LIVE_SCORING] == \OPTION_LIVE_SCORING_ENABLED);
     self::setVariants([
-      \BARRACK =>
-      $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_BARRACK] ?? 0) == \OPTION_VARIANT_ENABLED,
-      \GARDEN =>
-      $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_GARDEN] ?? 0) == \OPTION_VARIANT_ENABLED,
-      \HOUSE =>
-      $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_HOUSE] ?? 0) == \OPTION_VARIANT_ENABLED,
-      \MARKET =>
-      $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_MARKET] ?? 0) == \OPTION_VARIANT_ENABLED,
-      \TEMPLE =>
-      $options[OPTION_VARIANTS] == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_TEMPLE] ?? 0) == \OPTION_VARIANT_ENABLED,
+      \BARRACK => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_BARRACK] ?? 0) == \OPTION_VARIANT_ENABLED,
+      \GARDEN => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_GARDEN] ?? 0) == \OPTION_VARIANT_ENABLED,
+      \HOUSE => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_HOUSE] ?? 0) == \OPTION_VARIANT_ENABLED,
+      \MARKET => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_MARKET] ?? 0) == \OPTION_VARIANT_ENABLED,
+      \TEMPLE => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_TEMPLE] ?? 0) == \OPTION_VARIANT_ENABLED,
     ]);
 
     self::setSolo(count($players) == 1);
@@ -191,6 +186,13 @@ class Globals extends \AKR\Helpers\DB_Manager
     if (self::isPantheon()) {
       self::setAthena(false);
       self::setAllTiles(true);
+      self::setVariants([
+        \BARRACK => false,
+        \GARDEN => false,
+        \HOUSE => false,
+        \MARKET => false,
+        \TEMPLE => false,
+      ]);
     }
   }
 
