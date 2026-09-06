@@ -92,15 +92,17 @@ class TriangulatedBoard
     $this->grid = [];
     $this->gridTileIds = [];
 
-    // Starting tile
-    $this->grid[0][0][0] = HOUSE_PLAZA;
-    $this->grid[0][-2][0] = QUARRY;
-    $this->grid[1][1][0] = QUARRY;
-    $this->grid[-1][1][0] = QUARRY;
-    $this->gridTileIds[0][0][0] = -1;
-    $this->gridTileIds[0][-2][0] = -1;
-    $this->gridTileIds[1][1][0] = -1;
-    $this->gridTileIds[-1][1][0] = -1;
+    // Starting tile for standard (non Pantheon) game
+    if (!Globals::isPantheon()) {
+      $this->grid[0][0][0] = HOUSE_PLAZA;
+      $this->grid[0][-2][0] = QUARRY;
+      $this->grid[1][1][0] = QUARRY;
+      $this->grid[-1][1][0] = QUARRY;
+      $this->gridTileIds[0][0][0] = -1;
+      $this->gridTileIds[0][-2][0] = -1;
+      $this->gridTileIds[1][1][0] = -1;
+      $this->gridTileIds[-1][1][0] = -1;
+    }
 
     // Placed tiles
     $this->tiles = Tiles::getOfPlayer($this->pId);
@@ -152,6 +154,11 @@ class TriangulatedBoard
    */
   public function getTileGeometry($tile)
   {
+    // Pantheon starting tile geometry
+    if (in_array($tile['id'], PANTHEON_STARTING_TILES)) {
+      return PANTHEON_STARTING_TILE_GEOMETRY;
+    }
+    // Otherwise, use default geometry based on number of hexes
     $nHexes = count($tile['hexes']);
     return TILE_GEOMETRIES[$nHexes];
   }
@@ -241,8 +248,13 @@ class TriangulatedBoard
     // Z > 0 : check also that this is not covering only a single tile
     $coveredTileIds = array_unique($coveredTileIds);
     if (count($coveredTileIds) == 1) {
-      $tileId = $coveredTileIds[0]; // Handle starting tile with id = -1...
-      $coveredGeometry = $tileId == -1 ? TILE_GEOMETRY : $this->getTileGeometry($this->tiles[$tileId]);
+      $tileId = $coveredTileIds[0];
+      // For virtual starting tile (id = -1), use its specific geometry
+      if ($tileId == -1) {
+        $coveredGeometry = TILE_SPECIFIC_GEOMETRIES[-1];
+      } else {
+        $coveredGeometry = $this->getTileGeometry($this->tiles[$tileId]);
+      }
       // Single tile can cover only one tile, EXCEPT IF IT'S A SINGLE TILE
       if (count($geometry) > 1 || count($coveredGeometry) == 1) {
         return false;
@@ -440,6 +452,28 @@ class TriangulatedBoard
     // ARCHITECT => score 2 per quarry
     if ($this->pId == \ARCHITECT_ID) {
       $plazas[QUARRY] = 2;
+    }
+
+    return $plazas;
+  }
+
+  /**
+   * Get raw plaza counts (without multipliers)
+   * Used for challenge satisfaction checks
+   */
+  public function getPlazaCounts()
+  {
+    $plazas = [];
+    foreach (PLAZAS as $plaza) {
+      $plazas[$plaza] = 0;
+    }
+
+    foreach ($this->getVisibleBuiltCells() as $cell) {
+      foreach ($this->getTypesAtPos($cell) as $type => $triangles) {
+        if (in_array($type, PLAZAS)) {
+          $plazas[$type] += $triangles;
+        }
+      }
     }
 
     return $plazas;

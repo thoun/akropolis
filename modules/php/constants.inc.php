@@ -131,6 +131,8 @@ const PLAZAS_MULT = [BARRACK_PLAZA => 2, HOUSE_PLAZA => 1, MARKET_PLAZA => 2, TE
 const ARCHITECT_ID = 0;
 const CAPITAL_ID = -1;
 
+const CAPITAL_LOC = 'capital';
+
 /**
  * Stats
  */

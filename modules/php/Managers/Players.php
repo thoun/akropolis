@@ -1,5 +1,7 @@
 <?php
+
 namespace AKR\Managers;
+
 use AKR\Core\Game;
 use AKR\Core\Globals;
 use AKR\Core\Stats;
@@ -9,6 +11,7 @@ use AKR\Helpers\Utils;
  * Players manager : allows to easily access players ...
  *  a player is an instance of Player class
  */
+
 class Players extends \AKR\Helpers\DB_Manager
 {
   protected static $table = 'player';
@@ -37,7 +40,9 @@ class Players extends \AKR\Helpers\DB_Manager
     $i = 1;
     foreach ($players as $pId => $player) {
       $color = array_shift($colors);
-      $values[] = [$pId, $color, $player['player_canal'], $player['player_name'], $player['player_avatar'], 0, $i++];
+      $stones = $i++;
+      if (Globals::isPantheon()) $stones = 2;
+      $values[] = [$pId, $color, $player['player_canal'], $player['player_name'], $player['player_avatar'], 0, $stones];
     }
     $query->values($values);
 

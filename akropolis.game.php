@@ -39,6 +39,8 @@ use AKR\Core\Preferences;
 use AKR\Managers\ConstructionCards;
 use AKR\Managers\Players;
 use AKR\Managers\Tiles;
+use AKR\Managers\Altars;
+use AKR\Managers\PantheonChallenges;
 use Bga\GameFramework\Table;
 
 class Akropolis extends Table
@@ -48,6 +50,7 @@ class Akropolis extends Table
   use AKR\States\CompleteCardTrait;
   use AKR\States\ArchitectTurnTrait;
   use AKR\States\EndOfGameTrait;
+
 
   public static $instance = null;
   function __construct()
@@ -72,7 +75,14 @@ class Akropolis extends Table
     Players::setupNewGame($players, $options);
     ConstructionCards::setupNewGame($players, $options);
     Tiles::setupNewGame($players, $options);
-    $this->activeNextPlayer();
+
+    if (Globals::isPantheon()) {
+      Altars::setupNewGame();
+      PantheonChallenges::setupNewGame($players, $options);
+      $this->gamestate->nextState('pantheonSetup');
+    } else {
+      $this->activeNextPlayer();
+    }
   }
 
   /*

@@ -50,6 +50,12 @@ let images = [
 	'market-temple-district',
 	'temple-garden-district',
 	'back',
+
+	'pantheon-garden',
+	'pantheon-temple',
+	'pantheon-market',
+	'pantheon-barrack',
+	'pantheon-house',
 ];
 
 // For each image, starting at the corner, give the list of hex that should be kept
@@ -77,6 +83,12 @@ let imagesHex = {
 	'market-temple-district': ['1_1'],
 	'temple-garden-district': ['1_1'],
 	'back': ['1_1'],
+	
+	'pantheon-garden': ['2_2', '1_3', '3_3'],
+	'pantheon-market': ['2_2', '1_3', '3_3'],
+	'pantheon-barrack': ['2_2', '1_3', '3_3'],
+	'pantheon-temple': ['2_2', '1_3', '3_3'],
+	'pantheon-house': ['2_2', '1_3', '3_3'],
 };
 
 ////////////////////////
