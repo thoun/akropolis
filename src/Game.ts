@@ -124,7 +124,7 @@ export class Game {
         ${_('You can drag this block')}
         </div>`
         : `<div id="controls-reminder">
-        <img src="${g_gamethemeurl}img/mouse-right.svg"></img>
+        <img src="${this.bga.images.getImgUrl('mouse-right.svg')}"></img>
         ${_('Adjust camera with below controls or right-drag, middle-drag and scroll wheel')}
         </div>`;
         dojo.place(reminderHtml, 'controls3d_wrap', 'first');
@@ -153,6 +153,9 @@ export class Game {
         }
         entries.push(new BgaJumpTo.Entry(_("Construction Site"), 'market', { color: '#7e7978', backgroundImage: `url('${this.bga.images.getImgUrl('score-icons.png')}')`, backgroundPosition: '0% 0%', backgroundSize: '200% auto' }));
 
+        if (gamedatas.isPantheon) {
+            entries.push(new BgaJumpTo.Entry(_('Capital'), 'player-table--1', { color: `#999999`, backgroundImage: `url('${this.bga.images.getImgUrl('gear.png')}')` }));
+        }
         const playerEntries = BgaJumpTo.BgaPlayerEntries(this.bga, {
             entrySettings: (playerId) => ({ id: `bga-jump-to_player-table-${playerId}` }),
         });
@@ -335,13 +338,26 @@ export class Game {
         const players = Object.values(gamedatas.players);
         const soloPlayer = gamedatas.soloPlayer;
 
+        if (gamedatas.capital) {
+            this.bga.playerPanels.addAutomataPlayerPanel(-1, _('Capital'), {
+                iconClass: 'solo-player-icon',
+            });
+        }
         if (soloPlayer) {
             this.bga.playerPanels.addAutomataPlayerPanel(0, _(soloPlayer.name), {
                 iconClass: 'solo-player-icon',
             });
         }
 
-        (soloPlayer ? [...players, gamedatas.soloPlayer] : players).forEach(player => {
+        const allPlayers = players.slice();
+        if (soloPlayer) {
+            allPlayers.push(soloPlayer);
+        }
+        if (gamedatas.capital) {
+            //allPlayers.push({ board: gamedatas.capital, id: -1 });
+        }
+
+        allPlayers.forEach(player => {
             const playerId = Number(player.id);   
 
             // Stones counter
@@ -451,6 +467,23 @@ export class Game {
     }
 
     private createPlayerTables(gamedatas: AkropolisGamedatas) {
+        if (gamedatas.isPantheon) {
+            const table = new PlayerTable(this, {
+                id: '-1',
+                name: _('Capital'),
+                board: { ...gamedatas.capital, tiles: Object.values(gamedatas.capital.tiles) },
+                beginner: false,
+                color: '999999',
+                no: -1,
+                eliminated: 0,
+                is_ai: '0',
+                money: 0,
+                score: '0',
+                zombie: 0
+            }, null);
+            this.playersTables.push(table);
+        }
+
         const orderedPlayers = this.getOrderedPlayers(gamedatas);
 
         orderedPlayers.forEach(player => 
