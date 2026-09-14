@@ -60,8 +60,16 @@ interface AkropolisGamedatas {
     allTiles: boolean;
     lastMoves: { [playerId: number]: Tile };
     isAthena: boolean;
+    isPantheon: boolean;
     cards?: ConstructionCard[];
     cardStatuses?: { [playerId: number]: string[] };
+    challenges: {
+        board: any;
+    };
+    capital: {
+        scores: Scores;
+        tiles: { [tileId: number]: Tile };
+    };
 }
 
 interface PlaceTileOption {
