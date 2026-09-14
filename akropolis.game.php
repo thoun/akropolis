@@ -120,10 +120,7 @@ class Akropolis extends Table
 
     if (Globals::isPantheon()) {
       $data['challenges'] = PantheonChallenges::getUiData();
-      $data['capital'] = [
-        'scores' => [],
-        'tiles' => Tiles::getOfPlayer(CAPITAL_ID)
-      ];
+      $data['capital'] = Players::getCapital()->getUiData($currentPlayerId);
     }
 
     return $data;

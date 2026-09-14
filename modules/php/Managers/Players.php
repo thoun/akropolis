@@ -120,6 +120,11 @@ class Players extends \AKR\Helpers\DB_Manager
     return Globals::isSolo() ? new \AKR\Models\Architect(null) : null;
   }
 
+  public static function getCapital()
+  {
+    return Globals::isPantheon() ? new \AKR\Models\Capital(null) : null;
+  }
+
   public static function determineFirstPlayer()
   {
     $pId = self::getFirstPlayerId();

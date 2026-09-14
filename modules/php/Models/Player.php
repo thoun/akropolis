@@ -37,6 +37,15 @@ class Player extends \AKR\Helpers\DB_Model
 
     'money' => ['money', 'int'],
   ];
+  protected int $id;
+  protected int $no;
+  protected string $name;
+  protected string $color;
+  protected bool $eliminated;
+  protected int $score;
+  protected int $scoreAux;
+  protected bool $zombie;
+  protected int $money;
 
   public function getUiData($currentPlayerId = null)
   {
