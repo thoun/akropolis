@@ -59,7 +59,7 @@ export class Game {
     public athenaConstructionSite?: AthenaConstructionSite;
 
     public gamedatas: AkropolisGamedatas;
-    private constructionSite: ConstructionSite;
+    private constructionSite: ConstructionSite | null = null;
     public selectedPosition: Partial<PlaceTileOption>;
     public selectedTile: Tile;
     public selectedTileHexIndex: number;
@@ -108,9 +108,6 @@ export class Game {
         console.log( "Starting game setup" );
         this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
             <div id="full-table">
-                <div id="market" class="left-to-right">
-                    <div id="remaining-stacks"><div id="remaining-stacks-counter"></div></div>
-                </div>
                 <div id="tables"></div>
             </div>
         `);
@@ -136,22 +133,26 @@ export class Game {
         });
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
-        this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
-        if (gamedatas.isAthena) {
-            const players = Object.values(gamedatas.players);
-            if (gamedatas.soloPlayer) {
-                players.push(gamedatas.soloPlayer);
+        if (!gamedatas.isPantheon) {
+            this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
+            if (gamedatas.isAthena) {
+                const players = Object.values(gamedatas.players);
+                if (gamedatas.soloPlayer) {
+                    players.push(gamedatas.soloPlayer);
+                }
+                this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.cardStatuses, gamedatas.dock, players);
             }
-            this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.cardStatuses, gamedatas.dock, players);
         }
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
 
         const entries = [];
-        if (gamedatas.isAthena) {
-            entries.push(new BgaJumpTo.Entry(_("Athena"), 'athena-contruction-spaces', { color: '#1fa7d9', backgroundImage: `url('${this.bga.images.getImgUrl('athena-statue.png')}')` }));
+        if (!gamedatas.isPantheon) {
+            if (gamedatas.isAthena) {
+                entries.push(new BgaJumpTo.Entry(_("Athena"), 'athena-contruction-spaces', { color: '#1fa7d9', backgroundImage: `url('${this.bga.images.getImgUrl('athena-statue.png')}')` }));
+            }
+            entries.push(new BgaJumpTo.Entry(_("Construction Site"), 'market', { color: '#7e7978', backgroundImage: `url('${this.bga.images.getImgUrl('score-icons.png')}')`, backgroundPosition: '0% 0%', backgroundSize: '200% auto' }));
         }
-        entries.push(new BgaJumpTo.Entry(_("Construction Site"), 'market', { color: '#7e7978', backgroundImage: `url('${this.bga.images.getImgUrl('score-icons.png')}')`, backgroundPosition: '0% 0%', backgroundSize: '200% auto' }));
 
         if (gamedatas.isPantheon) {
             entries.push(new BgaJumpTo.Entry(_('Capital'), 'player-table--1', { color: `#999999`, backgroundImage: `url('${this.bga.images.getImgUrl('gear.png')}')` }));
@@ -303,7 +304,7 @@ export class Game {
                 (document.getElementsByTagName('html')[0] as HTMLHtmlElement).classList.toggle('tile-level-colors', prefValue == 2);
                 break;
             case 203: 
-                document.getElementById(`market`).classList.toggle('left-to-right', prefValue != 2);
+                document.getElementById(`market`)?.classList.toggle('left-to-right', prefValue != 2);
                 break;
             case 204: 
                 (document.getElementsByTagName('html')[0] as HTMLHtmlElement).classList.toggle('animated-opacity', prefValue == 2);
@@ -339,7 +340,7 @@ export class Game {
         const soloPlayer = gamedatas.soloPlayer;
 
         if (gamedatas.capital) {
-            this.bga.playerPanels.addAutomataPlayerPanel(-1, _('Capital'), {
+            this.bga.playerPanels.addAutomataPlayerPanel(-1, _(gamedatas.capital.name), {
                 iconClass: 'solo-player-icon',
             });
         }
@@ -354,7 +355,7 @@ export class Game {
             allPlayers.push(soloPlayer);
         }
         if (gamedatas.capital) {
-            //allPlayers.push({ board: gamedatas.capital, id: -1 });
+            allPlayers.push(gamedatas.capital);
         }
 
         allPlayers.forEach(player => {
@@ -468,19 +469,7 @@ export class Game {
 
     private createPlayerTables(gamedatas: AkropolisGamedatas) {
         if (gamedatas.isPantheon) {
-            const table = new PlayerTable(this, {
-                id: '-1',
-                name: _('Capital'),
-                board: { ...gamedatas.capital, tiles: Object.values(gamedatas.capital.tiles) },
-                beginner: false,
-                color: '999999',
-                no: -1,
-                eliminated: 0,
-                is_ai: '0',
-                money: 0,
-                score: '0',
-                zombie: 0
-            }, null);
+            const table = new PlayerTable(this, gamedatas.capital, null);
             this.playersTables.push(table);
         }
 

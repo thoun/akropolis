@@ -66,10 +66,7 @@ interface AkropolisGamedatas {
     challenges: {
         board: any;
     };
-    capital: {
-        scores: Scores;
-        tiles: { [tileId: number]: Tile };
-    };
+    capital: AkropolisPlayer;
 }
 
 interface PlaceTileOption {

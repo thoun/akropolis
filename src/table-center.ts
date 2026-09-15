@@ -8,6 +8,12 @@ export class ConstructionSite {
     private selectionActivated: boolean = false;
 
     constructor(private game: Game, tiles: Tile[], remainingStacks: number) {
+        document.getElementById('tables').insertAdjacentHTML('beforebegin', `            
+            <div id="market" class="left-to-right">
+                <div id="remaining-stacks"><div id="remaining-stacks-counter"></div></div>
+            </div>
+        `);
+
         this.market = document.getElementById('market') as HTMLDivElement;
         this.remainingstacksDiv = document.getElementById('remaining-stacks') as HTMLDivElement;
         this.setTiles(this.orderTiles(tiles.filter(tile => tile.location === 'dock')));
