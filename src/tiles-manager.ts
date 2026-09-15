@@ -5,6 +5,23 @@ export const TILE_COORDINATES = [
     [1, 1],
     [0, 2],
 ];
+const PANTHEON_STARTING_TILE_HOUSE = 91;
+const PANTHEON_STARTING_TILE_MARKET = 92;
+const PANTHEON_STARTING_TILE_BARRACK = 93;
+const PANTHEON_STARTING_TILE_TEMPLE = 94;
+const PANTHEON_STARTING_TILE_GARDEN = 95;
+const PANTHEON_STARTING_TILES = [
+  PANTHEON_STARTING_TILE_HOUSE,
+  PANTHEON_STARTING_TILE_MARKET,
+  PANTHEON_STARTING_TILE_BARRACK,
+  PANTHEON_STARTING_TILE_TEMPLE,
+  PANTHEON_STARTING_TILE_GARDEN,
+];
+const PANTHEON_STARTING_TILE_GEOMETRY = [
+  [0, 0],
+  [1, 1],
+  [-1, 1],
+];
 
 export class TilesManager {
     constructor(public game: AkropolisGame) {}
@@ -52,8 +69,9 @@ export class TilesManager {
             classes.push('single-tile');
         }
         tileDiv.classList.add('tile', ...classes);
+        const geometry = PANTHEON_STARTING_TILES.includes(tile.id) ? PANTHEON_STARTING_TILE_GEOMETRY : TILE_COORDINATES;
         tile.hexes.forEach((hex, index) => {
-            const hexDiv = this.createTileHex(TILE_COORDINATES[index][0], TILE_COORDINATES[index][1], 0, hex, withSides);
+            const hexDiv = this.createTileHex(geometry[index][0], geometry[index][1], 0, hex, withSides);
             hexDiv.dataset.index = `${index}`;
             tileDiv.appendChild(hexDiv);
         });

@@ -165,8 +165,10 @@ export class PlayerTable {
     }
 
     private createGrid(board: PlayerBoard, lastMove: Tile | undefined) {
-        this.createStartTile();
-        board.tiles.forEach(tile => this.placeTile(tile, tile.id == lastMove?.id, 'final'));
+        if (!this.game.gamedatas.isPantheon) { // pantheon has different starting tiles, sent by the back
+            this.createStartTile();
+        }
+        board.tiles.filter(tile => tile.location === 'board').forEach(tile => this.placeTile(tile, tile.id == lastMove?.id, 'final'));
     }
     
     private createTileHex(x: number, y: number, z: number, types: string) {

@@ -123,7 +123,7 @@ class Tiles extends \AKR\Helpers\Pieces
           'location' => "board",
           'player_id' => CAPITAL_ID,
           'x' => 0,
-          'y' => $i,
+          'y' => $i * 2,
           'z' => 0,
           'r' => 0,
         ];

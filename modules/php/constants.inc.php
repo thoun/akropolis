@@ -98,7 +98,6 @@ const COLOR_PURPLE = 'purple';
 const COLOR_ORANGE = 'orange';
 const COLOR_WHITE = 'white';
 
-const TILE_GEOMETRY = [[0, 0], [1, 1], [0, 2]]; // TODO : remove
 const TILE_GEOMETRIES = [
   1 => [[0, 0]],
   3 => [[0, 0], [1, 1], [0, 2]],
@@ -121,7 +120,7 @@ const PANTHEON_STARTING_TILES = [
 const PANTHEON_STARTING_TILE_GEOMETRY = [
   [0, 0],
   [1, 1],
-  [1, -1]
+  [-1, 1],
 ];
 
 const DISTRICTS = [BARRACK, HOUSE, MARKET, TEMPLE, GARDEN];
