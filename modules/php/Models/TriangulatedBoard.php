@@ -51,6 +51,10 @@ class TriangulatedBoard
 
   public function getScores()
   {
+    if (Globals::isPantheon() && $this->pId !== CAPITAL_ID) {
+      return ['districts' => [], 'stars' => [], 'score' => 0];
+    }
+
     $scores = [
       'districts' => $this->getDistrictSizes(),
       'stars' => $this->getPlazaStars(),
@@ -105,7 +109,7 @@ class TriangulatedBoard
     }
 
     // Placed tiles
-    $this->tiles = Tiles::getOfPlayer($this->pId);
+    $this->tiles = Tiles::getOfPlayer($this->pId)->filter(fn($tile) => $tile['location'] == 'board');
     foreach ($this->tiles as $tile) {
       $this->addTileAux($tile);
     }
