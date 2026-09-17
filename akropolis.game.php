@@ -50,6 +50,8 @@ class Akropolis extends Table
   use AKR\States\CompleteCardTrait;
   use AKR\States\ArchitectTurnTrait;
   use AKR\States\EndOfGameTrait;
+  // Pantheon
+  use AKR\States\PantheonTurnTrait;
 
 
   public static $instance = null;

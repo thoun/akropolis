@@ -41,7 +41,7 @@ trait TurnTrait
       throw new \BgaVisibleSystemException('Cannot place this tile. Should not happen');
     }
     $tile = Tiles::getSingle($tileId);
-    $cost = $tile['state'];
+
     // Check position : always go back to top left hex on tile
     $geometry = $player->board()->getTileGeometry($tile);
     $realPos = $player->board()->getCorrespondingPos($geometry, $pos, $r, $hex);

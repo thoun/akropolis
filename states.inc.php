@@ -103,7 +103,7 @@ $machinestates = [
     'description' => clienttranslate('${actplayer} must place a tile in their city or in the Capital'),
     'descriptionmyturn' => clienttranslate('${you} must play a tile in your city or in the Capital'),
     'type' => 'activeplayer',
-    // 'args' => 'argsPlaceTilePantheon',
+    'args' => 'argsPlaceTilePantheon',
     'possibleactions' => ['actPlaceTileInCity', 'actPlaceTileInCapital', 'actCompleteChallenge', 'actDiscardChallenge', 'actUnlockChallengeSlot'],
     'transitions' => ['next' => ST_NEXT_PLAYER_PANTHEON, 'complete' => ST_COMPLETE_CHALLENGE, 'end' => ST_PRE_END_OF_GAME],
   ],

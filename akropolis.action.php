@@ -49,6 +49,8 @@ class action_akropolis extends APP_GameAction
     self::ajaxResponse();
   }
 
+  ////////////////////////////////////////
+  /// ATHENA
   public function actCompleteCard()
   {
     self::setAjaxMode();
@@ -69,4 +71,34 @@ class action_akropolis extends APP_GameAction
     $this->game->actSkipCompleteCard();
     self::ajaxResponse();
   }
+  ////////////////////////////////////////
+
+  ////////////////////////////////////////
+  /// PANTHEON
+  public function actPlaceTileInCity()
+  {
+    self::setAjaxMode();
+    $tileId = (int) self::getArg('tileId', AT_int, true);
+    $hex = (int) self::getArg('hex', AT_int, true);
+    $x = (int) self::getArg('x', AT_int, true);
+    $y = (int) self::getArg('y', AT_int, true);
+    $z = (int) self::getArg('z', AT_int, true);
+    $r = (int) self::getArg('r', AT_int, true);
+    $this->game->actPlaceTileInCity($tileId, $hex, ['x' => $x, 'y' => $y, 'z' => $z], $r);
+    self::ajaxResponse();
+  }
+  public function actPlaceTileInCapital()
+  {
+    self::setAjaxMode();
+    $tileId = (int) self::getArg('tileId', AT_int, true);
+    $hex = (int) self::getArg('hex', AT_int, true);
+    $x = (int) self::getArg('x', AT_int, true);
+    $y = (int) self::getArg('y', AT_int, true);
+    $z = (int) self::getArg('z', AT_int, true);
+    $r = (int) self::getArg('r', AT_int, true);
+    $this->game->actPlaceTileInCapital($tileId, $hex, ['x' => $x, 'y' => $y, 'z' => $z], $r);
+    self::ajaxResponse();
+  }
+  ////////////////////////////////////////
+
 }

@@ -52,6 +52,12 @@ class Collection extends \ArrayObject
     return array_values($this->getArrayCopy());
   }
 
+  public function push(mixed $obj): Collection
+  {
+    $this[$obj->getId()] = $obj;
+    return $this;
+  }
+
   public function toAssoc(): array
   {
     return $this->getArrayCopy();

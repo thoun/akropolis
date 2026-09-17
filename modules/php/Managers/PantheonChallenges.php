@@ -2,6 +2,8 @@
 
 namespace AKR\Managers;
 
+use AKR\Helpers\Collection;
+use AKR\Models\Player;
 use AKR\PantheonChallenges\Challenge;
 
 /**
@@ -10,119 +12,121 @@ use AKR\PantheonChallenges\Challenge;
  */
 class PantheonChallenges extends \AKR\Helpers\Pieces
 {
-    protected static $table = 'pantheon_challenges';
-    protected static $prefix = 'challenge_';
-    protected static $autoIncrement = false;
-    protected static $autoremovePrefix = false;
+  protected static $table = 'pantheon_challenges';
+  protected static $prefix = 'challenge_';
+  protected static $autoIncrement = false;
+  protected static $autoremovePrefix = false;
 
-    protected static function cast($row)
-    {
-        $challengeId = $row['challenge_id'];
-        $className = '\\AKR\\PantheonChallenges\\' . $challengeId;
+  protected static function cast($row)
+  {
+    $challengeId = $row['challenge_id'];
+    $className = '\\AKR\\PantheonChallenges\\' . $challengeId;
 
-        if (class_exists($className)) {
-            return new $className($row);
-        }
-
-        throw new \InvalidArgumentException("Unknown challenge type: " . $challengeId);
+    if (class_exists($className)) {
+      return new $className($row);
     }
 
-    public static function getUiData(): array
-    {
-        $data = [
-            'board' => self::getInLocation('board')->ui(),
-        ];
-        return $data;
+    throw new \InvalidArgumentException("Unknown challenge type: " . $challengeId);
+  }
+
+  public static function getUiData(): array
+  {
+    $data = [
+      'board' => self::getInLocation('board')->ui(),
+    ];
+    return $data;
+  }
+
+
+  /**
+   * Setup new game - initialize challenge database
+   */
+  public static function setupNewGame($players, $options)
+  {
+    $challengeIds = [
+      "Bastion",
+      "BustlingTrade",
+      "Challenge",
+      "ForeignTrade",
+      "Garrison",
+      "GodsPromenade",
+      "GrandTemple",
+      "LookoutTower",
+      "MarketStall",
+      "Neighborhood",
+      "Oracle",
+      "Orchard",
+      "PatricianVilla",
+      "PopulationExpansion",
+      "RareCommodities",
+      "ReligiousFervor",
+      "ResidentialArea",
+      "Ritual",
+      "SacredGrove",
+      "Suburb",
+      "Uprising",
+    ];
+
+    $challenges = [];
+    foreach ($challengeIds as $id) {
+      $challenges[] = [
+        'id' => $id,
+        'location' => 'deck',
+      ];
     }
 
+    self::create($challenges);
 
-    /**
-     * Setup new game - initialize challenge database
-     */
-    public static function setupNewGame($players, $options)
-    {
-        $challengeIds = [
-            "Bastion",
-            "BustlingTrade",
-            "Challenge",
-            "ForeignTrade",
-            "Garrison",
-            "GodsPromenade",
-            "GrandTemple",
-            "LookoutTower",
-            "MarketStall",
-            "Neighborhood",
-            "Oracle",
-            "Orchard",
-            "PatricianVilla",
-            "PopulationExpansion",
-            "RareCommodities",
-            "ReligiousFervor",
-            "ResidentialArea",
-            "Ritual",
-            "SacredGrove",
-            "Suburb",
-            "Uprising",
-        ];
-
-        $challenges = [];
-        foreach ($challengeIds as $id) {
-            $challenges[] = [
-                'id' => $id,
-                'location' => 'deck',
-            ];
-        }
-
-        self::create($challenges);
-
-        // Draw 3 challenges
-        self::shuffle('deck');
-        for ($i = 0; $i < 3; $i++) {
-            self::drawChallenge();
-        }
+    // Draw 3 challenges
+    self::shuffle('deck');
+    for ($i = 0; $i < 3; $i++) {
+      self::drawChallenge();
     }
+  }
 
-    /**
-     * Draw a challenge from deck to revealed
-     */
-    public static function drawChallenge(): ?Challenge
-    {
-        return self::pickOneForLocation('deck', 'board');
+  /**
+   * Draw a challenge from deck to revealed
+   */
+  public static function drawChallenge(): ?Challenge
+  {
+    return self::pickOneForLocation('deck', 'board');
+  }
+
+  /**
+   * Get challenges that a player can complete
+   */
+  public static function getCompletableChallenges(Player $player): Collection
+  {
+    $completable = new Collection();
+    foreach (self::getInLocation('board') as $challenge) {
+      if ($challenge->isSatisfied($player)) {
+        $completable->push($challenge);
+      }
     }
+    return $completable;
+  }
 
-    // /**
-    //  * Complete a challenge (move to completed)
-    //  */
-    // public static function completeChallenge($challengeId)
-    // {
-    //     self::DB()->update([
-    //         'challenge_location' => 'completed',
-    //     ], $challengeId);
-    // }
 
-    // /**
-    //  * Discard a challenge and draw a new one
-    //  */
-    // public static function discardChallenge($challengeId)
-    // {
-    //     self::DB()->update([
-    //         'challenge_location' => 'discarded',
-    //     ], $challengeId);
+  // /**
+  //  * Complete a challenge (move to completed)
+  //  */
+  // public static function completeChallenge($challengeId)
+  // {
+  //     self::DB()->update([
+  //         'challenge_location' => 'completed',
+  //     ], $challengeId);
+  // }
 
-    //     // Draw a new one to replace it
-    //     return self::drawChallenge();
-    // }
-    // /**
-    //  * Get challenges that a player can complete
-    //  */
-    // public static function getCompletableChallenges($player): array
-    // {
-    //     $completable = [];
-    //     foreach (self::getRevealed() as $challenge) {
-    //         if ($challenge->isSatisfied($player)) {
-    //             $completable[$challenge->getId()] = $challenge;
-    //         }
-    //     }
-    //     return $completable;
-    // }
+  // /**
+  //  * Discard a challenge and draw a new one
+  //  */
+  // public static function discardChallenge($challengeId)
+  // {
+  //     self::DB()->update([
+  //         'challenge_location' => 'discarded',
+  //     ], $challengeId);
+
+  //     // Draw a new one to replace it
+  //     return self::drawChallenge();
+  // }
 }
