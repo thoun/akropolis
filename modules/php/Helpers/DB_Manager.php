@@ -1,53 +1,76 @@
 <?php
-namespace AKR\Helpers;
-use AKR\Core\Game;
 
+declare(strict_types=1);
+
+namespace Bga\Games\Akropolis\Helpers;
+
+/**
+ * Database Manager
+ * Base class for database operations with typing
+ */
 class DB_Manager extends \APP_DbObject
 {
-  protected static $table = null;
-  protected static $primary = null;
-  protected static $log = null;
-  protected static function cast($row)
+  protected static string $table = "";
+  protected static string $primary = "";
+  protected static bool $log = true;
+
+  /**
+   * Cast a database row to the appropriate type
+   * @param array<string, mixed> $row Database row
+   * @return array<string, mixed> Casted row
+   */
+  protected static function cast(array $row): mixed
   {
     return $row;
   }
 
-  public static function DB($table = null)
+  /**
+   * Get a QueryBuilder instance for the specified table
+   * @param string|null $table Table name (uses static::$table if null)
+   * @return QueryBuilder QueryBuilder instance
+   * @throws \feException If table is not specified
+   */
+  public static function DB(?string $table = null): QueryBuilder
   {
-    if (is_null($table)) {
-      if (is_null(static::$table)) {
+    if ($table === null) {
+      if (static::$table === "") {
         throw new \feException('You must specify the table you want to do the query on');
       }
       $table = static::$table;
     }
 
-    $log = null;
-    if (static::$log ?? Game::get()->getGameStateValue('logging') == 1) {
-      $log = new Log(static::$table, static::$primary);
-    }
+    $log = new Log(static::$table, static::$primary);
+
     return new QueryBuilder(
       $table,
-      function ($row) {
-        return static::cast($row);
-      },
+      fn(array $row): mixed => static::cast($row),
       static::$primary,
       $log
     );
   }
 
-  public static function startLog()
+  /**
+   * Enable logging
+   */
+  public static function startLog(): void
   {
     static::$log = true;
   }
 
-  public static function stopLog()
+  /**
+   * Disable logging and clear existing logs
+   */
+  public static function stopLog(): void
   {
     static::$log = false;
     $log = new Log(static::$table, static::$primary);
     $log->clearAll();
   }
 
-  public static function revertLogs()
+  /**
+   * Revert all database changes from logs
+   */
+  public static function revertLogs(): void
   {
     $log = new Log(static::$table, static::$primary);
     $log->revertAll();

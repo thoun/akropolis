@@ -9,7 +9,6 @@
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
  *
- * akropolis.game.php
  *
  * This is the main file for your game logic.
  *
@@ -17,42 +16,25 @@
  *
  */
 
-$swdNamespaceAutoload = function ($class) {
-  $classParts = explode('\\', $class);
-  if ($classParts[0] == 'AKR') {
-    array_shift($classParts);
-    $file = dirname(__FILE__) . '/modules/php/' . implode(DIRECTORY_SEPARATOR, $classParts) . '.php';
-    if (file_exists($file)) {
-      require_once $file;
-    } else {
-      var_dump('Cannot find file : ' . $file);
-    }
-  }
-};
-spl_autoload_register($swdNamespaceAutoload, true, true);
+namespace Bga\Games\Akropolis;
 
-require_once 'modules/php/constants.inc.php';
+require_once 'constants.inc.php';
 
-use AKR\Core\Globals;
-use AKR\Core\Stats;
-use AKR\Core\Preferences;
-use AKR\Managers\ConstructionCards;
-use AKR\Managers\Players;
-use AKR\Managers\Tiles;
-use AKR\Managers\Altars;
-use AKR\Managers\PantheonChallenges;
+use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Core\Stats;
+use Bga\Games\Akropolis\Core\Preferences;
+use Bga\Games\Akropolis\Managers\ConstructionCards;
+use Bga\Games\Akropolis\Managers\Players;
+use Bga\Games\Akropolis\Managers\Tiles;
+use Bga\Games\Akropolis\Managers\Altars;
+use Bga\Games\Akropolis\Managers\PantheonChallenges;
+use Bga\Games\Akropolis\States\Pantheon\PantheonSetup;
+use Bga\Games\Akropolis\States\PlaceTile;
 use Bga\GameFramework\Table;
 
-class Akropolis extends Table
+class Game extends Table
 {
-  use AKR\DebugTrait;
-  use AKR\States\TurnTrait;
-  use AKR\States\CompleteCardTrait;
-  use AKR\States\ArchitectTurnTrait;
-  use AKR\States\EndOfGameTrait;
-  // Pantheon
-  use AKR\States\PantheonTurnTrait;
-
+  use DebugTrait;
 
   public static $instance = null;
   function __construct()
@@ -82,10 +64,10 @@ class Akropolis extends Table
     if (Globals::isPantheon()) {
       Altars::setupNewGame();
       PantheonChallenges::setupNewGame($players, $options);
-      $this->gamestate->nextState('pantheonSetup');
-    } else {
-      $this->gamestate->nextState('placeTile');
+      return PantheonSetup::class;
     }
+
+    return PlaceTile::class;
   }
 
   /*
@@ -127,10 +109,6 @@ class Akropolis extends Table
 
     return $data;
   }
-  public function stPantheonSetup()
-  {
-    $this->gamestate->setAllPlayersMultiactive();
-  }
 
   /*
    * getGameProgression:
@@ -145,25 +123,6 @@ class Akropolis extends Table
   function actChangePreference($pref, $value)
   {
     Preferences::set($this->getCurrentPlayerId(), $pref, $value);
-  }
-
-  ////////////////////////////////////
-  ////////////   Zombie   ////////////
-  ////////////////////////////////////
-  /*
-   * zombieTurn:
-   *   This method is called each time it is the turn of a player who has quit the game (= "zombie" player).
-   *   You can do whatever you want in order to make sure the turn of this player ends appropriately
-   */
-  public function zombieTurn($state, $activePlayer)
-  {
-    $stateName = $state['name'];
-    if ($state['type'] === 'activeplayer') {
-      $this->gamestate->nextState('zombiePass');
-    } elseif ($state['type'] === 'multipleactiveplayer') {
-      // Make sure player is in a non blocking status for role turn
-      $this->gamestate->setPlayerNonMultiactive($activePlayer, '');
-    }
   }
 
   /////////////////////////////////////

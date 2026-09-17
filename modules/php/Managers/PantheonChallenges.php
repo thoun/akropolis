@@ -1,26 +1,26 @@
 <?php
 
-namespace AKR\Managers;
+namespace Bga\Games\Akropolis\Managers;
 
-use AKR\Helpers\Collection;
-use AKR\Models\Player;
-use AKR\PantheonChallenges\Challenge;
+use Bga\Games\Akropolis\Helpers\Collection;
+use Bga\Games\Akropolis\Models\Player;
+use Bga\Games\Akropolis\PantheonChallenges\Challenge;
 
 /**
  * Manager for Pantheon Challenge tiles
  * Handles creation, drawing, and management of challenges
  */
-class PantheonChallenges extends \AKR\Helpers\Pieces
+class PantheonChallenges extends \Bga\Games\Akropolis\Helpers\Pieces
 {
-  protected static $table = 'pantheon_challenges';
-  protected static $prefix = 'challenge_';
-  protected static $autoIncrement = false;
-  protected static $autoremovePrefix = false;
+  protected static string $table = 'pantheon_challenges';
+  protected static string $prefix = 'challenge_';
+  protected static bool $autoIncrement = false;
+  protected static bool $autoremovePrefix = false;
 
-  protected static function cast($row)
+  protected static function cast(array $row): Challenge
   {
     $challengeId = $row['challenge_id'];
-    $className = '\\AKR\\PantheonChallenges\\' . $challengeId;
+    $className = '\\Bga\Games\Akropolis\\PantheonChallenges\\' . $challengeId;
 
     if (class_exists($className)) {
       return new $className($row);
@@ -41,7 +41,7 @@ class PantheonChallenges extends \AKR\Helpers\Pieces
   /**
    * Setup new game - initialize challenge database
    */
-  public static function setupNewGame($players, $options)
+  public static function setupNewGame(array $players, array $options): void
   {
     $challengeIds = [
       "Bastion",

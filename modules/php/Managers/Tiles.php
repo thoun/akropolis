@@ -1,21 +1,29 @@
 <?php
 
-namespace AKR\Managers;
+declare(strict_types=1);
 
-use AKR\Core\Globals;
-use AKR\Helpers\Collection;
+namespace Bga\Games\Akropolis\Managers;
+
+use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Helpers\Collection;
+use Bga\Games\Akropolis\Managers\Players;
 
 /* Class to manage all the tiles for Akropolis */
 
-class Tiles extends \AKR\Helpers\Pieces
+class Tiles extends \Bga\Games\Akropolis\Helpers\Pieces
 {
-  protected static $table = 'tiles';
-  protected static $prefix = 'tile_';
-  protected static $customFields = ['player_id', 'x', 'y', 'z', 'r'];
-  protected static $autoIncrement = false;
-  protected static $autoremovePrefix = true;
+  protected static string $table = 'tiles';
+  protected static string $prefix = 'tile_';
+  protected static array $customFields = ['player_id', 'x', 'y', 'z', 'r'];
+  protected static bool $autoIncrement = false;
+  protected static bool $autoremovePrefix = true;
 
-  protected static function cast($tile)
+  /**
+   * Cast database row to tile format
+   * @param array<mixed> $tile Database row
+   * @return array{id: int, location: string, state: int, pId: int, x: int, y: int, z: int, r: int, hexes: array<int, array<int, string>>} Tile data
+   */
+  protected static function cast(array $tile): array
   {
     return [
       'id' => (int) $tile['id'],
@@ -30,14 +38,23 @@ class Tiles extends \AKR\Helpers\Pieces
     ];
   }
 
-  public static function getUiData()
+  /**
+   * Get UI data for tiles in dock and Athena locations
+   * @return array<array> Array of tile data
+   */
+  public static function getUiData(): array
   {
     return self::getInLocation('dock')
       ->merge(self::getInLocation('athena-%'))
       ->toArray();
   }
 
-  public static function setupNewGame($players, $options)
+  /**
+   * Setup new game with tiles
+   * @param array<int, mixed> $players Array of player info
+   * @param array<string, mixed> $options Game options
+   */
+  public static function setupNewGame(array $players, array $options): void
   {
     $nPlayers = max(2, count($players));
 
@@ -142,7 +159,7 @@ class Tiles extends \AKR\Helpers\Pieces
     }
   }
 
-  public static function refillDock()
+  public static function refillDock(): array
   {
     $nPlayers = max(2, Players::count());
     for ($i = self::countInLocation('dock'); $i < $nPlayers + 2; $i++) {
@@ -152,7 +169,7 @@ class Tiles extends \AKR\Helpers\Pieces
     return self::getInLocation('dock')->toArray();
   }
 
-  public static function shiftDock($i)
+  public static function shiftDock(int $i): void
   {
     for (; $i < 6; $i++) {
       foreach (self::getInLocation('dock', $i + 1) as $tile) {
@@ -161,7 +178,7 @@ class Tiles extends \AKR\Helpers\Pieces
     }
   }
 
-  public static function getOfPlayer($pId)
+  public static function getOfPlayer(int $pId): Collection
   {
     return self::getSelectQuery()
       ->wherePlayer($pId)
@@ -170,13 +187,13 @@ class Tiles extends \AKR\Helpers\Pieces
 
   ////////////////////////////
   // Hand management methods
-  public static function getPlayerHand($pId): Collection
+  public static function getPlayerHand(int $pId): Collection
   {
     return self::getInLocation('hand')
       ->filter(fn($tile) => $tile['pId'] == $pId);
   }
 
-  public static function addToHand($pId, $tileId)
+  public static function addToHand(int $pId, $tileId)
   {
     Tiles::DB()->update([
       'tile_location' => "hand",
@@ -184,7 +201,7 @@ class Tiles extends \AKR\Helpers\Pieces
     ], $tileId);
   }
 
-  public static function drawToHand($pId, $n = 1)
+  public static function drawToHand(int $pId, int $n = 1): Collection
   {
     $tiles = self::getTopOf('deck', $n);
     $ids = [];
@@ -200,7 +217,7 @@ class Tiles extends \AKR\Helpers\Pieces
   }
   /////////////////////////
 
-  public static function add($tileId, $pId, $pos, $rotation)
+  public static function add(int $tileId, int $pId, array $pos, int $rotation): array
   {
     self::DB()->update(
       [
@@ -216,7 +233,7 @@ class Tiles extends \AKR\Helpers\Pieces
     return self::getSingle($tileId);
   }
 
-  public static $tiles = [
+  public static array $tiles = [
     #1
     [QUARRY, QUARRY, HOUSE_PLAZA],
     [QUARRY, QUARRY, HOUSE_PLAZA],

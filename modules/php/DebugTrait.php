@@ -1,7 +1,9 @@
 <?php
-namespace AKR;
-use AKR\Core\Globals;
-use AKR\Managers\Players;
+
+namespace Bga\Games\Akropolis;
+
+use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Managers\Players;
 
 trait DebugTrait
 {
@@ -11,11 +13,10 @@ trait DebugTrait
     $player->board()->addTile($tileId, ['x' => $x, 'y' => $y, 'z' => $z], $rotation);
   }
 
-  function debug_tp()
-  {
-  }
+  function debug_tp() {}
 
-  function debug_lr() {
+  function debug_lr()
+  {
     Globals::setEndOfGame(true);
   }
 }

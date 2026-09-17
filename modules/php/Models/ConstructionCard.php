@@ -1,16 +1,16 @@
 <?php
 
-namespace AKR\Models;
+namespace Bga\Games\Akropolis\Models;
 
-use AKR\Managers\Players;
-use AKR\Core\Game;
-use AKR\Core\Globals;
-use AKR\Managers\Meeples;
+use Bga\Games\Akropolis\Managers\Players;
+use Bga\Games\Akropolis\Core\Game;
+use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Managers\Meeples;
 /*
  * ConstructionCard
  */
 
-class ConstructionCard extends \AKR\Helpers\DB_Model
+class ConstructionCard extends \Bga\Games\Akropolis\Helpers\DB_Model
 {
   protected $table = 'construction-cards';
   protected $primary = 'card_id';
@@ -19,15 +19,15 @@ class ConstructionCard extends \AKR\Helpers\DB_Model
     'location' => 'card_location',
     'state' => ['card_state', 'int'],
   ];
-  protected $id;
-  protected $location;
-  protected $state;
+  protected int $id;
+  protected string $location;
+  protected int $state;
 
-  protected $staticAttributes = [['name', 'str'], ['desc', 'str']];
-  protected $name;
-  protected $desc;
+  protected array $staticAttributes = [['name', 'str'], ['desc', 'str']];
+  protected string $name = "";
+  protected string $desc = "";
 
-  public function isSatisfied(\AKR\Models\Player $player)
+  public function isSatisfied(\Bga\Games\Akropolis\Models\Player $player)
   {
     return false;
   }

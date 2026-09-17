@@ -1,8 +1,8 @@
 <?php
 
-namespace AKR\ConstructionCards;
+namespace Bga\Games\Akropolis\ConstructionCards;
 
-class LuxuryGoods extends \AKR\Models\ConstructionCard
+class LuxuryGoods extends \Bga\Games\Akropolis\Models\ConstructionCard
 {
   public function __construct($row)
   {
@@ -13,7 +13,7 @@ class LuxuryGoods extends \AKR\Models\ConstructionCard
   }
 
   // Testée
-  public function isSatisfied(\AKR\Models\Player $player)
+  public function isSatisfied(\Bga\Games\Akropolis\Models\Player $player)
   {
     $board = $player->board();
     $cells = $board->getVisibleBuiltCells();

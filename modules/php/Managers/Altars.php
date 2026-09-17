@@ -1,9 +1,9 @@
 <?php
 
-namespace AKR\Managers;
+namespace Bga\Games\Akropolis\Managers;
 
-use AKR\Core\Globals;
-use AKR\Core\Notifications;
+use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Core\Notifications;
 
 
 // Circular dependency: PantheonManager uses Altars, Altars uses PantheonManager
@@ -11,15 +11,15 @@ use AKR\Core\Notifications;
 
 /* Class to manage all the altars for Pantheon expansion */
 
-class Altars extends \AKR\Helpers\Pieces
+class Altars extends \Bga\Games\Akropolis\Helpers\Pieces
 {
-  protected static $table = 'pantheon_altars';
-  protected static $prefix = 'altar_';
-  protected static $customFields = ['color', 'x', 'y', 'z'];
-  protected static $autoIncrement = true;
-  protected static $autoremovePrefix = true;
+  protected static string $table = 'pantheon_altars';
+  protected static string $prefix = 'altar_';
+  protected static array $customFields = ['color', 'x', 'y', 'z'];
+  protected static bool $autoIncrement = true;
+  protected static bool $autoremovePrefix = true;
 
-  protected static function cast($altar)
+  protected static function cast(array $altar): array
   {
     return [
       'id' => (int) $altar['altar_id'],
@@ -33,7 +33,7 @@ class Altars extends \AKR\Helpers\Pieces
   }
 
   // Altar definitions: color, god, count
-  public static $altars = [
+  public static array $altars = [
     ['color' => BARRACK, 'count' => 4],
     ['color' => GARDEN, 'count' => 3],
     ['color' => HOUSE, 'count' => 5],
@@ -44,7 +44,7 @@ class Altars extends \AKR\Helpers\Pieces
   /**
    * Setup Divine Altars in reserve
    */
-  public static function setupNewGame()
+  public static function setupNewGame(): void
   {
     $altars = [];
     foreach (self::$altars as $altar) {

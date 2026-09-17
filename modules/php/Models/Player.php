@@ -1,31 +1,30 @@
 <?php
 
-namespace AKR\Models;
+namespace Bga\Games\Akropolis\Models;
 
-use AKR\Core\Stats;
-use AKR\Core\Notifications;
-use AKR\Core\Preferences;
-use AKR\Managers\Actions;
-use AKR\Managers\ZooCards;
-use AKR\Managers\ActionCards;
-use AKR\Managers\Meeples;
-use AKR\Managers\Buildings;
-use AKR\Core\Globals;
-use AKR\Core\Engine;
-use AKR\Helpers\FlowConvertor;
-use AKR\Helpers\Utils;
-use AKR\Managers\Tiles;
+use Bga\Games\Akropolis\Core\Stats;
+use Bga\Games\Akropolis\Core\Notifications;
+use Bga\Games\Akropolis\Core\Preferences;
+use Bga\Games\Akropolis\Managers\Actions;
+use Bga\Games\Akropolis\Managers\ZooCards;
+use Bga\Games\Akropolis\Managers\ActionCards;
+use Bga\Games\Akropolis\Managers\Meeples;
+use Bga\Games\Akropolis\Managers\Buildings;
+use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Core\Engine;
+use Bga\Games\Akropolis\Helpers\FlowConvertor;
+use Bga\Games\Akropolis\Helpers\Utils;
+use Bga\Games\Akropolis\Managers\Tiles;
 
 /*
  * Player: all utility functions concerning a player
  */
 
-class Player extends \AKR\Helpers\DB_Model
+class Player extends \Bga\Games\Akropolis\Helpers\DB_Model
 {
-  private $map = null;
-  protected $table = 'player';
-  protected $primary = 'player_id';
-  protected $attributes = [
+  protected string $table = 'player';
+  protected string $primary = 'player_id';
+  protected array $attributes = [
     'id' => ['player_id', 'int'],
     'no' => ['player_no', 'int'],
     'name' => 'player_name',
@@ -47,7 +46,7 @@ class Player extends \AKR\Helpers\DB_Model
   protected ?bool $zombie;
   protected ?int $money;
 
-  public function getUiData($currentPlayerId = null)
+  public function getUiData($currentPlayerId = null): array
   {
     $data = parent::getUiData();
     $data['board'] = $this->board()->getUiData();
@@ -57,21 +56,21 @@ class Player extends \AKR\Helpers\DB_Model
     return $data;
   }
 
-  public function getPref($prefId)
+  public function getPref(int $prefId): int
   {
     return Preferences::get($this->id, $prefId);
   }
 
-  public function getStat($name)
+  public function getStat(string $name): mixed
   {
     $name = 'get' . \ucfirst($name);
     return Stats::$name($this->id);
   }
 
   // Cached attribute
-  protected $board = null;
-  //  public function board(): \AKR\Models\Board
-  public function board(): \AKR\Models\TriangulatedBoard
+  protected ?TriangulatedBoard $board = null;
+  //  public function board(): \Bga\Games\Akropolis\Models\Board
+  public function board(): \Bga\Games\Akropolis\Models\TriangulatedBoard
   {
     if ($this->board == null) {
       //      $this->board = new Board($this);

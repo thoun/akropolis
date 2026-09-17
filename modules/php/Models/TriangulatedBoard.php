@@ -1,14 +1,14 @@
 <?php
 
-namespace AKR\Models;
+namespace Bga\Games\Akropolis\Models;
 
-use AKR\Managers\Tiles;
-use AKR\Managers\Players;
-use AKR\Helpers\UserException;
-use AKR\Helpers\Utils;
-use AKR\Helpers\Collection;
-use AKR\Core\Globals;
-use AKR\Core\Stats;
+use Bga\Games\Akropolis\Managers\Tiles;
+use Bga\Games\Akropolis\Managers\Players;
+use Bga\Games\Akropolis\Helpers\UserException;
+use Bga\Games\Akropolis\Helpers\Utils;
+use Bga\Games\Akropolis\Helpers\Collection;
+use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Core\Stats;
 
 /*
  * Board: all utility functions concerning a player Board
@@ -29,8 +29,8 @@ const DIRECTIONS = [
 class TriangulatedBoard
 {
   // CONSTRUCT
-  protected $player = null;
-  protected $pId = null;
+  protected ?Player $player = null;
+  protected ?int $pId = null;
   public function __construct($player = null)
   {
     if (!is_null($player)) {
@@ -254,11 +254,8 @@ class TriangulatedBoard
     if (count($coveredTileIds) == 1) {
       $tileId = $coveredTileIds[0];
       // For virtual starting tile (id = -1), use its specific geometry
-      if ($tileId == -1) {
-        $coveredGeometry = TILE_SPECIFIC_GEOMETRIES[-1];
-      } else {
-        $coveredGeometry = $this->getTileGeometry($this->tiles[$tileId]);
-      }
+      $coveredGeometry = $tileId == -1 ? TILE_GEOMETRIES[3] : $this->getTileGeometry($this->tiles[$tileId]);
+
       // Single tile can cover only one tile, EXCEPT IF IT'S A SINGLE TILE
       if (count($geometry) > 1 || count($coveredGeometry) == 1) {
         return false;

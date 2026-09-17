@@ -1,8 +1,8 @@
 <?php
 
-namespace AKR\ConstructionCards;
+namespace Bga\Games\Akropolis\ConstructionCards;
 
-class Storehouses extends \AKR\Models\ConstructionCard
+class Storehouses extends \Bga\Games\Akropolis\Models\ConstructionCard
 {
   public function __construct($row)
   {
@@ -13,7 +13,7 @@ class Storehouses extends \AKR\Models\ConstructionCard
   }
 
   // Testée mais attente réponse (not sure about "separate")
-  public function isSatisfied(\AKR\Models\Player $player)
+  public function isSatisfied(\Bga\Games\Akropolis\Models\Player $player)
   {
     $board = $player->board();
     $cells = $board->getVisibleBuiltCells();

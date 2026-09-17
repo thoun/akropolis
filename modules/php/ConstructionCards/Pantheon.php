@@ -1,10 +1,10 @@
 <?php
 
-namespace AKR\ConstructionCards;
+namespace Bga\Games\Akropolis\ConstructionCards;
 
-use AKR\Models\Player;
+use Bga\Games\Akropolis\Models\Player;
 
-class Pantheon extends \AKR\Models\ConstructionCard
+class Pantheon extends \Bga\Games\Akropolis\Models\ConstructionCard
 {
   public function __construct($row)
   {

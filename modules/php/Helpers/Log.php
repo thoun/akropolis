@@ -1,11 +1,11 @@
 <?php
 
-namespace AKR\Helpers;
+namespace Bga\Games\Akropolis\Helpers;
 
-use AKR\Core\Game;
-use AKR\Core\Globals;
-use AKR\Core\Notifications;
-use AKR\Managers\Players;
+use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Core\Notifications;
+use Bga\Games\Akropolis\Game;
+use Bga\Games\Akropolis\Managers\Players;
 
 /**
  * Class that allows to log DB change: useful for undo feature
@@ -31,7 +31,7 @@ class Log extends \APP_DbObject
   }
 
   // Create a new checkpoint : anything before that checkpoint cannot be undo (unless in studio)
-  public static function checkpoint()
+  public static function checkpoint(): void
   {
     $query = new QueryBuilder('log', null, 'id');
     $entry = [
@@ -43,7 +43,7 @@ class Log extends \APP_DbObject
     $query->insert($entry);
   }
 
-  public function getLastCheckpoint()
+  public function getLastCheckpoint(): int
   {
     $query = new QueryBuilder('log', null, 'id');
     $log = $query
@@ -60,7 +60,7 @@ class Log extends \APP_DbObject
   /**
    * Add an entry
    */
-  public static function addEntry($entry)
+  public static function addEntry(array $entry): void
   {
     $entry['affected'] = \json_encode($entry['affected']);
     $entry['move_id'] = self::getUniqueValueFromDB('SELECT global_value FROM global WHERE global_id = 3');
@@ -81,7 +81,7 @@ class Log extends \APP_DbObject
   /**
    * Revert all the logged changes
    */
-  public static function revertAll()
+  public static function revertAll(): array
   {
     $checkpoint = static::getLastCheckpoint();
     $query = new QueryBuilder('log', null, 'id');

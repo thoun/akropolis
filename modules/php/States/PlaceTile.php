@@ -1,21 +1,49 @@
 <?php
 
-namespace AKR\States;
+declare(strict_types=1);
 
-use AKR\Core\Globals;
-use AKR\Core\Notifications;
-use AKR\Core\Stats;
-use AKR\Managers\Players;
-use AKR\Managers\Tiles;
-use AKR\Helpers\Utils;
+namespace Bga\Games\Akropolis\States;
 
-trait TurnTrait
+use Bga\Games\Akropolis\Game;
+use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Core\Notifications;
+use Bga\Games\Akropolis\Core\Stats;
+use Bga\Games\Akropolis\Managers\ConstructionCards;
+use Bga\Games\Akropolis\Managers\Players;
+use Bga\Games\Akropolis\Managers\Tiles;
+use Bga\Games\Akropolis\Helpers\Utils;
+use Bga\GameFramework\StateType;
+use Bga\GameFramework\States\GameState;
+use Bga\GameFramework\States\PossibleAction;
+
+/**
+ * PlaceTile State
+ * Player must place a tile in their city
+ */
+class PlaceTile extends GameState
 {
-  public function argsPlaceTile()
+  function __construct(protected Game $game)
+  {
+    parent::__construct(
+      $game,
+      id: ST_PLACE_TILE,
+      type: StateType::ACTIVE_PLAYER,
+      name: 'placeTile',
+      description: clienttranslate('${actplayer} must place a tile in their city'),
+      descriptionMyTurn: clienttranslate('${you} must play a tile in your city'),
+      transitions: [
+        'completeCard' => ST_COMPLETE_CARD,
+        'next' => ST_NEXT_PLAYER,
+      ],
+    );
+  }
+
+  public function getArgs(int $activePlayerId): array
   {
     $player = Players::getActive();
     $options = [];
     $geometry = TILE_GEOMETRIES[3];
+
     for ($hex = 0; $hex < 3; $hex++) {
       $options[$hex] = $player->board()->getPlacementOptions($hex, $geometry);
     }
@@ -30,44 +58,58 @@ trait TurnTrait
     ];
   }
 
-  public function actPlaceTile($tileId, $hex, $pos, $r)
+  #[PossibleAction]
+  public function actPlaceTile(int $tileId, int $hex, array $pos, int $r, int $activePlayerId): string
   {
     $player = Players::getActive();
+
     // Sanity check
-    self::checkAction('actPlaceTile');
-    $args = $this->argsPlaceTile();
+    $args = $this->getArgs($activePlayerId);
+
     // Check tile
     if (!in_array($tileId, $args['tileIds'])) {
       throw new \BgaVisibleSystemException('Cannot place this tile. Should not happen');
     }
+
     $tile = Tiles::getSingle($tileId);
 
     // Check position : always go back to top left hex on tile
     $geometry = $player->board()->getTileGeometry($tile);
     $realPos = $player->board()->getCorrespondingPos($geometry, $pos, $r, $hex);
+
     $optionId = Utils::search($args['options'][0], function ($option) use ($realPos) {
       return Utils::compareZones($option, $realPos) == 0;
     });
+
     if ($optionId === false) {
       throw new \BgaVisibleSystemException('Impossible hex. Should not happen');
     }
+
     // Check rotation
     $option = $args['options'][0][$optionId];
     if (!in_array($r, $option['r'])) {
       throw new \BgaVisibleSystemException('Impossible rotation. Should not happen');
     }
 
+    // Place the tile
     $this->actPlaceTileAux($player, $tileId, $hex, $pos, $r);
-    $this->goToNextPlayerUnlessCompletableCard();
+
+    // Check if player can complete a card
+    if ($this->canGoToCompleteCard($player)) {
+      return 'completeCard';
+    }
+
+    return 'next';
   }
 
   /**
-   * Auxiliary function that place the tile => can be reused for Architect
+   * Auxiliary function to place a tile - can be reused
    */
-  public function actPlaceTileAux($player, $tileId, $hex, $pos, $r, $shiftDock = true)
+  public function actPlaceTileAux($player, $tileId, $hex, $pos, $r, $shiftDock = true): void
   {
     $tile = Tiles::getSingle($tileId);
     $cost = $tile['state'];
+
     // Check position : always go back to top left hex on tile
     $geometry = $player->board()->getTileGeometry($tile);
     $pos = $player->board()->getCorrespondingPos($geometry, $pos, $r, $hex);
@@ -80,7 +122,8 @@ trait TurnTrait
       }
 
       Notifications::payForTile($player, $cost);
-      if (Globals::isSolo() && $player->getId() != ARCHITECT_ID) {
+
+      if (Globals::isSolo() && $player->getId() != \ARCHITECT_ID) {
         $architect = Players::getArchitect();
         $architect->incMoney($cost);
         Notifications::gainStones($architect, $cost, true);
@@ -115,46 +158,49 @@ trait TurnTrait
     }
   }
 
-  public function stNextPlayer()
+  /**
+   * Check if we should transition to complete card state
+   */
+  private function canGoToCompleteCard($player): bool
   {
-    $activePId = (int) Players::getActiveId();
-    $nextPId = Globals::isSolo() ? 0 : Players::getNextId($activePId);
-
-    // Refill if needed
-    $this->refillIfNeeded($nextPId);
-
-    // Auto play architect if solo
-    if (Globals::isSolo()) {
-      $this->stArchitectTurn();
-      $this->refillIfNeeded($activePId);
-    }
-    // Otherwise, move to next player
-    else {
-      $this->activeNextPlayer();
+    // Are we playing with Athena expansion ??
+    if (!Globals::isAthena()) {
+      return false;
     }
 
-    if ($nextPId != 0) {
-      self::giveExtraTime($nextPId);
+    // Get corresponding completed cards for that player
+    $statuses = Globals::getAthenaCardStatuses()[$player->getId()] ?? [];
+
+    // Go through each card in play
+    foreach (ConstructionCards::getAll() as $cardId => $card) {
+      // Already fulfilled ?
+      if (in_array($cardId, $statuses)) {
+        continue;
+      }
+
+      // Can be fulfilled ?
+      if ($card->isSatisfied($player)) {
+        return true;
+      }
     }
-    $this->gamestate->nextState(Globals::isEndOfGame() ? 'end' : 'placeTile');
+
+    return false;
   }
 
   /**
-   * Refill the dock if needed and trigger detect end of game
+   * This should be called from CompleteCard state, not here
    */
-  public function refillIfNeeded($nextPId)
+  public function goToNextPlayerUnlessCompletableCard(): string
   {
-    if (Tiles::countInLocation('dock') == 1) {
-      if (Tiles::countInLocation('deck') > 0) {
-        $dock = Tiles::refillDock();
-        $deck = Tiles::countInLocation('deck');
-        Notifications::refill($dock, $deck);
+    $player = Players::getActive();
+    $canComplete = $this->canGoToCompleteCard($player);
+    $transition = $canComplete ? 'completeCard' : 'next';
+    return $transition;
+  }
 
-        Globals::setFirstPlayer($nextPId);
-        Notifications::updateFirstPlayer($nextPId);
-      } else {
-        Globals::setEndOfGame(true);
-      }
-    }
+  public function zombie(int $playerId): string
+  {
+    // For zombie players, just skip their turn
+    return 'next';
   }
 }

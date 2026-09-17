@@ -1,18 +1,18 @@
 <?php
 
-namespace AKR\PantheonChallenges;
+namespace Bga\Games\Akropolis\PantheonChallenges;
 
-use AKR\Models\Player;
+use Bga\Games\Akropolis\Models\Player;
 
 /**
  * Base Challenge class for Pantheon expansion
  * Each specific challenge extends this class and implements isSatisfied()
  */
-class Challenge extends \AKR\Helpers\DB_Model
+class Challenge extends \Bga\Games\Akropolis\Helpers\DB_Model
 {
-    protected $table = 'pantheon_challenges';
-    protected $primary = 'challenge_id';
-    protected $attributes = [
+    protected string $table = 'pantheon_challenges';
+    protected string $primary = 'challenge_id';
+    protected array $attributes = [
         'id' => ['challenge_id', 'str'],
         'location' => 'challenge_location',
         'state' => ['challenge_state', 'int'],

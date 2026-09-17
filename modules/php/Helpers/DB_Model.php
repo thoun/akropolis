@@ -1,26 +1,27 @@
 <?php
-namespace AKR\Helpers;
-use AKR\Core\Game;
+
+namespace Bga\Games\Akropolis\Helpers;
+
+use Bga\Games\Akropolis\Game;
 
 abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
 {
-  protected $table = null;
-  protected $primary = null;
-  protected $log = null;
+  protected string $table = "";
+  protected string $primary = "";
   /**
    * This associative array will link class attributes to db fields
    */
-  protected $attributes = [];
+  protected array $attributes = [];
 
   /**
    * This array will contains class attributes that does not depends on the DB (static info), they can only be accessed, not modified
    */
-  protected $staticAttributes = [];
+  protected array $staticAttributes = [];
 
   /**
    * Fill in class attributes based on DB entry
    */
-  public function __construct($row)
+  public function __construct(array $row)
   {
     foreach ($this->attributes as $attribute => $field) {
       $fieldName = is_array($field) ? $field[0] : $field;
@@ -57,7 +58,7 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
   /*
    * Magic method that intercept not defined method and do the appropriate stuff
    */
-  public function __call($method, $args)
+  public function __call(string $method, array $args)
   {
     if (preg_match('/^([gs]et|inc|is)([A-Z])(.*)$/', $method, $match)) {
       // Sanity check : does the name correspond to a declared variable ?
@@ -146,7 +147,7 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
   /**
    * Return an array of attributes
    */
-  public function jsonSerialize()
+  public function jsonSerialize(): array
   {
     $data = [];
     foreach ($this->attributes as $attribute => $field) {
@@ -156,7 +157,7 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
     return $data;
   }
 
-  public function getStaticData()
+  public function getStaticData(): array
   {
     $data = [];
     foreach ($this->staticAttributes as $attribute) {
@@ -170,7 +171,7 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
     return $data;
   }
 
-  public function getUiData()
+  public function getUiData(): array
   {
     return array_merge($this->jsonSerialize(), $this->getStaticData());
   }
@@ -178,18 +179,13 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
   /**
    * Private DB call
    */
-  private function DB()
+  private function DB(): QueryBuilder
   {
     if (is_null($this->table)) {
       throw new \feException('You must specify the table you want to do the query on');
     }
 
-    $log = null;
-
-    if (static::$log ?? Game::get()->getGameStateValue('logging') == 1) {
-      $log = new Log($this->table, $this->primary);
-    }
-
+    $log = new Log($this->table, $this->primary);
     return new QueryBuilder(
       $this->table,
       function ($row) {

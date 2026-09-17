@@ -1,12 +1,19 @@
 <?php
-namespace AKR\Helpers;
-use AKR\Core\Game;
 
+declare(strict_types=1);
+
+namespace Bga\Games\Akropolis\Helpers;
+
+/**
+ * User-facing exception with translation support
+ */
 class UserException extends \BgaUserException
 {
-  public function __construct($str)
-  {
-    parent::__construct(clienttranslate($str));
-  }
+    /**
+     * @param string $str Exception message (will be client-translated)
+     */
+    public function __construct(string $str)
+    {
+        parent::__construct(clienttranslate($str));
+    }
 }
-?>

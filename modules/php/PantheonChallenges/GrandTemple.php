@@ -1,8 +1,8 @@
 <?php
 
-namespace AKR\PantheonChallenges;
+namespace Bga\Games\Akropolis\PantheonChallenges;
 
-use AKR\Models\Player;
+use Bga\Games\Akropolis\Models\Player;
 
 class GrandTemple extends Challenge
 {

@@ -43,14 +43,30 @@ const SCENARIO_CORINTHE = 0;
 const SCENARIO_SPARTE = 1;
 const SCENARIO_ATHENA = 2;
 
-/*
- * State constants
- */
+
+// The initial state. Please do not modify.
+const ST_GAME_SETUP = 1;
+
+// Base game states
+const ST_PLACE_TILE = 2;
+const ST_NEXT_PLAYER = 3;
+const ST_PRE_END_OF_GAME = 98;
+
+// Final state. Please do not modify.
+const ST_END_GAME = 99;
+
+/////////////////////////////////////////////////////
+// Athena expansion states
+/////////////////////////////////////////////////////
+const ST_COMPLETE_CARD = 4;
+
+/////////////////////////////////////////////////////
+// Pantheon expansion states
+/////////////////////////////////////////////////////
 const ST_PANTHEON_SETUP = 50;
 const ST_PLACE_TILE_PANTHEON = 51;
 const ST_NEXT_PLAYER_PANTHEON = 52;
 const ST_COMPLETE_CHALLENGE = 53;
-
 
 /*
  * User preferences
@@ -59,16 +75,6 @@ const OPTION_CONFIRM = 103;
 const OPTION_CONFIRM_DISABLED = 0;
 const OPTION_CONFIRM_TIMER = 1;
 const OPTION_CONFIRM_ENABLED = 2;
-
-/*
- * State constants
- */
-const ST_GAME_SETUP = 1;
-const ST_PLACE_TILE = 2;
-const ST_NEXT_PLAYER = 3;
-const ST_COMPLETE_CARD = 4;
-const ST_PRE_END_OF_GAME = 98;
-const ST_END_GAME = 99;
 
 /**
  * Tiles

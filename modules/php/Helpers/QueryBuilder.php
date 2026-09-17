@@ -1,6 +1,6 @@
 <?php
 
-namespace AKR\Helpers;
+namespace Bga\Games\Akropolis\Helpers;
 
 class QueryBuilder extends \APP_DbObject
 {
@@ -46,7 +46,7 @@ class QueryBuilder extends \APP_DbObject
   public function insert($fields = [], $overwriteIfExists = false)
   {
     $this->multipleInsert(array_keys($fields), $overwriteIfExists)->values([array_values($fields)]);
-    return self::DbGetLastId();
+    return (int) self::getUniqueValueFromDB("SELECT LAST_INSERT_ID()");
   }
 
   /*
@@ -60,6 +60,7 @@ class QueryBuilder extends \APP_DbObject
     $this->insertPrimaryIndex = array_search($this->primary, $fields);
     return $this;
   }
+
 
   public function values($rows = [])
   {
@@ -405,7 +406,7 @@ class QueryBuilder extends \APP_DbObject
   // Syntaxic sugar
   public function wherePlayer($pId)
   {
-    return is_null($pId) ? $this : $this->where('player_id', $pId);
+    return $pId == null ? $this : $this->where('player_id', $pId);
   }
 
   /*

@@ -1,19 +1,19 @@
 <?php
 
-namespace AKR\Models;
+namespace Bga\Games\Akropolis\Models;
 
-use AKR\Core\Stats;
-use AKR\Core\Notifications;
-use AKR\Core\Preferences;
-use AKR\Managers\Actions;
-use AKR\Managers\ZooCards;
-use AKR\Managers\ActionCards;
-use AKR\Managers\Meeples;
-use AKR\Managers\Buildings;
-use AKR\Core\Globals;
-use AKR\Core\Engine;
-use AKR\Helpers\FlowConvertor;
-use AKR\Helpers\Utils;
+use Bga\Games\Akropolis\Core\Stats;
+use Bga\Games\Akropolis\Core\Notifications;
+use Bga\Games\Akropolis\Core\Preferences;
+use Bga\Games\Akropolis\Managers\Actions;
+use Bga\Games\Akropolis\Managers\ZooCards;
+use Bga\Games\Akropolis\Managers\ActionCards;
+use Bga\Games\Akropolis\Managers\Meeples;
+use Bga\Games\Akropolis\Managers\Buildings;
+use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Core\Engine;
+use Bga\Games\Akropolis\Helpers\FlowConvertor;
+use Bga\Games\Akropolis\Helpers\Utils;
 
 /*
  * Architect: fake player
@@ -48,20 +48,20 @@ class Capital extends Player
     return 0; // TODO
   }
 
-  public function getUiData($currentPlayerId = null)
+  public function getUiData($currentPlayerId = null): array
   {
     $data = parent::getUiData();
     $data['lvl'] = $this->getLvl();
     return $data;
   }
 
-  public function getLvl()
+  public function getLvl(): int
   {
     return $this->lvl;
   }
 
   // Cached attribute
-  protected $board = null;
+  protected ?TriangulatedBoard $board = null;
   public function board(): TriangulatedBoard
   {
     if ($this->board == null) {

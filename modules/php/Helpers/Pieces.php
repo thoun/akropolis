@@ -1,5 +1,6 @@
 <?php
-namespace AKR\Helpers;
+
+namespace Bga\Games\Akropolis\Helpers;
 
 /*
  * This is a generic class to manage game pieces.
@@ -26,22 +27,22 @@ namespace AKR\Helpers;
 
 class Pieces extends DB_Manager
 {
-  protected static $table = null;
+  protected static string $table = "";
   protected static $cast = null;
 
-  protected static $prefix = 'piece_';
-  protected static $autoIncrement = true;
-  protected static $primary;
-  protected static $autoremovePrefix = true;
-  protected static $autoreshuffle = false; // If true, a new deck is automatically formed with a reshuffled discard as soon at is needed
-  protected static $autoreshuffleListener = null; // Callback to a method called when an autoreshuffle occurs
+  protected static string $prefix = 'piece_';
+  protected static bool $autoIncrement = true;
+  protected static string $primary;
+  protected static bool $autoremovePrefix = true;
+  protected static bool $autoreshuffle = false; // If true, a new deck is automatically formed with a reshuffled discard as soon at is needed
+  protected static ?array $autoreshuffleListener = null; // Callback to a method called when an autoreshuffle occurs
   // autoreshuffleListener = array( 'obj' => object, 'method' => method_name )
   // If defined, tell the name of the deck and what is the corresponding discard (ex : "mydeck" => "mydiscard")
-  protected static $autoreshuffleCustom = [];
-  protected static $customFields = [];
-  protected static $gIndex = [];
+  protected static array $autoreshuffleCustom = [];
+  protected static array $customFields = [];
+  protected static array $gIndex = [];
 
-  public static function DB($table = null)
+  public static function DB(?string $table = null): QueryBuilder
   {
     static::$primary = static::$prefix . 'id';
     return parent::DB(static::$table);
@@ -61,9 +62,7 @@ class Pieces extends DB_Manager
    * Overwritable function to add base filter to any query
    * => useful if two kind of "stuff" cohabitates
    */
-  protected static function addBaseFilter(&$query)
-  {
-  }
+  protected static function addBaseFilter(&$query) {}
 
   /****
    * Return the basic select query fetching basic fields and custom fields
@@ -237,7 +236,7 @@ class Pieces extends DB_Manager
     return $result->count() == 1 ? $result->first() : $result;
   }
 
-  public static function getMany($ids, $raiseExceptionIfNotEnough = true)
+  public static function getMany($ids, $raiseExceptionIfNotEnough = true): Collection
   {
     if (!is_array($ids)) {
       $ids = [$ids];
@@ -253,7 +252,9 @@ class Pieces extends DB_Manager
       ->get(false);
     if (count($result) != count($ids) && $raiseExceptionIfNotEnough) {
       // throw new \feException(print_r(\debug_print_backtrace()));
-      throw new \feException('Class Pieces: getMany, some pieces have not been found !' . json_encode($ids));
+      throw new \feException(
+        'Class Pieces: getMany, some pieces have not been found !' . static::$table . ' => ' . json_encode($ids)
+      );
     }
 
     return $result;
@@ -344,7 +345,7 @@ class Pieces extends DB_Manager
   /**
    * getFilteredQuery : many times the DB scheme has a pId and a type extra field, this allow for a shortcut for a query for these case
    */
-  public function getFilteredQuery($pId, $location = null, $type = null)
+  public static function getFilteredQuery($pId, $location = null, $type = null)
   {
     $query = self::getSelectQuery()->wherePlayer($pId);
     if ($location != null) {
@@ -360,7 +361,7 @@ class Pieces extends DB_Manager
     return $query;
   }
 
-  public function getFiltered($pId, $location = null, $type = null)
+  public static function getFiltered($pId, $location = null, $type = null)
   {
     return static::getFilteredQuery($pId, $location, $type)->get();
   }
@@ -534,7 +535,7 @@ class Pieces extends DB_Manager
    *     "state" => <state>             // Optional argument specifies integer state, if not specified and $token_state_global is not specified auto-increment is used
    */
 
-  static function create($pieces, $globalLocation = null, $globalState = null, $globalId = null)
+  public static function create($pieces, $globalLocation = null, $globalState = null, $globalId = null)
   {
     $pos = is_null($globalLocation) ? 0 : self::getExtremePosition(true, $globalLocation) + 1;
 
@@ -596,7 +597,7 @@ class Pieces extends DB_Manager
   /*
    * Create a single token
    */
-  function singleCreate($token)
+  public static function singleCreate(array $token): mixed
   {
     $tokens = self::create([$token]);
     return self::getSingle(is_array($tokens) ? $tokens[0] : $tokens);
