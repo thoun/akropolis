@@ -22,6 +22,10 @@ use Bga\GameFramework\States\PossibleAction;
  */
 class PlaceTile extends GameState
 {
+  /**
+   * PlaceTile constructor
+   * @param Game $game Game instance
+   */
   function __construct(protected Game $game)
   {
     parent::__construct(
@@ -38,6 +42,11 @@ class PlaceTile extends GameState
     );
   }
 
+  /**
+   * Get arguments for the state
+   * @param int $activePlayerId Active player ID
+   * @return array{options: array, tileIds: array} State arguments
+   */
   public function getArgs(int $activePlayerId): array
   {
     $player = Players::getActive();
@@ -92,7 +101,7 @@ class PlaceTile extends GameState
     }
 
     // Place the tile
-    $this->actPlaceTileAux($player, $tileId, $hex, $pos, $r);
+    Tiles::placeTile($player, $tileId, $hex, $pos, $r);
 
     // Check if player can complete a card
     if ($this->canGoToCompleteCard($player)) {
@@ -103,65 +112,11 @@ class PlaceTile extends GameState
   }
 
   /**
-   * Auxiliary function to place a tile - can be reused
-   */
-  public function actPlaceTileAux($player, $tileId, $hex, $pos, $r, $shiftDock = true): void
-  {
-    $tile = Tiles::getSingle($tileId);
-    $cost = $tile['state'];
-
-    // Check position : always go back to top left hex on tile
-    $geometry = $player->board()->getTileGeometry($tile);
-    $pos = $player->board()->getCorrespondingPos($geometry, $pos, $r, $hex);
-
-    // Pay money if needed
-    if ($cost > 0) {
-      $player->incMoney(-$cost);
-      if ($player->getId() != \ARCHITECT_ID) {
-        Stats::incMoneyUsed($player, $cost);
-      }
-
-      Notifications::payForTile($player, $cost);
-
-      if (Globals::isSolo() && $player->getId() != \ARCHITECT_ID) {
-        $architect = Players::getArchitect();
-        $architect->incMoney($cost);
-        Notifications::gainStones($architect, $cost, true);
-      }
-    }
-
-    // Place tile
-    $money = $player->board()->addTile($tileId, $pos, $r);
-    $tile = Tiles::getSingle($tileId);
-    Notifications::placeTile($player, $tile);
-
-    // Register move as player's last move
-    $lastMoves = Globals::getLastMoves();
-    $lastMoves[$player->getId()] = $tile;
-    Globals::setLastMoves($lastMoves);
-
-    // Gain money if recovering quarries
-    if ($money > 0) {
-      $player->incMoney($money);
-      Notifications::gainStones($player, $money);
-    }
-
-    // Shift remaining tiles
-    if ($shiftDock) {
-      Tiles::shiftDock($cost);
-    }
-
-    // Update score if live scoring
-    if (Globals::isLiveScoring()) {
-      $scores = $player->board()->getScores();
-      Notifications::updateScores($player, $scores);
-    }
-  }
-
-  /**
    * Check if we should transition to complete card state
+   * @param object $player Player to check
+   * @return bool True if player can complete a card
    */
-  private function canGoToCompleteCard($player): bool
+  private function canGoToCompleteCard(object $player): bool
   {
     // Are we playing with Athena expansion ??
     if (!Globals::isAthena()) {
@@ -189,6 +144,7 @@ class PlaceTile extends GameState
 
   /**
    * This should be called from CompleteCard state, not here
+   * @return string Next transition ('completeCard' or 'next')
    */
   public function goToNextPlayerUnlessCompletableCard(): string
   {
@@ -198,6 +154,11 @@ class PlaceTile extends GameState
     return $transition;
   }
 
+  /**
+   * Zombie player handling - just skip their turn
+   * @param int $playerId Zombie player ID
+   * @return string Next transition
+   */
   public function zombie(int $playerId): string
   {
     // For zombie players, just skip their turn

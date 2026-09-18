@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\ConstructionCards;
 
+use Bga\Games\Akropolis\Models\ConstructionCard;
 use Bga\Games\Akropolis\Models\Player;
 
-class PilgrimsStairs extends \Bga\Games\Akropolis\Models\ConstructionCard
+class PilgrimsStairs extends ConstructionCard
 {
-  public function __construct($row)
+  public function __construct(?array $row = null)
   {
     parent::__construct($row);
     $this->id = 'PilgrimsStairs';
@@ -15,7 +18,7 @@ class PilgrimsStairs extends \Bga\Games\Akropolis\Models\ConstructionCard
   }
 
   // Testée mais en attente de réponse
-  public function isSatisfied(Player $player)
+  public function isSatisfied(Player $player): bool
   {
     $board = $player->board();
     // For each temple plaza

@@ -1,12 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\ConstructionCards;
 
+use Bga\Games\Akropolis\Models\ConstructionCard;
 use Bga\Games\Akropolis\Models\Player;
+use Bga\Games\Akropolis\Models\TriangulatedBoard;
 
-class Housing extends \Bga\Games\Akropolis\Models\ConstructionCard
+class Housing extends ConstructionCard
 {
-  public function __construct($row)
+  public function __construct(?array $row = null)
   {
     parent::__construct($row);
     $this->id = 'Housing';
@@ -14,7 +18,7 @@ class Housing extends \Bga\Games\Akropolis\Models\ConstructionCard
     $this->desc = clienttranslate('Exact layout of 6 <HOUSE> around a central <DISTRICT>');
   }
 
-  public function checkCircleAroundHex($board, $cell)
+  public function checkCircleAroundHex(TriangulatedBoard $board, array $cell): bool
   {
     $neighbours = $board->getBuiltNeighbours($cell);
     if (count($neighbours) < 6) return false;
@@ -34,8 +38,8 @@ class Housing extends \Bga\Games\Akropolis\Models\ConstructionCard
     return true;
   }
 
-  // Testée (sans dual tile)
-  public function isSatisfied(Player $player)
+  // Testée (sans dual tile): bool
+  public function isSatisfied(Player $player): bool
   {
     $board = $player->board();
     $seen = [];

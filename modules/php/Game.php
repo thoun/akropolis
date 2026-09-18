@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
@@ -36,7 +38,11 @@ class Game extends Table
 {
   use DebugTrait;
 
-  public static $instance = null;
+  public static ?Game $instance = null;
+
+  /**
+   * Game constructor
+   */
   function __construct()
   {
     parent::__construct();
@@ -45,7 +51,11 @@ class Game extends Table
     Stats::checkExistence();
   }
 
-  public static function get()
+  /**
+   * Get the game instance
+   * @return Game The singleton game instance
+   */
+  public static function get(): Game
   {
     return self::$instance;
   }
@@ -53,7 +63,7 @@ class Game extends Table
   /*
    * setupNewGame:
    */
-  protected function setupNewGame($players, $options = [])
+  protected function setupNewGame($players, $options = []): mixed
   {
     Globals::setupNewGame($players, $options);
     Players::setupNewGame($players, $options);
@@ -83,7 +93,6 @@ class Game extends Table
     }
 
     $data = [
-      'prefs' => Preferences::getUiData($currentPlayerId),
       'players' => Players::getUiData($currentPlayerId),
       'dock' => Tiles::getUiData(),
       'deck' => Tiles::countInLocation('deck'),
@@ -113,16 +122,11 @@ class Game extends Table
   /*
    * getGameProgression:
    */
-  function getGameProgression()
+  function getGameProgression(): int
   {
     $placed = Tiles::countInLocation('board');
     $allTilesToPlace = Tiles::getSelectWhere(null, null, null)->count() - 1;
     return ($placed * 100) / $allTilesToPlace;
-  }
-
-  function actChangePreference($pref, $value)
-  {
-    Preferences::set($this->getCurrentPlayerId(), $pref, $value);
   }
 
   /////////////////////////////////////

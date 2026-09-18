@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\Helpers;
 
 use Bga\Games\Akropolis\Game;
@@ -20,31 +22,35 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
 
   /**
    * Fill in class attributes based on DB entry
+   * @param array<string, mixed> $row DB row data
    */
   public function __construct(array $row)
   {
     foreach ($this->attributes as $attribute => $field) {
       $fieldName = is_array($field) ? $field[0] : $field;
+      $v = $row[$fieldName] ?? null;
 
-      $this->$attribute = $row[$fieldName] ?? null;
-      if (is_array($field) && !is_null($this->$attribute)) {
+      if (is_array($field) && !is_null($v)) {
         if ($field[1] == 'int') {
-          $this->$attribute = (int) $this->$attribute;
+          $this->$attribute = (int) $v;
         }
         if ($field[1] == 'bool') {
-          $this->$attribute = (bool) $this->$attribute;
+          $this->$attribute = (bool) $v;
         }
         if ($field[1] == 'obj') {
-          $this->$attribute = json_decode($this->$attribute, true);
+          $this->$attribute = json_decode($v, true);
         }
+      } else {
+        $this->$attribute = $v;
       }
     }
   }
 
   /**
    * Get the DB primary row according to attributes mapping
+   * @return mixed Primary field value or null
    */
-  private function getPrimaryFieldValue()
+  private function getPrimaryFieldValue(): mixed
   {
     foreach ($this->attributes as $attribute => $field) {
       $fieldName = is_array($field) ? $field[0] : $field;
@@ -57,8 +63,11 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
 
   /*
    * Magic method that intercept not defined method and do the appropriate stuff
+   * @param string $method Method name
+   * @param array<mixed> $args Method arguments
+   * @return mixed Return value from the operation
    */
-  public function __call(string $method, array $args)
+  public function __call(string $method, array $args): mixed
   {
     if (preg_match('/^([gs]et|inc|is)([A-Z])(.*)$/', $method, $match)) {
       // Sanity check : does the name correspond to a declared variable ?
@@ -100,13 +109,13 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
           if ($field[1] == 'int') {
             $value = (int) $value;
             if ($value == $this->$name) {
-              return; // No modification, abort DB call
+              return $value; // No modification, abort DB call
             }
           }
           if ($field[1] == 'bool') {
             $value = (bool) $value;
             if ($value == $this->$name) {
-              return; // No modification, abort DB call
+              return $value; // No modification, abort DB call
             }
           }
           if ($field[1] == 'obj') {
@@ -138,14 +147,15 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
         $setter = 'set' . $match[2] . $match[3];
         return $this->$setter($this->$getter() + (empty($args) ? 1 : $args[0]));
       }
+      throw new \feException('Unknown type ' . $method);
     } else {
       throw new \feException('Undefined method ' . $method);
-      return null;
     }
   }
 
   /**
-   * Return an array of attributes
+   * Return an array of attributes for JSON serialization
+   * @return array<string, mixed> Attribute data
    */
   public function jsonSerialize(): array
   {
@@ -157,6 +167,10 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
     return $data;
   }
 
+  /**
+   * Get static data (non-DB attributes)
+   * @return array<string, mixed> Static attribute data
+   */
   public function getStaticData(): array
   {
     $data = [];
@@ -171,6 +185,10 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
     return $data;
   }
 
+  /**
+   * Get UI data (combines DB attributes and static data)
+   * @return array<string, mixed> Combined data for UI
+   */
   public function getUiData(): array
   {
     return array_merge($this->jsonSerialize(), $this->getStaticData());
@@ -178,6 +196,7 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
 
   /**
    * Private DB call
+   * @return QueryBuilder QueryBuilder instance
    */
   private function DB(): QueryBuilder
   {

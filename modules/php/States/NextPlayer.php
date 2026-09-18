@@ -11,6 +11,7 @@ use Bga\Games\Akropolis\Managers\Players;
 use Bga\Games\Akropolis\Managers\Tiles;
 use Bga\GameFramework\StateType;
 use Bga\GameFramework\States\GameState;
+use Bga\Games\Akropolis\Helpers\Utils;
 
 /**
  * NextPlayer State
@@ -18,6 +19,10 @@ use Bga\GameFramework\States\GameState;
  */
 class NextPlayer extends GameState
 {
+  /**
+   * NextPlayer constructor
+   * @param Game $game Game instance
+   */
   function __construct(protected Game $game)
   {
     parent::__construct(
@@ -36,6 +41,7 @@ class NextPlayer extends GameState
 
   /**
    * Handle transition to next player
+   * @return string Next transition ('placeTile' or 'end')
    */
   public function onEnteringState(): string
   {
@@ -47,10 +53,7 @@ class NextPlayer extends GameState
 
     // Auto play architect if solo
     if (Globals::isSolo()) {
-      // Call the architect turn method from the game
-      if (method_exists($this->game, 'stArchitectTurn')) {
-        $this->game->stArchitectTurn();
-      }
+      $this->stArchitectTurn();
       $this->refillIfNeeded($activePId);
     } else {
       // Move to next player
@@ -58,16 +61,57 @@ class NextPlayer extends GameState
     }
 
     if ($nextPId != 0) {
-      if (method_exists($this->game, 'giveExtraTime')) {
-        $this->game->giveExtraTime($nextPId);
-      }
+      $this->game->giveExtraTime($nextPId);
     }
 
     return Globals::isEndOfGame() ? 'end' : 'placeTile';
   }
 
+
+  public function stArchitectTurn()
+  {
+    $architect = Players::getArchitect();
+    $geometry = TILE_GEOMETRIES[3];
+    $options = $architect->board()->getPlacementOptions(0, $geometry);
+
+    // Keep only options at ground level
+    Utils::filter($options, function ($option) {
+      return $option['z'] == 0;
+    });
+
+    // Keep the closest one to the center
+    $min = null;
+    $minOption = null;
+    foreach ($options as $option) {
+      $dist = abs($option['x']) + abs($option['y']);
+      if (is_null($min) || $dist < $min) {
+        $min = $dist;
+        $minOption = $option;
+      }
+    }
+
+    // Find the tile
+    $tiles = Tiles::getInLocation('dock')->order(function ($tile1, $tile2) {
+      return $tile1['state'] - $tile2['state'];
+    });
+    $tilesWithPlaza = $tiles->filter(function ($tile) use ($architect) {
+      return $tile['state'] <= $architect->getMoney() && count(array_intersect(PLAZAS, $tile['hexes'])) > 0;
+    });
+
+    if ($tilesWithPlaza->empty()) {
+      $tileId = $tiles->first()['id'];
+      Notifications::automataDelay($architect, clienttranslate('${player_name} takes the first City tile from the Construction Site'));
+    } else {
+      $tileId = $tilesWithPlaza->first()['id'];
+      Notifications::automataDelay($architect, clienttranslate('${player_name} takes cheapest City tile with a Plaza'));
+    }
+
+    Tiles::placeTile($architect, $tileId, 0, $minOption, $minOption['r'][0]);
+  }
+
   /**
    * Refill the dock if needed and trigger detect end of game
+   * @param int $nextPId Next player ID
    */
   private function refillIfNeeded(int $nextPId): void
   {

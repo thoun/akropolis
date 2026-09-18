@@ -1,22 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\PantheonChallenges;
 
+use Bga\Games\Akropolis\Models\Challenge;
 use Bga\Games\Akropolis\Models\Player;
 
 class PopulationExpansion extends Challenge
 {
-    public function __construct($row = null)
-    {
-        parent::__construct($row);
-        $this->id = 'PopulationExpansion';
-        $this->name = clienttranslate('Population Expansion');
-        $this->description = clienttranslate('Place 1 <HOUSE> adjacent to 4 <HOUSE>');
-        $this->color = HOUSE;
-    }
+  public function __construct(?array $row = null)
+  {
+    parent::__construct($row);
+    $this->id = 'PopulationExpansion';
+    $this->name = clienttranslate('Population Expansion');
+    $this->description = clienttranslate('Place 1 <HOUSE> adjacent to 4 <HOUSE>');
+    $this->color = HOUSE;
+  }
 
-    public function isSatisfiedWithTile(Player $player, array $tile): bool
-    {
-        return false;
-    }
+  public function isSatisfiedWithTile(Player $player, array $tile): bool
+  {
+    return false;
+  }
 }

@@ -1,23 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\PantheonChallenges;
 
+use Bga\Games\Akropolis\Models\Challenge;
 use Bga\Games\Akropolis\Models\Player;
 
 class Garrison extends Challenge
 {
-    public function __construct($row = null)
-    {
-        parent::__construct($row);
-        $this->id = 'Garrison';
-        $this->name = clienttranslate('Garrison');
-        $this->description = clienttranslate('Place 1 <BARRACK> to connect 2 <BARRACK>');
-        $this->color = BARRACK;
-    }
+  public function __construct(?array $row = null)
+  {
+    parent::__construct($row);
+    $this->id = 'Garrison';
+    $this->name = clienttranslate('Garrison');
+    $this->description = clienttranslate('Place 1 <BARRACK> to connect 2 <BARRACK>');
+    $this->color = BARRACK;
+  }
 
-    public function isSatisfiedWithTile(Player $player, array $tile): bool
-    {
-        $board = $player->board();
-        return false;
-    }
+  public function isSatisfiedWithTile(Player $player, array $tile): bool
+  {
+    $board = $player->board();
+    return false;
+  }
 }

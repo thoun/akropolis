@@ -1,19 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\Models;
 
 use Bga\Games\Akropolis\Core\Stats;
-use Bga\Games\Akropolis\Core\Notifications;
 use Bga\Games\Akropolis\Core\Preferences;
-use Bga\Games\Akropolis\Managers\Actions;
-use Bga\Games\Akropolis\Managers\ZooCards;
-use Bga\Games\Akropolis\Managers\ActionCards;
-use Bga\Games\Akropolis\Managers\Meeples;
-use Bga\Games\Akropolis\Managers\Buildings;
 use Bga\Games\Akropolis\Core\Globals;
-use Bga\Games\Akropolis\Core\Engine;
-use Bga\Games\Akropolis\Helpers\FlowConvertor;
-use Bga\Games\Akropolis\Helpers\Utils;
+use Bga\Games\Akropolis\Game;
 use Bga\Games\Akropolis\Managers\Tiles;
 
 /*
@@ -29,10 +23,10 @@ class Player extends \Bga\Games\Akropolis\Helpers\DB_Model
     'no' => ['player_no', 'int'],
     'name' => 'player_name',
     'color' => 'player_color',
-    'eliminated' => 'player_eliminated',
+    'eliminated' => ['player_eliminated', 'bool'],
     'score' => ['player_score', 'int'],
     'scoreAux' => ['player_score_aux', 'int'],
-    'zombie' => 'player_zombie',
+    'zombie' => ['player_zombie', 'bool'],
 
     'money' => ['money', 'int'],
   ];
@@ -46,7 +40,12 @@ class Player extends \Bga\Games\Akropolis\Helpers\DB_Model
   protected ?bool $zombie;
   protected ?int $money;
 
-  public function getUiData($currentPlayerId = null): array
+  /**
+   * Get UI data for this player
+   * @param int|null $currentPlayerId Current player ID for perspective
+   * @return array Player UI data including board
+   */
+  public function getUiData(?int $currentPlayerId = null): array
   {
     $data = parent::getUiData();
     $data['board'] = $this->board()->getUiData();
@@ -56,11 +55,21 @@ class Player extends \Bga\Games\Akropolis\Helpers\DB_Model
     return $data;
   }
 
-  public function getPref(int $prefId): int
+  /**
+   * Get a player preference
+   * @param int $prefId Preference ID
+   * @return mixed Preference value
+   */
+  public function getPref(int $prefId): mixed
   {
-    return Preferences::get($this->id, $prefId);
+    return Game::get()->bga->userPreferences->get($this->id, $prefId);
   }
 
+  /**
+   * Get a player stat
+   * @param string $name Stat name
+   * @return mixed Stat value
+   */
   public function getStat(string $name): mixed
   {
     $name = 'get' . \ucfirst($name);
@@ -69,11 +78,14 @@ class Player extends \Bga\Games\Akropolis\Helpers\DB_Model
 
   // Cached attribute
   protected ?TriangulatedBoard $board = null;
-  //  public function board(): \Bga\Games\Akropolis\Models\Board
-  public function board(): \Bga\Games\Akropolis\Models\TriangulatedBoard
+
+  /**
+   * Get the player's board
+   * @return TriangulatedBoard Player's board
+   */
+  public function board(): TriangulatedBoard
   {
     if ($this->board == null) {
-      //      $this->board = new Board($this);
       $this->board = new TriangulatedBoard($this);
     }
     return $this->board;

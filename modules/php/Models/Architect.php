@@ -1,19 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\Models;
 
-use Bga\Games\Akropolis\Core\Stats;
-use Bga\Games\Akropolis\Core\Notifications;
-use Bga\Games\Akropolis\Core\Preferences;
-use Bga\Games\Akropolis\Managers\Actions;
-use Bga\Games\Akropolis\Managers\ZooCards;
-use Bga\Games\Akropolis\Managers\ActionCards;
-use Bga\Games\Akropolis\Managers\Meeples;
-use Bga\Games\Akropolis\Managers\Buildings;
 use Bga\Games\Akropolis\Core\Globals;
-use Bga\Games\Akropolis\Core\Engine;
-use Bga\Games\Akropolis\Helpers\FlowConvertor;
-use Bga\Games\Akropolis\Helpers\Utils;
 
 /*
  * Architect: fake player
@@ -23,10 +14,14 @@ class Architect extends Player
 {
   private int $lvl;
 
-  public function __construct($row)
+  /**
+   * Create Architect instance
+   * @param array<mixed>|null $row Database row (not used, info comes from Globals)
+   */
+  public function __construct(?array $row = null)
   {
     $infos = Globals::getArchitect();
-    $this->id = 0;
+    $this->id = ARCHITECT_ID;
     $this->no = 2;
     $this->money = $infos['money'];
     $this->lvl = (int) $infos['lvl'];
@@ -44,13 +39,22 @@ class Architect extends Player
     $this->zombie = false;
   }
 
-  public function getUiData($currentPlayerId = null): array
+  /**
+   * Get UI data for Architect
+   * @param int|null $currentPlayerId Current player ID (not used for Architect)
+   * @return array Architect UI data
+   */
+  public function getUiData(?int $currentPlayerId = null): array
   {
     $data = parent::getUiData();
     $data['lvl'] = $this->getLvl();
     return $data;
   }
 
+  /**
+   * Increment Architect's money
+   * @param int $money Amount to add
+   */
   public function incMoney(int $money): void
   {
     $this->money += $money;
@@ -59,6 +63,10 @@ class Architect extends Player
     Globals::setArchitect($infos);
   }
 
+  /**
+   * Get Architect level
+   * @return int Level (0-2)
+   */
   public function getLvl(): int
   {
     return $this->lvl;
@@ -66,6 +74,11 @@ class Architect extends Player
 
   // Cached attribute
   protected ?TriangulatedBoard $board = null;
+
+  /**
+   * Get Architect's board
+   * @return TriangulatedBoard Architect's board
+   */
   public function board(): TriangulatedBoard
   {
     if ($this->board == null) {

@@ -1,25 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\Models;
 
-use Bga\Games\Akropolis\Managers\Players;
-use Bga\Games\Akropolis\Core\Game;
-use Bga\Games\Akropolis\Core\Globals;
-use Bga\Games\Akropolis\Managers\Meeples;
 /*
  * ConstructionCard
  */
 
 class ConstructionCard extends \Bga\Games\Akropolis\Helpers\DB_Model
 {
-  protected $table = 'construction-cards';
-  protected $primary = 'card_id';
-  protected $attributes = [
-    'id' => ['card_id', 'int'],
+  protected string $table = 'construction-cards';
+  protected string $primary = 'card_id';
+  protected array $attributes = [
+    'id' => 'card_id',
     'location' => 'card_location',
     'state' => ['card_state', 'int'],
   ];
-  protected int $id;
+  protected string $id;
   protected string $location;
   protected int $state;
 
@@ -27,7 +25,12 @@ class ConstructionCard extends \Bga\Games\Akropolis\Helpers\DB_Model
   protected string $name = "";
   protected string $desc = "";
 
-  public function isSatisfied(\Bga\Games\Akropolis\Models\Player $player)
+  /**
+   * Check if card requirements are satisfied by player
+   * @param Player $player Player to check
+   * @return bool True if card can be completed
+   */
+  public function isSatisfied(Player $player): bool
   {
     return false;
   }

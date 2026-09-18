@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\Models;
 
 use Bga\Games\Akropolis\Managers\Tiles;
@@ -13,7 +15,6 @@ use Bga\Games\Akropolis\Core\Stats;
 /*
  * Board: all utility functions concerning a player Board
  */
-
 
 // Each direction also corresponds to 1 triangle of the hex
 const DIRECTIONS = [
@@ -31,7 +32,12 @@ class TriangulatedBoard
   // CONSTRUCT
   protected ?Player $player = null;
   protected ?int $pId = null;
-  public function __construct($player = null)
+
+  /**
+   * Create a new TriangulatedBoard
+   * @param Player|null $player Player owner of the board
+   */
+  public function __construct(?Player $player = null)
   {
     if (!is_null($player)) {
       $this->player = $player;
@@ -40,7 +46,11 @@ class TriangulatedBoard
     }
   }
 
-  public function getUiData()
+  /**
+   * Get UI data for the board
+   * @return array{tiles: array, scores: array|null} Board UI data
+   */
+  public function getUiData(): array
   {
     $liveScoring = Globals::isLiveScoring();
     return [
@@ -49,7 +59,11 @@ class TriangulatedBoard
     ];
   }
 
-  public function getScores()
+  /**
+   * Get scores for the board
+   * @return array{districts: array, stars: array, score: int} Board scores
+   */
+  public function getScores(): array
   {
     if (Globals::isPantheon() && $this->pId !== CAPITAL_ID) {
       return ['districts' => [], 'stars' => [], 'score' => 0];
@@ -76,18 +90,25 @@ class TriangulatedBoard
     return $scores;
   }
 
-  public function refresh()
+  /**
+   * Refresh board data from database
+   */
+  public function refresh(): void
   {
     $this->fetchDatas();
   }
 
   /**
+   * Grid data
+   */
+  protected array $grid = [];
+  protected array $gridTileIds = [];
+  protected ?Collection $tiles = null;
+
+  /**
    * Fetch DB for tiles and fill the grid
    */
-  protected $grid = [];
-  protected $gridTileIds = [];
-  protected $tiles = null;
-  protected function fetchDatas()
+  protected function fetchDatas(): void
   {
     if ($this->player == null) {
       return;
@@ -116,9 +137,10 @@ class TriangulatedBoard
   }
 
   /**
-   * protected addTileAux: add the individual hexes of a tile to the board
+   * Add the individual hexes of a tile to the board
+   * @param array<string, mixed> $tile Tile data
    */
-  protected function addTileAux($tile)
+  protected function addTileAux(array $tile): void
   {
     foreach ($this->getTileCoveredHexes($tile) as $i => $hex) {
       $this->grid[$hex['x']][$hex['y']][$hex['z']] = $tile['hexes'][$i];
@@ -127,9 +149,13 @@ class TriangulatedBoard
   }
 
   /**
-   * addTile : add a tile at a given pos and rotation
+   * Add a tile at a given pos and rotation
+   * @param int $tileId ID of tile to add
+   * @param array{x: int, y: int, z: int} $pos Position to add at
+   * @param int $rotation Rotation (0-5)
+   * @return int Bonus earned (number of quarries covered)
    */
-  public function addTile($tileId, $pos, $rotation)
+  public function addTile(int $tileId, array $pos, int $rotation): int
   {
     $tile = Tiles::add($tileId, $this->pId, $pos, $rotation);
     $this->tiles[$tileId] = $tile;
@@ -152,11 +178,13 @@ class TriangulatedBoard
   }
 
   /**
-   * getTileGeometry : return the geometry associated to a tile
+   * Get the geometry associated to a tile
    *  => distinguish 3-tiles from 1-tile by looking at number of hexes currently, 
    *    but could be used for more complex shapes
+   * @param array<string, mixed> $tile Tile data
+   * @return array<array{int, int}> Geometry definition (array of [x, y] offsets)
    */
-  public function getTileGeometry($tile)
+  public function getTileGeometry(array $tile): array
   {
     // Pantheon starting tile geometry
     if (in_array($tile['id'], PANTHEON_STARTING_TILES)) {
@@ -168,9 +196,13 @@ class TriangulatedBoard
   }
 
   /**
-   * getCoveredHexes: given a position and rotation, return the list of hexes that would be covered by the tile placed that way
+   * Get the list of hexes that would be covered by the tile placed at position and rotation
+   * @param array<array{int, int}> $geometry Geometry definition
+   * @param array{x: int, y: int, z: int} $pos Position
+   * @param int $rotation Rotation (0-5)
+   * @return array<array{x: int, y: int, z: int}> Array of hex coordinates
    */
-  public function getCoveredHexes($geometry, $pos, $rotation)
+  public function getCoveredHexes(array $geometry, array $pos, int $rotation): array
   {
     $hexes = [];
     foreach ($geometry as $delta) {
@@ -187,17 +219,25 @@ class TriangulatedBoard
   }
 
   // Same thing for a given DB result representing a building
-  public function getTileCoveredHexes($tile)
+  /**
+   * Get the hexes covered by a tile
+   * @param array<string, mixed> $tile Tile data
+   * @return array<array{x: int, y: int, z: int}> Array of hex coordinates
+   */
+  public function getTileCoveredHexes(array $tile): array
   {
     $geometry = $this->getTileGeometry($tile);
     return $this->getCoveredHexes($geometry, self::extractPos($tile), $tile['r']);
   }
 
   /**
-   * getCellsAtDist: return the list of cells at distance at most $k from a given list of cells
+   * Get the list of cells at distance at most $k from a given list of cells
    *  => only the Z = 0 plane
+   * @param array<array{x: int, y: int, z: int}> $cells Starting cells
+   * @param int $k Maximum distance
+   * @return array<array{x: int, y: int, z: int}> Array of cells at distance <= k
    */
-  protected function getCellsAsDist($cells, $k)
+  protected function getCellsAsDist(array $cells, int $k): array
   {
     $neighbours = [];
     for ($i = 0; $i < $k; $i++) {
@@ -212,9 +252,13 @@ class TriangulatedBoard
   }
 
   /**
-   * isValidOption: given a pos and rotation, can we place a tile here ?
+   * Check if a placement option is valid
+   * @param array<array{int, int}> $geometry Geometry definition
+   * @param array{x: int, y: int, z: int} $pos Position
+   * @param int $rotation Rotation (0-5)
+   * @return bool True if placement is valid
    */
-  public function isValidOption($geometry, $pos, $rotation)
+  public function isValidOption(array $geometry, array $pos, int $rotation): bool
   {
     $touchExisting = false;
     $cells = $this->getCoveredHexes($geometry, $pos, $rotation);
@@ -266,9 +310,12 @@ class TriangulatedBoard
   }
 
   /**
-   * getPlacementOptions: return all the possible positions to place a new tile
+   * Get all possible positions to place a new tile
+   * @param int $hex Reference hex for positioning
+   * @param array<array{int, int}> $geometry Geometry definition
+   * @return array<array{x: int, y: int, z: int, r: array<int>}> Array of placement options with rotations
    */
-  public function getPlacementOptions($hex, $geometry)
+  public function getPlacementOptions(int $hex, array $geometry): array
   {
     $options = [];
     $cells = $this->getCellsAsDist($this->getBuiltCells(), 2);
@@ -291,7 +338,15 @@ class TriangulatedBoard
     return $options;
   }
 
-  public function getCorrespondingPos($geometry, $pos, $r, $hex)
+  /**
+   * Get the corresponding position for a given hex in geometry at rotation
+   * @param array<array{int, int}> $geometry Geometry definition
+   * @param array{x: int, y: int, z: int} $pos Base position
+   * @param int $r Rotation (0-5)
+   * @param int $hex Index of hex in geometry
+   * @return array{x: int, y: int, z: int} Calculated position
+   */
+  public function getCorrespondingPos(array $geometry, array $pos, int $r, int $hex): array
   {
     $hexOffset = self::getRotatedHex(['x' => -$geometry[$hex][0], 'y' => -$geometry[$hex][1]], $r);
     return [
@@ -302,17 +357,23 @@ class TriangulatedBoard
   }
 
   /**
-   * isCellBuilt: given an hex, is there something here already
+   * Check if a cell is built
+   * @param array{x: int, y: int, z: int} $cell Cell to check
+   * @return bool True if cell is built
    */
-  public function isCellBuilt($cell)
+  public function isCellBuilt(array $cell): bool
   {
     return !is_null($this->grid[$cell['x']][$cell['y']][$cell['z']] ?? null);
   }
 
   /**
-   * getTypesAtPos: return the type(s) of hex at a given cell
+   * Get the type(s) of hex at a given cell
+   * @param array{x: int, y: int, z: int} $cell Cell to check
+   * @param bool $nullIfEmpty Return null if empty (default false, returns [FREE => [...]])
+   * @param bool $maxHeight Get at max height first (default true)
+   * @return array<string, array<int>>|null Array of type => triangles, or null if empty
    */
-  public function getTypesAtPos($cell, $nullIfEmpty = false, $maxHeight = true)
+  public function getTypesAtPos(array $cell, bool $nullIfEmpty = false, bool $maxHeight = true): ?array
   {
     if ($maxHeight) {
       $cell = $this->getMaxHeightAtPos($cell, false);
@@ -345,17 +406,22 @@ class TriangulatedBoard
   }
 
   /**
-   * getTileIdAtPos: return the tile id of hex at a given cell
+   * Get the tile ID at a given cell
+   * @param array{x: int, y: int, z: int} $cell Cell to check
+   * @return int|null Tile ID or null if not found
    */
-  public function getTileIdAtPos($cell)
+  public function getTileIdAtPos(array $cell): ?int
   {
     return $this->gridTileIds[$cell['x']][$cell['y']][$cell['z']] ?? null;
   }
 
   /**
-   * getMaxHeightAtPos: return the maxium built at a given $x,$y cell
+   * Get the maximum built height at a given x,y cell
+   * @param array{x: int, y: int, z: int} $cell Cell to check
+   * @param bool $increaseZ Whether to increase Z by 1 (default true)
+   * @return array{x: int, y: int, z: int} Cell with updated Z
    */
-  public function getMaxHeightAtPos($cell, $increaseZ = true)
+  public function getMaxHeightAtPos(array $cell, bool $increaseZ = true): array
   {
     $column = $this->grid[$cell['x']][$cell['y']] ?? [];
     $heights = array_keys($column);
@@ -373,7 +439,7 @@ class TriangulatedBoard
   //  ___) | (_| (_) | | |  __/
   // |____/ \___\___/|_|  \___|
   //////////////////////////////////
-  public function computeScore($scores)
+  public function computeScore(array $scores): int
   {
     $map = [
       BARRACK => \BARRACK_PLAZA,

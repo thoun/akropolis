@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\ConstructionCards;
 
+use Bga\Games\Akropolis\Models\ConstructionCard;
 use Bga\Games\Akropolis\Models\Player;
 
-class Fortress extends \Bga\Games\Akropolis\Models\ConstructionCard
+class Fortress extends ConstructionCard
 {
-  public function __construct($row)
+  public function __construct(?array $row = null)
   {
     parent::__construct($row);
     $this->id = 'Fortress';
@@ -15,7 +18,7 @@ class Fortress extends \Bga\Games\Akropolis\Models\ConstructionCard
   }
 
   // Testée mais question en suspens
-  public function isSatisfied(Player $player)
+  public function isSatisfied(Player $player): bool
   {
     $board = $player->board();
 

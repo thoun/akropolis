@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\Managers;
 
 use Bga\Games\Akropolis\Helpers\Collection;
+use Bga\Games\Akropolis\Models\Challenge;
 use Bga\Games\Akropolis\Models\Player;
-use Bga\Games\Akropolis\PantheonChallenges\Challenge;
 
 /**
  * Manager for Pantheon Challenge tiles
@@ -40,6 +42,8 @@ class PantheonChallenges extends \Bga\Games\Akropolis\Helpers\Pieces
 
   /**
    * Setup new game - initialize challenge database
+   * @param array<int, mixed> $players Array of player info
+   * @param array<string, mixed> $options Game options
    */
   public static function setupNewGame(array $players, array $options): void
   {
@@ -86,6 +90,7 @@ class PantheonChallenges extends \Bga\Games\Akropolis\Helpers\Pieces
 
   /**
    * Draw a challenge from deck to revealed
+   * @return Challenge|null Drawn challenge or null
    */
   public static function drawChallenge(): ?Challenge
   {
@@ -94,6 +99,8 @@ class PantheonChallenges extends \Bga\Games\Akropolis\Helpers\Pieces
 
   /**
    * Get challenges that a player can complete
+   * @param Player $player Player to check
+   * @return Collection<int, Challenge> Collection of completable challenges
    */
   public static function getCompletableChallenges(Player $player): Collection
   {

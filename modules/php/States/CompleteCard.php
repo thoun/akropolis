@@ -22,6 +22,10 @@ use Bga\GameFramework\States\PossibleAction;
  */
 class CompleteCard extends GameState
 {
+  /**
+   * CompleteCard constructor
+   * @param Game $game Game instance
+   */
   function __construct(protected Game $game)
   {
     parent::__construct(
@@ -138,12 +142,13 @@ class CompleteCard extends GameState
     Notifications::completeCard($player, $card);
 
     if (Globals::isSolo()) {
+      $architect = Players::getArchitect();
       Notifications::completeCard($architect, $card, true);
       $this->stArchitectPlaceSingleTile($automaTileId);
     }
 
     // Place tile
-    $this->game->actPlaceTileAux($player, $tileId, 0, $pos, $r, false);
+    Tiles::placeTile($player, $tileId, 0, $pos, $r, false);
 
     // Check if player can complete another card
     if ($this->canCompleteCard($player)) {
@@ -161,8 +166,10 @@ class CompleteCard extends GameState
 
   /**
    * Get completable cards for a player
+   * @param object $player Player to check
+   * @return Collection<int, object> Collection of completable cards
    */
-  private function getCompletableCards($player): Collection
+  private function getCompletableCards(object $player): Collection
   {
     $cards = new Collection();
 
@@ -192,24 +199,48 @@ class CompleteCard extends GameState
 
   /**
    * Check if player can complete any card
+   * @param object $player Player to check
+   * @return bool True if player can complete at least one card
    */
-  private function canCompleteCard($player): bool
+  private function canCompleteCard(object $player): bool
   {
     return $this->getCompletableCards($player)->count() > 0;
   }
 
   /**
    * Place a single tile for the architect in solo mode
+   * @param int $tileId Tile ID to place
    */
-  private function stArchitectPlaceSingleTile($tileId): void
+  private function stArchitectPlaceSingleTile(int $tileId)
   {
-    // This should be implemented based on your existing architect logic
-    // For now, we'll just call the method from the game class
-    if (method_exists($this->game, 'stArchitectPlaceSingleTile')) {
-      $this->game->stArchitectPlaceSingleTile($tileId);
+    $geometry = TILE_GEOMETRIES[1];
+    $architect = Players::getArchitect();
+    $options = $architect->board()->getPlacementOptions(0, $geometry);
+
+    // Keep only options at ground level
+    Utils::filter($options, function ($option) {
+      return $option['z'] == 0;
+    });
+
+    // Keep the closest one to the center
+    $min = null;
+    $minOption = null;
+    foreach ($options as $option) {
+      $dist = abs($option['x']) + abs($option['y']);
+      if (is_null($min) || $dist < $min) {
+        $min = $dist;
+        $minOption = $option;
+      }
     }
+
+    Tiles::placeTile($architect, $tileId, 0, $minOption, $minOption['r'][0]);
   }
 
+  /**
+   * Zombie player handling - just skip
+   * @param int $playerId Zombie player ID
+   * @return string Next transition
+   */
   public function zombie(int $playerId): string
   {
     // For zombie players, just skip

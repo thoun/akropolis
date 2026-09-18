@@ -1,10 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\ConstructionCards;
 
-class Villa extends \Bga\Games\Akropolis\Models\ConstructionCard
+use Bga\Games\Akropolis\Models\ConstructionCard;
+use Bga\Games\Akropolis\Models\Player;
+
+class Villa extends ConstructionCard
 {
-  public function __construct($row)
+  public function __construct(?array $row = null)
   {
     parent::__construct($row);
     $this->id = 'Villa';
@@ -13,7 +18,7 @@ class Villa extends \Bga\Games\Akropolis\Models\ConstructionCard
   }
 
   // Testée
-  public function isSatisfied(\Bga\Games\Akropolis\Models\Player $player)
+  public function isSatisfied(Player $player): bool
   {
     $board = $player->board();
     $highHouses = 0;

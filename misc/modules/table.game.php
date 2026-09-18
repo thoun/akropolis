@@ -91,96 +91,58 @@ class APP_DbObject extends APP_Object
         return array();
     }
 
-    function DbGetLastId()
-    {
-    }
+    function DbGetLastId() {}
 
-    function DbAffectedRow()
-    {
-    }
+    function DbAffectedRow(): int {}
 
-    function escapeStringForDB($string)
-    {
-    }
+    function escapeStringForDB($string) {}
 
-    function stGameEnd()
-    {
-    }
+    function stGameEnd() {}
 }
 
 class APP_GameClass extends APP_DbObject
 {
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 }
 
 class GameState
 {
     public $states;
 
-    function GameState()
-    {
-    }
+    function GameState() {}
 
     function state()
     {
         return array();
     }
 
-    function changeActivePlayer($player_id)
-    {
-    }
+    function changeActivePlayer($player_id) {}
 
-    function setAllPlayersMultiactive()
-    {
-    }
+    function setAllPlayersMultiactive() {}
 
-    function setAllPlayersNonMultiactive($next_state)
-    {
-    }
+    function setAllPlayersNonMultiactive($next_state) {}
 
-    function setPlayersMultiactive($players, $next_state, $bExclusive = false)
-    {
-    }
+    function setPlayersMultiactive($players, $next_state, $bExclusive = false) {}
 
-    function setPlayerNonMultiactive($player_id, $next_state)
-    {
-    }
+    function setPlayerNonMultiactive($player_id, $next_state) {}
 
-    function getActivePlayerList()
-    {
-    }
+    function getActivePlayerList() {}
 
-    function updateMultiactiveOrNextState($next_state_if_none)
-    {
-    }
+    function updateMultiactiveOrNextState($next_state_if_none) {}
 
-    function nextState($transition)
-    {
-    }
+    function nextState($transition) {}
 
-    function checkPossibleAction($action)
-    {
-    }
+    function checkPossibleAction($action) {}
 
-    function jumpToState($stateId)
-    {
-    }
+    function jumpToState($stateId) {}
 }
 
-class BgaUserException extends Exception
-{
-}
+class BgaUserException extends Exception {}
 
-class BgaVisibleSystemException extends Exception
-{
-}
+class BgaVisibleSystemException extends Exception {}
 
-class feException extends Exception
-{
-}
+class feException extends Exception {}
 
 abstract class Table extends APP_GameClass
 {
@@ -258,35 +220,25 @@ abstract class Table extends APP_GameClass
      * Setup correspondance "labels to id"
      * @param [] $labels - map string -> int (label of state variable -> numeric id in the database)
      */
-    function initGameStateLabels($labels)
-    {
-    }
+    function initGameStateLabels($labels) {}
 
-    function setGameStateInitialValue($value_label, $value_value)
-    {
-    }
+    function setGameStateInitialValue($value_label, $value_value) {}
 
     function getGameStateValue($value_label)
     {
         return 0;
     }
 
-    function setGameStateValue($value_label, $value_value)
-    {
-    }
+    function setGameStateValue($value_label, $value_value) {}
 
     function incGameStateValue($value_label, $increment)
     {
         return 0;
     }
 
-    protected function activeNextPlayer()
-    {
-    }
+    protected function activeNextPlayer() {}
 
-    protected function activePrevPlayer()
-    {
-    }
+    protected function activePrevPlayer() {}
 
     /**
      * Check if action is valid regarding current game state (exception if fails)
@@ -294,9 +246,7 @@ abstract class Table extends APP_GameClass
      * @param string $actionName
      * @param boolean $bThrowException
      */
-    function checkAction($actionName, $bThrowException = true)
-    {
-    }
+    function checkAction($actionName, $bThrowException = true) {}
 
     function getNextPlayerTable()
     {
@@ -340,27 +290,21 @@ abstract class Table extends APP_GameClass
         echo "\n";
     }
 
-    function notifyPlayer($player_id, $notification_type, $notification_log, $notification_args)
-    {
-    }
+    function notifyPlayer($player_id, $notification_type, $notification_log, $notification_args) {}
 
     function getStatTypes()
     {
         return array();
     }
 
-    function initStat($table_or_player, $name, $value, $player_id = null)
-    {
-    }
+    function initStat($table_or_player, $name, $value, $player_id = null) {}
 
     function setStat($value, $name, $player_id = null, $bDoNotLoop = false)
     {
         echo "stat: $name=$value\n";
     }
 
-    function incStat($delta, $name, $player_id = null)
-    {
-    }
+    function incStat($delta, $name, $player_id = null) {}
 
     function getStat($name, $player_id = null)
     {
@@ -377,13 +321,9 @@ abstract class Table extends APP_GameClass
         return 2;
     }
 
-    function reattributeColorsBasedOnPreferences($players, $colors)
-    {
-    }
+    function reattributeColorsBasedOnPreferences($players, $colors) {}
 
-    function reloadPlayersBasicInfos()
-    {
-    }
+    function reloadPlayersBasicInfos() {}
 
     function getNew($deck_definition)
     {
@@ -391,8 +331,7 @@ abstract class Table extends APP_GameClass
         if ($deck_definition == "module.common.deck") {
             echo 'getNew deck';
             $deck = new stdClass();
-            $deck->init = function ($tableName) {
-            };
+            $deck->init = function ($tableName) {};
             $deck->autoshuffle = false;
             return $deck;
         }
@@ -400,26 +339,20 @@ abstract class Table extends APP_GameClass
 
     // Give standard extra time to this player
     // (standard extra time is a game option)
-    function giveExtraTime($player_id, $specific_time = null)
-    {
-    }
+    function giveExtraTime($player_id, $specific_time = null) {}
 
     function getStandardGameResultObject()
     {
         return array();
     }
 
-    function applyDbChangeToAllDB($sql)
-    {
-    }
+    function applyDbChangeToAllDB($sql) {}
 
     /**
      *
      * @deprecated
      */
-    function applyDbUpgradeToAllDB($sql)
-    {
-    }
+    function applyDbUpgradeToAllDB($sql) {}
 
 
     function getGameinfos()
@@ -465,9 +398,7 @@ class GUser
     }
 }
 
-class game_view
-{
-}
+class game_view {}
 
 define('AT_bool', 0);
 define('AT_posint', 0);
@@ -475,26 +406,18 @@ define('AT_numberlist', 0);
 define('AT_base64', 0);
 class APP_GameAction
 {
-    function setAjaxMode()
-    {
-    }
+    function setAjaxMode() {}
 
     function getArg($name, $type, $mandatory)
     {
         return 'val';
     }
 
-    function ajaxResponse()
-    {
-    }
+    function ajaxResponse() {}
 
-    function isArg($arg)
-    {
-    }
+    function isArg($arg) {}
 
-    function trace($log)
-    {
-    }
+    function trace($log) {}
 }
 
 function totranslate($text)

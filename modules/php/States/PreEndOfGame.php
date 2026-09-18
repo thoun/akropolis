@@ -17,6 +17,10 @@ use Bga\GameFramework\States\GameState;
  */
 class PreEndOfGame extends GameState
 {
+  /**
+   * PreEndOfGame constructor
+   * @param Game $game Game instance
+   */
   function __construct(protected Game $game)
   {
     parent::__construct(
@@ -31,6 +35,10 @@ class PreEndOfGame extends GameState
     );
   }
 
+  /**
+   * Get arguments for the state (empty for this state)
+   * @return array Empty array
+   */
   public function getArgs(): array
   {
     return [];
@@ -38,6 +46,7 @@ class PreEndOfGame extends GameState
 
   /**
    * Calculate final scores for all players
+   * @return string Empty string (transition to end game)
    */
   public function onEnteringState(): string
   {

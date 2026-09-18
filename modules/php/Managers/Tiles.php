@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Bga\Games\Akropolis\Managers;
 
 use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Core\Notifications;
+use Bga\Games\Akropolis\Core\Stats;
 use Bga\Games\Akropolis\Helpers\Collection;
 use Bga\Games\Akropolis\Managers\Players;
 
@@ -193,7 +195,12 @@ class Tiles extends \Bga\Games\Akropolis\Helpers\Pieces
       ->filter(fn($tile) => $tile['pId'] == $pId);
   }
 
-  public static function addToHand(int $pId, $tileId)
+  /**
+   * Add a tile to a player's hand
+   * @param int $pId Player ID
+   * @param int $tileId Tile ID
+   */
+  public static function addToHand(int $pId, int $tileId): void
   {
     Tiles::DB()->update([
       'tile_location' => "hand",
@@ -201,6 +208,12 @@ class Tiles extends \Bga\Games\Akropolis\Helpers\Pieces
     ], $tileId);
   }
 
+  /**
+   * Draw tiles from deck to player's hand
+   * @param int $pId Player ID
+   * @param int $n Number of tiles to draw (default: 1)
+   * @return Collection<int, array> Collection of drawn tiles
+   */
   public static function drawToHand(int $pId, int $n = 1): Collection
   {
     $tiles = self::getTopOf('deck', $n);
@@ -217,6 +230,14 @@ class Tiles extends \Bga\Games\Akropolis\Helpers\Pieces
   }
   /////////////////////////
 
+  /**
+   * Add a tile to the board
+   * @param int $tileId Tile ID
+   * @param int $pId Player ID
+   * @param array{x: int, y: int, z: int} $pos Position coordinates
+   * @param int $rotation Rotation value
+   * @return array Tile data after placement
+   */
   public static function add(int $tileId, int $pId, array $pos, int $rotation): array
   {
     self::DB()->update(
@@ -233,6 +254,70 @@ class Tiles extends \Bga\Games\Akropolis\Helpers\Pieces
     return self::getSingle($tileId);
   }
 
+  /**
+   * Auxiliary function to place a tile - can be reused
+   * @param object $player Player placing the tile
+   * @param int $tileId Tile ID
+   * @param int $hex Hex index
+   * @param array{x: int, y: int, z: int} $pos Position coordinates
+   * @param int $r Rotation
+   * @param bool $shiftDock Whether to shift the dock
+   */
+  public static function placeTile(object $player, int $tileId, int $hex, array $pos, int $r, bool $shiftDock = true): void
+  {
+    $tile = Tiles::getSingle($tileId);
+    $cost = $tile['state'];
+
+    // Check position : always go back to top left hex on tile
+    $geometry = $player->board()->getTileGeometry($tile);
+    $pos = $player->board()->getCorrespondingPos($geometry, $pos, $r, $hex);
+
+    // Pay money if needed
+    if ($cost > 0) {
+      $player->incMoney(-$cost);
+      if ($player->getId() != \ARCHITECT_ID) {
+        Stats::incMoneyUsed($player, $cost);
+      }
+
+      Notifications::payForTile($player, $cost);
+
+      if (Globals::isSolo() && $player->getId() != \ARCHITECT_ID) {
+        $architect = Players::getArchitect();
+        $architect->incMoney($cost);
+        Notifications::gainStones($architect, $cost, true);
+      }
+    }
+
+    // Place tile
+    $money = $player->board()->addTile($tileId, $pos, $r);
+    $tile = Tiles::getSingle($tileId);
+    Notifications::placeTile($player, $tile);
+
+    // Register move as player's last move
+    $lastMoves = Globals::getLastMoves();
+    $lastMoves[$player->getId()] = $tile;
+    Globals::setLastMoves($lastMoves);
+
+    // Gain money if recovering quarries
+    if ($money > 0) {
+      $player->incMoney($money);
+      Notifications::gainStones($player, $money);
+    }
+
+    // Shift remaining tiles
+    if ($shiftDock) {
+      Tiles::shiftDock($cost);
+    }
+
+    // Update score if live scoring
+    if (Globals::isLiveScoring()) {
+      $scores = $player->board()->getScores();
+      Notifications::updateScores($player, $scores);
+    }
+  }
+
+
+  /** @var array<int, array<int, array<int, string>>> Tile definitions by ID */
   public static array $tiles = [
     #1
     [QUARRY, QUARRY, HOUSE_PLAZA],
@@ -355,7 +440,8 @@ class Tiles extends \Bga\Games\Akropolis\Helpers\Pieces
     #97
   ];
 
-  public static $tilesPlayers = [
+  /** @var array<int, int> Minimum player count for each tile */
+  public static array $tilesPlayers = [
     #1
     2,
     2,

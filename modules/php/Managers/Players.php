@@ -101,7 +101,7 @@ class Players extends \Bga\Games\Akropolis\Helpers\DB_Manager
   {
     $pId = $pId ?: self::getActiveId();
     return self::DB()
-      ->where($pId)
+      ->where("$pId")
       ->getSingle();
   }
 

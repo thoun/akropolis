@@ -1,10 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\ConstructionCards;
 
-class Storehouses extends \Bga\Games\Akropolis\Models\ConstructionCard
+use Bga\Games\Akropolis\Models\ConstructionCard;
+use Bga\Games\Akropolis\Models\Player;
+
+class Storehouses extends ConstructionCard
 {
-  public function __construct($row)
+  public function __construct(?array $row = null)
   {
     parent::__construct($row);
     $this->id = 'Storehouses';
@@ -12,8 +17,8 @@ class Storehouses extends \Bga\Games\Akropolis\Models\ConstructionCard
     $this->desc = clienttranslate('2 separate <MARKET> both completely surrounded by <DISTRICT> and/or <PLAZA>');
   }
 
-  // Testée mais attente réponse (not sure about "separate")
-  public function isSatisfied(\Bga\Games\Akropolis\Models\Player $player)
+  // Testée mais attente réponse (not sure about "separate"): bool
+  public function isSatisfied(Player $player): bool
   {
     $board = $player->board();
     $cells = $board->getVisibleBuiltCells();

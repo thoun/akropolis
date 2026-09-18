@@ -1,12 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\ConstructionCards;
 
+use Bga\Games\Akropolis\Models\ConstructionCard;
 use Bga\Games\Akropolis\Models\Player;
+use Bga\Games\Akropolis\Models\TriangulatedBoard;
 
-class MainStreet extends \Bga\Games\Akropolis\Models\ConstructionCard
+class MainStreet extends ConstructionCard
 {
-  public function __construct($row)
+  public function __construct(?array $row = null)
   {
     parent::__construct($row);
     $this->id = 'MainStreet';
@@ -14,7 +18,7 @@ class MainStreet extends \Bga\Games\Akropolis\Models\ConstructionCard
     $this->desc = clienttranslate('Straight line of 5 <DISTRICT>');
   }
 
-  public function checkLineInDir($board, $cell, $dir, $i, $types)
+  public function checkLineInDir(TriangulatedBoard $board, array $cell, int $dir, int $i, array $types): bool
   {
     // Any connected built barrack in that dir ?
     foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
@@ -43,8 +47,8 @@ class MainStreet extends \Bga\Games\Akropolis\Models\ConstructionCard
     return false;
   }
 
-  // Testée (sans dual tiles)
-  public function isSatisfied(Player $player)
+  // Testée (sans dual tiles): bool
+  public function isSatisfied(Player $player): bool
   {
     $board = $player->board();
     // For each barrack

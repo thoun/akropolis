@@ -1,28 +1,44 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\Helpers;
+
+if (!function_exists('mysql_escape_string')) {
+  function mysql_escape_string(string $str)
+  {
+    return $str;
+  }
+}
 
 class QueryBuilder extends \APP_DbObject
 {
-  private $table,
-    $cast,
-    $primary,
-    $associative,
-    $columns,
-    $sql,
-    $bindValues,
-    $where,
-    $orWhere,
-    $whereCount = 0,
-    $isOrWhere = false,
-    $limit,
-    $orderBy,
-    $log,
-    $insertPrimaryIndex,
-    $operation,
-    $operationDatas;
+  private string $table;
+  private mixed $cast;
+  private string $primary;
+  private ?string $associative;
+  private ?string $columns;
+  private ?string $sql;
+  private array $bindValues = [];
+  private ?string $where;
+  private ?string $orWhere;
+  private int $whereCount = 0;
+  private bool $isOrWhere = false;
+  private ?string $limit;
+  private ?string $orderBy;
+  private ?bool $log;
+  private ?bool $insertPrimaryIndex;
+  private ?string $operation;
+  private ?array $operationDatas;
 
-  public function __construct($table, $cast = null, $primary = 'id', $log = false)
+  /**
+   * Create a new QueryBuilder
+   * @param string $table Table name
+   * @param callable|null $cast Cast function for results
+   * @param string $primary Primary key column name
+   * @param bool|object $log Logging flag or object
+   */
+  public function __construct(string $table, ?callable $cast = null, string $primary = 'id', bool $log = false)
   {
     $this->table = $table;
     $this->cast = $cast;
@@ -40,20 +56,26 @@ class QueryBuilder extends \APP_DbObject
   /*************************
    ********* INSERT *********
    *************************/
-  /*
+  /**
    * Single insert, array syntax is [ 'name_of_field' => $value, ... ]
+   * @param array<string, mixed> $fields Field => value pairs
+   * @param bool $overwriteIfExists Whether to replace if exists
+   * @return int Last insert ID
    */
-  public function insert($fields = [], $overwriteIfExists = false)
+  public function insert(array $fields = [], bool $overwriteIfExists = false): int
   {
     $this->multipleInsert(array_keys($fields), $overwriteIfExists)->values([array_values($fields)]);
     return (int) self::getUniqueValueFromDB("SELECT LAST_INSERT_ID()");
   }
 
-  /*
-   * Multiple insert, syntax is : ->multipleInsert(['field1', 'field2'])->values([ [1, 'test'], [2, 'tester'], ....])
-   *   !!!! each values must have the content in same order as the fields
+  /**
+   * Multiple insert, syntax is: ->multipleInsert(['field1', 'field2'])->values([ [1, 'test'], [2, 'tester'], ...])
+   * Note: each values must have the content in same order as the fields
+   * @param array<string> $fields Field names
+   * @param bool $overwriteIfExists Whether to replace if exists
+   * @return self QueryBuilder instance
    */
-  public function multipleInsert($fields = [], $overwriteIfExists = false)
+  public function multipleInsert(array $fields = [], bool $overwriteIfExists = false): self
   {
     $keys = implode('`, `', array_values($fields));
     $this->sql = ($overwriteIfExists ? 'REPLACE' : 'INSERT') . " INTO `{$this->table}` (`{$keys}`) VALUES";
@@ -62,7 +84,12 @@ class QueryBuilder extends \APP_DbObject
   }
 
 
-  public function values($rows = [])
+  /**
+   * Add values for multiple insert
+   * @param array<array<mixed>> $rows Array of rows to insert
+   * @return array<int|string> Array of inserted IDs
+   */
+  public function values(array $rows = []): array
   {
     $vals = [];
     $ids  = [];
@@ -118,19 +145,26 @@ class QueryBuilder extends \APP_DbObject
    ********* BASIC QUERIES *********
    ********************************/
 
-  // Delete : optional parameter $id which add a where clause on primary key
-  public function delete($id = null)
+  /**
+   * Delete: optional parameter $id adds a where clause on primary key
+   * @param mixed|null $id Primary key value to delete
+   * @return int|self Number of affected rows or QueryBuilder for chaining
+   */
+  public function delete($id = null): int|self
   {
     $this->sql = "DELETE FROM `{$this->table}`";
     $this->operation = 'delete';
     return isset($id) ? $this->run($id) : $this;
   }
 
-  /*
+  /**
    * Update: $fields array structure is the same as the one for insert
-   *    optional parameter $id adds a where clause on primary key
+   * Optional parameter $id adds a where clause on primary key
+   * @param array<string, mixed> $fields Column => value pairs
+   * @param mixed|null $id Primary key value to update
+   * @return int|self Number of affected rows or QueryBuilder for chaining
    */
-  public function update($fields = [], $id = null)
+  public function update(array $fields = [], $id = null): int|self
   {
     $values = [];
     foreach ($fields as $column => $field) {
@@ -143,11 +177,14 @@ class QueryBuilder extends \APP_DbObject
     return isset($id) ? $this->run($id) : $this;
   }
 
-  /*
-   * Inc: $fields array structure is the same as the one for insert, but instead of value to be set,
-   *    the array contains the offset
+  /**
+   * Inc: $fields array structure is the same as for insert, but instead of value to be set,
+   * the array contains the offset
+   * @param array<string, int> $fields Column => increment value pairs
+   * @param mixed|null $id Primary key value to increment
+   * @return int|self Number of affected rows or QueryBuilder for chaining
    */
-  public function inc($fields = [], $id = null)
+  public function inc(array $fields = [], $id = null): int|self
   {
     $values = [];
     foreach ($fields as $column => $field) {
@@ -160,10 +197,12 @@ class QueryBuilder extends \APP_DbObject
     return isset($id) ? $this->run($id) : $this;
   }
 
-  /*
-   * Run a query
+  /**
+   * Run a query (DELETE or UPDATE with optional WHERE on primary key)
+   * @param mixed|null $id Primary key value for WHERE clause
+   * @return int Number of affected rows
    */
-  public function run($id = null)
+  public function run($id = null): int
   {
     if (isset($id)) {
       $this->computeWhereClause([[$id]]);
@@ -203,11 +242,13 @@ class QueryBuilder extends \APP_DbObject
    ********* SELECT QUERIES *********
    *********************************/
 
-  /*
+  /**
    * Select: fetch rows. Structure is columns is either an array with the name of columns you want to fetch,
-   *    or an associative array [ 'alias' => 'fieldname'] if you want to use "AS"
+   * or an associative array [ 'alias' => 'fieldname'] if you want to use "AS"
+   * @param array<string|int, string>|string $columns Columns to select
+   * @return self QueryBuilder instance for chaining
    */
-  public function select($columns)
+  public function select(array|string $columns): self
   {
     $cols = ["{$this->primary} AS `result_associative_index`"];
 
@@ -223,10 +264,13 @@ class QueryBuilder extends \APP_DbObject
     return $this;
   }
 
-  /*
-   * get : run a select query and fetch values
+  /**
+   * Get: run a select query and fetch values
+   * @param bool $returnValueIfOnlyOneRow If true, return single value instead of Collection
+   * @param bool $debug If true, throw exception with SQL instead of executing
+   * @return mixed Single value, null, or Collection of results
    */
-  public function get($returnValueIfOnlyOneRow = false, $debug = false)
+  public function get(bool $returnValueIfOnlyOneRow = false, bool $debug = false): mixed
   {
     $select = $this->columns ?? "*, {$this->primary} AS `result_associative_index`";
     $this->sql = "SELECT $select FROM `$this->table`";
@@ -258,15 +302,23 @@ class QueryBuilder extends \APP_DbObject
     }
   }
 
-  public function getSingle()
+  /**
+   * Get single row (limit 1)
+   * @return mixed Single result or null
+   */
+  public function getSingle(): mixed
   {
     return $this->limit(1)->get(true);
   }
 
-  /*
-   * ONLY for unary function : COUNT, MAX, MIN
+  /**
+   * Execute aggregate function (COUNT, MAX, MIN)
+   * @param string $func Function name (COUNT, MAX, MIN)
+   * @param string|null $field Field to aggregate, or null for COUNT(*)
+   * @return int Result of the aggregate function
+   * @throws \BgaVisibleSystemException If unknown function
    */
-  public function func($func, $field = null)
+  public function func(string $func, ?string $field = null): int
   {
     if (!in_array($func, ['COUNT', 'MAX', 'MIN'])) {
       throw new \BgaVisibleSystemException('QueryBuilder: func is called with unknown function');
@@ -278,17 +330,32 @@ class QueryBuilder extends \APP_DbObject
     return (int) self::getUniqueValueFromDB($this->sql);
   }
 
-  public function count($field = null)
+  /**
+   * Count rows
+   * @param string|null $field Field to count, or null for COUNT(*)
+   * @return int Number of rows
+   */
+  public function count(?string $field = null): int
   {
     return self::func('COUNT', $field);
   }
 
-  public function min($field)
+  /**
+   * Get minimum value
+   * @param string $field Field to get minimum from
+   * @return int Minimum value
+   */
+  public function min(string $field): int
   {
     return self::func('MIN', $field);
   }
 
-  public function max($field)
+  /**
+   * Get maximum value
+   * @param string $field Field to get maximum from
+   * @return int Maximum value
+   */
+  public function max(string $field): int
   {
     return self::func('MAX', $field);
   }
@@ -296,22 +363,31 @@ class QueryBuilder extends \APP_DbObject
   /****************************
    ********* MODIFIERS *********
    ****************************/
-  /*
+  /**
    * Append all the modifiers to a query in the right order
    */
-  private function assembleQueryClauses()
+  private function assembleQueryClauses(): void
   {
     $this->sql .= $this->where ?? '';
     $this->sql .= $this->orderBy ?? '';
     $this->sql .= $this->limit ?? '';
   }
 
-  private function protect($arg)
+  /**
+   * Protect a value for SQL insertion
+   * @param mixed $arg Value to protect
+   * @return mixed Protected value (string values are quoted)
+   */
+  private function protect($arg): string
   {
-    return is_string($arg) ? "'" . mysql_escape_string($arg) . "'" : $arg;
+    return is_string($arg) ? "'" . mysql_escape_string($arg) . "'" : "$arg";
   }
 
-  protected function computeWhereClause($arg)
+  /**
+   * Compute WHERE clause from arguments
+   * @param array<mixed> $arg Arguments for WHERE clause
+   */
+  protected function computeWhereClause(array $arg): void
   {
     $this->where = is_null($this->where) ? ' WHERE ' : $this->where . ($this->isOrWhere ? ' OR ' : ' AND ');
 
@@ -339,7 +415,12 @@ class QueryBuilder extends \APP_DbObject
     }
   }
 
-  public function where()
+  /**
+   * Add WHERE clause
+   * @param string|array<mixed> $conditions Conditions for WHERE clause
+   * @return self QueryBuilder instance for chaining
+   */
+  public function where(string|array $conditions = []): self
   {
     $this->isOrWhere = false;
     $num_args = func_num_args();
@@ -348,7 +429,13 @@ class QueryBuilder extends \APP_DbObject
     return $this;
   }
 
-  public function whereIn()
+  /**
+   * Add WHERE IN clause
+   * @param string $field Field name
+   * @param array<mixed> $values Values to match
+   * @return self QueryBuilder instance for chaining
+   */
+  public function whereIn(string $field = '', array $values = []): self
   {
     $this->where = is_null($this->where) ? ' WHERE ' : $this->where . ($this->isOrWhere ? ' OR ' : ' AND ');
 
@@ -364,7 +451,13 @@ class QueryBuilder extends \APP_DbObject
     return $this;
   }
 
-  public function whereNotIn()
+  /**
+   * Add WHERE NOT IN clause
+   * @param string $field Field name
+   * @param array<mixed> $values Values to exclude
+   * @return self QueryBuilder instance for chaining
+   */
+  public function whereNotIn(string $field = '', array $values = []): self
   {
     $this->where = is_null($this->where) ? ' WHERE ' : $this->where . ($this->isOrWhere ? ' OR ' : ' AND ');
 
@@ -380,21 +473,36 @@ class QueryBuilder extends \APP_DbObject
     return $this;
   }
 
-  public function whereNull($field)
+  /**
+   * Add WHERE IS NULL clause
+   * @param string $field Field name
+   * @return self QueryBuilder instance for chaining
+   */
+  public function whereNull(string $field): self
   {
     $this->where = is_null($this->where) ? ' WHERE ' : $this->where . ($this->isOrWhere ? ' OR ' : ' AND ');
     $this->where .= "`$field` IS NULL";
     return $this;
   }
 
-  public function whereNotNull($field)
+  /**
+   * Add WHERE IS NOT NULL clause
+   * @param string $field Field name
+   * @return self QueryBuilder instance for chaining
+   */
+  public function whereNotNull(string $field): self
   {
     $this->where = is_null($this->where) ? ' WHERE ' : $this->where . ($this->isOrWhere ? ' OR ' : ' AND ');
     $this->where .= "`$field` IS NOT NULL";
     return $this;
   }
 
-  public function orWhere()
+  /**
+   * Add OR WHERE clause
+   * @param string|array<mixed> $conditions Conditions for OR WHERE clause
+   * @return self QueryBuilder instance for chaining
+   */
+  public function orWhere(string|array $conditions = []): self
   {
     $this->isOrWhere = true;
     $num_args = func_num_args();
@@ -404,21 +512,35 @@ class QueryBuilder extends \APP_DbObject
   }
 
   // Syntaxic sugar
-  public function wherePlayer($pId)
+  /**
+   * Add WHERE clause for player_id
+   * @param int|null $pId Player ID or null
+   * @return self QueryBuilder instance for chaining
+   */
+  public function wherePlayer(?int $pId): self
   {
     return $pId == null ? $this : $this->where('player_id', $pId);
   }
 
-  /*
-   * Limit
+  /**
+   * Add LIMIT clause
+   * @param int $limit Maximum number of rows
+   * @param int|null $offset Offset for LIMIT
+   * @return self QueryBuilder instance for chaining
    */
-  public function limit($limit, $offset = null)
+  public function limit(int $limit, ?int $offset = null): self
   {
     $this->limit = " LIMIT {$limit}" . (is_null($offset) ? '' : " OFFSET {$offset}");
     return $this;
   }
 
-  public function orderBy()
+  /**
+   * Add ORDER BY clause
+   * @param string|array{0: string, 1: string} $field_name Field name or [field, order] array
+   * @param string $order ASC or DESC (optional if using array syntax)
+   * @return self QueryBuilder instance for chaining
+   */
+  public function orderBy(string|array $field_name = '', string $order = 'ASC'): self
   {
     $num_args = func_num_args();
     $args = func_get_args();

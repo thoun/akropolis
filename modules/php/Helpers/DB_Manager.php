@@ -39,13 +39,12 @@ class DB_Manager extends \APP_DbObject
       $table = static::$table;
     }
 
-    $log = new Log(static::$table, static::$primary);
 
     return new QueryBuilder(
       $table,
       fn(array $row): mixed => static::cast($row),
       static::$primary,
-      $log
+      true
     );
   }
 
@@ -67,12 +66,12 @@ class DB_Manager extends \APP_DbObject
     $log->clearAll();
   }
 
-  /**
-   * Revert all database changes from logs
-   */
-  public static function revertLogs(): void
-  {
-    $log = new Log(static::$table, static::$primary);
-    $log->revertAll();
-  }
+  // /**
+  //  * Revert all database changes from logs
+  //  */
+  // public static function revertLogs(): void
+  // {
+  //   $log = new Log(static::$table, static::$primary);
+  //   $log->revertAll();
+  // }
 }

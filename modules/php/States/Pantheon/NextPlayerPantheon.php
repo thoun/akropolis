@@ -14,40 +14,49 @@ use Bga\Games\Akropolis\Game;
  */
 class NextPlayerPantheon extends GameState
 {
-    function __construct(protected Game $game)
-    {
-        parent::__construct(
-            $game,
-            id: ST_NEXT_PLAYER_PANTHEON,
-            type: StateType::GAME,
-            name: 'nextPlayerPantheon',
-            description: '',
-            transitions: [
-                'placeTile' => ST_PLACE_TILE_PANTHEON,
-                'end' => ST_PRE_END_OF_GAME,
-            ],
-            updateGameProgression: true,
-        );
-    }
+  /**
+   * NextPlayerPantheon constructor
+   * @param Game $game Game instance
+   */
+  function __construct(protected Game $game)
+  {
+    parent::__construct(
+      $game,
+      id: ST_NEXT_PLAYER_PANTHEON,
+      type: StateType::GAME,
+      name: 'nextPlayerPantheon',
+      description: '',
+      transitions: [
+        'placeTile' => ST_PLACE_TILE_PANTHEON,
+        'end' => ST_PRE_END_OF_GAME,
+      ],
+      updateGameProgression: true,
+    );
+  }
 
-    public function getArgs(): array
-    {
-        return [];
-    }
+  /**
+   * Get arguments for the state (empty for this state)
+   * @return array Empty array
+   */
+  public function getArgs(): array
+  {
+    return [];
+  }
 
-    /**
-     * Handle transition to next player in Pantheon mode
-     */
-    public function onEnteringState(): string
-    {
-        // Move to next player
-        $this->game->activeNextPlayer();
+  /**
+   * Handle transition to next player in Pantheon mode
+   * @return string Next transition ('placeTile' or 'end')
+   */
+  public function onEnteringState(): string
+  {
+    // Move to next player
+    $this->game->activeNextPlayer();
 
-        // Check end of game condition
-        if (PantheonManager::isGameEnd()) {
-            return 'end';
-        } else {
-            return 'placeTile';
-        }
+    // Check end of game condition
+    if (PantheonManager::isGameEnd()) {
+      return 'end';
+    } else {
+      return 'placeTile';
     }
+  }
 }

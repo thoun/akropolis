@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bga\Games\Akropolis\Helpers;
 
 use Bga\Games\Akropolis\Core\Globals;
@@ -20,12 +22,18 @@ use Bga\Games\Akropolis\Managers\Players;
 
 class Log extends \APP_DbObject
 {
-  public static function enable()
+  /**
+   * Enable logging
+   */
+  public static function enable(): void
   {
     Game::get()->setGameStateValue('logging', 1);
   }
 
-  public static function disable()
+  /**
+   * Disable logging
+   */
+  public static function disable(): void
   {
     Game::get()->setGameStateValue('logging', 0);
   }
@@ -43,6 +51,10 @@ class Log extends \APP_DbObject
     $query->insert($entry);
   }
 
+  /**
+   * Get the last checkpoint ID
+   * @return int Checkpoint ID
+   */
   public function getLastCheckpoint(): int
   {
     $query = new QueryBuilder('log', null, 'id');
@@ -58,7 +70,8 @@ class Log extends \APP_DbObject
   }
 
   /**
-   * Add an entry
+   * Add an entry to the log
+   * @param array<string, mixed> $entry Log entry data
    */
   public static function addEntry(array $entry): void
   {
@@ -71,100 +84,103 @@ class Log extends \APP_DbObject
   /**
    * Clear the log table
    */
-  public static function clearAll()
+  public static function clearAll(): void
   {
     static::checkpoint();
     // $query = new QueryBuilder('log', null, 'id');
     // $query->delete()->run();
   }
 
-  /**
-   * Revert all the logged changes
-   */
-  public static function revertAll(): array
-  {
-    $checkpoint = static::getLastCheckpoint();
-    $query = new QueryBuilder('log', null, 'id');
-    $logs = $query
-      ->select(['id', 'table', 'primary', 'type', 'affected', 'move_id'])
-      ->where('id', '>', $checkpoint)
-      ->orderBy('id', 'DESC')
-      ->get();
+  // /**
+  //  * Revert all the logged changes
+  //  * @return array<int> Array of move IDs that were reverted
+  //  */
+  // public static function revertAll(): array
+  // {
+  //   $checkpoint = static::getLastCheckpoint();
+  //   $query = new QueryBuilder('log', null, 'id');
+  //   $logs = $query
+  //     ->select(['id', 'table', 'primary', 'type', 'affected', 'move_id'])
+  //     ->where('id', '>', $checkpoint)
+  //     ->orderBy('id', 'DESC')
+  //     ->get();
 
-    $moveIds = [];
-    foreach ($logs as $log) {
-      $log['affected'] = json_decode($log['affected'], true);
-      $moveIds[] = intval($log['move_id']);
+  //   $moveIds = [];
+  //   foreach ($logs as $log) {
+  //     $log['affected'] = json_decode($log['affected'], true);
+  //     $moveIds[] = intval($log['move_id']);
 
-      foreach ($log['affected'] as $row) {
-        $q = new QueryBuilder($log['table'], null, $log['primary']);
+  //     foreach ($log['affected'] as $row) {
+  //       $q = new QueryBuilder($log['table'], null, $log['primary']);
 
-        if ($log['type'] != 'create') {
-          foreach ($row as $key => $val) {
-            if (isset($row[$key])) {
-              $row[$key] = str_replace("'", "\\'", \stripcslashes($val));
-            }
-          }
-        }
+  //       if ($log['type'] != 'create') {
+  //         foreach ($row as $key => $val) {
+  //           if (isset($row[$key])) {
+  //             $row[$key] = str_replace("'", "\\'", \stripcslashes($val));
+  //           }
+  //         }
+  //       }
 
-        // UNDO UPDATE -> NEW UPDATE
-        if ($log['type'] == 'update') {
-          $q->update($row)->run($row[$log['primary']]);
-        }
-        // UNDO DELETE -> CREATE
-        elseif ($log['type'] == 'delete') {
-          $q->insert($row);
-        }
-        // UNDO CREATE -> DELETE
-        elseif ($log['type'] == 'create') {
-          $q->delete()->run($row);
-        }
-      }
-    }
+  //       // UNDO UPDATE -> NEW UPDATE
+  //       if ($log['type'] == 'update') {
+  //         $q->update($row)->run($row[$log['primary']]);
+  //       }
+  //       // UNDO DELETE -> CREATE
+  //       elseif ($log['type'] == 'delete') {
+  //         $q->insert($row);
+  //       }
+  //       // UNDO CREATE -> DELETE
+  //       elseif ($log['type'] == 'create') {
+  //         $q->delete()->run($row);
+  //       }
+  //     }
+  //   }
 
-    // Insert a new checkpoint instead of deleting database entry
-    static::checkpoint();
-    // Clear logs
-    // $query = new QueryBuilder('log', null, 'id');
-    // $query->delete()->run();
+  //   // Insert a new checkpoint instead of deleting database entry
+  //   static::checkpoint();
+  //   // Clear logs
+  //   // $query = new QueryBuilder('log', null, 'id');
+  //   // $query->delete()->run();
 
-    // Cancel the game notifications
-    $query = new QueryBuilder('gamelog', null, 'gamelog_packet_id');
-    if (!empty($moveIds)) {
-      // Update field
-      $query
-        ->update(['cancel' => 1])
-        ->whereIn('gamelog_move_id', $moveIds)
-        ->run();
+  //   // Cancel the game notifications
+  //   $query = new QueryBuilder('gamelog', null, 'gamelog_packet_id');
+  //   if (!empty($moveIds)) {
+  //     // Update field
+  //     $query
+  //       ->update(['cancel' => 1])
+  //       ->whereIn('gamelog_move_id', $moveIds)
+  //       ->run();
 
-      $notifIds = self::getCanceledNotifIds();
-      Notifications::clearTurn(Players::getCurrent(), $notifIds);
-    }
+  //     $notifIds = self::getCanceledNotifIds();
+  //     Notifications::clearTurn(Players::getCurrent(), $notifIds);
+  //   }
 
-    // Force to clear cached informations
-    Globals::fetch();
+  //   // Force to clear cached informations
+  //   Globals::fetch();
 
-    // Notify
-    $datas = Game::get()->getAllDatas();
-    Notifications::refreshUI($datas);
-    $player = Players::getCurrent();
-    Notifications::refreshHand($player, $player->getHand()->ui());
+  //   // Notify
+  //   $datas = Game::get()->getAllDatas();
+  //   Notifications::refreshUI($datas);
+  //   $player = Players::getCurrent();
+  //   Notifications::refreshHand($player, $player->getHand()->ui());
 
-    if (!empty($moveIds)) {
-      // Delete notifications
-      $query
-        ->delete()
-        ->where('cancel', 1)
-        ->run();
-    }
+  //   if (!empty($moveIds)) {
+  //     // Delete notifications
+  //     $query
+  //       ->delete()
+  //       ->where('cancel', 1)
+  //       ->run();
+  //   }
 
-    return $moveIds;
-  }
+  //   return $moveIds;
+  // }
 
   /**
    * getCancelMoveIds : get all cancelled notifs IDs from BGA gamelog, used for styling the notifications on page reload
+   * @param array<string> $notifications Array of notification packets
+   * @return array<string> Array of notification UIDs
    */
-  protected function extractNotifIds($notifications)
+  protected function extractNotifIds(array $notifications): array
   {
     $notificationUIds = [];
     foreach ($notifications as $packet) {
@@ -176,7 +192,11 @@ class Log extends \APP_DbObject
     return $notificationUIds;
   }
 
-  public static function getCanceledNotifIds()
+  /**
+   * Get all cancelled notification IDs
+   * @return array<string> Array of notification UIDs
+   */
+  public static function getCanceledNotifIds(): array
   {
     return self::extractNotifIds(
       self::getObjectListFromDb('SELECT `gamelog_notification` FROM gamelog WHERE `cancel` = 1', true)
