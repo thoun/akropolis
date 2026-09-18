@@ -202,7 +202,7 @@ class Pieces extends DB_Manager
     }
 
     $extra = $like ? '%' : '';
-    if (preg_match("/^[A-Za-z_0-9${extra}]+$/", $id) == 0) {
+    if (preg_match("/^[A-Za-z_0-9${extra}]+$/", strval($id)) == 0) {
       throw new \BgaVisibleSystemException("Class Pieces: id must be alphanum and underscore non empty string '$id'");
     }
   }
@@ -238,7 +238,7 @@ class Pieces extends DB_Manager
       throw new \BgaVisibleSystemException('Class Pieces: state cannot be null');
     }
 
-    if (!is_null($state) && preg_match('/^-*[0-9]+$/', $state) == 0) {
+    if (!is_null($state) && preg_match('/^-*[0-9]+$/', strval($state)) == 0) {
       throw new \BgaVisibleSystemException('Class Pieces: state must be integer number');
     }
   }
@@ -250,7 +250,7 @@ class Pieces extends DB_Manager
    */
   final static function checkPosInt($n): void
   {
-    if ($n && preg_match('/^[0-9]+$/', $n) == 0) {
+    if ($n && preg_match('/^[0-9]+$/', strval($n)) == 0) {
       throw new \BgaVisibleSystemException('Class Pieces: number of pieces must be integer number');
     }
   }
@@ -739,7 +739,7 @@ class Pieces extends DB_Manager
         if (static::$autoIncrement) {
           $data = [$location, $state];
         } else {
-          $nId = preg_replace('/\{INDEX\}/', $id == $globalId ? count($ids) : $i, $id);
+          $nId = preg_replace('/\{INDEX\}/', strval($id == $globalId ? count($ids) : $i), strval($id));
           self::checkId($nId);
           $data = [$nId, $location, $state];
           $ids[] = $nId;

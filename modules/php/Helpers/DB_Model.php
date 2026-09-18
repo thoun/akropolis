@@ -136,7 +136,7 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
           $updateValue = json_encode($updateValue);
         }
         if ($value != null) {
-          $updateValue = \addslashes($updateValue);
+          $updateValue = \addslashes(strval($updateValue));
         }
 
         // $this->DB()->update([$this->attributes[$name] => \addslashes($value)], $this->getPrimaryFieldValue());
@@ -204,14 +204,13 @@ abstract class DB_Model extends \APP_DbObject implements \JsonSerializable
       throw new \feException('You must specify the table you want to do the query on');
     }
 
-    $log = new Log($this->table, $this->primary);
     return new QueryBuilder(
       $this->table,
       function ($row) {
         return $row;
       },
       $this->primary,
-      $log
+      true
     );
   }
 }

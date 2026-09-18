@@ -27,7 +27,7 @@ class QueryBuilder extends \APP_DbObject
   private ?string $limit;
   private ?string $orderBy;
   private ?bool $log;
-  private ?bool $insertPrimaryIndex;
+  private string|int|bool|null $insertPrimaryIndex;
   private ?string $operation;
   private ?array $operationDatas;
 

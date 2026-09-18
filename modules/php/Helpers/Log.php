@@ -76,7 +76,7 @@ class Log extends \APP_DbObject
   public static function addEntry(array $entry): void
   {
     $entry['affected'] = \json_encode($entry['affected']);
-    $entry['move_id'] = self::getUniqueValueFromDB('SELECT global_value FROM global WHERE global_id = 3');
+    $entry['move_id'] = self::getUniqueValueFromDB('SELECT global_value FROM global WHERE global_id = 3') ?? 0;
     $query = new QueryBuilder('log', null, 'id');
     $query->insert($entry);
   }

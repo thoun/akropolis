@@ -68,8 +68,9 @@ class PlaceTile extends GameState
   }
 
   #[PossibleAction]
-  public function actPlaceTile(int $tileId, int $hex, array $pos, int $r, int $activePlayerId): string
+  public function actPlaceTile(int $tileId, int $hex, int $x, int $y, int $z, int $r, int $activePlayerId): string
   {
+    $pos = ['x' => $x, 'y' => $y, 'z' => $z];
     $player = Players::getActive();
 
     // Sanity check

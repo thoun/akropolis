@@ -42,7 +42,7 @@ class DB_Manager extends \APP_DbObject
 
     return new QueryBuilder(
       $table,
-      fn(array $row): mixed => static::cast($row),
+      fn($row) => static::cast($row),
       static::$primary,
       true
     );
