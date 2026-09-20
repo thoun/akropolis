@@ -300,6 +300,11 @@
         "type": "otheroption",
         "id": 112,
         "value": [1]
+      },
+      {
+        "type": "otheroptionisnot",
+        "id": 111,
+        "value": [1]
       }
     ]
   }

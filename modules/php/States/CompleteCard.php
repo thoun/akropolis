@@ -90,11 +90,14 @@ class CompleteCard extends GameState
   public function actCompleteCard(
     string $cardId,
     int $tileId,
-    array $pos,
+    int $x,
+    int $y,
+    int $z,
     int $r,
-    ?int $automaTileId = null,
+    ?int $tileIdForAutomata = null,
     ?int $activePlayerId = null
   ): string {
+    $pos = ['x' => $x, 'y' => $y, 'z' => $z];
     $player = Players::getActive();
 
     // Sanity check
@@ -126,7 +129,7 @@ class CompleteCard extends GameState
     $statuses = Globals::getAthenaCardStatuses();
 
     if (Globals::isSolo()) {
-      if (!in_array($automaTileId, $args['automaPicks'][$cardId])) {
+      if (!in_array($tileIdForAutomata, $args['automaPicks'][$cardId])) {
         throw new \BgaVisibleSystemException(
           'Wrong tile given to automa. You must give him a plaza if possible, then a double-tile if possible, otherwise a single district tile'
         );
@@ -144,7 +147,7 @@ class CompleteCard extends GameState
     if (Globals::isSolo()) {
       $architect = Players::getArchitect();
       Notifications::completeCard($architect, $card, true);
-      $this->stArchitectPlaceSingleTile($automaTileId);
+      $this->stArchitectPlaceSingleTile($tileIdForAutomata);
     }
 
     // Place tile

@@ -48,7 +48,6 @@ class Game extends Table
     parent::__construct();
     self::$instance = $this;
     self::initGameStateLabels(['logging' => 10]);
-    // Stats::checkExistence();
   }
 
   /**

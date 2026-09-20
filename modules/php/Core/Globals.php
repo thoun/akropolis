@@ -174,17 +174,17 @@ class Globals extends \Bga\Games\Akropolis\Helpers\DB_Manager
     public static function setupNewGame(array $players, array $options): void
     {
         self::setAllTiles(
-            count($players) === 4 || (($options[\OPTION_ALL_TILES] ?? OPTION_ALL_TILES_DISABLED) === \OPTION_ALL_TILES_ENABLED)
+            count($players) === 4 || (($options[\OPTION_ALL_TILES] ?? OPTION_ALL_TILES_DISABLED) == \OPTION_ALL_TILES_ENABLED)
         );
-        self::setLiveScoring($options[\OPTION_LIVE_SCORING] === \OPTION_LIVE_SCORING_ENABLED);
+        self::setLiveScoring($options[\OPTION_LIVE_SCORING] == \OPTION_LIVE_SCORING_ENABLED);
 
         /** @var array<string, bool> $variants */
         $variants = [
-            \BARRACK => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) === OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_BARRACK] ?? 0) === \OPTION_VARIANT_ENABLED,
-            \GARDEN => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) === OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_GARDEN] ?? 0) === \OPTION_VARIANT_ENABLED,
-            \HOUSE => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) === OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_HOUSE] ?? 0) === \OPTION_VARIANT_ENABLED,
-            \MARKET => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) === OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_MARKET] ?? 0) === \OPTION_VARIANT_ENABLED,
-            \TEMPLE => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) === OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_TEMPLE] ?? 0) === \OPTION_VARIANT_ENABLED,
+            \BARRACK => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_BARRACK] ?? 0) == \OPTION_VARIANT_ENABLED,
+            \GARDEN => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_GARDEN] ?? 0) == \OPTION_VARIANT_ENABLED,
+            \HOUSE => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_HOUSE] ?? 0) == \OPTION_VARIANT_ENABLED,
+            \MARKET => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_MARKET] ?? 0) == \OPTION_VARIANT_ENABLED,
+            \TEMPLE => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_TEMPLE] ?? 0) == \OPTION_VARIANT_ENABLED,
         ];
         self::setVariants($variants);
 
@@ -200,11 +200,11 @@ class Globals extends \Bga\Games\Akropolis\Helpers\DB_Manager
         }
 
         // Athena
-        self::setAthena(($options[\OPTION_EXP_ATHENA] ?? OPTION_ATHENA_DISABLED) === OPTION_ATHENA_ENABLED);
+        self::setAthena(($options[\OPTION_EXP_ATHENA] ?? OPTION_ATHENA_DISABLED) == OPTION_ATHENA_ENABLED);
         self::setAthenaCardStatuses([]);
 
         // Pantheon expansion
-        self::setPantheon(($options[\OPTION_EXP_PANTHEON] ?? OPTION_PANTHEON_DISABLED) === OPTION_PANTHEON_ENABLED);
+        self::setPantheon(($options[\OPTION_EXP_PANTHEON] ?? OPTION_PANTHEON_DISABLED) == OPTION_PANTHEON_ENABLED);
         self::setScenario($options[OPTION_PANTHEON_SCENARIO] ?? SCENARIO_CORINTHE);
         self::setUnlockedChallengeSlots(3);
         if (self::isPantheon()) {
