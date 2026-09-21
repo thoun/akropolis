@@ -15,6 +15,7 @@ use Bga\Games\Akropolis\Helpers\Utils;
 use Bga\GameFramework\StateType;
 use Bga\GameFramework\States\GameState;
 use Bga\GameFramework\States\PossibleAction;
+use Bga\GameFramework\VisibleSystemException;
 
 /**
  * PlaceTile State
@@ -78,7 +79,7 @@ class PlaceTile extends GameState
 
     // Check tile
     if (!in_array($tileId, $args['tileIds'])) {
-      throw new \BgaVisibleSystemException('Cannot place this tile. Should not happen');
+      throw new VisibleSystemException('Cannot place this tile. Should not happen');
     }
 
     $tile = Tiles::getSingle($tileId);
@@ -92,13 +93,13 @@ class PlaceTile extends GameState
     });
 
     if ($optionId === false) {
-      throw new \BgaVisibleSystemException('Impossible hex. Should not happen');
+      throw new VisibleSystemException('Impossible hex. Should not happen');
     }
 
     // Check rotation
     $option = $args['options'][0][$optionId];
     if (!in_array($r, $option['r'])) {
-      throw new \BgaVisibleSystemException('Impossible rotation. Should not happen');
+      throw new VisibleSystemException('Impossible rotation. Should not happen');
     }
 
     // Place the tile

@@ -17,7 +17,7 @@ use Bga\Games\Akropolis\Game;
  * Pantheon Setup State
  * Distribute starting tiles to players
  */
-class PantheonSetup extends GameState
+class PantheonSetup extends PantheonGameState
 {
   /**
    * PantheonSetup constructor

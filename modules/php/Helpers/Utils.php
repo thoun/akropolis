@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bga\Games\Akropolis\Helpers;
 
+use Bga\GameFramework\VisibleSystemException;
+
 /**
  * Utility functions for array and zone operations
  */
@@ -67,11 +69,11 @@ abstract class Utils extends \APP_DbObject
     /**
      * Throw an exception with a message
      * @param mixed|null $args Message or data to display
-     * @throws \BgaVisibleSystemException
+     * @throws VisibleSystemException
      */
     public static function die(mixed $args = null): never
     {
-        throw new \BgaVisibleSystemException(json_encode($args, JSON_THROW_ON_ERROR));
+        throw new VisibleSystemException(json_encode($args, JSON_THROW_ON_ERROR));
     }
 
     /**

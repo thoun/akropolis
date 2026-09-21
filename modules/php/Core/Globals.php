@@ -12,6 +12,86 @@ use Bga\Games\Akropolis\Helpers\Collection;
  */
 class Globals extends \Bga\Games\Akropolis\Helpers\DB_Manager
 {
+    /**
+     * Setup new game with initial global values
+     * @param array<int, mixed> $players Array of player info
+     * @param array<string, mixed> $options Game options
+     */
+    public static function setupNewGame(array $players, array $options): void
+    {
+        self::setAllTiles(
+            count($players) === 4 || (($options[\OPTION_ALL_TILES] ?? OPTION_ALL_TILES_DISABLED) == \OPTION_ALL_TILES_ENABLED)
+        );
+        self::setLiveScoring($options[\OPTION_LIVE_SCORING] == \OPTION_LIVE_SCORING_ENABLED);
+
+        /** @var array<string, bool> $variants */
+        $variants = [
+            \BARRACK => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_BARRACK] ?? 0) == \OPTION_VARIANT_ENABLED,
+            \GARDEN => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_GARDEN] ?? 0) == \OPTION_VARIANT_ENABLED,
+            \HOUSE => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_HOUSE] ?? 0) == \OPTION_VARIANT_ENABLED,
+            \MARKET => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_MARKET] ?? 0) == \OPTION_VARIANT_ENABLED,
+            \TEMPLE => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_TEMPLE] ?? 0) == \OPTION_VARIANT_ENABLED,
+        ];
+        self::setVariants($variants);
+
+        self::setSolo(count($players) === 1);
+        if (count($players) === 1) {
+            /** @var array{lvl: int, money: int, score: int} $architect */
+            $architect = [
+                'lvl' => $options[OPTION_SOLO_LVL] ?? 0,
+                'money' => 2,
+                'score' => 0,
+            ];
+            self::setArchitect($architect);
+        }
+
+        // Athena
+        self::setAthena(($options[\OPTION_EXP_ATHENA] ?? OPTION_ATHENA_DISABLED) == OPTION_ATHENA_ENABLED);
+        self::setAthenaCardStatuses([]);
+
+        // Pantheon expansion
+        self::setPantheon(($options[\OPTION_EXP_PANTHEON] ?? OPTION_PANTHEON_DISABLED) == OPTION_PANTHEON_ENABLED);
+        self::setScenario($options[OPTION_PANTHEON_SCENARIO] ?? SCENARIO_CORINTHE);
+        self::setUnlockedChallengeSlots(3);
+        self::setPantheonTilePlaced(false);
+        if (self::isPantheon()) {
+            self::setAthena(false);
+            self::setAllTiles(true);
+
+            /** @var array<string, bool> $pantheonVariants */
+            $pantheonVariants = [
+                \BARRACK => false,
+                \GARDEN => false,
+                \HOUSE => false,
+                \MARKET => false,
+                \TEMPLE => false,
+            ];
+            self::setVariants($pantheonVariants);
+        }
+    }
+
+    /**
+     * Check if a district variant is enabled
+     * @param string $type District type constant (e.g., BARRACK, HOUSE)
+     * @return bool True if variant is enabled
+     */
+    public static function isVariant(string $type): bool
+    {
+        /** @var array<string, bool> $variants */
+        $variants = self::getVariants();
+        return $variants[$type];
+    }
+
+    /**
+     * Check if Pantheon expansion is enabled
+     * @return bool True if Pantheon is enabled
+     */
+    public static function isPantheon(): bool
+    {
+        return (bool) self::getPantheon();
+    }
+
+
     /** @var bool Whether data has been fetched from DB */
     protected static bool $initialized = false;
 
@@ -34,6 +114,7 @@ class Globals extends \Bga\Games\Akropolis\Helpers\DB_Manager
         'pantheon' => 'bool',
         'scenario' => 'int',
         'unlockedChallengeSlots' => 'int',
+        'pantheonTilePlaced' => 'bool',
     ];
 
     protected static string $table = 'global_variables';
@@ -164,83 +245,5 @@ class Globals extends \Bga\Games\Akropolis\Helpers\DB_Manager
         }
         debug_print_backtrace();
         die("Error in Globals");
-    }
-
-    /**
-     * Setup new game with initial global values
-     * @param array<int, mixed> $players Array of player info
-     * @param array<string, mixed> $options Game options
-     */
-    public static function setupNewGame(array $players, array $options): void
-    {
-        self::setAllTiles(
-            count($players) === 4 || (($options[\OPTION_ALL_TILES] ?? OPTION_ALL_TILES_DISABLED) == \OPTION_ALL_TILES_ENABLED)
-        );
-        self::setLiveScoring($options[\OPTION_LIVE_SCORING] == \OPTION_LIVE_SCORING_ENABLED);
-
-        /** @var array<string, bool> $variants */
-        $variants = [
-            \BARRACK => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_BARRACK] ?? 0) == \OPTION_VARIANT_ENABLED,
-            \GARDEN => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_GARDEN] ?? 0) == \OPTION_VARIANT_ENABLED,
-            \HOUSE => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_HOUSE] ?? 0) == \OPTION_VARIANT_ENABLED,
-            \MARKET => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_MARKET] ?? 0) == \OPTION_VARIANT_ENABLED,
-            \TEMPLE => ($options[OPTION_VARIANTS] ?? OPTION_VARIANTS_NONE) == OPTION_VARIANTS_ALL || ($options[OPTION_VARIANT_TEMPLE] ?? 0) == \OPTION_VARIANT_ENABLED,
-        ];
-        self::setVariants($variants);
-
-        self::setSolo(count($players) === 1);
-        if (count($players) === 1) {
-            /** @var array{lvl: int, money: int, score: int} $architect */
-            $architect = [
-                'lvl' => $options[OPTION_SOLO_LVL] ?? 0,
-                'money' => 2,
-                'score' => 0,
-            ];
-            self::setArchitect($architect);
-        }
-
-        // Athena
-        self::setAthena(($options[\OPTION_EXP_ATHENA] ?? OPTION_ATHENA_DISABLED) == OPTION_ATHENA_ENABLED);
-        self::setAthenaCardStatuses([]);
-
-        // Pantheon expansion
-        self::setPantheon(($options[\OPTION_EXP_PANTHEON] ?? OPTION_PANTHEON_DISABLED) == OPTION_PANTHEON_ENABLED);
-        self::setScenario($options[OPTION_PANTHEON_SCENARIO] ?? SCENARIO_CORINTHE);
-        self::setUnlockedChallengeSlots(3);
-        if (self::isPantheon()) {
-            self::setAthena(false);
-            self::setAllTiles(true);
-
-            /** @var array<string, bool> $pantheonVariants */
-            $pantheonVariants = [
-                \BARRACK => false,
-                \GARDEN => false,
-                \HOUSE => false,
-                \MARKET => false,
-                \TEMPLE => false,
-            ];
-            self::setVariants($pantheonVariants);
-        }
-    }
-
-    /**
-     * Check if a district variant is enabled
-     * @param string $type District type constant (e.g., BARRACK, HOUSE)
-     * @return bool True if variant is enabled
-     */
-    public static function isVariant(string $type): bool
-    {
-        /** @var array<string, bool> $variants */
-        $variants = self::getVariants();
-        return $variants[$type];
-    }
-
-    /**
-     * Check if Pantheon expansion is enabled
-     * @return bool True if Pantheon is enabled
-     */
-    public static function isPantheon(): bool
-    {
-        return (bool) self::getPantheon();
     }
 }

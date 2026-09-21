@@ -19,7 +19,7 @@ use Bga\Games\Akropolis\Game;
  * PlaceTilePantheon State
  * Player must place a tile in their city or in the Capital
  */
-class PlaceTilePantheon extends GameState
+class PlaceTilePantheon extends PantheonGameState
 {
   /**
    * PlaceTilePantheon constructor
@@ -35,8 +35,7 @@ class PlaceTilePantheon extends GameState
       description: clienttranslate('${actplayer} must place a tile in their city or in the Capital'),
       descriptionMyTurn: clienttranslate('${you} must play a tile in your city or in the Capital'),
       transitions: [
-        'next' => ST_NEXT_PLAYER_PANTHEON,
-        'complete' => ST_COMPLETE_CHALLENGE,
+        'tilePlaced' => ST_PANTHEON_CHOOSE_ACTION,
         'end' => ST_PRE_END_OF_GAME,
       ],
     );
@@ -62,7 +61,7 @@ class PlaceTilePantheon extends GameState
     }
 
     // Available tiles from player's hand
-    $hand = Tiles::getPlayerHand($player->getId());
+    $hand = Tiles::getPlayerHand($activePlayerId);
     $tileIds = $hand->getIds();
 
     return [
@@ -70,7 +69,7 @@ class PlaceTilePantheon extends GameState
       'capitalOptions' => $capitalOptions,
       'canSendToCapital' => $player->getMoney() >= 1,
       'tileIds' => $tileIds,
-      'completableChallenges' => PantheonChallenges::getCompletableChallenges($player),
+      'commonArgs' => $this->getPantheonArgs($activePlayerId),
     ];
   }
 
@@ -82,7 +81,7 @@ class PlaceTilePantheon extends GameState
   //   // Validate tile is in player's hand
   //   $hand = Tiles::getPlayerHand($player->getId());
   //   if (!isset($hand[$tileId])) {
-  //     throw new \BgaVisibleSystemException('Tile not in hand');
+  //     throw new VisibleSystemException('Tile not in hand');
   //   }
 
   //   // Use existing method to place tile in player's city
@@ -121,13 +120,13 @@ class PlaceTilePantheon extends GameState
 
   //   // Check player has enough money (stones)
   //   if ($player->getMoney() < 1) {
-  //     throw new \BgaVisibleSystemException('Not enough stones to place in Capital');
+  //     throw new VisibleSystemException('Not enough stones to place in Capital');
   //   }
 
   //   // Validate tile is in player's hand
   //   $hand = PantheonManager::getPlayerHand($player->getId());
   //   if (!isset($hand[$tileId])) {
-  //     throw new \BgaVisibleSystemException('Tile not in hand');
+  //     throw new VisibleSystemException('Tile not in hand');
   //   }
 
   //   // Get tile data before removing from hand

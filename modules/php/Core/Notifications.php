@@ -154,6 +154,119 @@ class Notifications
   }
 
   /**
+   * Notify that a player completed a challenge
+   * @param Player $player Player who completed the challenge
+   * @param string $challengeId Challenge ID
+   * @param string $color Challenge color
+   * @param Challenge|null $newChallenge The newly drawn challenge (if any)
+   * @param int $x X coordinate of altar placement
+   * @param int $y Y coordinate of altar placement
+   * @param int $z Z coordinate of altar placement
+   */
+  public static function completeChallenge(Player $player, string $challengeId, string $color, ?\Bga\Games\Akropolis\Models\Challenge $newChallenge = null, int $x = 0, int $y = 0, int $z = 0): void
+  {
+    $data = [
+      'player' => $player,
+      'challengeId' => $challengeId,
+      'color' => $color,
+      'x' => $x,
+      'y' => $y,
+      'z' => $z,
+    ];
+    if ($newChallenge) {
+      $data['newChallenge'] = $newChallenge;
+      $data['newChallengeId'] = $newChallenge->getId();
+      $data['newChallengeName'] = $newChallenge->getName();
+    }
+    self::notifyAll('completeChallenge', clienttranslate('${player_name} completes challenge ${challengeId}'), $data);
+  }
+
+  /**
+   * Notify that a player discarded a challenge
+   * @param Player $player Player who discarded the challenge
+   * @param string $challengeId Challenge ID
+   * @param Challenge|null $newChallenge The newly drawn challenge (if any)
+   */
+  public static function discardChallenge(Player $player, string $challengeId, ?\Bga\Games\Akropolis\Models\Challenge $newChallenge = null): void
+  {
+    $data = [
+      'player' => $player,
+      'challengeId' => $challengeId,
+    ];
+    if ($newChallenge) {
+      $data['newChallenge'] = $newChallenge;
+      $data['newChallengeId'] = $newChallenge->getId();
+      $data['newChallengeName'] = $newChallenge->getName();
+    }
+    self::notifyAll('discardChallenge', clienttranslate('${player_name} discards challenge ${challengeId}'), $data);
+  }
+
+  /**
+   * Notify that a player unlocked a challenge slot
+   * @param Player $player Player who unlocked the slot
+   * @param int $newSlots New number of unlocked slots
+   * @param Challenge|null $newChallenge The newly drawn challenge (if any)
+   */
+  public static function unlockChallengeSlot(Player $player, int $newSlots, ?\Bga\Games\Akropolis\Models\Challenge $newChallenge = null): void
+  {
+    $data = [
+      'player' => $player,
+      'newSlots' => $newSlots,
+    ];
+    if ($newChallenge) {
+      $data['newChallenge'] = $newChallenge;
+      $data['newChallengeId'] = $newChallenge->getId();
+      $data['newChallengeName'] = $newChallenge->getName();
+    }
+    self::notifyAll('unlockChallengeSlot', clienttranslate('${player_name} unlocks challenge slot ${newSlots}'), $data);
+  }
+
+  /**
+   * Notify that a player placed a tile in the Capital
+   * @param Player $player Player who placed the tile
+   * @param array<mixed> $tile Tile data
+   */
+  public static function placeInCapital(Player $player, array $tile): void
+  {
+    self::notifyAll('placeInCapital', clienttranslate('${player_name} places a tile in the Capital'), [
+      'player' => $player,
+      'tile' => $tile,
+    ]);
+  }
+
+  /**
+   * Notify that a player paid a stone for Capital
+   * @param Player $player Player who paid
+   * @param int $amount Amount paid
+   */
+  public static function payStoneForCapital(Player $player, int $amount): void
+  {
+    self::notifyAll('payStoneForCapital', clienttranslate('${player_name} pays ${amount} stone(s) for placing in Capital'), [
+      'player' => $player,
+      'amount' => $amount,
+    ]);
+  }
+
+  /**
+   * Notify that a Divine Altar was placed in the Capital
+   * @param Player $player Player who placed the altar
+   * @param string $color Altar color
+   * @param int $x X coordinate
+   * @param int $y Y coordinate
+   * @param int $z Z coordinate
+   */
+  public static function placeDivineAltar(Player $player, string $color, int $x, int $y, int $z): void
+  {
+    self::notifyAll('placeDivineAltar', clienttranslate('${player_name} places a Divine Altar of ${color} in the Capital'), [
+      'player' => $player,
+      'color' => $color,
+      'x' => $x,
+      'y' => $y,
+      'z' => $z,
+    ]);
+  }
+
+  /**
    * Notify that a construction card was completed
    * @param Player $player Player who completed the card
    * @param object $card Card that was completed

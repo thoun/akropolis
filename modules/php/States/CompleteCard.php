@@ -15,6 +15,7 @@ use Bga\Games\Akropolis\Helpers\Collection;
 use Bga\GameFramework\StateType;
 use Bga\GameFramework\States\GameState;
 use Bga\GameFramework\States\PossibleAction;
+use Bga\GameFramework\VisibleSystemException;
 
 /**
  * CompleteCard State
@@ -105,14 +106,14 @@ class CompleteCard extends GameState
 
     // Check card
     if (!in_array($cardId, $args['cardIds'])) {
-      throw new \BgaVisibleSystemException('Cannot complete this card. Should not happen');
+      throw new VisibleSystemException('Cannot complete this card. Should not happen');
     }
 
     // Check tile
     $card = ConstructionCards::getSingle($cardId);
     $tileIds = Tiles::getInLocation($card->getLocation())->getIds();
     if (!in_array($tileId, $tileIds)) {
-      throw new \BgaVisibleSystemException('Cannot place this tile. Should not happen');
+      throw new VisibleSystemException('Cannot place this tile. Should not happen');
     }
 
     $tile = Tiles::getSingle($tileId);
@@ -122,7 +123,7 @@ class CompleteCard extends GameState
     });
 
     if ($optionId === false) {
-      throw new \BgaVisibleSystemException('Impossible hex to place that tile. Should not happen');
+      throw new VisibleSystemException('Impossible hex to place that tile. Should not happen');
     }
 
     // AUTOMA
@@ -130,7 +131,7 @@ class CompleteCard extends GameState
 
     if (Globals::isSolo()) {
       if (!in_array($tileIdForAutomata, $args['automaPicks'][$cardId])) {
-        throw new \BgaVisibleSystemException(
+        throw new VisibleSystemException(
           'Wrong tile given to automa. You must give him a plaza if possible, then a double-tile if possible, otherwise a single district tile'
         );
       }

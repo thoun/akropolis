@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bga\Games\Akropolis\Helpers;
 
+use Bga\GameFramework\VisibleSystemException;
+
 /*
  * This is a generic class to manage game pieces.
  *
@@ -171,12 +173,12 @@ class Pieces extends DB_Manager
    * @param string|array<string> $location Location to check (passed by reference, may be modified)
    * @param bool $like Whether to allow LIKE wildcards
    * @return void
-   * @throws \BgaVisibleSystemException If location is invalid
+   * @throws VisibleSystemException If location is invalid
    */
   final static function checkLocation(&$location, bool $like = false): void
   {
     if (is_null($location)) {
-      throw new \BgaVisibleSystemException('Class Pieces: location cannot be null');
+      throw new VisibleSystemException('Class Pieces: location cannot be null');
     }
 
     if (is_array($location)) {
@@ -185,7 +187,7 @@ class Pieces extends DB_Manager
 
     $extra = $like ? '%' : '';
     if (preg_match("/^[A-Za-z0-9${extra}-][A-Za-z_0-9${extra}-]*$/", $location) == 0) {
-      throw new \BgaVisibleSystemException("Class Pieces: location must be alphanum and underscore non empty string '$location'");
+      throw new VisibleSystemException("Class Pieces: location must be alphanum and underscore non empty string '$location'");
     }
   }
 
@@ -193,33 +195,33 @@ class Pieces extends DB_Manager
    * Check that the id is alphanum and underscore
    * @param string $id ID to check (passed by reference)
    * @param bool $like Whether to allow LIKE wildcards
-   * @throws \BgaVisibleSystemException If ID is invalid
+   * @throws VisibleSystemException If ID is invalid
    */
   final static function checkId(&$id, bool $like = false): void
   {
     if (is_null($id)) {
-      throw new \BgaVisibleSystemException('Class Pieces: id cannot be null');
+      throw new VisibleSystemException('Class Pieces: id cannot be null');
     }
 
     $extra = $like ? '%' : '';
     if (preg_match("/^[A-Za-z_0-9${extra}]+$/", strval($id)) == 0) {
-      throw new \BgaVisibleSystemException("Class Pieces: id must be alphanum and underscore non empty string '$id'");
+      throw new VisibleSystemException("Class Pieces: id must be alphanum and underscore non empty string '$id'");
     }
   }
 
   /**
    * Check that the array is valid
    * @param array<string>|null $arr Array of IDs to check
-   * @throws \BgaVisibleSystemException If array is invalid
+   * @throws VisibleSystemException If array is invalid
    */
   final static function checkIdArray(?array $arr): void
   {
     if (is_null($arr)) {
-      throw new \BgaVisibleSystemException('Class Pieces: tokens cannot be null');
+      throw new VisibleSystemException('Class Pieces: tokens cannot be null');
     }
 
     if (!is_array($arr)) {
-      throw new \BgaVisibleSystemException('Class Pieces: tokens must be an array');
+      throw new VisibleSystemException('Class Pieces: tokens must be an array');
       foreach ($arr as $id) {
         self::checkId($id);
       }
@@ -230,28 +232,28 @@ class Pieces extends DB_Manager
    * Check that the state is an integer
    * @param int|string|null $state State to check
    * @param bool $canBeNull Whether null is allowed
-   * @throws \BgaVisibleSystemException If state is invalid
+   * @throws VisibleSystemException If state is invalid
    */
   final static function checkState($state, bool $canBeNull = false): void
   {
     if (is_null($state) && !$canBeNull) {
-      throw new \BgaVisibleSystemException('Class Pieces: state cannot be null');
+      throw new VisibleSystemException('Class Pieces: state cannot be null');
     }
 
     if (!is_null($state) && preg_match('/^-*[0-9]+$/', strval($state)) == 0) {
-      throw new \BgaVisibleSystemException('Class Pieces: state must be integer number');
+      throw new VisibleSystemException('Class Pieces: state must be integer number');
     }
   }
 
   /**
    * Check that a given variable is a positive integer
    * @param int|string $n Number to check
-   * @throws \BgaVisibleSystemException If number is invalid
+   * @throws VisibleSystemException If number is invalid
    */
   final static function checkPosInt($n): void
   {
     if ($n && preg_match('/^[0-9]+$/', strval($n)) == 0) {
-      throw new \BgaVisibleSystemException('Class Pieces: number of pieces must be integer number');
+      throw new VisibleSystemException('Class Pieces: number of pieces must be integer number');
     }
   }
 
@@ -598,13 +600,13 @@ class Pieces extends DB_Manager
    * Reform a location from another location when enmpty
    * @param string $fromLocation Location to reform
    * @return void
-   * @throws \BgaVisibleSystemException If discard location is unknown
+   * @throws VisibleSystemException If discard location is unknown
    */
   public static function reformDeckFromDiscard(string $fromLocation): void
   {
     self::checkLocation($fromLocation);
     if (!array_key_exists($fromLocation, static::$autoreshuffleCustom)) {
-      throw new \BgaVisibleSystemException("Class Pieces:reformDeckFromDiscard: Unknown discard location for $fromLocation !");
+      throw new VisibleSystemException("Class Pieces:reformDeckFromDiscard: Unknown discard location for $fromLocation !");
     }
 
     $discard = static::$autoreshuffleCustom[$fromLocation];
@@ -704,7 +706,7 @@ class Pieces extends DB_Manager
    * @param int|null $globalState Default state for all pieces
    * @param string|null $globalId Default ID for all pieces
    * @return array<int|string> Array of created IDs
-   * @throws \BgaVisibleSystemException If validation fails
+   * @throws VisibleSystemException If validation fails
    */
   public static function create(array $pieces, ?string $globalLocation = null, ?int $globalState = null, ?string $globalId = null): array
   {
@@ -724,11 +726,11 @@ class Pieces extends DB_Manager
 
       // SANITY
       if (is_null($id) && !static::$autoIncrement) {
-        throw new \BgaVisibleSystemException('Class Pieces: create: id cannot be null if not autoincrement');
+        throw new VisibleSystemException('Class Pieces: create: id cannot be null if not autoincrement');
       }
 
       if (is_null($location)) {
-        throw new \BgaVisibleSystemException(
+        throw new VisibleSystemException(
           'Class Pieces : create location cannot be null (set per token location or location_global'
         );
       }

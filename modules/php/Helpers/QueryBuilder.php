@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bga\Games\Akropolis\Helpers;
 
+use Bga\GameFramework\VisibleSystemException;
+
 if (!function_exists('mysql_escape_string')) {
   function mysql_escape_string(string $str)
   {
@@ -316,12 +318,12 @@ class QueryBuilder extends \APP_DbObject
    * @param string $func Function name (COUNT, MAX, MIN)
    * @param string|null $field Field to aggregate, or null for COUNT(*)
    * @return int Result of the aggregate function
-   * @throws \BgaVisibleSystemException If unknown function
+   * @throws VisibleSystemException If unknown function
    */
   public function func(string $func, ?string $field = null): int
   {
     if (!in_array($func, ['COUNT', 'MAX', 'MIN'])) {
-      throw new \BgaVisibleSystemException('QueryBuilder: func is called with unknown function');
+      throw new VisibleSystemException('QueryBuilder: func is called with unknown function');
     }
 
     $field = is_null($field) ? '*' : "`$field`";
