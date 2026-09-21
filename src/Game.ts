@@ -65,6 +65,7 @@ export class Game {
     public selectedPosition: Partial<PlaceTileOption>;
     public selectedTile: Tile;
     public selectedTileHexIndex: number;
+    public selectedZone: SelectedZone | null = null;
     public rotation: number = 0;
     private playersTables: PlayerTable[] = [];
     public stonesCounters: Counter[] = [];
@@ -210,6 +211,7 @@ export class Game {
             this.selectedPosition = null;
             this.selectedTile = null;
             this.selectedTileHexIndex = null;
+            this.selectedZone = null;
             this.setRotation(0);
             this.tableCenter.setSelectable(true);
             if (pantheon) {
@@ -659,43 +661,42 @@ export class Game {
             );
         } else {
             if (this.gamedatas.isPantheon) {
-                    const pantheonArgs = this.gamedatas.gamestate.args as EnteringPlaceTilePantheonArgs;
-                    return pantheonArgs.cityOptions[this.selectedTileHexIndex].find(o => 
-                        o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z
-                    );
-                } else {
-                    const baseArgs = this.gamedatas.gamestate.args as EnteringPlaceTileArgs;
-                    return baseArgs.options[this.selectedTileHexIndex].find(o => 
-                        o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z
-                    );
-                }
-                
+                const pantheonArgs = this.gamedatas.gamestate.args as EnteringPlaceTilePantheonArgs;
+                const options = this.selectedZone === 'capital' ? pantheonArgs.capitalOptions : pantheonArgs.cityOptions;
+                return options[this.selectedTileHexIndex].find(o => 
+                    o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z
+                );
+            } else {
+                const baseArgs = this.gamedatas.gamestate.args as EnteringPlaceTileArgs;
+                return baseArgs.options[this.selectedTileHexIndex].find(o => 
+                    o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z
+                );
+            }   
         }
     }
     
-    public possiblePositionClicked(x: number, y: number, z: number): void {
+    public possiblePositionClicked(x: number, y: number, z: number, zone: SelectedZone): void {
         if (!this.selectedTile) {
             return;
         }
 
         const pivot = this.usePivotRotation();
         if (pivot && this.selectedPosition != null) {
-            console.log(x, y, z, this.rotation, this.selectedPosition);
-
             if (this.selectedPosition.x == x && this.selectedPosition.y == y && this.selectedPosition.z == z) {
                 this.incRotationPivot();
-                console.log('possiblePositionClicked pivot, return');
                 return;
             }
         }
 
         this.selectedPosition = {x, y, z};
+        this.selectedZone = zone;
         const option = this.getSelectedPositionOption();
         if (option.r && !option.r.includes(this.rotation) && !pivot) {
             this.setRotation(this.findClosestRotation(option.r));
         }
         const tileCoordinates = TILE_COORDINATES[this.selectedTileHexIndex];
-        this.getCurrentPlayerTable().placeTile({
+        const playerTable = zone === 'capital' ? this.getPlayerTable(-1) : this.getCurrentPlayerTable();
+        playerTable.placeTile({
             ...this.selectedTile,
             x: this.selectedPosition.x - tileCoordinates[0],
             y: this.selectedPosition.y - tileCoordinates[1],
@@ -743,7 +744,8 @@ export class Game {
         }
         if (!this.selectedPosition) {
             if (this.gamedatas.gamestate.name === 'completeCard') {
-                this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+                const completeCardArgs = this.gamedatas.gamestate.args as EnteringCompleteCardArgs;
+                this.getCurrentPlayerTable().setPlaceTileOptions(completeCardArgs.options, this.rotation);
             } else {
                 if (this.gamedatas.isPantheon) {
                     const pantheonArgs = this.gamedatas.gamestate.args as EnteringPlaceTilePantheonArgs;
@@ -761,7 +763,8 @@ export class Game {
                 
             }
         }
-        this.getCurrentPlayerTable().rotatePreviewTile(this.rotation);
+        const playerTable = this.selectedZone === 'capital' ? this.getPlayerTable(-1) : this.getCurrentPlayerTable();
+        playerTable.rotatePreviewTile(this.rotation);
     }
 
     public decRotationPivot(): void {
@@ -776,19 +779,35 @@ export class Game {
         let rotation = this.rotation;
         while (rotation < 0) { rotation += 6; }
         const pivotRotation = (direction == -1 ? PIVOT_ROTATIONS_REVERSE : PIVOT_ROTATIONS)[(rotation + (this.selectedTileHexIndex * 2)) % 6];
-        this.possiblePositionClicked(this.selectedPosition.x + pivotRotation[0], this.selectedPosition.y + pivotRotation[1], this.selectedPosition.z);
+        this.possiblePositionClicked(this.selectedPosition.x + pivotRotation[0], this.selectedPosition.y + pivotRotation[1], this.selectedPosition.z, this.selectedZone);
         this.setRotation(rotation + direction * 2);
     }
 
     public cancelPlaceTile() {
         [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
+
+        if (this.selectedZone === 'capital') {
+            this.getPlayerTable(-1)?.removePreviewTile();
+        } else {
+            this.getCurrentPlayerTable().removePreviewTile();
+        }
+
         this.selectedPosition = null;
-        this.getCurrentPlayerTable().removePreviewTile();
+        this.selectedZone = null;
+
         if (this.gamedatas.gamestate.name === 'completeCard') {
-            this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+                const completeCardArgs = this.gamedatas.gamestate.args as EnteringCompleteCardArgs;
+            this.getCurrentPlayerTable().setPlaceTileOptions(completeCardArgs.options, this.rotation);
             this.completeCardState.onCancel();
         } else {
-            this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
+            if (this.gamedatas.isPantheon) {
+                const pantheonArgs = this.gamedatas.gamestate.args as EnteringPlaceTilePantheonArgs;
+                this.getPlayerTable(-1).setPlaceTileOptions(pantheonArgs.capitalOptions[0], this.rotation);
+                this.getCurrentPlayerTable().setPlaceTileOptions(pantheonArgs.cityOptions[0], this.rotation);
+            } else {
+                const baseArgs = this.gamedatas.gamestate.args as EnteringPlaceTileArgs;
+                this.getCurrentPlayerTable().setPlaceTileOptions(baseArgs.options[0], this.rotation);
+            }
         }
         this.updateRotationButtonState();
     }
@@ -814,7 +833,12 @@ export class Game {
         } else {
             this.getCurrentPlayerTable()?.cleanPossibleHex();
 
-            this.bga.actions.performAction('actPlaceTile', {
+            let action = 'actPlaceTile';
+            if (this.gamedatas.isPantheon) {
+                action = this.selectedZone === 'capital' ? 'actPlaceTileInCapital' : 'actPlaceTileInCity';
+            }
+
+            this.bga.actions.performAction(action, {
                 x: this.selectedPosition.x,
                 y: this.selectedPosition.y,
                 z: this.selectedPosition.z,

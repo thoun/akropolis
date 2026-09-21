@@ -426,12 +426,13 @@ class PlayerTable {
     setPlaceTileOptions(options, rotation) {
         this.cleanPossibleHex();
         const pivot = this.game.usePivotRotation();
+        const zone = this.playerId === -1 ? 'capital' : 'city';
         options /*.filter(option => option.r.some(r => r == rotation))*/.forEach(option => {
             if (pivot) {
                 if (option.r && option.r.includes(0)) {
                     const pivot = this.createPossiblePivot(option.x, option.y, option.z);
                     pivot.addEventListener('click', () => {
-                        this.game.possiblePositionClicked(option.x, option.y, option.z);
+                        this.game.possiblePositionClicked(option.x, option.y, option.z, zone);
                     });
                 }
             }
@@ -439,7 +440,7 @@ class PlayerTable {
                 const hex = this.createPossibleHex(option.x, option.y, option.z);
                 const face = hex.getElementsByClassName('face')[0];
                 face.addEventListener('click', () => {
-                    this.game.possiblePositionClicked(option.x, option.y, option.z);
+                    this.game.possiblePositionClicked(option.x, option.y, option.z, zone);
                 });
             }
         });
@@ -871,6 +872,7 @@ function sleep(ms) {
 }
 class Game {
     constructor(bga) {
+        this.selectedZone = null;
         this.rotation = 0;
         this.playersTables = [];
         this.stonesCounters = [];
@@ -985,6 +987,7 @@ class Game {
             this.selectedPosition = null;
             this.selectedTile = null;
             this.selectedTileHexIndex = null;
+            this.selectedZone = null;
             this.setRotation(0);
             this.tableCenter.setSelectable(true);
             if (pantheon) {
@@ -1377,7 +1380,8 @@ class Game {
         else {
             if (this.gamedatas.isPantheon) {
                 const pantheonArgs = this.gamedatas.gamestate.args;
-                return pantheonArgs.cityOptions[this.selectedTileHexIndex].find(o => o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z);
+                const options = this.selectedZone === 'capital' ? pantheonArgs.capitalOptions : pantheonArgs.cityOptions;
+                return options[this.selectedTileHexIndex].find(o => o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z);
             }
             else {
                 const baseArgs = this.gamedatas.gamestate.args;
@@ -1385,26 +1389,26 @@ class Game {
             }
         }
     }
-    possiblePositionClicked(x, y, z) {
+    possiblePositionClicked(x, y, z, zone) {
         if (!this.selectedTile) {
             return;
         }
         const pivot = this.usePivotRotation();
         if (pivot && this.selectedPosition != null) {
-            console.log(x, y, z, this.rotation, this.selectedPosition);
             if (this.selectedPosition.x == x && this.selectedPosition.y == y && this.selectedPosition.z == z) {
                 this.incRotationPivot();
-                console.log('possiblePositionClicked pivot, return');
                 return;
             }
         }
         this.selectedPosition = { x, y, z };
+        this.selectedZone = zone;
         const option = this.getSelectedPositionOption();
         if (option.r && !option.r.includes(this.rotation) && !pivot) {
             this.setRotation(this.findClosestRotation(option.r));
         }
         const tileCoordinates = TILE_COORDINATES[this.selectedTileHexIndex];
-        this.getCurrentPlayerTable().placeTile({
+        const playerTable = zone === 'capital' ? this.getPlayerTable(-1) : this.getCurrentPlayerTable();
+        playerTable.placeTile({
             ...this.selectedTile,
             x: this.selectedPosition.x - tileCoordinates[0],
             y: this.selectedPosition.y - tileCoordinates[1],
@@ -1454,7 +1458,8 @@ class Game {
         }
         if (!this.selectedPosition) {
             if (this.gamedatas.gamestate.name === 'completeCard') {
-                this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+                const completeCardArgs = this.gamedatas.gamestate.args;
+                this.getCurrentPlayerTable().setPlaceTileOptions(completeCardArgs.options, this.rotation);
             }
             else {
                 if (this.gamedatas.isPantheon) {
@@ -1473,7 +1478,8 @@ class Game {
                 }
             }
         }
-        this.getCurrentPlayerTable().rotatePreviewTile(this.rotation);
+        const playerTable = this.selectedZone === 'capital' ? this.getPlayerTable(-1) : this.getCurrentPlayerTable();
+        playerTable.rotatePreviewTile(this.rotation);
     }
     decRotationPivot() {
         this.changeRotationPivot(-1);
@@ -1487,19 +1493,34 @@ class Game {
             rotation += 6;
         }
         const pivotRotation = (direction == -1 ? PIVOT_ROTATIONS_REVERSE : PIVOT_ROTATIONS)[(rotation + (this.selectedTileHexIndex * 2)) % 6];
-        this.possiblePositionClicked(this.selectedPosition.x + pivotRotation[0], this.selectedPosition.y + pivotRotation[1], this.selectedPosition.z);
+        this.possiblePositionClicked(this.selectedPosition.x + pivotRotation[0], this.selectedPosition.y + pivotRotation[1], this.selectedPosition.z, this.selectedZone);
         this.setRotation(rotation + direction * 2);
     }
     cancelPlaceTile() {
         [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
+        if (this.selectedZone === 'capital') {
+            this.getPlayerTable(-1)?.removePreviewTile();
+        }
+        else {
+            this.getCurrentPlayerTable().removePreviewTile();
+        }
         this.selectedPosition = null;
-        this.getCurrentPlayerTable().removePreviewTile();
+        this.selectedZone = null;
         if (this.gamedatas.gamestate.name === 'completeCard') {
-            this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
+            const completeCardArgs = this.gamedatas.gamestate.args;
+            this.getCurrentPlayerTable().setPlaceTileOptions(completeCardArgs.options, this.rotation);
             this.completeCardState.onCancel();
         }
         else {
-            this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
+            if (this.gamedatas.isPantheon) {
+                const pantheonArgs = this.gamedatas.gamestate.args;
+                this.getPlayerTable(-1).setPlaceTileOptions(pantheonArgs.capitalOptions[0], this.rotation);
+                this.getCurrentPlayerTable().setPlaceTileOptions(pantheonArgs.cityOptions[0], this.rotation);
+            }
+            else {
+                const baseArgs = this.gamedatas.gamestate.args;
+                this.getCurrentPlayerTable().setPlaceTileOptions(baseArgs.options[0], this.rotation);
+            }
         }
         this.updateRotationButtonState();
     }
@@ -1522,7 +1543,11 @@ class Game {
         }
         else {
             this.getCurrentPlayerTable()?.cleanPossibleHex();
-            this.bga.actions.performAction('actPlaceTile', {
+            let action = 'actPlaceTile';
+            if (this.gamedatas.isPantheon) {
+                action = this.selectedZone === 'capital' ? 'actPlaceTileInCapital' : 'actPlaceTileInCity';
+            }
+            this.bga.actions.performAction(action, {
                 x: this.selectedPosition.x,
                 y: this.selectedPosition.y,
                 z: this.selectedPosition.z,

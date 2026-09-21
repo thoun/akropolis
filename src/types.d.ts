@@ -77,6 +77,8 @@ interface PlaceTileOption {
     r: number[];
 }
 
+type SelectedZone = 'city' | 'capital';
+
 interface EnteringPlaceTileArgs {
     options: PlaceTileOption[][];
 }

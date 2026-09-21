@@ -66,20 +66,21 @@ export class PlayerTable {
     public setPlaceTileOptions(options: PlaceTileOption[], rotation: number) {
         this.cleanPossibleHex();
         const pivot = this.game.usePivotRotation();
+        const zone = this.playerId === -1 ? 'capital' : 'city';
 
         options/*.filter(option => option.r.some(r => r == rotation))*/.forEach(option => {
             if (pivot) {
                 if (option.r && option.r.includes(0)) {
                     const pivot = this.createPossiblePivot(option.x, option.y, option.z);
                     pivot.addEventListener('click', () => {
-                        this.game.possiblePositionClicked(option.x, option.y, option.z);
+                        this.game.possiblePositionClicked(option.x, option.y, option.z, zone);
                     });
                 }
             } else {
                 const hex = this.createPossibleHex(option.x, option.y, option.z);
                 const face = hex.getElementsByClassName('face')[0] as HTMLDivElement;
                 face.addEventListener('click', () => {
-                    this.game.possiblePositionClicked(option.x, option.y, option.z);
+                    this.game.possiblePositionClicked(option.x, option.y, option.z, zone);
                 });
             }
         });
