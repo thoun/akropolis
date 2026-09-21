@@ -55,7 +55,7 @@ export class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
         this.game.bga.statusBar.setTitle(_('${you} may give a tile to the Automata to complete a fulfilled construction card'));
         document.getElementById('generalactions').innerHTML = '';
 
-        this.game.bga.gameui.addActionButton(`skip_button`, _('Skip'), () => this.game.bga.actions.performAction('actSkipCompleteCard'), null, null, 'gray');
+        this.game.bga.statusBar.addActionButton(_('Skip'), () => this.game.bga.actions.performAction('actSkipCompleteCard'), { color: 'secondary' });
 
         const spaces = args.cardIds.map(id => Number(this.game.gamedatas.cards.find(card => card.id === id).location.split('-')[1]));
         const selectableTilesIds = Object.values(args.automaPicks).flat();
@@ -80,7 +80,7 @@ export class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
         [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id)?.classList.toggle('disabled', id !== `cancelPlaceTile_button` || !this.tileForAutomata));
         this.game.updateRotationButtonState();
 
-        this.game.bga.gameui.addActionButton(`skip_button`, _('Skip'), () => this.game.bga.actions.performAction('actSkipCompleteCard'), null, null, 'gray');
+        this.game.bga.statusBar.addActionButton(_('Skip'), () => this.game.bga.actions.performAction('actSkipCompleteCard'), { color: 'secondary' });
 
         const cardsIds = this.selectedCard ? [this.selectedCard] : args.cardIds;
         const spaces = cardsIds.map(id => Number(this.game.gamedatas.cards.find(card => card.id === id).location.split('-')[1]));
@@ -100,8 +100,8 @@ export class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
         this.tileForAutomata = tile;
         this.selectedCard = this.game.gamedatas.cards.find(card => card.location === tile.location).id;
         this.removeUnselectableClass();
-        document.getElementById(`market-tile-${tile.id}`).classList.add('for-automata');
-        document.getElementById(`market-tile-${tile.id}`).insertAdjacentHTML('beforeend', `
+        document.getElementById(`table-center-tile-${tile.id}`).classList.add('for-automata');
+        document.getElementById(`table-center-tile-${tile.id}`).insertAdjacentHTML('beforeend', `
             <div class="given-to-automata">${_('Given to automata')}</div>    
         `);
 

@@ -227,121 +227,6 @@ class TilesManager {
     }
 }
 
-class ConstructionSite {
-    constructor(game, tiles, remainingStacks) {
-        this.game = game;
-        this.selectionActivated = false;
-        document.getElementById('tables').insertAdjacentHTML('beforebegin', `            
-            <div id="market" class="left-to-right">
-                <div id="remaining-stacks"><div id="remaining-stacks-counter"></div></div>
-            </div>
-        `);
-        this.market = document.getElementById('market');
-        this.remainingstacksDiv = document.getElementById('remaining-stacks');
-        this.setTiles(this.orderTiles(tiles.filter(tile => tile.location === 'dock')));
-        document.getElementById('remaining-stacks-counter').insertAdjacentText('beforebegin', _('Remaining stacks'));
-        this.remainingStacksCounter = new ebg.counter();
-        this.remainingStacksCounter.create(`remaining-stacks-counter`);
-        this.remainingStacksCounter.setValue(remainingStacks);
-    }
-    addTile(tile, index) {
-        const tileWithCost = document.createElement('div');
-        tileWithCost.id = `market-tile-${tile.id}`;
-        tileWithCost.classList.add('tile-with-cost');
-        tileWithCost.dataset.cost = `${index}`;
-        const tileDiv = this.createMarketTile(tile);
-        tileWithCost.appendChild(tileDiv);
-        const cost = document.createElement('div');
-        cost.classList.add('cost');
-        cost.innerHTML = `
-            <span>${index}</span>
-            <div class="stone score-icon"></div> 
-        `;
-        tileWithCost.appendChild(cost);
-        this.market.appendChild(tileWithCost);
-        tile.hexes.forEach((hex, index) => {
-            const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`);
-            hexDiv.id = `market-tile-${tile.id}-hex-${index}`;
-            const { type, plaza } = this.game.tilesManager.hexFromString(hex);
-            this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));
-        });
-    }
-    setSelectedHex(tileId, hex) {
-        Array.from(this.market.querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
-        document.getElementById(`market-tile-${tileId}`)?.classList.add('selected');
-        if (!this.game.usePivotRotation()) {
-            hex?.classList.add('selected');
-        }
-    }
-    setDisabledTiles(playerMoney) {
-        Array.from(this.market.querySelectorAll('.disabled')).forEach(option => option.classList.remove('disabled'));
-        if (playerMoney !== null) {
-            Array.from(this.market.querySelectorAll('.tile-with-cost')).forEach((option) => option.classList.toggle('disabled', Number(option.dataset.cost) > playerMoney));
-        }
-    }
-    async refill(tiles, remainingStacks) {
-        const orderedTiles = this.orderTiles(tiles);
-        this.setTiles(orderedTiles);
-        await Promise.all(orderedTiles.map(tile => {
-            const tileWithCost = document.getElementById(`market-tile-${tile.id}`);
-            tileWithCost.classList.add('animated-market-tile-with-cost');
-            return this.game.animationManager.slideIn(tileWithCost, this.remainingstacksDiv)
-                .finally(() => tileWithCost.classList.remove('animated-market-tile-with-cost'));
-        }));
-        this.remainingStacksCounter.setValue(remainingStacks);
-    }
-    async animateTileTo(tile, to) {
-        const marketTileDiv = document.getElementById(`market-tile-${tile.id}`).querySelector('.tile');
-        const animatedTileDiv = marketTileDiv.cloneNode(true);
-        animatedTileDiv.classList.add('animated-market-tile');
-        await this.game.animationManager.slideFloatingElement(animatedTileDiv, marketTileDiv, to, { scale: 1 });
-    }
-    removeTile(tile) {
-        const index = this.tiles.findIndex(t => t.id == tile.id);
-        if (index !== -1) {
-            this.tiles.splice(index, 1);
-            this.setTiles(this.tiles);
-        }
-    }
-    setSelectable(selectable) {
-        this.selectionActivated = selectable;
-        this.market.classList.toggle('selectable', selectable);
-    }
-    setTiles(tiles) {
-        this.tiles = tiles;
-        Array.from(this.market.querySelectorAll('.tile-with-cost')).forEach(option => option.remove());
-        this.tiles.forEach((tile, index) => this.addTile(tile, index));
-        if (this.game.bga.players.isCurrentPlayerActive() && this.game.stonesCounters[this.game.getCurrentPlayerId()]) {
-            this.setDisabledTiles(this.game.stonesCounters[this.game.getCurrentPlayerId()].getValue());
-        }
-    }
-    createMarketTile(tile) {
-        const tileDiv = this.game.tilesManager.createTile(tile, false);
-        tile.hexes.forEach((hex, index) => {
-            const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`);
-            hexDiv.addEventListener('click', () => {
-                if (this.selectionActivated) {
-                    this.game.constructionSiteHexClicked(tile, this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
-                }
-            });
-        });
-        return tileDiv;
-    }
-    // temp ? remove if sorted by state ASC on back-end side
-    orderTiles(tiles) {
-        tiles.sort((a, b) => a.state - b.state);
-        return tiles;
-    }
-    setRotation(rotation, tile) {
-        const tileDiv = document.getElementById(`market-tile-${tile.id}`).getElementsByClassName('tile')[0];
-        const SHIFT_LEFT = [0, 20, -16, 0, -20, 16];
-        const SHIFT_TOP = [0, 12, 16, 8, -4, -8];
-        tileDiv.style.setProperty('--r', `${rotation}`);
-        tileDiv.style.setProperty('--shift-left', `${SHIFT_LEFT[(rotation + 600) % 6]}px`);
-        tileDiv.style.setProperty('--shift-top', `${SHIFT_TOP[(rotation + 600) % 6]}px`);
-    }
-}
-
 const CARDS = {
     "Housing": '#55b5e9',
     "Villa": '#55b5e9',
@@ -429,13 +314,13 @@ class AthenaConstructionSite {
     }
     addTile(tile, space) {
         const tileWithWrapper = document.createElement('div');
-        tileWithWrapper.id = `market-tile-${tile.id}`;
+        tileWithWrapper.id = `table-center-tile-${tile.id}`;
         const tileDiv = this.createSingleTile(tile);
         tileWithWrapper.appendChild(tileDiv);
         document.getElementById(`athena-tiles-${space}`).appendChild(tileWithWrapper);
         tile.hexes.forEach((hex, index) => {
             const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`);
-            hexDiv.id = `market-tile-${tile.id}-hex-${index}`;
+            hexDiv.id = `table-center-tile-${tile.id}-hex-${index}`;
             const { type, plaza } = this.game.tilesManager.hexFromString(hex);
             const tooltip = type.split('-').map(t => this.game.tilesManager.getHexTooltip(t, plaza)).join('<hr>');
             this.game.setTooltip(hexDiv.id, tooltip);
@@ -447,7 +332,7 @@ class AthenaConstructionSite {
             const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`);
             hexDiv.addEventListener('click', () => {
                 if (this.selectionActivated && hexDiv.closest('.athena-tiles-space.selectable') && !hexDiv.closest('.for-automata')) {
-                    this.game.constructionSiteHexClicked(tile, this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
+                    this.game.tableCenterHexClicked(tile, this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
                 }
                 if (this.selectionActivatedForAutomata && hexDiv.closest('.athena-tiles-space.selectable')) {
                     this.game.singleTileClickedForAutomata(tile);
@@ -457,7 +342,7 @@ class AthenaConstructionSite {
         return tileDiv;
     }
     setRotation(rotation, tile) {
-        const tileDiv = document.getElementById(`market-tile-${tile.id}`).getElementsByClassName('tile')[0];
+        const tileDiv = document.getElementById(`table-center-tile-${tile.id}`).getElementsByClassName('tile')[0];
         const SHIFT_LEFT = [0, -6, -6, 0, 6, 6];
         const SHIFT_TOP = [0, -3, -10, -13, -10, -3];
         tileDiv.style.setProperty('--r', `${rotation}`);
@@ -470,14 +355,14 @@ class AthenaConstructionSite {
         [1, 2, 3, 4].forEach(space => {
             document.getElementById(`athena-tiles-${space}`).classList.toggle('selectable', selectable.includes(space));
         });
-        unselectableTiles?.forEach(tile => document.getElementById(`market-tile-${tile.id}`).classList.add('unselectable'));
+        unselectableTiles?.forEach(tile => document.getElementById(`table-center-tile-${tile.id}`).classList.add('unselectable'));
     }
     removeTile(tile) {
-        document.getElementById(`market-tile-${tile.id}`)?.remove();
+        document.getElementById(`table-center-tile-${tile.id}`)?.remove();
     }
     setSelectedHex(tileId, hex) {
         Array.from(document.getElementById('athena-contruction-spaces').querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
-        document.getElementById(`market-tile-${tileId}`)?.classList.add('selected');
+        document.getElementById(`table-center-tile-${tileId}`)?.classList.add('selected');
         if (!this.game.usePivotRotation()) {
             hex?.classList.add('selected');
         }
@@ -725,7 +610,7 @@ class CompleteCardState extends StateHandler {
     onUpdateActionButtonsForAutomata(args) {
         this.game.bga.statusBar.setTitle(_('${you} may give a tile to the Automata to complete a fulfilled construction card'));
         document.getElementById('generalactions').innerHTML = '';
-        this.game.bga.gameui.addActionButton(`skip_button`, _('Skip'), () => this.game.bga.actions.performAction('actSkipCompleteCard'), null, null, 'gray');
+        this.game.bga.statusBar.addActionButton(_('Skip'), () => this.game.bga.actions.performAction('actSkipCompleteCard'), { color: 'secondary' });
         const spaces = args.cardIds.map(id => Number(this.game.gamedatas.cards.find(card => card.id === id).location.split('-')[1]));
         const selectableTilesIds = Object.values(args.automaPicks).flat();
         const tilesOfCards = this.game.gamedatas.dock.filter(tile => tile.location.startsWith('athena') && spaces.includes(Number(tile.location.split('-')[1])));
@@ -746,7 +631,7 @@ class CompleteCardState extends StateHandler {
         this.game.bga.gameui.addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.game.cancelPlaceTile(), null, null, 'gray');
         [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id)?.classList.toggle('disabled', id !== `cancelPlaceTile_button` || !this.tileForAutomata));
         this.game.updateRotationButtonState();
-        this.game.bga.gameui.addActionButton(`skip_button`, _('Skip'), () => this.game.bga.actions.performAction('actSkipCompleteCard'), null, null, 'gray');
+        this.game.bga.statusBar.addActionButton(_('Skip'), () => this.game.bga.actions.performAction('actSkipCompleteCard'), { color: 'secondary' });
         const cardsIds = this.selectedCard ? [this.selectedCard] : args.cardIds;
         const spaces = cardsIds.map(id => Number(this.game.gamedatas.cards.find(card => card.id === id).location.split('-')[1]));
         this.game.athenaConstructionSite.setSelectable(spaces, null);
@@ -762,8 +647,8 @@ class CompleteCardState extends StateHandler {
         this.tileForAutomata = tile;
         this.selectedCard = this.game.gamedatas.cards.find(card => card.location === tile.location).id;
         this.removeUnselectableClass();
-        document.getElementById(`market-tile-${tile.id}`).classList.add('for-automata');
-        document.getElementById(`market-tile-${tile.id}`).insertAdjacentHTML('beforeend', `
+        document.getElementById(`table-center-tile-${tile.id}`).classList.add('for-automata');
+        document.getElementById(`table-center-tile-${tile.id}`).insertAdjacentHTML('beforeend', `
             <div class="given-to-automata">${_('Given to automata')}</div>    
         `);
         this.onUpdateActionButtonsForPlayer(this.args);
@@ -776,6 +661,174 @@ class CompleteCardState extends StateHandler {
             this.removeForAutomataClass();
             this.onUpdateActionButtonsForAutomata(args);
         }
+    }
+}
+
+class TableCenter {
+    constructor(game) {
+        this.game = game;
+        this.selectionActivated = false;
+    }
+    setSelectedHex(tileId, hex) {
+        Array.from(this.stock.querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
+        document.getElementById(`table-center-tile-${tileId}`)?.classList.add('selected');
+        if (!this.game.usePivotRotation()) {
+            hex?.classList.add('selected');
+        }
+    }
+    setDisabledTiles(playerMoney) { }
+    async animateTileTo(tile, to) {
+        const marketTileDiv = document.getElementById(`table-center-tile-${tile.id}`).querySelector('.tile');
+        const animatedTileDiv = marketTileDiv.cloneNode(true);
+        animatedTileDiv.classList.add('animated-table-center-tile');
+        await this.game.animationManager.slideFloatingElement(animatedTileDiv, marketTileDiv, to, { scale: 1 });
+    }
+    removeTile(tile) {
+        const index = this.tiles.findIndex(t => t.id == tile.id);
+        if (index !== -1) {
+            this.tiles.splice(index, 1);
+            this.setTiles(this.tiles);
+        }
+    }
+    setSelectable(selectable) {
+        this.selectionActivated = selectable;
+        this.stock.classList.toggle('selectable', selectable);
+    }
+    setTiles(tiles) {
+        this.tiles = tiles;
+        Array.from(this.stock.querySelectorAll('.tile-with-cost')).forEach(option => option.remove());
+        this.tiles.forEach((tile, index) => this.addTile(tile, index));
+    }
+    createTableCenterTile(tile) {
+        const tileDiv = this.game.tilesManager.createTile(tile, false);
+        tile.hexes.forEach((hex, index) => {
+            const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`);
+            hexDiv.addEventListener('click', () => {
+                if (this.selectionActivated) {
+                    this.game.tableCenterHexClicked(tile, this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
+                }
+            });
+        });
+        return tileDiv;
+    }
+    // temp ? remove if sorted by state ASC on back-end side
+    orderTiles(tiles) {
+        tiles.sort((a, b) => a.state - b.state);
+        return tiles;
+    }
+    setRotation(rotation, tile) {
+        const tileDiv = document.getElementById(`table-center-tile-${tile.id}`).getElementsByClassName('tile')[0];
+        const SHIFT_LEFT = [0, 20, -16, 0, -20, 16];
+        const SHIFT_TOP = [0, 12, 16, 8, -4, -8];
+        tileDiv.style.setProperty('--r', `${rotation}`);
+        tileDiv.style.setProperty('--shift-left', `${SHIFT_LEFT[(rotation + 600) % 6]}px`);
+        tileDiv.style.setProperty('--shift-top', `${SHIFT_TOP[(rotation + 600) % 6]}px`);
+    }
+}
+
+class ConstructionSite extends TableCenter {
+    constructor(game, tiles, remainingStacks) {
+        super(game);
+        this.game = game;
+        document.getElementById('tables').insertAdjacentHTML('beforebegin', `            
+            <div id="market" class="left-to-right">
+                <div id="remaining-stacks"><div id="remaining-stacks-counter"></div></div>
+            </div>
+        `);
+        this.stock = document.getElementById('market');
+        this.remainingstacksDiv = document.getElementById('remaining-stacks');
+        this.setTiles(this.orderTiles(tiles.filter(tile => tile.location === 'dock')));
+        document.getElementById('remaining-stacks-counter').insertAdjacentText('beforebegin', _('Remaining stacks'));
+        this.remainingStacksCounter = new ebg.counter();
+        this.remainingStacksCounter.create(`remaining-stacks-counter`);
+        this.remainingStacksCounter.setValue(remainingStacks);
+    }
+    addTile(tile, index) {
+        const tileWithCost = document.createElement('div');
+        tileWithCost.id = `table-center-tile-${tile.id}`;
+        tileWithCost.classList.add('tile-with-cost');
+        tileWithCost.dataset.cost = `${index}`;
+        const tileDiv = this.createTableCenterTile(tile);
+        tileWithCost.appendChild(tileDiv);
+        const cost = document.createElement('div');
+        cost.classList.add('cost');
+        cost.innerHTML = `
+            <span>${index}</span>
+            <div class="stone score-icon"></div> 
+        `;
+        tileWithCost.appendChild(cost);
+        this.stock.appendChild(tileWithCost);
+        tile.hexes.forEach((hex, index) => {
+            const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`);
+            hexDiv.id = `table-center-tile-${tile.id}-hex-${index}`;
+            const { type, plaza } = this.game.tilesManager.hexFromString(hex);
+            this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));
+        });
+    }
+    setDisabledTiles(playerMoney) {
+        Array.from(this.stock.querySelectorAll('.disabled')).forEach(option => option.classList.remove('disabled'));
+        if (playerMoney !== null) {
+            Array.from(this.stock.querySelectorAll('.tile-with-cost')).forEach((option) => option.classList.toggle('disabled', Number(option.dataset.cost) > playerMoney));
+        }
+    }
+    async refill(tiles, remainingStacks) {
+        const orderedTiles = this.orderTiles(tiles);
+        this.setTiles(orderedTiles);
+        await Promise.all(orderedTiles.map(tile => {
+            const tileWithCost = document.getElementById(`table-center-tile-${tile.id}`);
+            tileWithCost.classList.add('animated-table-center-tile-with-cost');
+            return this.game.animationManager.slideIn(tileWithCost, this.remainingstacksDiv)
+                .finally(() => tileWithCost.classList.remove('animated-table-center-tile-with-cost'));
+        }));
+        this.remainingStacksCounter.setValue(remainingStacks);
+    }
+    setTiles(tiles) {
+        super.setTiles(tiles);
+        if (this.game.bga.players.isCurrentPlayerActive() && this.game.stonesCounters[this.game.getCurrentPlayerId()]) {
+            this.setDisabledTiles(this.game.stonesCounters[this.game.getCurrentPlayerId()].getValue());
+        }
+    }
+}
+
+class PlayerHand extends TableCenter {
+    constructor(game, currentPlayerId, gamedatas) {
+        super(game);
+        this.currentPlayerId = currentPlayerId;
+        if (!gamedatas.players[currentPlayerId]) {
+            return; // player is spectator
+        }
+        document.getElementById('tables').insertAdjacentHTML('beforebegin', `            
+            <div id="hand">
+            </div>
+        `);
+        this.tiles = Object.values(gamedatas.players[currentPlayerId].tiles);
+        this.stock = document.getElementById('hand');
+        this.setTiles(this.orderTiles(this.tiles));
+    }
+    addTile(tile, index) {
+        const tileWithCost = document.createElement('div');
+        tileWithCost.id = `table-center-tile-${tile.id}`;
+        tileWithCost.classList.add('tile-with-cost');
+        tileWithCost.dataset.cost = `${index}`;
+        const tileDiv = this.createTableCenterTile(tile);
+        tileWithCost.appendChild(tileDiv);
+        this.stock.appendChild(tileWithCost);
+        tile.hexes.forEach((hex, index) => {
+            const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`);
+            hexDiv.id = `table-center-tile-${tile.id}-hex-${index}`;
+            const { type, plaza } = this.game.tilesManager.hexFromString(hex);
+            this.game.setTooltip(hexDiv.id, this.game.tilesManager.getHexTooltip(type, plaza));
+        });
+    }
+    async refill(tiles, remainingStacks) {
+        const orderedTiles = this.orderTiles(tiles);
+        this.setTiles(orderedTiles);
+        await Promise.all(orderedTiles.map(tile => {
+            const tileWithCost = document.getElementById(`table-center-tile-${tile.id}`);
+            tileWithCost.classList.add('animated-table-center-tile-with-cost');
+            return this.game.animationManager.slideIn(tileWithCost, this.game.bga.playerPanels.getElement(this.currentPlayerId))
+                .finally(() => tileWithCost.classList.remove('animated-table-center-tile-with-cost'));
+        }));
     }
 }
 
@@ -818,7 +871,6 @@ function sleep(ms) {
 }
 class Game {
     constructor(bga) {
-        this.constructionSite = null;
         this.rotation = 0;
         this.playersTables = [];
         this.stonesCounters = [];
@@ -871,15 +923,15 @@ class Game {
         });
         this.viewManager = new ViewManager(this);
         this.tilesManager = new TilesManager(this);
-        if (!gamedatas.isPantheon) {
-            this.constructionSite = new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
-            if (gamedatas.isAthena) {
-                const players = Object.values(gamedatas.players);
-                if (gamedatas.soloPlayer) {
-                    players.push(gamedatas.soloPlayer);
-                }
-                this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.cardStatuses, gamedatas.dock, players);
+        this.tableCenter = gamedatas.isPantheon ?
+            new PlayerHand(this, this.bga.players.getCurrentPlayerId(), gamedatas) :
+            new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
+        if (gamedatas.isAthena) {
+            const players = Object.values(gamedatas.players);
+            if (gamedatas.soloPlayer) {
+                players.push(gamedatas.soloPlayer);
             }
+            this.athenaConstructionSite = new AthenaConstructionSite(this, gamedatas.cards, gamedatas.cardStatuses, gamedatas.dock, players);
         }
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
@@ -923,19 +975,33 @@ class Game {
         }
         switch (stateName) {
             case 'placeTile':
-                this.onEnteringPlaceTile(args.args);
+            case 'placeTilePantheon':
+                this.onEnteringPlaceTile(args.args, stateName === 'placeTilePantheon');
                 break;
         }
     }
-    onEnteringPlaceTile(args) {
+    onEnteringPlaceTile(args, pantheon) {
         if (this.bga.players.isCurrentPlayerActive()) {
             this.selectedPosition = null;
             this.selectedTile = null;
             this.selectedTileHexIndex = null;
             this.setRotation(0);
-            this.constructionSite.setSelectable(true);
-            this.getCurrentPlayerTable().setPlaceTileOptions(args.options[0], this.rotation);
-            this.constructionSite.setDisabledTiles(this.stonesCounters[this.bga.players.getCurrentPlayerId()].getValue());
+            this.tableCenter.setSelectable(true);
+            if (pantheon) {
+                const pantheonArgs = args;
+                const playerOptions = pantheonArgs.cityOptions[0];
+                this.getCurrentPlayerTable().setPlaceTileOptions(playerOptions, this.rotation);
+                if (pantheonArgs.canSendToCapital) {
+                    const capitalOptions = pantheonArgs.capitalOptions[0];
+                    this.getPlayerTable(-1).setPlaceTileOptions(capitalOptions, this.rotation);
+                }
+            }
+            else {
+                const baseArgs = args;
+                const playerOptions = baseArgs.options[0];
+                this.getCurrentPlayerTable().setPlaceTileOptions(playerOptions, this.rotation);
+                this.tableCenter.setDisabledTiles(this.stonesCounters[this.bga.players.getCurrentPlayerId()].getValue());
+            }
         }
     }
     onLeavingState(stateName) {
@@ -943,13 +1009,14 @@ class Game {
         this.states.find(state => state.stateName === stateName)?.onLeavingState(this.gamedatas.gamestate.args, this.bga.players.isCurrentPlayerActive());
         switch (stateName) {
             case 'placeTile':
+            case 'placeTilePantheon':
                 this.onLeavingPlaceTile();
                 break;
         }
     }
     onLeavingPlaceTile() {
         this.getCurrentPlayerTable()?.setPlaceTileOptions([], this.rotation);
-        this.constructionSite.setSelectable(false);
+        this.tableCenter.setSelectable(false);
     }
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -973,6 +1040,7 @@ class Game {
         if (this.bga.players.isCurrentPlayerActive()) {
             switch (stateName) {
                 case 'placeTile':
+                case 'placeTilePantheon':
                     if (this.usePivotRotation()) {
                         this.bga.gameui.addActionButton(`decRotationPivot_button`, `⭯`, () => this.decRotationPivot());
                         this.bga.gameui.addActionButton(`incRotationPivot_button`, `⭮`, () => this.incRotationPivot());
@@ -1073,7 +1141,7 @@ class Game {
                 </div>
                 <div id="first-player-token-wrapper-${player.id}" class="first-player-token-wrapper"></div>
             </div>
-            <div class="scores-and-statue">
+            <div class="scores-and-statue ${this.gamedatas.isPantheon && playerId !== -1 ? 'is-pantheon' : ''}">
                 <div id="scores-${player.id}"></div> 
                 <div id="statue-${player.id}"></div>
             </div>`);
@@ -1232,6 +1300,9 @@ class Game {
         }
     }
     setPlayerScore(playerId, score) {
+        if (this.gamedatas.isPantheon) {
+            return;
+        }
         const scoreCounter = this.bga.playerPanels.getScoreCounter(playerId);
         if (scoreCounter) {
             scoreCounter.toValue(score);
@@ -1253,7 +1324,7 @@ class Game {
         ;
         this.setPlayerScore(playerId, scores.score);
     }
-    constructionSiteHexClicked(tile, hexIndex, hex, rotation) {
+    tableCenterHexClicked(tile, hexIndex, hex, rotation) {
         if (hex.classList.contains('selected')) {
             this.incRotation();
             return;
@@ -1268,7 +1339,7 @@ class Game {
             this.athenaConstructionSite.setSelectedHex(tile.id, hex);
         }
         else {
-            this.constructionSite.setSelectedHex(tile.id, hex);
+            this.tableCenter.setSelectedHex(tile.id, hex);
         }
         this.setRotation(rotation);
         if (this.selectedPosition) {
@@ -1304,7 +1375,14 @@ class Game {
             return this.gamedatas.gamestate.args.options.find(o => o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z);
         }
         else {
-            return this.gamedatas.gamestate.args.options[this.selectedTileHexIndex].find(o => o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z);
+            if (this.gamedatas.isPantheon) {
+                const pantheonArgs = this.gamedatas.gamestate.args;
+                return pantheonArgs.cityOptions[this.selectedTileHexIndex].find(o => o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z);
+            }
+            else {
+                const baseArgs = this.gamedatas.gamestate.args;
+                return baseArgs.options[this.selectedTileHexIndex].find(o => o.x == this.selectedPosition.x && o.y == this.selectedPosition.y && o.z == this.selectedPosition.z);
+            }
         }
     }
     possiblePositionClicked(x, y, z) {
@@ -1371,7 +1449,7 @@ class Game {
                 this.athenaConstructionSite.setRotation(rotation, this.selectedTile);
             }
             else {
-                this.constructionSite.setRotation(rotation, this.selectedTile);
+                this.tableCenter.setRotation(rotation, this.selectedTile);
             }
         }
         if (!this.selectedPosition) {
@@ -1379,7 +1457,20 @@ class Game {
                 this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options, this.rotation);
             }
             else {
-                this.getCurrentPlayerTable().setPlaceTileOptions(this.gamedatas.gamestate.args.options[0], this.rotation);
+                if (this.gamedatas.isPantheon) {
+                    const pantheonArgs = this.gamedatas.gamestate.args;
+                    const playerOptions = pantheonArgs.cityOptions[0];
+                    this.getCurrentPlayerTable().setPlaceTileOptions(playerOptions, this.rotation);
+                    if (pantheonArgs.canSendToCapital) {
+                        const capitalOptions = pantheonArgs.capitalOptions[0];
+                        this.getPlayerTable(-1).setPlaceTileOptions(capitalOptions, this.rotation);
+                    }
+                }
+                else {
+                    const baseArgs = this.gamedatas.gamestate.args;
+                    const playerOptions = baseArgs.options[0];
+                    this.getCurrentPlayerTable().setPlaceTileOptions(playerOptions, this.rotation);
+                }
             }
         }
         this.getCurrentPlayerTable().rotatePreviewTile(this.rotation);
@@ -1488,13 +1579,13 @@ class Game {
         const tile = args.tile;
         playerTable.removePreviewTile();
         const invisibleTile = playerTable.placeTile(tile, false, 'invisible');
-        await this.constructionSite.animateTileTo(tile, invisibleTile).then(() => {
+        await this.tableCenter.animateTileTo(tile, invisibleTile).then(() => {
             playerTable.placeTile(tile, true, 'final');
             if (tile.hexes.length === 1) {
                 this.athenaConstructionSite.removeTile(tile);
             }
             else {
-                this.constructionSite.removeTile(tile);
+                this.tableCenter.removeTile(tile);
             }
         });
     }
@@ -1533,7 +1624,7 @@ class Game {
         }
     }
     async notif_refillDock(args) {
-        await this.constructionSite.refill(args.dock, args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
+        await this.tableCenter.refill(args.dock, args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
     }
     async notif_updateFirstPlayer(args) {
         const firstPlayerToken = document.getElementById('first-player-token');

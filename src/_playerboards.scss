@@ -39,5 +39,9 @@
     display: flex;
     gap: 5px;
     align-items: center;
+
+    &.is-pantheon {
+      display: none;
+    }
   }
 }

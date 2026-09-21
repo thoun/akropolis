@@ -100,14 +100,14 @@ export class AthenaConstructionSite {
 
     public addTile(tile: Tile, space: number) {
         const tileWithWrapper = document.createElement('div');
-        tileWithWrapper.id = `market-tile-${tile.id}`;
+        tileWithWrapper.id = `table-center-tile-${tile.id}`;
         const tileDiv = this.createSingleTile(tile);
         tileWithWrapper.appendChild(tileDiv);
         document.getElementById(`athena-tiles-${space}`).appendChild(tileWithWrapper);
 
         tile.hexes.forEach((hex, index) => {
             const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
-            hexDiv.id = `market-tile-${tile.id}-hex-${index}`;
+            hexDiv.id = `table-center-tile-${tile.id}-hex-${index}`;
             const { type, plaza } = this.game.tilesManager.hexFromString(hex);
             const tooltip = type.split('-').map(t => this.game.tilesManager.getHexTooltip(t, plaza)).join('<hr>');
             this.game.setTooltip(hexDiv.id, tooltip);
@@ -120,7 +120,7 @@ export class AthenaConstructionSite {
             const hexDiv = tileDiv.querySelector(`[data-index="${index}"]`) as HTMLDivElement;
             hexDiv.addEventListener('click', () => {
                 if (this.selectionActivated && hexDiv.closest('.athena-tiles-space.selectable') && !hexDiv.closest('.for-automata')) {
-                    this.game.constructionSiteHexClicked(tile, this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
+                    this.game.tableCenterHexClicked(tile, this.game.usePivotRotation() ? 0 : index, hexDiv, Number(tileDiv.style.getPropertyValue('--r')));
                 }
                 if (this.selectionActivatedForAutomata && hexDiv.closest('.athena-tiles-space.selectable')) {
                     this.game.singleTileClickedForAutomata(tile);
@@ -131,7 +131,7 @@ export class AthenaConstructionSite {
     }
     
     public setRotation(rotation: number, tile: Tile) {        
-        const tileDiv = document.getElementById(`market-tile-${tile.id}`).getElementsByClassName('tile')[0] as HTMLDivElement;
+        const tileDiv = document.getElementById(`table-center-tile-${tile.id}`).getElementsByClassName('tile')[0] as HTMLDivElement;
 
         const SHIFT_LEFT = [0, -6, -6, 0, 6, 6];
         const SHIFT_TOP = [0, -3, -10, -13, -10, -3];
@@ -148,16 +148,16 @@ export class AthenaConstructionSite {
             document.getElementById(`athena-tiles-${space}`).classList.toggle('selectable', selectable.includes(space));
         });
 
-        unselectableTiles?.forEach(tile => document.getElementById(`market-tile-${tile.id}`).classList.add('unselectable'));
+        unselectableTiles?.forEach(tile => document.getElementById(`table-center-tile-${tile.id}`).classList.add('unselectable'));
     }
 
     public removeTile(tile: Tile) {
-        document.getElementById(`market-tile-${tile.id}`)?.remove();
+        document.getElementById(`table-center-tile-${tile.id}`)?.remove();
     }
 
     public setSelectedHex(tileId: number, hex: HTMLDivElement) {
         Array.from(document.getElementById('athena-contruction-spaces').querySelectorAll('.selected')).forEach(option => option.classList.remove('selected'));
-        document.getElementById(`market-tile-${tileId}`)?.classList.add('selected');
+        document.getElementById(`table-center-tile-${tileId}`)?.classList.add('selected');
         if (!this.game.usePivotRotation()) {
             hex?.classList.add('selected');
         }

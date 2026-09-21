@@ -5,7 +5,7 @@ html[data-theme="dark"] {
     }
 }
 
-@mixin market-tile-with-cost {
+@mixin table-center-tile-with-cost {
     font-weight: bold;
     width: #{$hexSide * 4};
     display: flex;
@@ -41,8 +41,8 @@ html[data-theme="dark"] {
     }
 }
 
-.animated-market-tile-with-cost {
-    @include market-tile-with-cost;
+.animated-table-center-tile-with-cost {
+    @include table-center-tile-with-cost;
 
     .hex {
         position: absolute;
@@ -51,7 +51,7 @@ html[data-theme="dark"] {
     }
 }
 
-#market {
+#market, #hand {
     display: flex;
     flex-direction: row-reverse;
     flex-wrap: wrap-reverse;
@@ -84,7 +84,7 @@ html[data-theme="dark"] {
     }
 
     .tile-with-cost {
-        @include market-tile-with-cost;
+        @include table-center-tile-with-cost;
 
         &.disabled {
             cursor: not-allowed;

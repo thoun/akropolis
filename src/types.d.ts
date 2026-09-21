@@ -37,6 +37,7 @@ interface AkropolisPlayer extends Player {
     money: number;
     board: PlayerBoard;
     lvl?: number; // solo level
+    tiles?: { [tileId: number]: Tile }; // hand tiles, for Pantheon
 }
 
 interface AkropolisGamedatas {
@@ -78,6 +79,13 @@ interface PlaceTileOption {
 
 interface EnteringPlaceTileArgs {
     options: PlaceTileOption[][];
+}
+
+interface EnteringPlaceTilePantheonArgs {
+    canSendToCapital: boolean;
+    capitalOptions: PlaceTileOption[][];
+    cityOptions: PlaceTileOption[][];
+    completableChallenges: any;
 }
 
 interface NotifPlacedTileArgs {
