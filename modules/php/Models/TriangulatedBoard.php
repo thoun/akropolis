@@ -170,7 +170,7 @@ class TriangulatedBoard
         $bonus++;
       }
     }
-    if ($bonus > 0 && $this->pId != \ARCHITECT_ID) {
+    if ($bonus > 0 && !in_array($this->pId, NON_PLAYER_IDS)) {
       Stats::incMoneyEarned($this->player, $bonus);
     }
 
@@ -463,7 +463,7 @@ class TriangulatedBoard
       $partialScore = $size * $multiplier;
       $score += $partialScore;
 
-      if ($this->pId != \ARCHITECT_ID) {
+      if (!in_array($this->pId, NON_PLAYER_IDS)) {
         // Set value stat
         $statName = 'set' . $statMap[$type] . 'DistrictValue';
         Stats::$statName($this->player, $size);
@@ -488,7 +488,7 @@ class TriangulatedBoard
 
     $money = $this->player->getMoney();
     $score += ($hasAthena ? 5 : 1) * $money;
-    if ($this->pId != \ARCHITECT_ID) {
+    if (!in_array($this->pId, NON_PLAYER_IDS)) {
       Stats::setMoneyLeft($this->player, $money);
       Stats::setScore($this->player, $score);
     }

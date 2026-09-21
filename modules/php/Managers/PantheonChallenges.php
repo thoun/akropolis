@@ -50,7 +50,6 @@ class PantheonChallenges extends \Bga\Games\Akropolis\Helpers\Pieces
     $challengeIds = [
       "Bastion",
       "BustlingTrade",
-      "Challenge",
       "ForeignTrade",
       "Garrison",
       "GodsPromenade",
