@@ -58,6 +58,7 @@ class Globals extends \Bga\Games\Akropolis\Helpers\DB_Manager
         if (self::isPantheon()) {
             self::setAthena(false);
             self::setAllTiles(true);
+            self::isSolo(false);
 
             /** @var array<string, bool> $pantheonVariants */
             $pantheonVariants = [
