@@ -13,7 +13,9 @@ use Bga\Games\Akropolis\Managers\PantheonChallenges;
 use Bga\GameFramework\StateType;
 use Bga\GameFramework\States\GameState;
 use Bga\GameFramework\States\PossibleAction;
+use Bga\GameFramework\VisibleSystemException;
 use Bga\Games\Akropolis\Game;
+use Bga\Games\Akropolis\Helpers\Utils;
 
 /**
  * PlaceTilePantheon State
@@ -73,197 +75,86 @@ class PlaceTilePantheon extends PantheonGameState
     ];
   }
 
-  // #[PossibleAction]
-  // public function actPlaceTileInCity(int $tileId, int $hex, array $pos, int $r, int $activePlayerId): string
-  // {
-  //   $player = Players::getActive();
+  #[PossibleAction]
+  public function actPlaceTileInCity(int $tileId, int $hex, int $x, int $y, int $z, int $r): string
+  {
+    $pos = ['x' => $x, 'y' => $y, 'z' => $z];
+    $player = Players::getActive();
 
-  //   // Validate tile is in player's hand
-  //   $hand = Tiles::getPlayerHand($player->getId());
-  //   if (!isset($hand[$tileId])) {
-  //     throw new VisibleSystemException('Tile not in hand');
-  //   }
+    // Sanity checks
+    $args = $this->getArgs($player->getId());
+    if (!in_array($tileId, $args['tileIds'])) {
+      throw new VisibleSystemException('Cannot place this tile. Should not happen');
+    }
 
-  //   // Use existing method to place tile in player's city
-  //   // This calls the method from PlaceTile state via the game
-  //   Tiles::placeTile($player, $tileId, $hex, $pos, $r);
+    $tile = Tiles::getSingle($tileId);
 
-  //   // Remove tile from hand
-  //   Tiles::removeFromHand($player->getId(), $tileId);
+    // Check position : always go back to top left hex on tile
+    $geometry = $player->board()->getTileGeometry($tile);
+    $realPos = $player->board()->getCorrespondingPos($geometry, $pos, $r, $hex);
 
-  //   Notifications::placeInCity($player, Tiles::getSingle($tileId));
+    $optionId = Utils::search($args['cityOptions'][0], function ($option) use ($realPos) {
+      return Utils::compareZones($option, $realPos) == 0;
+    });
 
-  //   // Check if any challenges are now completable
-  //   $completable = PantheonChallenges::getCompletableChallenges($player);
+    if ($optionId === false) {
+      throw new VisibleSystemException('Impossible hex. Should not happen');
+    }
 
-  //   // Draw new tile to maintain hand of 3
-  //   $this->refillPlayerHand($player);
+    // Check rotation
+    $option = $args['cityOptions'][0][$optionId];
+    if (!in_array($r, $option['r'])) {
+      throw new VisibleSystemException('Impossible rotation. Should not happen');
+    }
 
-  //   // Check end of game
-  //   if (PantheonManager::isGameEnd()) {
-  //     return 'end';
-  //   } else {
-  //     // If player can complete challenges, give them the option
-  //     if (!empty($completable)) {
-  //       return 'complete';
-  //     } else {
-  //       return 'next';
-  //     }
-  //   }
-  // }
+    // Place the tile
+    Tiles::placeTile($player, $tileId, $hex, $pos, $r);
 
-  // #[PossibleAction]
-  // public function actPlaceTileInCapital(int $tileId, int $hex, array $pos, int $r, int $activePlayerId): string
-  // {
-  //   $this->checkAction('actPlaceTileInCapital');
-  //   $player = Players::getActive();
+    return 'tilePlaced';
+  }
 
-  //   // Check player has enough money (stones)
-  //   if ($player->getMoney() < 1) {
-  //     throw new VisibleSystemException('Not enough stones to place in Capital');
-  //   }
+  #[PossibleAction]
+  public function actPlaceTileInCapital(int $tileId, int $hex, int $x, int $y, int $z, int $r): string
+  {
+    $pos = ['x' => $x, 'y' => $y, 'z' => $z];
+    $player = Players::getActive();
+    $capital = Players::getCapital();
 
-  //   // Validate tile is in player's hand
-  //   $hand = PantheonManager::getPlayerHand($player->getId());
-  //   if (!isset($hand[$tileId])) {
-  //     throw new VisibleSystemException('Tile not in hand');
-  //   }
+    // Sanity checks
+    if ($player->getMoney() < 1) {
+      throw new VisibleSystemException('Not enough stones to place in Capital');
+    }
 
-  //   // Get tile data before removing from hand
-  //   $tile = Tiles::getSingle($tileId);
+    $args = $this->getArgs($player->getId());
+    if (!in_array($tileId, $args['tileIds'])) {
+      throw new VisibleSystemException('Cannot place this tile. Should not happen');
+    }
 
-  //   // Pay 1 money (stone)
-  //   $player->incMoney(-1);
-  //   Notifications::payStoneForCapital($player, 1);
+    $tile = Tiles::getSingle($tileId);
 
-  //   // Place tile in Capital
-  //   $capital = PantheonManager::getCapital();
-  //   $moneyGained = $capital->addTile($tileId, $pos, $r);
+    // Check position : always go back to top left hex on tile
+    $geometry = $capital->board()->getTileGeometry($tile);
+    $realPos = $capital->board()->getCorrespondingPos($geometry, $pos, $r, $hex);
 
-  //   // Add to Capital tracking in database
-  //   PantheonManager::addToCapitalDB($tileId, $pos, $r);
+    $optionId = Utils::search($args['capitalOptions'][0], function ($option) use ($realPos) {
+      return Utils::compareZones($option, $realPos) == 0;
+    });
 
-  //   // Remove tile from hand
-  //   PantheonManager::removeFromHand($player->getId(), $tileId);
+    if ($optionId === false) {
+      throw new VisibleSystemException('Impossible hex. Should not happen');
+    }
 
-  //   // Gain money if quarries covered
-  //   if ($moneyGained > 0) {
-  //     $player->incMoney($moneyGained);
-  //     Notifications::gainStones($player, $moneyGained);
-  //   }
+    // Check rotation
+    $option = $args['capitalOptions'][0][$optionId];
+    if (!in_array($r, $option['r'])) {
+      throw new VisibleSystemException('Impossible rotation. Should not happen');
+    }
 
-  //   Notifications::placeInCapital($player, $tile);
+    // Place the tile
+    Tiles::placeTile($player, $tileId, $hex, $pos, $r, false, true);
 
-  //   // Draw new tile to maintain hand of 3
-  //   $this->refillPlayerHand($player);
-
-  //   // Check end of game
-  //   if (PantheonManager::isGameEnd()) {
-  //     return 'end';
-  //   } else {
-  //     return 'next';
-  //   }
-  // }
-
-  // #[PossibleAction]
-  // public function actCompleteChallenge(string $challengeId, int $activePlayerId): string
-  // {
-  //   $this->checkAction('actCompleteChallenge');
-  //   $player = Players::getActive();
-
-  //   // This will be handled in the CompleteChallenge state
-  //   // For now, transition to complete state
-  //   return 'complete';
-  // }
-
-  // #[PossibleAction]
-  // public function actDiscardChallenge(string $challengeId, int $activePlayerId): string
-  // {
-  //   $this->checkAction('actDiscardChallenge');
-  //   $player = Players::getActive();
-
-  //   // This will be handled in the CompleteChallenge state
-  //   return 'complete';
-  // }
-
-  // #[PossibleAction]
-  // public function actUnlockChallengeSlot(int $activePlayerId): string
-  // {
-  //   $this->checkAction('actUnlockChallengeSlot');
-  //   $player = Players::getActive();
-
-  //   // This will be handled in the CompleteChallenge state
-  //   return 'complete';
-  // }
-
-  // /**
-  //  * Refill player's hand to 3 tiles
-  //  */
-  // private function refillPlayerHand($player): void
-  // {
-  //   $hand = PantheonManager::getPlayerHand($player->getId());
-  //   while (count($hand) < 3) {
-  //     $tile = PantheonManager::drawTileForPlayer($player->getId());
-  //     if ($tile) {
-  //       PantheonManager::addToHand($player->getId(), $tile['id']);
-  //       $hand = PantheonManager::getPlayerHand($player->getId());
-  //     } else {
-  //       // No more tiles in deck
-  //       break;
-  //     }
-  //   }
-  // }
-
-  // /**
-  //  * Fallback method for placing tile in city
-  //  */
-  // private function placeTileInCity($player, $tileId, $hex, $pos, $r): void
-  // {
-  //   $tile = Tiles::getSingle($tileId);
-  //   $cost = $tile['state'];
-
-  //   // Check position : always go back to top left hex on tile
-  //   $geometry = $player->board()->getTileGeometry($tile);
-  //   $pos = $player->board()->getCorrespondingPos($geometry, $pos, $r, $hex);
-
-  //   // Pay money if needed
-  //   if ($cost > 0) {
-  //     $player->incMoney(-$cost);
-  //     if ($player->getId() != \ARCHITECT_ID) {
-  //       Stats::incMoneyUsed($player, $cost);
-  //     }
-
-  //     Notifications::payForTile($player, $cost);
-
-  //     if (Globals::isSolo() && $player->getId() != \ARCHITECT_ID) {
-  //       $architect = Players::getArchitect();
-  //       $architect->incMoney($cost);
-  //       Notifications::gainStones($architect, $cost, true);
-  //     }
-  //   }
-
-  //   // Place tile
-  //   $money = $player->board()->addTile($tileId, $pos, $r);
-  //   $tile = Tiles::getSingle($tileId);
-  //   Notifications::placeTile($player, $tile);
-
-  //   // Register move as player's last move
-  //   $lastMoves = Globals::getLastMoves();
-  //   $lastMoves[$player->getId()] = $tile;
-  //   Globals::setLastMoves($lastMoves);
-
-  //   // Gain money if recovering quarries
-  //   if ($money > 0) {
-  //     $player->incMoney($money);
-  //     Notifications::gainStones($player, $money);
-  //   }
-
-  //   // Update score if live scoring
-  //   if (Globals::isLiveScoring()) {
-  //     $scores = $player->board()->getScores();
-  //     Notifications::updateScores($player, $scores);
-  //   }
-  // }
+    return 'tilePlaced';
+  }
 
   public function zombie(int $playerId): string
   {

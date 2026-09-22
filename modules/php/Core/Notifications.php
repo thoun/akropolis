@@ -69,9 +69,10 @@ class Notifications
    * @param Player $player Player who paid
    * @param int $cost Cost in stones
    */
-  public static function payForTile(Player $player, int $cost): void
+  public static function payForTile(Player $player, int $cost, bool $inCapital = false): void
   {
-    self::notifyAll('pay', clienttranslate('${player_name} pays ${cost} for taking the tile'), [
+    $msg = $inCapital ? clienttranslate('${player_name} pays ${cost} for sending the tile to the capital') : clienttranslate('${player_name} pays ${cost} for taking the tile');
+    self::notifyAll('pay', $msg, [
       'player' => $player,
       'cost' => $cost,
     ]);
@@ -96,11 +97,13 @@ class Notifications
    * @param Player $player Player who placed the tile
    * @param array<mixed> $tile Tile data
    */
-  public static function placeTile(Player $player, array $tile): void
+  public static function placeTile(Player $player, array $tile, bool $inCapital = false): void
   {
-    self::notifyAll('placedTile', clienttranslate('${player_name} places a tile in their city'), [
+    $msg = $inCapital ? clienttranslate('${player_name} places a tile in the Capital') : clienttranslate('${player_name} places a tile in their city');
+    self::notifyAll('placedTile', $msg, [
       'player' => $player,
       'tile' => $tile,
+      'inCapital' => $inCapital,
     ]);
   }
 

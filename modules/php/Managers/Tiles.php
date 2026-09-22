@@ -263,10 +263,11 @@ class Tiles extends \Bga\Games\Akropolis\Helpers\Pieces
    * @param int $r Rotation
    * @param bool $shiftDock Whether to shift the dock
    */
-  public static function placeTile(object $player, int $tileId, int $hex, array $pos, int $r, bool $shiftDock = true): void
+  public static function placeTile(object $player, int $tileId, int $hex, array $pos, int $r, bool $shiftDock = true, bool $inCapital = false): void
   {
     $tile = Tiles::getSingle($tileId);
     $cost = $tile['state'];
+    if (Globals::isPantheon()) $cost = $inCapital ? 1 : 0;
 
     // Check position : always go back to top left hex on tile
     $geometry = $player->board()->getTileGeometry($tile);
@@ -279,7 +280,7 @@ class Tiles extends \Bga\Games\Akropolis\Helpers\Pieces
         Stats::incMoneyUsed($player, $cost);
       }
 
-      Notifications::payForTile($player, $cost);
+      Notifications::payForTile($player, $cost, $inCapital);
 
       if (Globals::isSolo() && $player->getId() != \ARCHITECT_ID) {
         $architect = Players::getArchitect();
@@ -289,17 +290,18 @@ class Tiles extends \Bga\Games\Akropolis\Helpers\Pieces
     }
 
     // Place tile
-    $money = $player->board()->addTile($tileId, $pos, $r);
+    $board = $inCapital ? Players::getCapital()->board() : $player->board();
+    $money = $board->addTile($tileId, $pos, $r);
     $tile = Tiles::getSingle($tileId);
-    Notifications::placeTile($player, $tile);
+    Notifications::placeTile($player, $tile, $inCapital);
 
     // Register move as player's last move
     $lastMoves = Globals::getLastMoves();
-    $lastMoves[$player->getId()] = $tile;
+    $lastMoves[$player->getId()] = $inCapital ? CAPITAL_ID : $tile;
     Globals::setLastMoves($lastMoves);
 
     // Gain money if recovering quarries
-    if ($money > 0) {
+    if ($money > 0 && !$inCapital) {
       $player->incMoney($money);
       Notifications::gainStones($player, $money);
     }
