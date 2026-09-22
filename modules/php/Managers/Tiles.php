@@ -301,7 +301,7 @@ class Tiles extends \Bga\Games\Akropolis\Helpers\Pieces
     Globals::setLastMoves($lastMoves);
 
     // Gain money if recovering quarries
-    if ($money > 0 && !$inCapital) {
+    if ($money > 0) {
       $player->incMoney($money);
       Notifications::gainStones($player, $money);
     }
