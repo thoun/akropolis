@@ -79,6 +79,21 @@ interface PlaceTileOption {
 
 type SelectedZone = 'city' | 'capital';
 
+interface PantheonCommonArgs {
+    availableAltarPositions: { [district: string]: PlaceTileOption[] };
+    canDiscardChallenge: boolean;
+    canUnlockSlot: boolean;
+    canAskForMoney: boolean;
+    completableChallenges: any[];
+}
+
+interface EnteringChooseActionPantheonArgs {    
+    commonArgs: PantheonCommonArgs;
+}
+interface EnteringAskMoneyPantheonArgs {    
+    remainingAmount: number;
+}
+
 interface EnteringPlaceTileArgs {
     options: PlaceTileOption[][];
 }
@@ -87,7 +102,7 @@ interface EnteringPlaceTilePantheonArgs {
     canSendToCapital: boolean;
     capitalOptions: PlaceTileOption[][];
     cityOptions: PlaceTileOption[][];
-    completableChallenges: any;
+    commonArgs: PantheonCommonArgs;
 }
 
 interface NotifPlacedTileArgs {

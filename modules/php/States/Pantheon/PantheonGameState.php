@@ -45,6 +45,7 @@ abstract class PantheonGameState extends GameState
       'completableChallenges' => $completableChallenges->toAssoc(),
       'canDiscardChallenge' => $money >= 1,
       'canUnlockSlot' => $money >= 5,
+      'canAskForMoney' => Game::get()->getPlayerCount() > 1,
       'availableAltarPositions' => Altars::getAvailablePlazaPositions(),
     ];
   }
@@ -58,7 +59,7 @@ abstract class PantheonGameState extends GameState
    * @return string Next transition
    */
   #[PossibleAction]
-  protected function actCompleteChallenge(string $challengeId, int $x, int $y, int $z): string
+  public function actCompleteChallenge(string $challengeId, int $x, int $y, int $z): string
   {
     $player = Players::getActive();
 
@@ -95,7 +96,7 @@ abstract class PantheonGameState extends GameState
    * @return string Next transition
    */
   #[PossibleAction]
-  protected function actDiscardChallenge(string $challengeId): string
+  public function actDiscardChallenge(string $challengeId): string
   {
     $player = Players::getActive();
     if ($player->getMoney() < 1) {
@@ -117,7 +118,7 @@ abstract class PantheonGameState extends GameState
    * @return string Next transition
    */
   #[PossibleAction]
-  protected function actUnlockChallengeSlot(): string
+  public function actUnlockChallengeSlot(): string
   {
     $player = Players::getActive();
     if ($player->getMoney() < 5) {
@@ -142,7 +143,7 @@ abstract class PantheonGameState extends GameState
    * @return string Next transition
    */
   #[PossibleAction]
-  protected function actAskForMoney(int $amount): string
+  public function actAskForMoney(int $amount): string
   {
     $player = Players::getActive();
 
@@ -161,6 +162,6 @@ abstract class PantheonGameState extends GameState
     Notifications::askForMoney($player, $amount);
 
     // Transition to the multiactive state where other players can respond
-    return 'askMoney';
+    return AskMoneyPantheon::class;
   }
 }

@@ -38,7 +38,6 @@ class PlaceTilePantheon extends PantheonGameState
       descriptionMyTurn: clienttranslate('${you} must play a tile in your city or in the Capital'),
       transitions: [
         'tilePlaced' => ST_PANTHEON_CHOOSE_ACTION,
-        'askMoney' => ST_ASK_MONEY_PANTHEON,
         'end' => ST_PRE_END_OF_GAME,
       ],
     );

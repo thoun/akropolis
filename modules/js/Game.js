@@ -621,12 +621,12 @@ class CompleteCardState extends StateHandler {
         this.game.bga.statusBar.setTitle(_('${you} may complete a fulfilled construction card'));
         document.getElementById('generalactions').innerHTML = '';
         if (this.game.usePivotRotation()) {
-            this.game.bga.gameui.addActionButton(`decRotationPivot_button`, `⭯`, () => this.game.decRotationPivot());
-            this.game.bga.gameui.addActionButton(`incRotationPivot_button`, `⭮`, () => this.game.incRotationPivot());
+            this.game.bga.statusBar.addActionButton(`⭯`, () => this.game.decRotationPivot());
+            this.game.bga.statusBar.addActionButton(`⭮`, () => this.game.incRotationPivot());
         }
         else {
-            this.game.bga.gameui.addActionButton(`decRotation_button`, `⤹`, () => this.game.decRotation());
-            this.game.bga.gameui.addActionButton(`incRotation_button`, `⤸`, () => this.game.incRotation());
+            this.game.bga.statusBar.addActionButton(`⤹`, () => this.game.decRotation(), { id: `decRotation_button` });
+            this.game.bga.statusBar.addActionButton(`⤸`, () => this.game.incRotation(), { id: `incRotation_button` });
         }
         this.game.bga.gameui.addActionButton(`placeTile_button`, _('Confirm'), () => this.game.placeTile(this.tileForAutomata));
         this.game.bga.gameui.addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.game.cancelPlaceTile(), null, null, 'gray');
@@ -833,6 +833,85 @@ class PlayerHand extends TableCenter {
     }
 }
 
+class AbstractActionPantheonState {
+    constructor(game, bga) {
+        this.game = game;
+        this.bga = bga;
+    }
+    createActionButtons(commonArgs) {
+        if (!commonArgs) {
+            return;
+        }
+        // TODO
+        const challengeId = 'TODO';
+        const x = 0;
+        const y = 0;
+        const z = 0;
+        this.bga.statusBar.addActionButton(_('Complete challenge'), () => this.bga.actions.performAction('actCompleteChallenge', { challengeId, x, y, z }), { color: 'secondary', disabled: !commonArgs.completableChallenges.length });
+        this.bga.statusBar.addActionButton(_('Discard challenge'), () => this.bga.actions.performAction('actDiscardChallenge', { challengeId }), { color: 'secondary', disabled: !commonArgs.canDiscardChallenge });
+        this.bga.statusBar.addActionButton(_('Unlock challenge slot'), () => this.bga.actions.performAction('actUnlockChallengeSlot'), { color: 'secondary', disabled: !commonArgs.canUnlockSlot });
+        if (commonArgs.canAskForMoney) {
+            [1, 2, 3, 4].forEach(amount => this.bga.statusBar.addActionButton(_('Ask for ${amount} stone(s)').replace('${amount}', `${amount}`), () => this.bga.actions.performAction('actAskForMoney', { amount }), { color: 'secondary' }));
+        }
+    }
+}
+
+class ChooseActionPantheonState extends AbstractActionPantheonState {
+    constructor(game, bga) {
+        super(game, bga);
+    }
+    onEnteringState(args, isCurrentPlayerActive) {
+        if (isCurrentPlayerActive) {
+            this.createActionButtons(args.commonArgs);
+            this.bga.statusBar.addActionButton(_('Pass'), () => this.bga.actions.performAction('actPass'), { color: 'alert' });
+        }
+    }
+    onLeavingState(args, isCurrentPlayerActive) {
+    }
+}
+
+class PlaceTilePantheonState extends AbstractActionPantheonState {
+    constructor(game, bga) {
+        super(game, bga);
+    }
+    onEnteringState(args, isCurrentPlayerActive) {
+        if (isCurrentPlayerActive) {
+            this.game.selectedPosition = null;
+            this.game.selectedTile = null;
+            this.game.selectedTileHexIndex = null;
+            this.game.selectedZone = null;
+            this.game.setRotation(0);
+            this.game.tableCenter.setSelectable(true);
+            const playerOptions = args.cityOptions[0];
+            this.game.getCurrentPlayerTable().setPlaceTileOptions(playerOptions, this.game.rotation);
+            if (args.canSendToCapital) {
+                const capitalOptions = args.capitalOptions[0];
+                this.game.getPlayerTable(-1).setPlaceTileOptions(capitalOptions, this.game.rotation);
+            }
+            this.game.onUpdateActionButtonsPlaceTile();
+            this.createActionButtons(args.commonArgs);
+        }
+    }
+    onLeavingState(args, isCurrentPlayerActive) {
+        this.game.onLeavingPlaceTile();
+    }
+}
+
+class AskMoneyPantheonState {
+    constructor(game, bga) {
+        this.game = game;
+        this.bga = bga;
+    }
+    onEnteringState(args, isCurrentPlayerActive) {
+        if (isCurrentPlayerActive) {
+            for (let amount = args.remainingAmount; amount >= 1; amount--) {
+                this.bga.statusBar.addActionButton(_('Give ${amount} stone(s) (cost : ${cost} stones)').replace('${amount}', `${amount}`).replace('${cost}', `${amount * 2}`), () => this.bga.actions.performAction('actSendMoney', { amount }));
+            }
+            this.bga.statusBar.addActionButton(_('Skip'), () => this.bga.actions.performAction('actSkipSendMoney'), { color: 'alert' });
+        }
+    }
+}
+
 /// <reference path="../bga-framework.d.ts" />
 /// <reference path="./types.d.ts" />
 const MIN_NOTIFICATION_MS = 1200;
@@ -885,6 +964,9 @@ class Game {
         this.bga = bga;
         this.completeCardState = new CompleteCardState(this);
         this.states.push(this.completeCardState);
+        this.bga.states.register('placeTilePantheon', new PlaceTilePantheonState(this, bga));
+        this.bga.states.register('chooseActionPantheon', new ChooseActionPantheonState(this, bga));
+        this.bga.states.register('askMoneyPantheon', new AskMoneyPantheonState(this, bga));
         /* @Override */
         this.bga.gameui.change3d = (incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset) => this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);
     }
@@ -977,12 +1059,11 @@ class Game {
         }
         switch (stateName) {
             case 'placeTile':
-            case 'placeTilePantheon':
-                this.onEnteringPlaceTile(args.args, stateName === 'placeTilePantheon');
+                this.onEnteringPlaceTile(args.args);
                 break;
         }
     }
-    onEnteringPlaceTile(args, pantheon) {
+    onEnteringPlaceTile(args) {
         if (this.bga.players.isCurrentPlayerActive()) {
             this.selectedPosition = null;
             this.selectedTile = null;
@@ -990,21 +1071,9 @@ class Game {
             this.selectedZone = null;
             this.setRotation(0);
             this.tableCenter.setSelectable(true);
-            if (pantheon) {
-                const pantheonArgs = args;
-                const playerOptions = pantheonArgs.cityOptions[0];
-                this.getCurrentPlayerTable().setPlaceTileOptions(playerOptions, this.rotation);
-                if (pantheonArgs.canSendToCapital) {
-                    const capitalOptions = pantheonArgs.capitalOptions[0];
-                    this.getPlayerTable(-1).setPlaceTileOptions(capitalOptions, this.rotation);
-                }
-            }
-            else {
-                const baseArgs = args;
-                const playerOptions = baseArgs.options[0];
-                this.getCurrentPlayerTable().setPlaceTileOptions(playerOptions, this.rotation);
-                this.tableCenter.setDisabledTiles(this.stonesCounters[this.bga.players.getCurrentPlayerId()].getValue());
-            }
+            const playerOptions = args.options[0];
+            this.getCurrentPlayerTable().setPlaceTileOptions(playerOptions, this.rotation);
+            this.tableCenter.setDisabledTiles(this.stonesCounters[this.bga.players.getCurrentPlayerId()].getValue());
         }
     }
     onLeavingState(stateName) {
@@ -1040,24 +1109,24 @@ class Game {
                 leftState.onLeavingState(this.gamedatas.gamestate.private_state.args, isCurrentPlayerActive);
             }
         }
+        if (stateName === 'placeTile' && this.bga.players.isCurrentPlayerActive()) {
+            this.onUpdateActionButtonsPlaceTile();
+        }
+    }
+    onUpdateActionButtonsPlaceTile() {
         if (this.bga.players.isCurrentPlayerActive()) {
-            switch (stateName) {
-                case 'placeTile':
-                case 'placeTilePantheon':
-                    if (this.usePivotRotation()) {
-                        this.bga.gameui.addActionButton(`decRotationPivot_button`, `⭯`, () => this.decRotationPivot());
-                        this.bga.gameui.addActionButton(`incRotationPivot_button`, `⭮`, () => this.incRotationPivot());
-                    }
-                    else {
-                        this.bga.gameui.addActionButton(`decRotation_button`, `⤹`, () => this.decRotation());
-                        this.bga.gameui.addActionButton(`incRotation_button`, `⤸`, () => this.incRotation());
-                    }
-                    this.bga.gameui.addActionButton(`placeTile_button`, _('Confirm'), () => this.placeTile());
-                    this.bga.gameui.addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.cancelPlaceTile(), null, null, 'gray');
-                    [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
-                    this.updateRotationButtonState();
-                    break;
+            if (this.usePivotRotation()) {
+                this.bga.statusBar.addActionButton(`⭯`, () => this.decRotationPivot());
+                this.bga.statusBar.addActionButton(`⭮`, () => this.incRotationPivot());
             }
+            else {
+                this.bga.statusBar.addActionButton(`⤹`, () => this.decRotation(), { id: `decRotation_button` });
+                this.bga.statusBar.addActionButton(`⤸`, () => this.incRotation(), { id: `incRotation_button` });
+            }
+            this.bga.gameui.addActionButton(`placeTile_button`, _('Confirm'), () => this.placeTile());
+            this.bga.gameui.addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.cancelPlaceTile(), null, null, 'gray');
+            [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
+            this.updateRotationButtonState();
         }
     }
     ///////////////////////////////////////////////////
@@ -1526,7 +1595,7 @@ class Game {
     }
     updateRotationButtonState() {
         const cannotRotate = this.selectedTile ? (this.selectedTile.hexes.length > 1 && this.selectedPosition && this.getSelectedPositionOption()?.r.length <= 1) : true;
-        [`decRotation_button`, `incRotation_button`].forEach(id => document.getElementById(id)?.classList.toggle('disabled', cannotRotate));
+        [`decRotation_button`, `incRotation_button`].map(id => document.getElementById(id)).filter(elem => elem).forEach((elem) => elem.disabled = cannotRotate);
     }
     placeTile(tileForAutomata) {
         if (this.gamedatas.gamestate.name === 'completeCard') {

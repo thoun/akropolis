@@ -11,6 +11,9 @@ import { StateHandler } from "./states/state-handler";
 import { CompleteCardState, type EnteringCompleteCardArgs } from "./states/complete-card";
 import { ConstructionSite } from "./construction-site";
 import { PlayerHand } from "./player-hand";
+import { ChooseActionPantheonState } from "./states/choose-action-pantheon";
+import { PlaceTilePantheonState } from "./states/place-tile-pantheon";
+import { AskMoneyPantheonState } from "./states/ask-money-pantheon";
 
 const MIN_NOTIFICATION_MS = 1200;
 
@@ -61,7 +64,7 @@ export class Game {
     public athenaConstructionSite?: AthenaConstructionSite;
 
     public gamedatas: AkropolisGamedatas;
-    private tableCenter: TableCenter;
+    public tableCenter: TableCenter;
     public selectedPosition: Partial<PlaceTileOption>;
     public selectedTile: Tile;
     public selectedTileHexIndex: number;
@@ -89,6 +92,9 @@ export class Game {
         this.states.push(
 			this.completeCardState,
         );
+        this.bga.states.register('placeTilePantheon', new PlaceTilePantheonState(this, bga));
+        this.bga.states.register('chooseActionPantheon', new ChooseActionPantheonState(this, bga));
+        this.bga.states.register('askMoneyPantheon', new AskMoneyPantheonState(this, bga));
 
         /* @Override */
         (this.bga.gameui as any).change3d = (incXAxis: number, xpos: number, ypos: number, xAxis: number, incScale: number, is3Dactive: boolean, reset: boolean) => this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);
@@ -200,13 +206,12 @@ export class Game {
 
         switch (stateName) {
             case 'placeTile':
-            case 'placeTilePantheon':
-                this.onEnteringPlaceTile(args.args, stateName === 'placeTilePantheon');
+                this.onEnteringPlaceTile(args.args);
                 break;
         }
     }
     
-    private onEnteringPlaceTile(args: EnteringPlaceTileArgs | EnteringPlaceTilePantheonArgs, pantheon: boolean) {
+    public onEnteringPlaceTile(args: EnteringPlaceTileArgs) {
         if (this.bga.players.isCurrentPlayerActive()) {
             this.selectedPosition = null;
             this.selectedTile = null;
@@ -214,20 +219,9 @@ export class Game {
             this.selectedZone = null;
             this.setRotation(0);
             this.tableCenter.setSelectable(true);
-            if (pantheon) {
-                const pantheonArgs = args as EnteringPlaceTilePantheonArgs;
-                const playerOptions = pantheonArgs.cityOptions[0];
-                this.getCurrentPlayerTable().setPlaceTileOptions(playerOptions, this.rotation);
-                if (pantheonArgs.canSendToCapital) {
-                    const capitalOptions = pantheonArgs.capitalOptions[0];
-                    this.getPlayerTable(-1).setPlaceTileOptions(capitalOptions, this.rotation);
-                }
-            } else {
-                const baseArgs = args as EnteringPlaceTileArgs;
-                const playerOptions = baseArgs.options[0];
-                this.getCurrentPlayerTable().setPlaceTileOptions(playerOptions, this.rotation);
-                this.tableCenter.setDisabledTiles(this.stonesCounters[this.bga.players.getCurrentPlayerId()].getValue());
-            }
+            const playerOptions = args.options[0];
+            this.getCurrentPlayerTable().setPlaceTileOptions(playerOptions, this.rotation);
+            this.tableCenter.setDisabledTiles(this.stonesCounters[this.bga.players.getCurrentPlayerId()].getValue());
         }
     }
 
@@ -244,7 +238,7 @@ export class Game {
         }
     }
 
-    private onLeavingPlaceTile() {
+    public onLeavingPlaceTile() {
         this.getCurrentPlayerTable()?.setPlaceTileOptions([], this.rotation);
         this.tableCenter.setSelectable(false);
     }
@@ -268,23 +262,24 @@ export class Game {
             }
         }
 
+        if (stateName === 'placeTile' && this.bga.players.isCurrentPlayerActive()) {
+            this.onUpdateActionButtonsPlaceTile();
+        }
+    }
+
+    public onUpdateActionButtonsPlaceTile() {
         if (this.bga.players.isCurrentPlayerActive()) {
-            switch (stateName) {
-                case 'placeTile':
-                case 'placeTilePantheon':
-                    if (this.usePivotRotation()) {
-                        this.bga.gameui.addActionButton(`decRotationPivot_button`, `⭯`, () => this.decRotationPivot());
-                        this.bga.gameui.addActionButton(`incRotationPivot_button`, `⭮`, () => this.incRotationPivot());
-                    } else {
-                        this.bga.gameui.addActionButton(`decRotation_button`, `⤹`, () => this.decRotation());
-                        this.bga.gameui.addActionButton(`incRotation_button`, `⤸`, () => this.incRotation());
-                    }
-                    this.bga.gameui.addActionButton(`placeTile_button`, _('Confirm'), () => this.placeTile());
-                    this.bga.gameui.addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.cancelPlaceTile(), null, null, 'gray');
-                    [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
-                    this.updateRotationButtonState();
-                    break;
+            if (this.usePivotRotation()) {
+                this.bga.statusBar.addActionButton(`⭯`, () => this.decRotationPivot());
+                this.bga.statusBar.addActionButton(`⭮`, () => this.incRotationPivot());
+            } else {
+                this.bga.statusBar.addActionButton(`⤹`, () => this.decRotation(), { id: `decRotation_button` });
+                this.bga.statusBar.addActionButton(`⤸`, () => this.incRotation(), { id: `incRotation_button` });
             }
+            this.bga.gameui.addActionButton(`placeTile_button`, _('Confirm'), () => this.placeTile());
+            this.bga.gameui.addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.cancelPlaceTile(), null, null, 'gray');
+            [`placeTile_button`, `cancelPlaceTile_button`].forEach(id => document.getElementById(id).classList.add('disabled'));
+            this.updateRotationButtonState();
         }
     }
 
@@ -309,7 +304,7 @@ export class Game {
         return Object.values(this.gamedatas.players).find(player => Number(player.id) == playerId);
     }
 
-    private getPlayerTable(playerId: number): PlayerTable {
+    public getPlayerTable(playerId: number): PlayerTable {
         return this.playersTables.find(playerTable => playerTable.playerId === playerId);
     }
 
@@ -814,7 +809,7 @@ export class Game {
 
     public updateRotationButtonState() {
         const cannotRotate = this.selectedTile ? (this.selectedTile.hexes.length > 1 && this.selectedPosition && this.getSelectedPositionOption()?.r.length <= 1) : true;
-        [`decRotation_button`, `incRotation_button`].forEach(id => document.getElementById(id)?.classList.toggle('disabled', cannotRotate));
+        [`decRotation_button`, `incRotation_button`].map(id => document.getElementById(id)).filter(elem => elem).forEach((elem: HTMLButtonElement) => elem.disabled = cannotRotate);
     }
 
     public placeTile(tileForAutomata?: Tile | null): void {

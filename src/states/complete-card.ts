@@ -69,11 +69,11 @@ export class CompleteCardState extends StateHandler<EnteringCompleteCardArgs> {
         document.getElementById('generalactions').innerHTML = '';
 
         if (this.game.usePivotRotation()) {
-            this.game.bga.gameui.addActionButton(`decRotationPivot_button`, `⭯`, () => this.game.decRotationPivot());
-            this.game.bga.gameui.addActionButton(`incRotationPivot_button`, `⭮`, () => this.game.incRotationPivot());
+            this.game.bga.statusBar.addActionButton(`⭯`, () => this.game.decRotationPivot());
+            this.game.bga.statusBar.addActionButton(`⭮`, () => this.game.incRotationPivot());
         } else {
-            this.game.bga.gameui.addActionButton(`decRotation_button`, `⤹`, () => this.game.decRotation());
-            this.game.bga.gameui.addActionButton(`incRotation_button`, `⤸`, () => this.game.incRotation());
+            this.game.bga.statusBar.addActionButton(`⤹`, () => this.game.decRotation(), { id: `decRotation_button` });
+            this.game.bga.statusBar.addActionButton(`⤸`, () => this.game.incRotation(), { id: `incRotation_button` });
         }
         this.game.bga.gameui.addActionButton(`placeTile_button`, _('Confirm'), () => this.game.placeTile(this.tileForAutomata));
         this.game.bga.gameui.addActionButton(`cancelPlaceTile_button`, _('Cancel'), () => this.game.cancelPlaceTile(), null, null, 'gray');

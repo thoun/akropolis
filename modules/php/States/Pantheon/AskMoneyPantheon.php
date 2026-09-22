@@ -33,7 +33,7 @@ class AskMoneyPantheon extends GameState
       description: clienttranslate('Other players can send money to ${player_name}'),
       descriptionMyTurn: clienttranslate('You can send money to ${player_name}'),
       transitions: [
-        'continue' => ST_ASK_MONEY_PANTHEON,
+        'continue' => AskMoneyPantheon::class,
         'chooseActionPantheon' => ST_PANTHEON_CHOOSE_ACTION,
         'placeTilePantheon' => ST_PLACE_TILE_PANTHEON,
         'next' => ST_NEXT_PLAYER_PANTHEON,
@@ -108,13 +108,13 @@ class AskMoneyPantheon extends GameState
   /**
    * Send money to the requesting player
    * @param int $amount Amount to send
-   * @param int $activePlayerId Active player ID
+   * @param int $currentPlayerId Current player ID
    * @return string Next transition
    */
   #[PossibleAction]
-  public function actSendMoney(int $amount, int $activePlayerId): string
+  public function actSendMoney(int $amount, int $currentPlayerId): string
   {
-    $player = Players::get($activePlayerId);
+    $player = Players::get($currentPlayerId);
 
     if ($amount <= 0) {
       throw new VisibleSystemException('Amount must be positive');
@@ -125,7 +125,7 @@ class AskMoneyPantheon extends GameState
     $responses = $moneyRequest['responses'] ?? [];
 
     // Check if player already responded
-    if (isset($responses[$activePlayerId])) {
+    if (isset($responses[$currentPlayerId])) {
       throw new VisibleSystemException('You have already responded');
     }
 
@@ -137,45 +137,45 @@ class AskMoneyPantheon extends GameState
     }
 
     // Store the response
-    $responses[$activePlayerId] = $amount;
+    $responses[$currentPlayerId] = $amount;
     $moneyRequest['responses'] = $responses;
     Globals::setPantheonMoneyRequest($moneyRequest);
 
     Notifications::sendMoneyResponse($player, $amount);
 
-    $this->game->gamestate->setPlayerNonMultiactive($activePlayerId, '');
+    $this->game->gamestate->setPlayerNonMultiactive($currentPlayerId, '');
 
     return $this->checkResolution();
   }
 
   /**
    * Skip sending money
-   * @param int $activePlayerId Active player ID
+   * @param int $currentPlayerId Current player ID
    * @return string Next transition
    */
   #[PossibleAction]
-  public function actSkipSendMoney(int $activePlayerId): string
+  public function actSkipSendMoney(int $currentPlayerId): string
   {
-    $player = Players::get($activePlayerId);
+    $player = Players::get($currentPlayerId);
 
     // Get current money request
     $moneyRequest = Globals::getPantheonMoneyRequest();
     $responses = $moneyRequest['responses'] ?? [];
 
     // Check if player already responded
-    if (isset($responses[$activePlayerId])) {
-      throw new \BgaVisibleSystemException('You have already responded');
+    if (isset($responses[$currentPlayerId])) {
+      throw new VisibleSystemException('You have already responded');
     }
 
     // Store the response (0 = skip)
-    $responses[$activePlayerId] = 0;
+    $responses[$currentPlayerId] = 0;
     $moneyRequest['responses'] = $responses;
     Globals::setPantheonMoneyRequest($moneyRequest);
 
     Notifications::skipSendMoney($player);
 
     $transition = $this->checkResolution();
-    $this->game->gamestate->setPlayerNonMultiactive($activePlayerId, $transition);
+    $this->game->gamestate->setPlayerNonMultiactive($currentPlayerId, $transition);
     return $transition;
   }
 

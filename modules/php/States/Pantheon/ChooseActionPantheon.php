@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bga\Games\Akropolis\States\Pantheon;
 
+use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\StateType;
 use Bga\Games\Akropolis\Game;
 use Bga\Games\Akropolis\Core\Globals;
@@ -30,8 +31,6 @@ class ChooseActionPantheon extends PantheonGameState
       descriptionMyTurn: clienttranslate('${you} can take an action or end your turn'),
       transitions: [
         'placeTile' => ST_PLACE_TILE_PANTHEON,
-        'next' => ST_NEXT_PLAYER_PANTHEON,
-        'askMoney' => ST_ASK_MONEY_PANTHEON,
         'end' => ST_PRE_END_OF_GAME,
       ],
     );
@@ -52,9 +51,10 @@ class ChooseActionPantheon extends PantheonGameState
   }
 
 
+  #[PossibleAction]
   public function actPass(): string
   {
-    return 'next';
+    return NextPlayerPantheon::class;
   }
 
   /**
@@ -64,6 +64,6 @@ class ChooseActionPantheon extends PantheonGameState
    */
   public function zombie(int $playerId): string
   {
-    return 'next';
+    return $this->actPass();
   }
 }
