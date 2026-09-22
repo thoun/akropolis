@@ -84,6 +84,7 @@ interface PantheonCommonArgs {
     canDiscardChallenge: boolean;
     canUnlockSlot: boolean;
     canAskForMoney: boolean;
+    maxMoneyRequestable: number;
     completableChallenges: any[];
 }
 
