@@ -21,6 +21,20 @@ class Uprising extends Challenge
   public function isSatisfied(Player $player): bool
   {
     $board = $player->board();
+    $cells = $board->getVisibleBuiltCells();
+    $n = 0;
+    foreach ($cells as $cell) {
+      foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
+        // Is Barrack  ?
+        if ($type != BARRACK) continue;
+        // Is on the edge ?
+        if (!$board->isOnTheEdge($cell, $triangles)) continue;
+
+        $n++;
+        if ($n >= 4) return true;
+      }
+    }
+
     return false;
   }
 }

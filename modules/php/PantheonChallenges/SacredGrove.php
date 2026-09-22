@@ -20,6 +20,18 @@ class SacredGrove extends Challenge
 
   public function isSatisfiedWithTile(Player $player, array $tile): bool
   {
+    $board = $player->board();
+
+    foreach ($board->getTileCoveredHexes($tile) as $cell) {
+      if ($cell['z'] < 1) continue;
+
+      foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
+        if ($type != GARDEN) continue;
+
+        return true;
+      }
+    }
+
     return false;
   }
 }

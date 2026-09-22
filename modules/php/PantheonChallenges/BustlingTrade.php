@@ -29,6 +29,32 @@ class BustlingTrade extends Challenge
    */
   public function isSatisfied(Player $player): bool
   {
+    $board = $player->board();
+    $cells = $board->getVisibleBuiltCells();
+    $markets = [];
+    foreach ($cells as $cell) {
+      foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
+        if ($type != MARKET) continue;
+        $markets[] = $cell;
+      }
+    }
+
+    $nIsolated = 0;
+    foreach ($markets as $cell1) {
+      $isolated = true;
+      foreach ($markets as $cell2) {
+        if ($board->getDistance($cell1, $cell2) <= 1) {
+          $isolated = false;
+          break;
+        }
+      }
+
+      if ($isolated) {
+        $nIsolated++;
+        if ($nIsolated >= 5) return true;
+      }
+    }
+
     return false;
   }
 }

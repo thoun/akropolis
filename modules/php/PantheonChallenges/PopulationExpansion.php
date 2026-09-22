@@ -20,6 +20,28 @@ class PopulationExpansion extends Challenge
 
   public function isSatisfiedWithTile(Player $player, array $tile): bool
   {
+    $board = $player->board();
+
+    // Find an hex of that tile that is a house
+    foreach ($board->getTileCoveredHexes($tile) as $cell) {
+      foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
+        if ($type != HOUSE) continue;
+
+        $n = 0;
+        // Now find 4 neighbouring houses
+
+        $builtNeighbours = $this->getBuiltNeighbours($cell, $triangles);
+        foreach ($builtNeighbours as $pos) {
+          foreach ($this->getTypesAtPos($pos) as $type2 => $triangles2) {
+            if ($type2 != HOUSE) continue;
+
+            $n++;
+            if ($n >= 4) return true;
+          }
+        }
+      }
+    }
+
     return false;
   }
 }

@@ -767,6 +767,24 @@ class TriangulatedBoard
   }
 
   /////////////////////////////////////////////
+  /// PANTHEON UTILS
+  /////////////////////////////////////////////
+  public function isOnTheEdge(array $cell, array $triangles): bool
+  {
+    // We must count empty cells ourselves to avoid Lake...
+    list(,, $marks) = $this->computeComponents();
+    $neighbours = $this->getNeighbours($cell, true, $triangles);
+    foreach ($neighbours as $pos) {
+      $uid = TriangulatedBoard::getCellId($pos) . "_" . FREE; // We are looking for empty cells
+      if (!$this->isCellBuilt($pos) && ($marks[$uid] ?? 0) === 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  /////////////////////////////////////////////
   //   ____      _     _   _   _ _   _ _
   //  / ___|_ __(_) __| | | | | | |_(_) |___
   // | |  _| '__| |/ _` | | | | | __| | / __|
@@ -775,7 +793,7 @@ class TriangulatedBoard
   ////////////////////////////////////////////
 
   // NON STATIC
-  public function getBuiltCells()
+  public function getBuiltCells(): array
   {
     $cells = [];
     foreach ($this->grid as $x => $row) {

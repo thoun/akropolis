@@ -21,6 +21,19 @@ class LookoutTower extends Challenge
   public function isSatisfiedWithTile(Player $player, array $tile): bool
   {
     $board = $player->board();
+
+    // Find an hex of that tile that is a barrack on the edge
+    foreach ($board->getTileCoveredHexes($tile) as $cell) {
+      if ($cell['z'] < 1) continue;
+
+      foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
+        if ($type != BARRACK) continue;
+        if (!$board->isOnTheEdge($cell, $triangles)) continue;
+
+        return true;
+      }
+    }
+
     return false;
   }
 }

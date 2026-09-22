@@ -21,6 +21,23 @@ class GodsPromenade extends Challenge
   public function isSatisfiedWithTile(Player $player, array $tile): bool
   {
     $board = $player->board();
+
+    foreach ($board->getTileCoveredHexes($tile) as $cell) {
+      foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
+        if ($type != GARDEN) continue;
+
+        // Now find a neighbouring Garden
+        $builtNeighbours = $this->getBuiltNeighbours($cell, $triangles);
+        foreach ($builtNeighbours as $pos) {
+          foreach ($this->getTypesAtPos($pos) as $type2 => $triangles2) {
+            if ($type2 != GARDEN) continue;
+
+            return true;
+          }
+        }
+      }
+    }
+
     return false;
   }
 }

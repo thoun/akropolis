@@ -21,6 +21,22 @@ class ReligiousFervor extends Challenge
   public function isSatisfied(Player $player): bool
   {
     $board = $player->board();
+    $cells = $board->getVisibleBuiltCells();
+    $n = 0;
+    foreach ($cells as $cell) {
+      foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
+        // Is temple  ?
+        if ($type != TEMPLE) continue;
+
+        // Is surrounded by built neighbours ?
+        $neighbours = $board->getBuiltNeighbours($cell, $triangles);
+        if (count($neighbours) < count($triangles)) continue;
+
+        $n++;
+        if ($n >= 3) return true;
+      }
+    }
+
     return false;
   }
 }

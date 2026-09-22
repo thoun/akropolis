@@ -6,6 +6,7 @@ namespace Bga\Games\Akropolis\PantheonChallenges;
 
 use Bga\Games\Akropolis\Models\Player;
 use Bga\Games\Akropolis\Models\Challenge;
+use Bga\Games\Akropolis\Models\TriangulatedBoard;
 
 class Bastion extends Challenge
 {
@@ -31,6 +32,26 @@ class Bastion extends Challenge
   public function isSatisfiedWithTile(Player $player, array $tile): bool
   {
     $board = $player->board();
+
+    // Find an hex of that tile that is a barrack on the edge
+    foreach ($board->getTileCoveredHexes($tile) as $cell) {
+      foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
+        if ($type != BARRACK) continue;
+        if (!$board->isOnTheEdge($cell, $triangles)) continue;
+
+        // Now find a neighbouring barrack also on the edge
+        $builtNeighbours = $this->getBuiltNeighbours($cell, $triangles);
+        foreach ($builtNeighbours as $pos) {
+          foreach ($this->getTypesAtPos($pos) as $type2 => $triangles2) {
+            if ($type2 != BARRACK) continue;
+            if (!$board->isOnTheEdge($pos, $triangles2)) continue;
+
+            return true;
+          }
+        }
+      }
+    }
+
     return false;
   }
 }
