@@ -31,6 +31,7 @@ class ChooseActionPantheon extends PantheonGameState
       transitions: [
         'placeTile' => ST_PLACE_TILE_PANTHEON,
         'next' => ST_NEXT_PLAYER_PANTHEON,
+        'askMoney' => ST_ASK_MONEY_PANTHEON,
         'end' => ST_PRE_END_OF_GAME,
       ],
     );
@@ -48,6 +49,12 @@ class ChooseActionPantheon extends PantheonGameState
     return [
       'commonArgs' => $this->getPantheonArgs($activePlayerId),
     ];
+  }
+
+
+  public function actPass(): string
+  {
+    return 'next';
   }
 
   /**

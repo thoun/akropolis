@@ -69,6 +69,7 @@ const ST_PANTHEON_SETUP = 50;
 const ST_PLACE_TILE_PANTHEON = 51;
 const ST_NEXT_PLAYER_PANTHEON = 52;
 const ST_PANTHEON_CHOOSE_ACTION = 54;
+const ST_ASK_MONEY_PANTHEON = 55;
 
 /*
  * User preferences

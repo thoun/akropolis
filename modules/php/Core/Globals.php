@@ -54,6 +54,7 @@ class Globals extends \Bga\Games\Akropolis\Helpers\DB_Manager
         self::setScenario($options[OPTION_PANTHEON_SCENARIO] ?? SCENARIO_CORINTHE);
         self::setUnlockedChallengeSlots(3);
         self::setPantheonTilePlaced(false);
+        self::setPantheonMoneyRequest([]);
         if (self::isPantheon()) {
             self::setAthena(false);
             self::setAllTiles(true);
@@ -115,6 +116,7 @@ class Globals extends \Bga\Games\Akropolis\Helpers\DB_Manager
         'scenario' => 'int',
         'unlockedChallengeSlots' => 'int',
         'pantheonTilePlaced' => 'bool',
+        'pantheonMoneyRequest' => 'obj',
     ];
 
     protected static string $table = 'global_variables';

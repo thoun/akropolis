@@ -270,6 +270,86 @@ class Notifications
   }
 
   /**
+   * Notify that a player is asking for money
+   * @param Player $player Player requesting money
+   * @param int $amount Amount requested
+   */
+  public static function askForMoney(Player $player, int $amount): void
+  {
+    self::notifyAll('askForMoney', clienttranslate('${player_name} asks for ${amount} stone(s)'), [
+      'player' => $player,
+      'amount' => $amount,
+    ]);
+  }
+
+  /**
+   * Notify that a player responded to money request
+   * @param Player $player Player who sent money
+   * @param int $amount Amount sent
+   */
+  public static function sendMoneyResponse(Player $player, int $amount): void
+  {
+    self::notifyAll('sendMoneyResponse', clienttranslate('${player_name} offers ${amount} stone(s)'), [
+      'player' => $player,
+      'amount' => $amount,
+    ]);
+  }
+
+  /**
+   * Notify that a player skipped sending money
+   * @param Player $player Player who skipped
+   */
+  public static function skipSendMoney(Player $player): void
+  {
+    self::notifyAll('skipSendMoney', clienttranslate('${player_name} declines to send money'), [
+      'player' => $player,
+    ]);
+  }
+
+  /**
+   * Notify that money was transferred
+   * @param Player $from Player sending money
+   * @param Player $to Player receiving money
+   * @param int $amount Amount sent to receiver
+   * @param int $totalCost Total cost to sender (including bank fee)
+   */
+  public static function moneyTransferred(Player $from, Player $to, int $amount, int $totalCost): void
+  {
+    self::notifyAll('moneyTransferred', clienttranslate('${from_name} sends ${amount} stone(s) to ${to_name} (cost: ${totalCost})'), [
+      'from' => $from,
+      'to' => $to,
+      'amount' => $amount,
+      'totalCost' => $totalCost,
+    ]);
+  }
+
+  /**
+   * Notify that money request succeeded
+   * @param Player $player Player who requested money
+   * @param int $totalPledged Total amount pledged
+   */
+  public static function moneyRequestSucceeded(Player $player, int $totalPledged): void
+  {
+    self::notifyAll('moneyRequestSucceeded', clienttranslate('${player_name} received ${totalPledged} stone(s) from other players'), [
+      'player' => $player,
+      'totalPledged' => $totalPledged,
+    ]);
+  }
+
+  /**
+   * Notify that money request failed
+   * @param Player $player Player who requested money
+   * @param int $totalPledged Total amount pledged
+   */
+  public static function moneyRequestFailed(Player $player, int $totalPledged): void
+  {
+    self::notifyAll('moneyRequestFailed', clienttranslate('${player_name} did not receive enough stones (got ${totalPledged})'), [
+      'player' => $player,
+      'totalPledged' => $totalPledged,
+    ]);
+  }
+
+  /**
    * Notify that a construction card was completed
    * @param Player $player Player who completed the card
    * @param object $card Card that was completed

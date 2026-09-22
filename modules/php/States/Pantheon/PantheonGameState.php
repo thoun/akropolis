@@ -135,4 +135,32 @@ abstract class PantheonGameState extends GameState
 
     return $this->getStateName();
   }
+
+  /**
+   * Ask other players for money action
+   * @param int $amount Amount of stones requested
+   * @return string Next transition
+   */
+  #[PossibleAction]
+  protected function actAskForMoney(int $amount): string
+  {
+    $player = Players::getActive();
+
+    if ($amount <= 0) {
+      throw new VisibleSystemException('Amount must be positive');
+    }
+
+    // Store the request
+    Globals::setPantheonMoneyRequest([
+      'amount' => $amount,
+      'requester' => $player->getId(),
+      'responses' => [],
+      'previousState' => $this->getStateName(),
+    ]);
+
+    Notifications::askForMoney($player, $amount);
+
+    // Transition to the multiactive state where other players can respond
+    return 'askMoney';
+  }
 }
