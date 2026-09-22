@@ -21,6 +21,27 @@ class Orchard extends Challenge
 	public function isSatisfiedWithTile(Player $player, array $tile): bool
 	{
 		$board = $player->board();
+
+		// Check that the tile was placed at level 0
+		foreach ($board->getTileCoveredHexes($tile) as $cell) {
+			if ($cell['z'] != 0) {
+				return false;
+			}
+		}
+
+		$neighbouringCells = $board->getTileNeighbouringCells($tile);
+		foreach ($neighbouringCells as $cell) {
+			foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
+				if ($type != GARDEN) continue;
+
+				// Check if this market cell is fully enclosed
+				$builtNeighbours = $board->getBuiltNeighbours($cell, $triangles);
+				if (count($builtNeighbours) >= count($triangles)) {
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
 }

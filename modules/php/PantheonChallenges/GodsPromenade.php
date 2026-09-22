@@ -27,9 +27,9 @@ class GodsPromenade extends Challenge
         if ($type != GARDEN) continue;
 
         // Now find a neighbouring Garden
-        $builtNeighbours = $this->getBuiltNeighbours($cell, $triangles);
+        $builtNeighbours = $board->getBuiltNeighbours($cell, $triangles);
         foreach ($builtNeighbours as $pos) {
-          foreach ($this->getTypesAtPos($pos) as $type2 => $triangles2) {
+          foreach ($board->getTypesAtPos($pos) as $type2 => $triangles2) {
             if ($type2 != GARDEN) continue;
 
             return true;

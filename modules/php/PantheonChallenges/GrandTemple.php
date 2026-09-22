@@ -20,7 +20,6 @@ class GrandTemple extends Challenge
 
   public function isSatisfiedWithTile(Player $player, array $tile): bool
   {
-    $board = $player->board();
-    return false;
+    return $this->isConnectingTwoOtherHex($player, $tile, TEMPLE);
   }
 }

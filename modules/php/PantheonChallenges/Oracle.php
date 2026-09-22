@@ -21,6 +21,20 @@ class Oracle extends Challenge
   public function isSatisfiedWithTile(Player $player, array $tile): bool
   {
     $board = $player->board();
+
+    foreach ($board->getTileCoveredHexes($tile) as $cell) {
+      if ($cell['z'] == 0) continue;
+
+      foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
+        if ($type != TEMPLE) continue;
+
+        $builtNeighbours = $board->getBuiltNeighbours($cell, $triangles);
+        if (count($builtNeighbours) >= count($triangles)) {
+          return true;
+        }
+      }
+    }
+
     return false;
   }
 }

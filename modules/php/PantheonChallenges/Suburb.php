@@ -21,6 +21,28 @@ class Suburb extends Challenge
   public function isSatisfied(Player $player): bool
   {
     $board = $player->board();
+
+    // Compute all HOUSE connected components
+    list(, $components) = $board->computeTypeComponents(HOUSE);
+
+    // For each component, count how many cells are on the edge
+    foreach ($components as $component) {
+      $edgeCount = 0;
+      foreach ($component['cells'] as $cell) {
+        $types = $board->getTypesAtPos($cell);
+        $triangles = $types[HOUSE] ?? null;
+        if ($triangles === null) continue;
+        
+        if ($board->isOnTheEdge($cell, $triangles)) {
+          $edgeCount++;
+        }
+      }
+      
+      if ($edgeCount >= 4) {
+        return true;
+      }
+    }
+
     return false;
   }
 }

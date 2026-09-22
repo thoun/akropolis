@@ -21,6 +21,14 @@ class ResidentialArea extends Challenge
   public function isSatisfiedWithTile(Player $player, array $tile): bool
   {
     $board = $player->board();
-    return false;
+
+    // Check that the tile was not placed at level 0
+    foreach ($board->getTileCoveredHexes($tile) as $cell) {
+      if ($cell['z'] == 0) {
+        return false;
+      }
+    }
+
+    return $this->isConnectingTwoOtherHex($player, $tile, HOUSE);
   }
 }

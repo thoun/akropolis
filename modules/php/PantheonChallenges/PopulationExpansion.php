@@ -27,12 +27,11 @@ class PopulationExpansion extends Challenge
       foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
         if ($type != HOUSE) continue;
 
-        $n = 0;
         // Now find 4 neighbouring houses
-
-        $builtNeighbours = $this->getBuiltNeighbours($cell, $triangles);
+        $n = 0;
+        $builtNeighbours = $board->getBuiltNeighbours($cell, $triangles);
         foreach ($builtNeighbours as $pos) {
-          foreach ($this->getTypesAtPos($pos) as $type2 => $triangles2) {
+          foreach ($board->getTypesAtPos($pos) as $type2 => $triangles2) {
             if ($type2 != HOUSE) continue;
 
             $n++;

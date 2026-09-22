@@ -30,9 +30,9 @@ class PatricianVilla extends Challenge
         if ($type != HOUSE) continue;
 
         // Now find a neighbouring house on higher grounds
-        $builtNeighbours = $this->getBuiltNeighbours($cell, $triangles);
+        $builtNeighbours = $board->getBuiltNeighbours($cell, $triangles);
         foreach ($builtNeighbours as $pos) {
-          foreach ($this->getTypesAtPos($pos) as $type2 => $triangles2) {
+          foreach ($board->getTypesAtPos($pos) as $type2 => $triangles2) {
             if ($type2 != HOUSE) continue;
             if ($board->getMaxHeightAtPos($pos, false) == 0) continue;
 

@@ -783,6 +783,134 @@ class TriangulatedBoard
     return false;
   }
 
+  /**
+   * Get the neighboring cells of a tile (excluding the tile's own cells)
+   * @param array $tile Tile data
+   * @return array<array{x: int, y: int, z: int}> Array of neighboring cell coordinates
+   */
+  public function getTileNeighbouringCells(array $tile): array
+  {
+    $neighbouringCells = [];
+    $tileCells = $this->getTileCoveredHexes($tile);
+
+    foreach ($tileCells as $cell) {
+      $neighbours = $this->getNeighbours($cell);
+      foreach ($neighbours as $neighbour) {
+        $neighbour = $this->getMaxHeightAtPos($neighbour, false);
+        $neighbour['z'] = max(0, $neighbour['z']);
+
+        // Check if this neighbour is not part of the tile itself
+        $isPartOfTile = false;
+        foreach ($tileCells as $tileCell) {
+          if ($this->getDistance($neighbour, $tileCell) == 0) {
+            $isPartOfTile = true;
+            break;
+          }
+        }
+
+        if (!$isPartOfTile) {
+          // Avoid duplicates
+          $neighbourKey = $neighbour['x'] . '_' . $neighbour['y'] . '_' . $neighbour['z'];
+          if (!isset($neighbouringCells[$neighbourKey])) {
+            $neighbouringCells[$neighbourKey] = $neighbour;
+          }
+        }
+      }
+    }
+
+    return array_values($neighbouringCells);
+  }
+
+  public function getVisibleBuiltCellsOfType(string $type, ?int $ignoredTileId = null): array
+  {
+    $cells = [];
+    foreach ($this->getVisibleBuiltCells() as $cell) {
+      if (!is_null($ignoredTileId) && $this->getTileIdAtPos($cell) == $ignoredTileId) continue;
+
+      $hasType = false;
+      foreach ($this->getTypesAtPos($cell) as $type2 => $triangles) {
+        if ($type2 == $type) {
+          $hasType = true;
+          break;
+        }
+      }
+
+      if ($hasType) {
+        $cells[] = $cell;
+      }
+    }
+
+    return $cells;
+  }
+
+  /**
+   * Compute connected components for a specific type, excluding a given tile
+   * @param string $type The type to compute components for (e.g., TEMPLE, BARRACK)
+   * @param int|null $ignoredTileId Tile ID to exclude from computation
+   * @return array{0: array, 1: array, 2: array} Tuple of (cells, components, marks)
+   */
+  public function computeTypeComponents(string $type, ?int $ignoredTileId = null): array
+  {
+    $cells = $this->getVisibleBuiltCellsOfType($type, $ignoredTileId);
+
+    $marks = [];
+    $components = [];
+    $mark = 1;
+
+    foreach ($cells as $cell) {
+      $uid = self::getCellId($cell) . '_' . $type;
+      if (isset($marks[$uid])) {
+        continue;
+      }
+
+      $component = [];
+      $size = 0;
+      $queue = [$cell];
+
+      while (!empty($queue)) {
+        $currentCell = array_pop($queue);
+        $currentUid = self::getCellId($currentCell) . '_' . $type;
+
+        if (isset($marks[$currentUid])) {
+          continue;
+        }
+
+        $marks[$currentUid] = $mark;
+        $component[] = $currentCell;
+        $size += $currentCell['z'] + 1;
+
+        // Get triangles for this cell
+        $currentTypes = $this->getTypesAtPos($currentCell);
+        $currentTriangles = $currentTypes[$type] ?? null;
+        if ($currentTriangles === null) continue;
+
+        // Find neighbouring cells of the same type
+        foreach (self::getNeighbours($currentCell, false, $currentTriangles) as $pos) {
+          $pos = $this->getMaxHeightAtPos($pos, false);
+          $pos['z'] = max(0, $pos['z']);
+
+          $neighbourTypes = $this->getTypesAtPos($pos);
+          if (!isset($neighbourTypes[$type])) continue;
+
+          $neighbourTriangles = $neighbourTypes[$type];
+
+          if ($this->areCellsTrianglesAdjacent($currentCell, $currentTriangles, $pos, $neighbourTriangles)) {
+            $queue[] = $pos;
+          }
+        }
+      }
+
+      $components[] = [
+        'type' => $type,
+        'cells' => $component,
+        'size' => $size,
+      ];
+      $mark++;
+    }
+
+    return [[$cells], $components, $marks];
+  }
+
 
   /////////////////////////////////////////////
   //   ____      _     _   _   _ _   _ _

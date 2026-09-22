@@ -40,9 +40,9 @@ class Bastion extends Challenge
         if (!$board->isOnTheEdge($cell, $triangles)) continue;
 
         // Now find a neighbouring barrack also on the edge
-        $builtNeighbours = $this->getBuiltNeighbours($cell, $triangles);
+        $builtNeighbours = $board->getBuiltNeighbours($cell, $triangles);
         foreach ($builtNeighbours as $pos) {
-          foreach ($this->getTypesAtPos($pos) as $type2 => $triangles2) {
+          foreach ($board->getTypesAtPos($pos) as $type2 => $triangles2) {
             if ($type2 != BARRACK) continue;
             if (!$board->isOnTheEdge($pos, $triangles2)) continue;
 

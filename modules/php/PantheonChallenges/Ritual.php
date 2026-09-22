@@ -20,6 +20,30 @@ class Ritual extends Challenge
 
   public function isSatisfiedWithTile(Player $player, array $tile): bool
   {
+    $board = $player->board();
+
+    foreach ($board->getTileCoveredHexes($tile) as $cell) {
+      if ($cell['z'] != 0) continue;
+
+      foreach ($board->getTypesAtPos($cell) as $type => $triangles) {
+        if ($type != TEMPLE) continue;
+
+        // Now find a neighbouring temple surrounded
+        $builtNeighbours = $board->getBuiltNeighbours($cell, $triangles);
+        foreach ($builtNeighbours as $pos) {
+          foreach ($board->getTypesAtPos($pos) as $type2 => $triangles2) {
+            if ($type2 != TEMPLE) continue;
+
+            // Check if this temple cell is surrounded (all triangle sides have built neighbours)
+            $builtNeighbours = $board->getBuiltNeighbours($pos, $triangles2);
+            if (count($builtNeighbours) >= count($triangles)) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+
     return false;
   }
 }
