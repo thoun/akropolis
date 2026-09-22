@@ -31,12 +31,13 @@ export class AbstractActionPantheonState {
             { color: 'secondary', disabled: !commonArgs.canUnlockSlot }
         );
         if (commonArgs.canAskForMoney) {
-            [1,2,3,4].forEach(amount => 
+            for (let amount = 1; amount <= commonArgs.maxMoneyRequestable; amount ++) {
                 this.bga.statusBar.addActionButton(
                     _('Ask for ${amount} stone(s)').replace('${amount}', `${amount}`), 
                     () => this.bga.actions.performAction('actAskForMoney', { amount }), 
                     { color: 'secondary' }
-            ));
+                );
+            }
         }
     }
 }

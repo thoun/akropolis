@@ -851,7 +851,9 @@ class AbstractActionPantheonState {
         this.bga.statusBar.addActionButton(_('Discard challenge'), () => this.bga.actions.performAction('actDiscardChallenge', { challengeId }), { color: 'secondary', disabled: !commonArgs.canDiscardChallenge });
         this.bga.statusBar.addActionButton(_('Unlock challenge slot'), () => this.bga.actions.performAction('actUnlockChallengeSlot'), { color: 'secondary', disabled: !commonArgs.canUnlockSlot });
         if (commonArgs.canAskForMoney) {
-            [1, 2, 3, 4].forEach(amount => this.bga.statusBar.addActionButton(_('Ask for ${amount} stone(s)').replace('${amount}', `${amount}`), () => this.bga.actions.performAction('actAskForMoney', { amount }), { color: 'secondary' }));
+            for (let amount = 1; amount <= commonArgs.maxMoneyRequestable; amount++) {
+                this.bga.statusBar.addActionButton(_('Ask for ${amount} stone(s)').replace('${amount}', `${amount}`), () => this.bga.actions.performAction('actAskForMoney', { amount }), { color: 'secondary' });
+            }
         }
     }
 }
