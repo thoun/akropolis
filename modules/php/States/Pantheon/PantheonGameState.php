@@ -40,12 +40,19 @@ abstract class PantheonGameState extends GameState
     $player = Players::get($activePlayerId);
     $completableChallenges = PantheonChallenges::getCompletableChallenges($player);
     $money = $player ? $player->getMoney() : 0;
+    $maxMoneyRequestable = 0;
+    foreach (Players::getAll() as $player2) {
+      if ($player2 != $player) {
+        $maxMoneyRequestable += (int) floor($player2->getMoney() / 2);
+      }
+    }
 
     return [
       'completableChallenges' => $completableChallenges->toAssoc(),
       'canDiscardChallenge' => $money >= 1,
       'canUnlockSlot' => $money >= 5,
-      'canAskForMoney' => Game::get()->getPlayerCount() > 1,
+      'canAskForMoney' => $maxMoneyRequestable > 0 && Game::get()->getPlayerCount() > 1,
+      'maxMoneyRequestable' => $maxMoneyRequestable,
       'availableAltarPositions' => Altars::getAvailablePlazaPositions(),
     ];
   }
