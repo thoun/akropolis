@@ -61,7 +61,7 @@ class AskMoneyPantheon extends GameState
     }
 
     if (!empty($activePlayerIds)) {
-      $this->game->gamestate->setPlayersMultiactive($activePlayerIds, 'next');
+      $this->game->gamestate->setPlayersMultiactive($activePlayerIds, 'next', true);
     }
   }
 
