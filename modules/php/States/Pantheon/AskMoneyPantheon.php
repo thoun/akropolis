@@ -143,7 +143,9 @@ class AskMoneyPantheon extends GameState
 
     Notifications::sendMoneyResponse($player, $amount);
 
-    $this->game->gamestate->setPlayerNonMultiactive($currentPlayerId, '');
+    if (count($this->gamestate->getActivePlayerList()) > 1) {
+      $this->game->gamestate->setPlayerNonMultiactive($currentPlayerId, '');
+    }
 
     return $this->checkResolution();
   }
@@ -174,9 +176,11 @@ class AskMoneyPantheon extends GameState
 
     Notifications::skipSendMoney($player);
 
-    $transition = $this->checkResolution();
-    $this->game->gamestate->setPlayerNonMultiactive($currentPlayerId, $transition);
-    return $transition;
+    if (count($this->gamestate->getActivePlayerList()) > 1) {
+      $this->game->gamestate->setPlayerNonMultiactive($currentPlayerId, '');
+    }
+
+    return $this->checkResolution();
   }
 
   /**

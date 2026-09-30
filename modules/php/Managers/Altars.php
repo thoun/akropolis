@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bga\Games\Akropolis\Managers;
 
 use Bga\Games\Akropolis\Core\Notifications;
+use Bga\Games\Akropolis\Helpers\Collection;
 use Bga\Games\Akropolis\Models\Player;
 
 
@@ -29,14 +30,19 @@ class Altars extends \Bga\Games\Akropolis\Helpers\Pieces
   protected static function cast(array $altar): array
   {
     return [
-      'id' => (int) $altar['altar_id'],
-      'location' => $altar['altar_location'],
-      'state' => (int) ($altar['altar_state']),
-      'color' => $altar['altar_color'],
+      'id' => (int) $altar['id'],
+      'location' => $altar['location'],
+      'state' => (int) ($altar['state']),
+      'color' => $altar['color'],
       'x' => $altar['x'] !== null ? (int) $altar['x'] : null,
       'y' => $altar['y'] !== null ? (int) $altar['y'] : null,
       'z' => $altar['z'] !== null ? (int) $altar['z'] : null,
     ];
+  }
+
+  public static function getUiData(): Collection
+  {
+    return self::getAll();
   }
 
     // Altar definitions: color, god, count

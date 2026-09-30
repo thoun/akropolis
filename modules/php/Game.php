@@ -111,6 +111,7 @@ class Game extends Table
     ];
 
     if (Globals::isPantheon()) {
+      $data['altars'] = Altars::getUiData();
       $data['challenges'] = PantheonChallenges::getUiData();
       $data['capital'] = Players::getCapital()->getUiData($currentPlayerId);
     }

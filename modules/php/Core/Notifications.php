@@ -315,9 +315,9 @@ class Notifications
    */
   public static function moneyTransferred(Player $from, Player $to, int $amount, int $totalCost): void
   {
-    self::notifyAll('moneyTransferred', clienttranslate('${from_name} sends ${amount} stone(s) to ${to_name} (cost: ${totalCost})'), [
-      'from' => $from,
-      'to' => $to,
+    self::notifyAll('moneyTransferred', clienttranslate('${player_name} sends ${amount} stone(s) to ${player_name2}'), [
+      'player' => $from,
+      'player2' => $to,
       'amount' => $amount,
       'totalCost' => $totalCost,
     ]);
@@ -387,6 +387,13 @@ class Notifications
       $data['player_name'] = $data['player']->getName();
       $data['player_id'] = $data['player']->getId();
       unset($data['player']);
+    }
+
+
+    if (isset($data['player2'])) {
+      $data['player_name2'] = $data['player2']->getName();
+      $data['player_id2'] = $data['player2']->getId();
+      unset($data['player2']);
     }
   }
 }
