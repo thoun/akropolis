@@ -19,6 +19,7 @@ class Challenge extends \Bga\Games\Akropolis\Helpers\DB_Model
     'location' => 'challenge_location',
     'state' => ['challenge_state', 'int'],
   ];
+  protected array $staticAttributes = ['name', 'description', 'color'];
 
   // These will be set by each specific challenge
   protected string $id;

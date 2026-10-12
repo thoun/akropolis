@@ -14,6 +14,7 @@ import { PlayerHand } from "./player-hand";
 import { ChooseActionPantheonState } from "./states/choose-action-pantheon";
 import { PlaceTilePantheonState } from "./states/place-tile-pantheon";
 import { AskMoneyPantheonState } from "./states/ask-money-pantheon";
+import { PantheonChallenges } from './pantheon-challenges';
 
 const MIN_NOTIFICATION_MS = 1200;
 
@@ -52,6 +53,7 @@ const PIVOT_ROTATIONS_REVERSE = [
 
 const AKROPOLIS_FOLDED_HELP = 'Akropolis-FoldedHelp';
 const AKROPOLIS_FOLDED_PANTHEON_HELP = 'Akropolis-FoldedPantheonHelp';
+const PANTHEON_SCENARIOS = ['corinth', 'sparta', 'athens'];
 const LOCAL_STORAGE_JUMP_KEY = 'Akropolis-jump-to-folded';
 
 function sleep(ms: number){
@@ -63,6 +65,7 @@ export class Game {
     public viewManager: ViewManager;
     public animationManager: InstanceType<typeof BgaAnimations.Manager>;
     public athenaConstructionSite?: AthenaConstructionSite;
+    public pantheonChallenges?: PantheonChallenges;
 
     public gamedatas: AkropolisGamedatas;
     public tableCenter: TableCenter;
@@ -116,6 +119,13 @@ export class Game {
 
     public setup(gamedatas: AkropolisGamedatas) {
         console.log( "Starting game setup" );
+        if (gamedatas.isPantheon) {
+            this.bga.images.preloadImages([
+                'pantheon/challenges.webp',
+                'pantheon/altars.webp',
+                `pantheon/scenarios/${PANTHEON_SCENARIOS[gamedatas.capital.lvl]}.webp`,
+            ]);
+        }
         this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
             <div id="full-table">
                 <div id="tables"></div>
@@ -146,6 +156,9 @@ export class Game {
         this.tableCenter = gamedatas.isPantheon ?
             new PlayerHand(this, this.bga.players.getCurrentPlayerId(), gamedatas) :
             new ConstructionSite(this, gamedatas.dock, gamedatas.deck / (Math.max(2, Object.keys(gamedatas.players).length) + 1));
+        if (gamedatas.isPantheon) {
+            this.pantheonChallenges = new PantheonChallenges(this, gamedatas.challenges.board);
+        }
         if (gamedatas.isAthena) {
             const players = Object.values(gamedatas.players);
             if (gamedatas.soloPlayer) {
@@ -526,13 +539,13 @@ export class Game {
     }
 
     private addPantheonHelp() {
-        const scenario = ['corinth', 'sparta', 'athens'][this.gamedatas.capital.lvl];
+        const scenario = PANTHEON_SCENARIOS[this.gamedatas.capital.lvl];
         const scenarioRules = [
             _('No particular constraints: All Divine Altars are scored.'),
             _('Only groups of at least 2 Divine Altars are scored.'),
             _('Only Divine Altars on higher levels (2nd level or above) are scored.'),
         ];
-        const imageUrl = this.bga.images.getImgUrl(`pantheon-scenarios/${scenario}.webp`);
+        const imageUrl = this.bga.images.getImgUrl(`pantheon/scenarios/${scenario}.webp`);
         dojo.place(`
             <button type="button" id="pantheon-help-button" data-scenario="${scenario}" data-folded="${localStorage.getItem(AKROPOLIS_FOLDED_PANTHEON_HELP) ?? 'false'}">
                 <span class="scenario-rules"></span>
@@ -1010,6 +1023,18 @@ export class Game {
 
     notif_updateScores(args: NotifUpdateScoresArgs) {
         this.updateScores(args.player_id, args.scores);
+    }
+
+    notif_completeChallenge(args: NotifPantheonChallengeArgs) {
+        this.pantheonChallenges?.update(args);
+    }
+
+    notif_discardChallenge(args: NotifPantheonChallengeArgs) {
+        this.pantheonChallenges?.update(args);
+    }
+
+    notif_unlockChallengeSlot(args: NotifPantheonChallengeArgs) {
+        this.pantheonChallenges?.update(args);
     }
 
     async notif_automataDelay() {

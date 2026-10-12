@@ -177,7 +177,7 @@ class Notifications
       'z' => $z,
     ];
     if ($newChallenge) {
-      $data['newChallenge'] = $newChallenge;
+      $data['newChallenge'] = $newChallenge->getUiData();
       $data['newChallengeId'] = $newChallenge->getId();
       $data['newChallengeName'] = $newChallenge->getName();
     }
@@ -197,7 +197,7 @@ class Notifications
       'challengeId' => $challengeId,
     ];
     if ($newChallenge) {
-      $data['newChallenge'] = $newChallenge;
+      $data['newChallenge'] = $newChallenge->getUiData();
       $data['newChallengeId'] = $newChallenge->getId();
       $data['newChallengeName'] = $newChallenge->getName();
     }
@@ -217,7 +217,7 @@ class Notifications
       'newSlots' => $newSlots,
     ];
     if ($newChallenge) {
-      $data['newChallenge'] = $newChallenge;
+      $data['newChallenge'] = $newChallenge->getUiData();
       $data['newChallengeId'] = $newChallenge->getId();
       $data['newChallengeName'] = $newChallenge->getName();
     }

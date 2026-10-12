@@ -21,6 +21,20 @@ interface ConstructionCard {
     desc: string;
 }
 
+interface PantheonChallenge {
+    id: string;
+    location: string;
+    state: number;
+    name: string;
+    description: string;
+    color: string;
+}
+
+interface NotifPantheonChallengeArgs {
+    challengeId?: string;
+    newChallenge?: PantheonChallenge;
+}
+
 interface Scores {
     districts: { [type: string]: number };
     stars: { [type: string]: number };
@@ -65,7 +79,7 @@ interface AkropolisGamedatas {
     cards?: ConstructionCard[];
     cardStatuses?: { [playerId: number]: string[] };
     challenges: {
-        board: any;
+        board: PantheonChallenge[] | { [challengeId: string]: PantheonChallenge };
     };
     capital: AkropolisPlayer;
 }

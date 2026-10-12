@@ -1,0 +1,54 @@
+#pantheon-challenges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin: 15px;
+}
+
+.pantheon-challenge {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    flex: 0 0 240px;
+    border-radius: 35px;
+    background-image: url('img/pantheon/challenges.webp');
+    background-size: 500% 400%;
+    box-shadow: 1px 2px 4px #0008;
+    color: black;
+    text-align: center;
+
+    .challenge-name {
+        position: absolute;
+        top: 16%;
+        left: 16%;
+        right: 16%;
+        border-radius: 8px;
+        padding: 3px 4px;
+        background: var(--challenge-color);
+        color: white;
+        font-family: 'xtraregular', sans-serif;
+        font-size: 14px;
+        line-height: 1.15;
+    }
+
+    .challenge-description {
+        position: absolute;
+        top: 65%;
+        left: 16%;
+        right: 16%;
+        height: 21%;
+        font-family: Arial, sans-serif;
+        font-size: 11px;
+        line-height: 1.15;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .score-icon {
+            width: 14px;
+            height: 14px;
+            vertical-align: middle;
+        }
+    }
+}
