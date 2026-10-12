@@ -51,6 +51,7 @@ const PIVOT_ROTATIONS_REVERSE = [
 ];
 
 const AKROPOLIS_FOLDED_HELP = 'Akropolis-FoldedHelp';
+const AKROPOLIS_FOLDED_PANTHEON_HELP = 'Akropolis-FoldedPantheonHelp';
 const LOCAL_STORAGE_JUMP_KEY = 'Akropolis-jump-to-folded';
 
 function sleep(ms: number){
@@ -185,6 +186,9 @@ export class Game {
         this.setupNotifications();
         this.bga.userPreferences.onChange = (prefId, prefValue) => this.onPreferenceChange(prefId, prefValue);
         this.addHelp(gamedatas.allTiles ? 4 : Math.max(2, Object.keys(gamedatas.players).length));
+        if (gamedatas.isPantheon) {
+            this.addPantheonHelp();
+        }
 
         window.addEventListener('resize', () => this.viewManager.fitCitiesToView());
 
@@ -510,14 +514,61 @@ export class Game {
         labels += `<div class="label-table">${[1, 2, 3, 4, 5].map(i => `<div>${this.tilesManager.getScoreCondition(TYPES[i])}</div>`).join('')}</div>`;
         labels += `<div class="fake-close"><div class="fake-close-dash"></div></div>`;
         dojo.place(`
-            <button id="quantities-help-button" data-folded="${localStorage.getItem(AKROPOLIS_FOLDED_HELP) ?? 'false'}">${labels}</button>
+            <button type="button" id="quantities-help-button" data-folded="${localStorage.getItem(AKROPOLIS_FOLDED_HELP) ?? 'false'}">${labels}</button>
         `, 'left-side');
         const helpButton = document.getElementById('quantities-help-button');
+        helpButton.setAttribute('aria-label', _('Plazzas / District quantities'));
+        helpButton.setAttribute('aria-expanded', String(helpButton.dataset.folded === 'false'));
         helpButton.addEventListener('click', () => {
-            helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true';
-            localStorage.setItem(AKROPOLIS_FOLDED_HELP, helpButton.dataset.folded);
+            this.toggleHelp(helpButton, AKROPOLIS_FOLDED_HELP, 'pantheon-help-button', AKROPOLIS_FOLDED_PANTHEON_HELP);
         });
-        this.setTooltip('quantities-help-button', _('Plazzas / District quantities'))
+        this.setTooltip('quantities-help-button', _('Plazzas / District quantities'));
+    }
+
+    private addPantheonHelp() {
+        const scenario = ['corinth', 'sparta', 'athens'][this.gamedatas.capital.lvl];
+        const scenarioRules = [
+            _('No particular constraints: All Divine Altars are scored.'),
+            _('Only groups of at least 2 Divine Altars are scored.'),
+            _('Only Divine Altars on higher levels (2nd level or above) are scored.'),
+        ];
+        const imageUrl = this.bga.images.getImgUrl(`pantheon-scenarios/${scenario}.webp`);
+        dojo.place(`
+            <button type="button" id="pantheon-help-button" data-scenario="${scenario}" data-folded="${localStorage.getItem(AKROPOLIS_FOLDED_PANTHEON_HELP) ?? 'false'}">
+                <span class="scenario-rules"></span>
+                <div class="fake-close"><div class="fake-close-dash"></div></div>
+            </button>
+        `, 'left-side');
+        const helpButton = document.getElementById('pantheon-help-button');
+        helpButton.querySelector('.scenario-rules').textContent = scenarioRules[this.gamedatas.capital.lvl];
+        helpButton.style.backgroundImage = `url('${imageUrl}')`;
+        helpButton.setAttribute('aria-label', `${_('Pantheon scenario')}: ${_(this.gamedatas.capital.name)}`);
+        helpButton.setAttribute('aria-expanded', String(helpButton.dataset.folded === 'false'));
+        if (helpButton.dataset.folded === 'false') {
+            this.foldHelp(document.getElementById('quantities-help-button'), AKROPOLIS_FOLDED_HELP);
+        }
+        helpButton.addEventListener('click', () => {
+            this.toggleHelp(helpButton, AKROPOLIS_FOLDED_PANTHEON_HELP, 'quantities-help-button', AKROPOLIS_FOLDED_HELP);
+        });
+        this.setTooltip('pantheon-help-button', _('Pantheon scenario'));
+    }
+
+    private foldHelp(helpButton: HTMLElement, storageKey: string) {
+        if (!helpButton) {
+            return;
+        }
+        helpButton.dataset.folded = 'true';
+        helpButton.setAttribute('aria-expanded', 'false');
+        localStorage.setItem(storageKey, 'true');
+    }
+
+    private toggleHelp(helpButton: HTMLElement, storageKey: string, otherButtonId: string, otherStorageKey: string) {
+        helpButton.dataset.folded = helpButton.dataset.folded === 'true' ? 'false' : 'true';
+        helpButton.setAttribute('aria-expanded', String(helpButton.dataset.folded === 'false'));
+        localStorage.setItem(storageKey, helpButton.dataset.folded);
+        if (helpButton.dataset.folded === 'false') {
+            this.foldHelp(document.getElementById(otherButtonId), otherStorageKey);
+        }
     }
     
     private onKeyPress(event: KeyboardEvent): void {

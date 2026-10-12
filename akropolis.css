@@ -687,7 +687,7 @@ html[data-theme=dark] #market {
     opacity: 0.35;
   }
 }
-#quantities-help-button {
+#quantities-help-button, #pantheon-help-button {
   position: fixed;
   bottom: 12px;
   left: 5px;
@@ -700,8 +700,68 @@ html[data-theme=dark] #market {
   overflow: hidden;
   background-size: contain;
   transition: width 0.5s, height 0.5s, border-radius 0.5s;
-  background-image: url("img/reminder-card.jpg");
+  background-repeat: no-repeat;
+  padding: 0;
   color: black;
+}
+#quantities-help-button .fake-close, #pantheon-help-button .fake-close {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+}
+#quantities-help-button .fake-close .fake-close-dash, #pantheon-help-button .fake-close .fake-close-dash {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  left: 5px;
+  height: 3px;
+  background: black;
+}
+#quantities-help-button[data-folded=false] .fake-close, #pantheon-help-button[data-folded=false] .fake-close {
+  opacity: 1;
+}
+
+#pantheon-help-button {
+  left: 65px;
+  background-size: cover;
+  container-type: inline-size;
+}
+#pantheon-help-button .scenario-rules {
+  display: none;
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 73.5%;
+  height: 8%;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+  font-size: 4cqw;
+  line-height: 1.1;
+  text-align: center;
+  overflow: auto;
+}
+#pantheon-help-button[data-scenario=corinth] .scenario-rules {
+  top: 70%;
+  height: 10%;
+}
+#pantheon-help-button[data-folded=false] {
+  width: min(300px, 100vw - 75px, (100vh - 24px) * 995 / 1348);
+  height: min(406.43px, (100vw - 75px) * 1348 / 995, 100vh - 24px);
+  border-radius: 15px;
+  background-size: contain;
+}
+#pantheon-help-button[data-folded=false] .scenario-rules {
+  display: flex;
+}
+
+#quantities-help-button {
+  background-image: url("img/reminder-card.jpg");
 }
 #quantities-help-button .quantities-table {
   opacity: 0;
@@ -752,24 +812,6 @@ html[data-theme=dark] #market {
   align-items: center;
   overflow: hidden;
 }
-#quantities-help-button .fake-close {
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: white;
-}
-#quantities-help-button .fake-close .fake-close-dash {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  left: 5px;
-  height: 3px;
-  background: black;
-}
 #quantities-help-button[data-folded=false] {
   width: 300px;
   height: 324px;
@@ -778,14 +820,19 @@ html[data-theme=dark] #market {
 #quantities-help-button[data-folded=false] .quantities-table, #quantities-help-button[data-folded=false] .label-table {
   opacity: 1;
 }
-#quantities-help-button[data-folded=false] .fake-close {
-  opacity: 1;
+
+#quantities-help-button[data-folded=false] ~ #pantheon-help-button {
+  left: 5px;
+  bottom: 346px;
 }
 
 /* we show help button if user has no mouse ( = no tooltips) */
 @media (hover: hover) {
-  #seasaltpaper-help-button, #quantities-help-button {
+  #quantities-help-button, #pantheon-help-button {
     bottom: 5px;
+  }
+  #quantities-help-button[data-folded=false] ~ #pantheon-help-button {
+    bottom: 339px;
   }
 }
 /* make space between buttons on touch devices */
