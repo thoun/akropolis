@@ -24,12 +24,38 @@
         left: 16%;
         right: 16%;
         border-radius: 8px;
-        padding: 3px 4px;
         background: var(--challenge-color);
         color: white;
         font-family: 'xtraregular', sans-serif;
         font-size: 14px;
         line-height: 1.15;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        column-rule: 2px solid #e1dacf;
+
+        .challenge-name-text {
+            flex: 1;
+            min-width: 0;
+            padding: 3px 4px;
+        }
+
+        .challenge-type {
+            flex: 0 0 18px;
+            height: 18px;
+            padding: 3px 4px;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 75%;
+
+            &[data-type="immediate"] {
+                background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2011.4400%209.9410%22%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M%209.1720%206.1520%20C%209.1260%205.0260%208.7270%203.3180%206.9400%201.9170%20C%205.6080%200.8720%202.9520%200.0000%200.0000%200.9780%20L%202.1480%202.7520%20L%200.6640%205.0490%20C%201.7010%204.6950%202.4980%204.5410%203.5150%204.6530%20C%204.8560%204.8020%206.2190%205.4550%207.1570%206.9670%20L%204.7380%207.9450%20L%209.4440%209.9410%20L%2011.4400%205.2350%20L%209.1720%206.1520%20Z%22%2F%3E%3C%2Fsvg%3E');
+            }
+
+            &[data-type="anytime"] {
+                background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%207.6190%209.6710%22%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M%205.0690%205.8650%20L%206.5730%200.0160%20L%203.8270%201.2790%20L%201.0880%200.0000%20L%202.5520%205.8570%20L%200.0000%205.8500%20L%203.7980%209.6710%20L%207.6190%205.8730%20L%205.0690%205.8650%20Z%22%2F%3E%3C%2Fsvg%3E');
+            }
+        }
     }
 
     .challenge-description {

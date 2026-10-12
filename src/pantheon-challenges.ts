@@ -17,6 +17,7 @@ const DISTRICT_ICONS = {
 };
 
 const COLORS = ['#d11e25', '#3cb941', '#55b5e9', '#782f9a', '#d5a000'];
+const ANYTIME_CHALLENGES = new Set(['Uprising', 'Suburb', 'ReligiousFervor', 'BustlingTrade']);
 
 export class PantheonChallenges {
     private element: HTMLDivElement;
@@ -67,7 +68,18 @@ export class PantheonChallenges {
 
             const name = document.createElement('div');
             name.className = 'challenge-name';
-            name.textContent = _(challenge.name);
+            const nameText = document.createElement('span');
+            nameText.className = 'challenge-name-text';
+            nameText.textContent = _(challenge.name);
+            const typeIcon = document.createElement('span');
+            typeIcon.className = 'challenge-type';
+            typeIcon.dataset.type = ANYTIME_CHALLENGES.has(challenge.id) ? 'anytime' : 'immediate';
+            typeIcon.setAttribute('role', 'img');
+            typeIcon.title = typeIcon.dataset.type === 'immediate'
+                ? _('You must place the tile stated to complete this Architectural Challenge')
+                : _('You can complete this Architectural Challenge if you have this layout in your city');
+            typeIcon.setAttribute('aria-label', typeIcon.title);
+            name.append(nameText, typeIcon);
             card.append(name);
 
             const description = document.createElement('div');
