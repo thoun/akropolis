@@ -92,25 +92,14 @@ class PantheonSetup extends PantheonGameState
   }
 
   /**
-   * Zombie player handling - mark as done
-   * @param int $playerId Zombie player ID
-   * @return string Next transition or empty string
+   * Acknowledge the zombie player's starting tile through the setup action.
    */
-  public function zombie(int $playerId): string
+  public function zombie(int $playerId): void
   {
-      // For zombie players in Pantheon setup, just mark them as done
-      if (method_exists('Bga\\Games\\Akropolis\\Managers\\PantheonManager', 'markStartingTilePlaced')) {
-          PantheonManager::markStartingTilePlaced($playerId);
-      }
-
-      // Check if all players have placed their starting tiles
-      if (
-          method_exists('Bga\\Games\\Akropolis\\Managers\\PantheonManager', 'allStartingTilesPlaced') &&
-          PantheonManager::allStartingTilesPlaced()
-      ) {
-          return 'next';
-      }
-
-      return '';
+      $tiles = Tiles::getInLocation('board')->filter(fn($tile) =>
+          $tile['pId'] === $playerId && in_array($tile['id'], PANTHEON_STARTING_TILES)
+      );
+      $tileId = $this->getRandomZombieChoice($tiles->getIds());
+      $this->actPlaceStartingTileInCapital($tileId, $playerId);
   }
 }

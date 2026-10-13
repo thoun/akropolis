@@ -24,14 +24,9 @@ trait DebugTrait
   }
 
   /**
-   * Debug: Teleport (no-op)
+   * Debug: Mark the game to end at the next end-of-game check
    */
-  function debug_tp(): void {}
-
-  /**
-   * Debug: Last round
-   */
-  function debug_lr(): void
+  function debug_triggerEndOfGame(): void
   {
     Globals::setEndOfGame(true);
   }

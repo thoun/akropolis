@@ -8,6 +8,8 @@ use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\StateType;
 use Bga\Games\Akropolis\Game;
 use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Managers\Tiles;
+use Bga\Games\Akropolis\Managers\PantheonChallenges;
 
 /**
  * ChooseActionPantheon State
@@ -58,12 +60,30 @@ class ChooseActionPantheon extends PantheonGameState
   }
 
   /**
-   * Zombie player handling - just skip
+   * Place a tile, then complete a random legal challenge or pass.
    * @param int $playerId Zombie player ID
-   * @return string Next transition
+   * @return string Next state class
    */
   public function zombie(int $playerId): string
   {
-    return $this->actPass();
+    if (!Globals::getPantheonTilePlaced() && !Tiles::getPlayerHand($playerId)->empty()) {
+      return (new PlaceTilePantheon($this->game))->zombie($playerId);
+    }
+
+    $args = $this->getArgs($playerId)['commonArgs'];
+    $moves = [];
+    foreach ($args['completableChallenges'] as $challengeId => $challenge) {
+      $color = PantheonChallenges::get($challengeId)->getColor();
+      foreach ($args['availableAltarPositions'][$color] ?? [] as $position) {
+        $moves[] = ['challengeId' => $challengeId, 'position' => $position];
+      }
+    }
+    if (empty($moves)) {
+      return $this->actPass();
+    }
+
+    $move = $this->getRandomZombieChoice($moves);
+    $position = $move['position'];
+    return $this->actCompleteChallenge($move['challengeId'], $position['x'], $position['y'], $position['z']);
   }
 }

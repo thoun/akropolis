@@ -107,10 +107,10 @@ class PlaceTile extends GameState
 
     // Check if player can complete a card
     if ($this->canGoToCompleteCard($player)) {
-      return 'completeCard';
+      return CompleteCard::class;
     }
 
-    return 'next';
+    return NextPlayer::class;
   }
 
   /**
@@ -157,13 +157,17 @@ class PlaceTile extends GameState
   }
 
   /**
-   * Zombie player handling - just skip their turn
+   * Play a random affordable tile at a legal position and rotation.
    * @param int $playerId Zombie player ID
-   * @return string Next transition
+   * @return string Next state class
    */
   public function zombie(int $playerId): string
   {
-    // For zombie players, just skip their turn
-    return 'next';
+    $args = $this->getArgs($playerId);
+    $tileId = $this->getRandomZombieChoice($args['tileIds']);
+    $option = $this->getRandomZombieChoice($args['options'][0]);
+    $rotation = $this->getRandomZombieChoice($option['r']);
+
+    return $this->actPlaceTile($tileId, 0, $option['x'], $option['y'], $option['z'], $rotation, $playerId);
   }
 }

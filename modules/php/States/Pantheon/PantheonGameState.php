@@ -94,7 +94,7 @@ abstract class PantheonGameState extends GameState
 
     Notifications::completeChallenge($player, $challengeId, $color, $newChallenge, $x, $y, $z);
 
-    return $this->getStateName();
+    return static::class;
   }
 
   /**
@@ -163,7 +163,7 @@ abstract class PantheonGameState extends GameState
       'amount' => $amount,
       'requester' => $player->getId(),
       'responses' => [],
-      'previousState' => $this->getStateName(),
+      'previousState' => static::class,
     ]);
 
     Notifications::askForMoney($player, $amount);

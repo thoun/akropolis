@@ -44,25 +44,30 @@ class AskMoneyPantheon extends GameState
   /**
    * Set up the state with active players
    */
-  public function onEnteringState(): void
+  public function onEnteringState(): ?string
   {
     // Get the money request data
     $moneyRequest = Globals::getPantheonMoneyRequest();
     $requesterId = $moneyRequest['requester'] ?? 0;
+    $responses = $moneyRequest['responses'] ?? [];
 
     // Make all players except the requester active
     $players = Players::getAll();
     $activePlayerIds = [];
 
     foreach ($players as $pId => $player) {
-      if ($pId != $requesterId && !$player->isZombie()) {
+      if ($pId != $requesterId && !$player->isZombie() && !isset($responses[$pId])) {
         $activePlayerIds[] = $pId;
       }
     }
 
-    if (!empty($activePlayerIds)) {
-      $this->game->gamestate->setPlayersMultiactive($activePlayerIds, 'next', true);
+    $nextState = $this->checkResolution();
+    if ($nextState !== null) {
+      return $nextState;
     }
+
+    $this->gamestate->setPlayersMultiactive($activePlayerIds, self::class, true);
+    return null;
   }
 
   /**
@@ -109,10 +114,10 @@ class AskMoneyPantheon extends GameState
    * Send money to the requesting player
    * @param int $amount Amount to send
    * @param int $currentPlayerId Current player ID
-   * @return string Next transition
+   * @return string|null Next state, or null while waiting
    */
   #[PossibleAction]
-  public function actSendMoney(int $amount, int $currentPlayerId): string
+  public function actSendMoney(int $amount, int $currentPlayerId): ?string
   {
     $player = Players::get($currentPlayerId);
 
@@ -143,20 +148,16 @@ class AskMoneyPantheon extends GameState
 
     Notifications::sendMoneyResponse($player, $amount);
 
-    if (count($this->gamestate->getActivePlayerList()) > 1) {
-      $this->game->gamestate->setPlayerNonMultiactive($currentPlayerId, '');
-    }
-
-    return $this->checkResolution();
+    return $this->finishResponse($currentPlayerId);
   }
 
   /**
    * Skip sending money
    * @param int $currentPlayerId Current player ID
-   * @return string Next transition
+   * @return string|null Next state, or null while waiting
    */
   #[PossibleAction]
-  public function actSkipSendMoney(int $currentPlayerId): string
+  public function actSkipSendMoney(int $currentPlayerId): ?string
   {
     $player = Players::get($currentPlayerId);
 
@@ -176,24 +177,20 @@ class AskMoneyPantheon extends GameState
 
     Notifications::skipSendMoney($player);
 
-    if (count($this->gamestate->getActivePlayerList()) > 1) {
-      $this->game->gamestate->setPlayerNonMultiactive($currentPlayerId, '');
-    }
-
-    return $this->checkResolution();
+    return $this->finishResponse($currentPlayerId);
   }
 
   /**
    * Check if the money request should be resolved
-   * @return string Next transition
+   * @return string|null Next state, or null while waiting
    */
-  private function checkResolution(): string
+  private function checkResolution(): ?string
   {
     $moneyRequest = Globals::getPantheonMoneyRequest();
     $requesterId = $moneyRequest['requester'] ?? 0;
     $amount = $moneyRequest['amount'] ?? 0;
     $responses = $moneyRequest['responses'] ?? [];
-    $previousState = $moneyRequest['previousState'] ?? 0;
+    $previousState = $moneyRequest['previousState'] ?? ChooseActionPantheon::class;
 
     // Get all non-zombie players except the requester
     $allPlayers = Players::getAll();
@@ -205,7 +202,13 @@ class AskMoneyPantheon extends GameState
     }
 
     // Check if everyone has responded
-    $allResponded = count($responses) === count($expectedResponders);
+    $allResponded = true;
+    foreach ($expectedResponders as $playerId) {
+      if (!isset($responses[$playerId])) {
+        $allResponded = false;
+        break;
+      }
+    }
 
     // Check if requested amount is met
     $totalPledged = array_sum($responses);
@@ -217,13 +220,13 @@ class AskMoneyPantheon extends GameState
     }
 
     // Otherwise continue waiting for responses
-    return 'continue';
+    return null;
   }
 
   /**
    * Resolve the money request
    * @param string $previousState State to return to
-   * @return string Next transition
+   * @return string Next state class
    */
   private function resolveMoneyRequest(string $previousState): string
   {
@@ -270,19 +273,29 @@ class AskMoneyPantheon extends GameState
   /**
    * Zombie player handling
    * @param int $playerId Zombie player ID
-   * @return string Next transition
+   * @return string|null Next state, or null while waiting
    */
-  public function zombie(int $playerId): string
+  public function zombie(int $playerId): ?string
   {
-    // Auto-skip for zombie players
-    $moneyRequest = Globals::getPantheonMoneyRequest();
-    $responses = $moneyRequest['responses'] ?? [];
-    if (!isset($responses[$playerId])) {
-      $responses[$playerId] = 0;
-      $moneyRequest['responses'] = $responses;
-      Globals::setPantheonMoneyRequest($moneyRequest);
+    $args = $this->getArgs();
+    if (!$args[$playerId]['canRespond']) {
+      return $this->finishResponse($playerId);
     }
 
-    return $this->checkResolution();
+    $maxSend = min($args[$playerId]['maxSend'], $args['remainingAmount']);
+    $amount = bga_rand(0, $maxSend);
+    return $amount > 0 ? $this->actSendMoney($amount, $playerId) : $this->actSkipSendMoney($playerId);
+  }
+
+  /**
+   * Resolve the request or keep waiting without reactivating completed responders.
+   */
+  private function finishResponse(int $playerId): ?string
+  {
+    $nextState = $this->checkResolution();
+    if ($nextState === null) {
+      $this->gamestate->setPlayerNonMultiactive($playerId, self::class);
+    }
+    return $nextState;
   }
 }

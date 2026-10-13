@@ -156,16 +156,16 @@ class CompleteCard extends GameState
 
     // Check if player can complete another card
     if ($this->canCompleteCard($player)) {
-      return 'completeCard';
+      return self::class;
     }
 
-    return 'next';
+    return NextPlayer::class;
   }
 
   #[PossibleAction]
-  public function actSkipCompleteCard(int $activePlayerId = null): string
+  public function actSkipCompleteCard(): string
   {
-    return 'next';
+    return NextPlayer::class;
   }
 
   /**
@@ -241,13 +241,23 @@ class CompleteCard extends GameState
   }
 
   /**
-   * Zombie player handling - just skip
+   * Complete a random available card with a legal tile and placement.
    * @param int $playerId Zombie player ID
-   * @return string Next transition
+   * @return string Next state class
    */
   public function zombie(int $playerId): string
   {
-    // For zombie players, just skip
-    return 'next';
+    $args = $this->getArgs($playerId);
+    if (empty($args['cardIds']) || empty($args['options'])) {
+      return $this->actSkipCompleteCard();
+    }
+
+    $cardId = $this->getRandomZombieChoice($args['cardIds']);
+    $card = ConstructionCards::getSingle($cardId);
+    $tileId = $this->getRandomZombieChoice(Tiles::getInLocation($card->getLocation())->getIds());
+    $option = $this->getRandomZombieChoice($args['options']);
+    $automaTileId = Globals::isSolo() ? $this->getRandomZombieChoice($args['automaPicks'][$cardId]) : null;
+
+    return $this->actCompleteCard($cardId, $tileId, $option['x'], $option['y'], $option['z'], 0, $automaTileId, $playerId);
   }
 }

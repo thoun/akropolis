@@ -110,7 +110,8 @@ class PlaceTilePantheon extends PantheonGameState
     // Place the tile
     Tiles::placeTile($player, $tileId, $hex, $pos, $r);
 
-    return 'tilePlaced';
+    Globals::setPantheonTilePlaced(true);
+    return ChooseActionPantheon::class;
   }
 
   #[PossibleAction]
@@ -153,12 +154,30 @@ class PlaceTilePantheon extends PantheonGameState
     // Place the tile
     Tiles::placeTile($player, $tileId, $hex, $pos, $r, false, true);
 
-    return 'tilePlaced';
+    Globals::setPantheonTilePlaced(true);
+    return ChooseActionPantheon::class;
   }
 
   public function zombie(int $playerId): string
   {
-    // Simple zombie: just skip
-    return 'next';
+    $args = $this->getArgs($playerId);
+    $actions = [];
+    if (!empty($args['cityOptions'][0])) {
+      $actions[] = 'actPlaceTileInCity';
+    }
+    if ($args['canSendToCapital'] && !empty($args['capitalOptions'][0])) {
+      $actions[] = 'actPlaceTileInCapital';
+    }
+    if (empty($args['tileIds']) || empty($actions)) {
+      return (new ChooseActionPantheon($this->game))->actPass();
+    }
+
+    $action = $this->getRandomZombieChoice($actions);
+    $options = $action === 'actPlaceTileInCity' ? $args['cityOptions'][0] : $args['capitalOptions'][0];
+    $tileId = $this->getRandomZombieChoice($args['tileIds']);
+    $option = $this->getRandomZombieChoice($options);
+    $rotation = $this->getRandomZombieChoice($option['r']);
+
+    return $this->$action($tileId, 0, $option['x'], $option['y'], $option['z'], $rotation);
   }
 }

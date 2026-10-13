@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Bga\Games\Akropolis\States\Pantheon;
 
 use Bga\GameFramework\StateType;
-use Bga\GameFramework\States\GameState;
+use Bga\Games\Akropolis\States\PreEndOfGame;
 use Bga\Games\Akropolis\Core\Globals;
 use Bga\Games\Akropolis\Game;
 use Bga\Games\Akropolis\Managers\Players;
@@ -49,36 +49,21 @@ class NextPlayerPantheon extends PantheonGameState
 
   /**
    * Handle transition to next player in Pantheon mode
-   * @return string Next transition ('chooseAction', 'end', or 'nextPlayer')
+   * @return string Next state class
    */
   public function onEnteringState(): string
   {
-    // Move to next player
-    $this->game->activeNextPlayer();
-
-    // Reset tile placed flag for new turn
     Globals::setPantheonTilePlaced(false);
 
-    $currentPlayer = Players::get();
-    $currentHand = Tiles::getPlayerHand($currentPlayer->getId());
-
-    if ($currentHand->empty()) {
-      // Check if all non-zombie players have empty hands
-      $allHandsEmpty = true;
-      foreach (Players::getAll() as $player) {
-        if ($player->isZombie()) {
-          continue;
-        }
-        $hand = Tiles::getPlayerHand($player->getId());
-        if (!$hand->empty()) {
-          $allHandsEmpty = false;
-          break;
-        }
+    // Visit each player at most once, ignoring empty hands.
+    foreach (Players::getAll() as $_player) {
+      $this->game->activeNextPlayer();
+      $player = Players::getActive();
+      if (!Tiles::getPlayerHand($player->getId())->empty()) {
+        return ChooseActionPantheon::class;
       }
-
-      return $allHandsEmpty ? 'end' : 'nextPlayer';
     }
 
-    return 'chooseAction';
+    return PreEndOfGame::class;
   }
 }
