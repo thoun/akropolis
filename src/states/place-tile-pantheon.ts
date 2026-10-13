@@ -7,6 +7,7 @@ export class PlaceTilePantheonState extends AbstractActionPantheonState {
     }
 
     public onEnteringState(args: EnteringPlaceTilePantheonArgs, isCurrentPlayerActive: boolean) {
+        super.onEnteringState(args, isCurrentPlayerActive);
         if (isCurrentPlayerActive) {
             this.game.selectedPosition = null;
             this.game.selectedTile = null;
@@ -26,6 +27,7 @@ export class PlaceTilePantheonState extends AbstractActionPantheonState {
     }
 
     public onLeavingState(args: EnteringPlaceTilePantheonArgs, isCurrentPlayerActive: boolean) {
+        super.onLeavingState(args, isCurrentPlayerActive);
         this.game.onLeavingPlaceTile();
     }
 }

@@ -22,6 +22,10 @@ const ANYTIME_CHALLENGES = new Set(['Uprising', 'Suburb', 'ReligiousFervor', 'Bu
 export class PantheonChallenges {
     private element: HTMLDivElement;
     private challenges: PantheonChallenge[];
+    private discardEnabled = false;
+    private unlockEnabled = false;
+    private completableChallenges: PantheonCommonArgs['completableChallenges'] = {};
+    private availableAltarPositions: PantheonCommonArgs['availableAltarPositions'] = {};
 
     constructor(private game: Game, board: AkropolisGamedatas['challenges']['board']) {
         this.element = document.createElement('div');
@@ -42,6 +46,39 @@ export class PantheonChallenges {
         }
         this.game.gamedatas.challenges.board = this.challenges;
         this.render();
+    }
+
+    public setDiscardEnabled(enabled: boolean) {
+        this.discardEnabled = enabled;
+        this.element.querySelectorAll<HTMLButtonElement>('.discard-challenge-button').forEach(button => {
+            button.disabled = !enabled;
+            button.classList.toggle('disabled', !enabled);
+        });
+    }
+
+    public setCompleteEnabled(commonArgs?: PantheonCommonArgs) {
+        this.completableChallenges = commonArgs?.completableChallenges ?? {};
+        this.availableAltarPositions = commonArgs?.availableAltarPositions ?? {};
+        this.updateCompleteButtons();
+    }
+
+    public setUnlockEnabled(enabled: boolean) {
+        this.unlockEnabled = enabled;
+        const button = this.element.querySelector<HTMLButtonElement>('.unlock-challenge-button');
+        if (button) {
+            button.disabled = !enabled;
+            button.classList.toggle('disabled', !enabled);
+        }
+    }
+
+    private updateCompleteButtons() {
+        this.element.querySelectorAll<HTMLButtonElement>('.complete-challenge-button').forEach(button => {
+            const challenge = this.challenges.find(challenge => challenge.id === button.dataset.challengeId);
+            const enabled = !!this.completableChallenges[challenge.id]
+                && !!this.availableAltarPositions[challenge.color]?.length;
+            button.disabled = !enabled;
+            button.classList.toggle('disabled', !enabled);
+        });
     }
 
     private render() {
@@ -101,7 +138,52 @@ export class PantheonChallenges {
             });
             description.append(descriptionText);
             card.append(description);
-            this.element.append(card);
+
+            const completeButton = document.createElement('button');
+            completeButton.type = 'button';
+            completeButton.className = 'bgabutton bgabutton_gray complete-challenge-button';
+            completeButton.dataset.challengeId = challenge.id;
+            completeButton.textContent = _('Complete challenge');
+            completeButton.addEventListener('click', () => {
+                const positions = this.availableAltarPositions[challenge.color] ?? [];
+                if (!this.completableChallenges[challenge.id] || !positions.length || !this.game.bga.players.isCurrentPlayerActive()) {
+                    return;
+                }
+                this.game.bga.states.setClientState('clientCompleteChallenge', {
+                    descriptionmyturn: _('${you} must select a hex in the Capital to place the Divine Altar'),
+                    args: { challengeId: challenge.id, positions },
+                });
+            });
+
+            const discardButton = document.createElement('button');
+            discardButton.type = 'button';
+            discardButton.className = 'bgabutton bgabutton_gray discard-challenge-button';
+            discardButton.innerHTML = _('Discard challenge') + ' (1 <div class="stone score-icon"></div>)';
+            discardButton.addEventListener('click', async () => {
+                if (await this.game.bga.dialogs.confirmation(_('Are you sure you want to discard this challenge?'))) {
+                    const challengeId = challenge.id;
+                    this.game.bga.actions.performAction('actDiscardChallenge', { challengeId });
+                }
+            });
+
+            const container = document.createElement('div');
+            container.className = 'pantheon-challenge-container';
+            container.append(card, completeButton, discardButton);
+            this.element.append(container);
         });
+
+        const unlockButton = document.createElement('button');
+        unlockButton.type = 'button';
+        unlockButton.className = 'bgabutton bgabutton_gray unlock-challenge-button';
+        unlockButton.innerHTML = _('Unlock challenge slot') + ' (5 <div class="stone score-icon"></div>)';
+        unlockButton.addEventListener('click', () => this.game.bga.actions.performAction('actUnlockChallengeSlot'));
+        const unlockContainer = document.createElement('div');
+        unlockContainer.className = 'pantheon-challenge-container unlock-challenge-container';
+        unlockContainer.append(unlockButton);
+        this.element.append(unlockContainer);
+
+        this.setDiscardEnabled(this.discardEnabled);
+        this.setUnlockEnabled(this.unlockEnabled);
+        this.updateCompleteButtons();
     }
 }

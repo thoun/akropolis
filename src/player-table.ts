@@ -61,6 +61,17 @@ export class PlayerTable {
 
     public cleanPossibleHex() {
         Array.from(this.grid.querySelectorAll('.possible')).forEach((option: HTMLElement) => option.parentElement.remove());
+        this.grid.querySelectorAll('.pivot').forEach(pivot => pivot.remove());
+    }
+
+    public setChallengeHexOptions(positions: HexPosition[], onClick: (position: HexPosition) => void) {
+        this.cleanPossibleHex();
+        positions.forEach(position => {
+            // Built cells use z for the tile base; put the selector above its face.
+            const hex = this.createPossibleHex(position.x, position.y, position.z + 1);
+            hex.classList.add('challenge-hex-option');
+            hex.querySelector('.face').addEventListener('click', () => onClick(position));
+        });
     }
     
     public setPlaceTileOptions(options: PlaceTileOption[], rotation: number) {

@@ -7,6 +7,7 @@ export class ChooseActionPantheonState extends AbstractActionPantheonState {
     }
 
     public onEnteringState(args: EnteringChooseActionPantheonArgs, isCurrentPlayerActive: boolean) {
+        super.onEnteringState(args, isCurrentPlayerActive);
         if (isCurrentPlayerActive) {
             this.createActionButtons(args.commonArgs);
             this.bga.statusBar.addActionButton(_('Pass'), () => this.bga.actions.performAction('actPass'), { color: 'alert' });
@@ -14,5 +15,6 @@ export class ChooseActionPantheonState extends AbstractActionPantheonState {
     }
 
     public onLeavingState(args: EnteringChooseActionPantheonArgs, isCurrentPlayerActive: boolean) {
+        super.onLeavingState(args, isCurrentPlayerActive);
     }
 }

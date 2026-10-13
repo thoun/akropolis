@@ -15,6 +15,7 @@ import { ChooseActionPantheonState } from "./states/choose-action-pantheon";
 import { PlaceTilePantheonState } from "./states/place-tile-pantheon";
 import { AskMoneyPantheonState } from "./states/ask-money-pantheon";
 import { PantheonChallenges } from './pantheon-challenges';
+import { CompleteChallengeState } from './states/complete-challenge';
 
 const MIN_NOTIFICATION_MS = 1200;
 
@@ -99,6 +100,7 @@ export class Game {
         this.bga.states.register('placeTilePantheon', new PlaceTilePantheonState(this, bga));
         this.bga.states.register('chooseActionPantheon', new ChooseActionPantheonState(this, bga));
         this.bga.states.register('askMoneyPantheon', new AskMoneyPantheonState(this, bga));
+        this.bga.states.register('clientCompleteChallenge', new CompleteChallengeState(this, bga));
 
         /* @Override */
         (this.bga.gameui as any).change3d = (incXAxis: number, xpos: number, ypos: number, xAxis: number, incScale: number, is3Dactive: boolean, reset: boolean) => this.viewManager.change3d(incXAxis, xpos, ypos, xAxis, incScale, is3Dactive, reset);
@@ -586,6 +588,13 @@ export class Game {
     
     private onKeyPress(event: KeyboardEvent): void {
         if (['TEXTAREA', 'INPUT'].includes((event.target as HTMLElement).nodeName) || !this.bga.players.isCurrentPlayerActive()) {
+            return;
+        }
+
+        if (this.gamedatas.gamestate.name === 'clientCompleteChallenge') {
+            if (event.key === 'Escape') {
+                document.getElementById('cancelCompleteChallenge_button')?.click();
+            }
             return;
         }
 

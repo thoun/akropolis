@@ -94,12 +94,18 @@ interface PlaceTileOption {
 type SelectedZone = 'city' | 'capital';
 
 interface PantheonCommonArgs {
-    availableAltarPositions: { [district: string]: PlaceTileOption[] };
+    availableAltarPositions: { [district: string]: HexPosition[] };
     canDiscardChallenge: boolean;
     canUnlockSlot: boolean;
     canAskForMoney: boolean;
     maxMoneyRequestable: number;
-    completableChallenges: any[];
+    completableChallenges: { [id: string]: Pick<PantheonChallenge, 'id' | 'location' | 'state'> };
+}
+
+interface HexPosition {
+    x: number;
+    y: number;
+    z: number;
 }
 
 interface EnteringChooseActionPantheonArgs {    
