@@ -1880,6 +1880,9 @@ class Game {
     async notif_refillDock(args) {
         await this.tableCenter.refill(args.dock, args.deck / (Math.max(2, Object.keys(this.gamedatas.players).length) + 1));
     }
+    async notif_refillHand(args) {
+        await this.tableCenter.refill(args.tiles, 0);
+    }
     async notif_updateFirstPlayer(args) {
         const firstPlayerToken = document.getElementById('first-player-token');
         const destinationId = `first-player-token-wrapper-${args.pId}`;

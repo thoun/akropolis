@@ -120,6 +120,14 @@ class Notifications
     ]);
   }
 
+  /** Notify the player privately of their refilled Pantheon hand. */
+  public static function refillHand(Player $player, array $tiles): void
+  {
+    self::notify($player, 'refillHand', '', [
+      'tiles' => $tiles,
+    ]);
+  }
+
   /**
    * Notify that player scores were updated
    * @param Player $player Player whose scores were updated

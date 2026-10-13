@@ -216,7 +216,7 @@ class Tiles extends \Bga\Games\Akropolis\Helpers\Pieces
    */
   public static function drawToHand(int $pId, int $n = 1): Collection
   {
-    $tiles = self::getTopOf('deck', $n);
+    $tiles = self::getTopOf('deck', $n, false);
     $ids = [];
     foreach ($tiles as $tile) {
       self::addToHand(

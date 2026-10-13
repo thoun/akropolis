@@ -149,6 +149,10 @@ interface NotifDockRefillArgs {
     deck: number;
 }
 
+interface NotifHandRefillArgs {
+    tiles: Tile[];
+}
+
 interface NotifUpdateScoresArgs {
     player_id: number;
     scores: Scores;

@@ -7,6 +7,7 @@ namespace Bga\Games\Akropolis\States\Pantheon;
 use Bga\GameFramework\StateType;
 use Bga\Games\Akropolis\States\PreEndOfGame;
 use Bga\Games\Akropolis\Core\Globals;
+use Bga\Games\Akropolis\Core\Notifications;
 use Bga\Games\Akropolis\Game;
 use Bga\Games\Akropolis\Managers\Players;
 use Bga\Games\Akropolis\Managers\Tiles;
@@ -30,7 +31,7 @@ class NextPlayerPantheon extends PantheonGameState
       name: 'nextPlayerPantheon',
       description: '',
       transitions: [
-        'chooseAction' => ST_PANTHEON_CHOOSE_ACTION,
+        'placeTile' => ST_PLACE_TILE_PANTHEON,
         'end' => ST_PRE_END_OF_GAME,
         'nextPlayer' => ST_NEXT_PLAYER_PANTHEON,
       ],
@@ -53,6 +54,13 @@ class NextPlayerPantheon extends PantheonGameState
    */
   public function onEnteringState(): string
   {
+    $player = Players::getActive();
+    $missingTiles = 3 - Tiles::getPlayerHand($player->getId())->count();
+    if ($missingTiles > 0 && Tiles::countInLocation('deck') > 0) {
+      Tiles::drawToHand($player->getId(), $missingTiles);
+      Notifications::refillHand($player, Tiles::getPlayerHand($player->getId())->toArray());
+    }
+
     Globals::setPantheonTilePlaced(false);
 
     // Visit each player at most once, ignoring empty hands.
@@ -60,7 +68,7 @@ class NextPlayerPantheon extends PantheonGameState
       $this->game->activeNextPlayer();
       $player = Players::getActive();
       if (!Tiles::getPlayerHand($player->getId())->empty()) {
-        return ChooseActionPantheon::class;
+        return PlaceTilePantheon::class;
       }
     }
 
